@@ -14,6 +14,6 @@
         <h1 class="auth-title h4 fw-bold mt-4 mb-1">{{ $title }}</h1>
     @endif
     @if ($subtitle)
-        <p class="text-muted small mb-0">{{ $subtitle }}</p>
+        <p class="auth-subtitle small mb-0">{{ $subtitle }}</p>
     @endif
 </div>

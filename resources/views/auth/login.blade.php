@@ -5,7 +5,7 @@
         <div class="alert alert-success small py-2 mb-3" role="alert">{{ session('status') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" class="mt-2">
+    <form method="POST" action="{{ route('login') }}" class="mt-2" data-login-form>
         @csrf
 
         <div class="mb-3">
@@ -42,6 +42,9 @@
                     required
                     autocomplete="current-password"
                 >
+                <button class="input-group-text auth-password-toggle px-3" type="button" data-password-toggle aria-label="Toggle password visibility">
+                    <i class="bi bi-eye" data-password-icon aria-hidden="true"></i>
+                </button>
             </div>
             @error('password')
                 <div class="invalid-feedback d-block small mt-1">{{ $message }}</div>
@@ -49,14 +52,14 @@
         </div>
 
         <div class="d-grid">
-            <button type="submit" class="btn btn-primary auth-btn-primary text-white">
+            <button type="submit" class="btn btn-primary auth-btn-primary text-white" data-login-submit>
                 {{ __('Masuk Aplikasi') }}
             </button>
         </div>
 
         @if (Route::has('password.request'))
             <div class="text-center mt-3">
-                <a class="small text-decoration-none text-muted" href="{{ route('password.request') }}">
+                <a class="small text-decoration-none auth-link" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             </div>
