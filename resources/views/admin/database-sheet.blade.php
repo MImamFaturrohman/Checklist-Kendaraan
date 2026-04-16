@@ -18,6 +18,20 @@
             </div>
         </header>
         <div class="admin-card">
+            @if (session('success'))
+                <div class="admin-alert admin-alert-success">
+                    {{ session('success') }}
+                    @if (session('sheet_url'))
+                        <a href="{{ session('sheet_url') }}" target="_blank" rel="noopener" style="margin-left:8px;color:#166534;text-decoration:underline;font-weight:700">Buka Spreadsheet</a>
+                    @endif
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="admin-alert" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             {{-- Stats --}}
             <div class="stat-grid">
                 <div class="stat-card"><div class="stat-value">{{ $checklists->count() }}</div><div class="stat-label">Total Ceklist</div></div>
@@ -30,7 +44,7 @@
             <div style="margin-bottom:16px">
                 <a href="{{ route('admin.database-sheet.export') }}" class="btn-export">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/></svg>
-                    Export ke Excel
+                    Sinkronkan ke Spreadsheet
                 </a>
             </div>
 

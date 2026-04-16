@@ -18,6 +18,32 @@
             </div>
         </header>
         <div class="admin-card">
+            @php
+                $baseUrl = 'http://127.0.0.1:8000';
+                $resolvePdfUrl = function (?string $path) use ($baseUrl) {
+                    if (!$path) {
+                        return null;
+                    }
+
+                    if (str_starts_with($path, 'http://localhost')) {
+                        return str_replace('http://localhost', $baseUrl, $path);
+                    }
+
+                    if (str_starts_with($path, $baseUrl)) {
+                        return $path;
+                    }
+
+                    if (str_starts_with($path, '/storage/')) {
+                        return $baseUrl . $path;
+                    }
+
+                    if (str_starts_with($path, 'storage/')) {
+                        return $baseUrl . '/' . $path;
+                    }
+
+                    return $baseUrl . '/storage/' . ltrim($path, '/');
+                };
+            @endphp
             <div class="stat-grid">
                 <div class="stat-card"><div class="stat-value">{{ $checklists->count() }}</div><div class="stat-label">Total Laporan</div></div>
                 <div class="stat-card"><div class="stat-value">{{ $checklists->where('tanggal', '>=', now()->startOfMonth())->count() }}</div><div class="stat-label">Bulan Ini</div></div>
@@ -38,7 +64,7 @@
                             <td>{{ $c->shift }}</td>
                             <td>
                                 @if($c->pdf_path)
-                                    <a href="{{ Storage::disk('public')->url($c->pdf_path) }}" target="_blank" class="btn-view-pdf">
+                                    <a href="{{ $resolvePdfUrl($c->pdf_path) }}" target="_blank" class="btn-view-pdf">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
                                         View PDF
                                     </a>

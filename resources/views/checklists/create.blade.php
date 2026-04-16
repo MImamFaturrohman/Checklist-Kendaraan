@@ -58,11 +58,16 @@
                         </div>
                     </div>
 
+                    @php
+                        $iconNamaAktif = '🟢 icon_nama';
+                        $iconNamaBiasa = '👤 icon_nama';
+                    @endphp
+
                     {{-- ==================== STEP 1: IDENTITAS ==================== --}}
                     <section class="wizard-step active" data-step="1">
                         <div class="section-banner">
                             <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17h1l1-4h10l1 4h1a1 1 0 011 1v1H4v-1a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 13l1.5-5h7L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="17" r="1.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16.5" cy="17" r="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
-                            <span>1. Identitas Kendaraan</span>
+                            <span>1. Identitas Unit</span>
                         </div>
                         <div class="checklist-grid-two">
                             <label class="checklist-field">
@@ -106,13 +111,24 @@
                         <label class="checklist-field">
                             <span>Pengemudi yang Menyerahkan</span>
                             @if ($isDriver)
-                                <input type="text" name="driver_serah" value="{{ $user->name }}" readonly required>
+                                <input type="hidden" name="driver_serah" value="{{ $user->name }}" required>
+                                <input
+                                    type="text"
+                                    value="{{ $iconNamaAktif }} {{ $user->name }}"
+                                    readonly
+                                    required
+                                    class="driver-icon-input driver-icon-active"
+                                >
                             @else
                                 <div class="checklist-control-wrap checklist-control-select">
                                     <select name="driver_serah" required>
                                         <option value="">Pilih Driver</option>
                                         @foreach ($drivers as $d)
-                                            <option value="{{ $d->name }}">{{ $d->name }}</option>
+                                            @php
+                                                $isActiveDriver = $user->id === $d->id;
+                                                $driverLabel = ($isActiveDriver ? $iconNamaAktif : $iconNamaBiasa) . ' ' . $d->name;
+                                            @endphp
+                                            <option value="{{ $d->name }}" @class(['driver-option-active' => $isActiveDriver])>{{ $driverLabel }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -125,7 +141,11 @@
                                     <option value="">Pilih Driver</option>
                                     @foreach ($drivers as $d)
                                         @if (!$isDriver || $d->id !== $user->id)
-                                            <option value="{{ $d->name }}">{{ $d->name }}</option>
+                                            @php
+                                                $isActiveDriver = $user->id === $d->id;
+                                                $driverLabel = ($isActiveDriver ? $iconNamaAktif : $iconNamaBiasa) . ' ' . $d->name;
+                                            @endphp
+                                            <option value="{{ $d->name }}" @class(['driver-option-active' => $isActiveDriver])>{{ $driverLabel }}</option>
                                         @endif
                                     @endforeach
                                 </select>
@@ -137,7 +157,7 @@
                     <section class="wizard-step" data-step="2">
                         <div class="section-banner">
                             <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="10" rx="2" stroke="currentColor" stroke-width="2"/><path d="M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2" stroke="currentColor" stroke-width="2"/><path d="M2 13h20" stroke="currentColor" stroke-width="2"/></svg>
-                            <span>2. Exterior Kendaraan</span>
+                            <span>2. Kondisi Eksterior</span>
                         </div>
                         <div class="checklist-item-list">
                             @foreach (['Body Kendaraan' => 'body_kendaraan', 'Kaca' => 'kaca', 'Spion' => 'spion', 'Lampu Utama' => 'lampu_utama', 'Lampu Sein' => 'lampu_sein', 'Ban' => 'ban', 'Velg' => 'velg', 'Wiper' => 'wiper'] as $label => $name)
@@ -183,7 +203,7 @@
                     <section class="wizard-step" data-step="3">
                         <div class="section-banner">
                             <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="10" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7 8V6a2 2 0 012-2h6a2 2 0 012 2v2" stroke="currentColor" stroke-width="2"/><path d="M8 12h2M14 12h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                            <span>3. Interior Kendaraan</span>
+                            <span>3. Kondisi Interior</span>
                         </div>
                         <div class="checklist-item-list">
                             @foreach (['Jok / Kursi' => 'jok', 'Dashboard' => 'dashboard', 'AC' => 'ac', 'Sabuk Pengaman' => 'sabuk_pengaman', 'Audio / Head Unit' => 'audio', 'Kebersihan Interior' => 'kebersihan'] as $label => $name)
@@ -221,7 +241,7 @@
                     <section class="wizard-step" data-step="4">
                         <div class="section-banner">
                             <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94L6.7 20.27a2.12 2.12 0 01-3-3l6.8-6.73A6 6 0 0118.5 2.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>4. Ruang Mesin</span>
+                            <span>4. Kondisi Mesin</span>
                         </div>
                         <div class="checklist-item-list">
                             @foreach (['Mesin (Suara Normal)' => 'mesin', 'Oli Mesin' => 'oli', 'Air Radiator' => 'radiator', 'Rem' => 'rem', 'Kopling (Manual)' => 'kopling', 'Transmisi' => 'transmisi', 'Indikator Panel' => 'indikator'] as $label => $name)
@@ -259,7 +279,7 @@
                     <section class="wizard-step" data-step="5">
                         <div class="section-banner">
                             <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17" stroke="currentColor" stroke-width="2"/><path d="M15 10h2a2 2 0 012 2v3" stroke="currentColor" stroke-width="2"/><path d="M7 10h4M7 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                            <span>5. BBM & KM</span>
+                            <span>5. BBM dan Kilometer</span>
                         </div>
                         <div class="bbm-card">
                             <div class="bbm-header"><span class="bbm-label">LEVEL BBM SAAT INI</span><span class="bbm-value" id="bbm-value-display">50<small>%</small></span></div>
@@ -294,7 +314,7 @@
                     <section class="wizard-step" data-step="6">
                         <div class="section-banner">
                             <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>6. Perlengkapan Kendaraan</span>
+                            <span>6. Perlengkapan Unit</span>
                         </div>
                         <div class="checklist-check-grid">
                             @foreach (['STNK' => 'stnk', 'Kartu KIR' => 'kir', 'Dongkrak' => 'dongkrak', 'Toolkit' => 'toolkit', 'Segitiga Pengaman' => 'segitiga', 'APAR' => 'apar', 'Ban Cadangan' => 'ban_cadangan'] as $label => $name)
@@ -311,7 +331,7 @@
                     <section class="wizard-step" data-step="7">
                         <div class="section-banner">
                             <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg>
-                            <span>7. Validasi Akhir</span>
+                            <span>7. Konfirmasi Akhir</span>
                         </div>
                         <label class="checklist-field"><span>CATATAN TAMBAHAN / TEMUAN UMUM</span><textarea name="catatan_khusus" rows="4" placeholder="Tuliskan temuan atau catatan khusus jika ada..."></textarea></label>
                         <div class="checklist-statement-box"><p><em>"Dengan membubuhkan tanda tangan, saya menyatakan pemeriksaan fisik dan operasional telah dilakukan dengan benar sesuai standar perusahaan."</em></p></div>

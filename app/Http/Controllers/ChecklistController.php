@@ -9,9 +9,16 @@ use App\Models\ChecklistMesin;
 use App\Models\ChecklistPerlengkapan;
 use App\Models\Kendaraan;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Google\Client as GoogleClient;
+use Google\Service\Sheets;
+use Google\Service\Sheets\BatchUpdateSpreadsheetRequest;
+use Google\Service\Sheets\ClearValuesRequest;
+use Google\Service\Sheets\Request as SheetsRequest;
+use Google\Service\Sheets\ValueRange;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ChecklistController extends Controller
@@ -145,10 +152,12 @@ class ChecklistController extends Controller
 
             $checklist->update(['pdf_path' => $pdfPath]);
 
+            $pdfUrl = 'http://127.0.0.1:8000/storage/' . ltrim($pdfPath, '/');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Checklist berhasil disimpan!',
-                'pdf_url' => Storage::disk('public')->url($pdfPath),
+                'pdf_url' => $pdfUrl,
                 'checklist_id' => $checklist->id,
             ]);
         });
@@ -202,26 +211,41 @@ class ChecklistController extends Controller
     }
 
     /**
-     * Export all checklist data as CSV (Excel-compatible).
+     * Sync all checklist data to Google Spreadsheet.
      */
     public function exportExcel()
     {
-        $checklists = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at')->get();
+        $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
+        $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
+        $credentialsPath = (string) config('services.google_sheets.credentials_path');
 
-        $fileName = 'checklist_export_' . now()->format('Ymd_His') . '.csv';
+        if ($spreadsheetId === '' || $credentialsPath === '') {
+            return redirect()->route('admin.database-sheet')->with(
+                'error',
+                'Konfigurasi Google Sheets belum lengkap. Isi GOOGLE_SHEETS_SPREADSHEET_ID dan GOOGLE_SHEETS_CREDENTIALS_PATH di .env.'
+            );
+        }
 
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
-        ];
+        if (!file_exists($credentialsPath)) {
+            return redirect()->route('admin.database-sheet')->with(
+                'error',
+                "File service account tidak ditemukan: {$credentialsPath}"
+            );
+        }
 
-        $callback = function () use ($checklists) {
-            $file = fopen('php://output', 'w');
-            // UTF-8 BOM for Excel
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        try {
+            $checklists = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])
+                ->orderBy('created_at')
+                ->get();
 
-            // Header row
-            fputcsv($file, [
+            $client = new GoogleClient();
+            $client->setAuthConfig($credentialsPath);
+            $client->setScopes([Sheets::SPREADSHEETS]);
+
+            $sheets = new Sheets($client);
+            $this->ensureSheetExists($sheets, $spreadsheetId, $sheetName);
+
+            $values = [[
                 'No', 'Tanggal', 'Shift', 'Jam', 'Nomor Kendaraan', 'Jenis Kendaraan',
                 'Driver Serah', 'Driver Terima', 'BBM (%)', 'BBM Terakhir', 'KM Awal', 'KM Akhir',
                 'Ext-Body', 'Ext-Kaca', 'Ext-Spion', 'Ext-Lampu Utama', 'Ext-Lampu Sein', 'Ext-Ban', 'Ext-Velg', 'Ext-Wiper',
@@ -229,56 +253,128 @@ class ChecklistController extends Controller
                 'Mesin', 'Oli', 'Radiator', 'Rem', 'Kopling', 'Transmisi', 'Indikator',
                 'STNK', 'KIR', 'Dongkrak', 'Toolkit', 'Segitiga', 'APAR', 'Ban Cadangan',
                 'Catatan',
+            ]];
+
+            foreach ($checklists as $i => $checklist) {
+                $values[] = $this->checklistToSpreadsheetRow($checklist, $i + 1);
+            }
+
+            $normalizedValues = array_map(function ($row) {
+                return array_map(function ($cell) {
+                    if ($cell === null) {
+                        return '';
+                    }
+                    if (is_scalar($cell)) {
+                        return $cell;
+                    }
+                    if ($cell instanceof \DateTimeInterface) {
+                        return $cell->format('Y-m-d H:i:s');
+                    }
+                    return (string) $cell;
+                }, array_values((array) $row));
+            }, array_values($values));
+
+            $sheetRangeAll = "{$sheetName}!A:AZ";
+            $sheetRangeStart = "{$sheetName}!A1";
+
+            $sheets->spreadsheets_values->clear($spreadsheetId, $sheetRangeAll, new ClearValuesRequest());
+            $valueRange = new ValueRange();
+            $valueRange->setMajorDimension('ROWS');
+            $valueRange->setValues($normalizedValues);
+            $result = $sheets->spreadsheets_values->update(
+                $spreadsheetId,
+                $sheetRangeStart,
+                $valueRange,
+                ['valueInputOption' => 'RAW']
+            );
+
+            $sheetUrl = "https://docs.google.com/spreadsheets/d/{$spreadsheetId}/edit";
+            $updatedRows = $result->getUpdatedRows() ?? count($values);
+
+            return redirect()
+                ->route('admin.database-sheet')
+                ->with('success', "Sinkronisasi Google Spreadsheet berhasil ({$updatedRows} baris).")
+                ->with('sheet_url', $sheetUrl);
+        } catch (\Throwable $e) {
+            Log::error('Google Sheets sync failed', [
+                'message' => $e->getMessage(),
             ]);
 
-            foreach ($checklists as $i => $c) {
-                fputcsv($file, [
-                    $i + 1,
-                    $c->tanggal->format('Y-m-d'),
-                    $c->shift,
-                    $c->jam_serah_terima,
-                    $c->nomor_kendaraan,
-                    $c->jenis_kendaraan,
-                    $c->driver_serah,
-                    $c->driver_terima,
-                    $c->level_bbm,
-                    $c->bbm_terakhir,
-                    $c->km_awal,
-                    $c->km_akhir,
-                    strtoupper($c->exterior?->body_kendaraan ?? '-'),
-                    strtoupper($c->exterior?->kaca ?? '-'),
-                    strtoupper($c->exterior?->spion ?? '-'),
-                    strtoupper($c->exterior?->lampu_utama ?? '-'),
-                    strtoupper($c->exterior?->lampu_sein ?? '-'),
-                    strtoupper($c->exterior?->ban ?? '-'),
-                    strtoupper($c->exterior?->velg ?? '-'),
-                    strtoupper($c->exterior?->wiper ?? '-'),
-                    strtoupper($c->interior?->jok ?? '-'),
-                    strtoupper($c->interior?->dashboard ?? '-'),
-                    strtoupper($c->interior?->ac ?? '-'),
-                    strtoupper($c->interior?->sabuk_pengaman ?? '-'),
-                    strtoupper($c->interior?->audio ?? '-'),
-                    strtoupper($c->interior?->kebersihan ?? '-'),
-                    strtoupper($c->mesin?->mesin ?? '-'),
-                    strtoupper($c->mesin?->oli ?? '-'),
-                    strtoupper($c->mesin?->radiator ?? '-'),
-                    strtoupper($c->mesin?->rem ?? '-'),
-                    strtoupper($c->mesin?->kopling ?? '-'),
-                    strtoupper($c->mesin?->transmisi ?? '-'),
-                    strtoupper($c->mesin?->indikator ?? '-'),
-                    strtoupper($c->perlengkapan?->stnk ?? '-'),
-                    strtoupper($c->perlengkapan?->kir ?? '-'),
-                    strtoupper($c->perlengkapan?->dongkrak ?? '-'),
-                    strtoupper($c->perlengkapan?->toolkit ?? '-'),
-                    strtoupper($c->perlengkapan?->segitiga ?? '-'),
-                    strtoupper($c->perlengkapan?->apar ?? '-'),
-                    strtoupper($c->perlengkapan?->ban_cadangan ?? '-'),
-                    $c->catatan_khusus ?? '-',
-                ]);
-            }
-            fclose($file);
-        };
+            return redirect()
+                ->route('admin.database-sheet')
+                ->with('error', 'Gagal sinkronisasi ke Google Spreadsheet: ' . $e->getMessage());
+        }
+    }
 
-        return response()->stream($callback, 200, $headers);
+    private function checklistToSpreadsheetRow(Checklist $c, int $number): array
+    {
+        return [
+            $number,
+            $c->tanggal?->format('Y-m-d'),
+            $c->shift,
+            $c->jam_serah_terima,
+            $c->nomor_kendaraan,
+            $c->jenis_kendaraan,
+            $c->driver_serah,
+            $c->driver_terima,
+            $c->level_bbm,
+            $c->bbm_terakhir,
+            $c->km_awal,
+            $c->km_akhir,
+            strtoupper($c->exterior?->body_kendaraan ?? '-'),
+            strtoupper($c->exterior?->kaca ?? '-'),
+            strtoupper($c->exterior?->spion ?? '-'),
+            strtoupper($c->exterior?->lampu_utama ?? '-'),
+            strtoupper($c->exterior?->lampu_sein ?? '-'),
+            strtoupper($c->exterior?->ban ?? '-'),
+            strtoupper($c->exterior?->velg ?? '-'),
+            strtoupper($c->exterior?->wiper ?? '-'),
+            strtoupper($c->interior?->jok ?? '-'),
+            strtoupper($c->interior?->dashboard ?? '-'),
+            strtoupper($c->interior?->ac ?? '-'),
+            strtoupper($c->interior?->sabuk_pengaman ?? '-'),
+            strtoupper($c->interior?->audio ?? '-'),
+            strtoupper($c->interior?->kebersihan ?? '-'),
+            strtoupper($c->mesin?->mesin ?? '-'),
+            strtoupper($c->mesin?->oli ?? '-'),
+            strtoupper($c->mesin?->radiator ?? '-'),
+            strtoupper($c->mesin?->rem ?? '-'),
+            strtoupper($c->mesin?->kopling ?? '-'),
+            strtoupper($c->mesin?->transmisi ?? '-'),
+            strtoupper($c->mesin?->indikator ?? '-'),
+            strtoupper($c->perlengkapan?->stnk ?? '-'),
+            strtoupper($c->perlengkapan?->kir ?? '-'),
+            strtoupper($c->perlengkapan?->dongkrak ?? '-'),
+            strtoupper($c->perlengkapan?->toolkit ?? '-'),
+            strtoupper($c->perlengkapan?->segitiga ?? '-'),
+            strtoupper($c->perlengkapan?->apar ?? '-'),
+            strtoupper($c->perlengkapan?->ban_cadangan ?? '-'),
+            $c->catatan_khusus ?? '-',
+        ];
+    }
+
+    private function ensureSheetExists(Sheets $sheets, string $spreadsheetId, string $sheetName): void
+    {
+        $spreadsheet = $sheets->spreadsheets->get($spreadsheetId);
+        $titles = collect($spreadsheet->getSheets())
+            ->map(fn($sheet) => $sheet->getProperties()?->getTitle())
+            ->filter()
+            ->all();
+
+        if (in_array($sheetName, $titles, true)) {
+            return;
+        }
+
+        $request = new BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                new SheetsRequest([
+                    'addSheet' => [
+                        'properties' => ['title' => $sheetName],
+                    ],
+                ]),
+            ],
+        ]);
+
+        $sheets->spreadsheets->batchUpdate($spreadsheetId, $request);
     }
 }
