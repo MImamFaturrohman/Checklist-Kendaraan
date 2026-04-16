@@ -59,8 +59,8 @@
                     </div>
 
                     @php
-                        $iconNamaAktif = '🟢 icon_nama';
-                        $iconNamaBiasa = '👤 icon_nama';
+                        $iconNamaAktif = 'bi bi-person-check';
+                        $iconNamaBiasa = 'bi bi-person';
                     @endphp
 
                     {{-- ==================== STEP 1: IDENTITAS ==================== --}}
@@ -112,23 +112,20 @@
                             <span>Pengemudi yang Menyerahkan</span>
                             @if ($isDriver)
                                 <input type="hidden" name="driver_serah" value="{{ $user->name }}" required>
-                                <input
-                                    type="text"
-                                    value="{{ $iconNamaAktif }} {{ $user->name }}"
-                                    readonly
-                                    required
-                                    class="driver-icon-input driver-icon-active"
-                                >
+                                <div class="driver-static-display driver-icon-active">
+                                    <i class="bi bi-person-check"></i>
+                                    <span>{{ $user->name }}</span>
+                                </div>
                             @else
-                                <div class="checklist-control-wrap checklist-control-select">
-                                    <select name="driver_serah" required>
-                                        <option value="">Pilih Driver</option>
+                                <div class="checklist-control-wrap checklist-control-select checklist-driver-select-wrap">
+                                    <select name="driver_serah" id="driver_serah" data-driver-select data-placeholder="Pilih Driver" required>
+                                        <option value=""></option>
                                         @foreach ($drivers as $d)
                                             @php
                                                 $isActiveDriver = $user->id === $d->id;
-                                                $driverLabel = ($isActiveDriver ? $iconNamaAktif : $iconNamaBiasa) . ' ' . $d->name;
+                                                $driverIcon = $isActiveDriver ? $iconNamaAktif : $iconNamaBiasa;
                                             @endphp
-                                            <option value="{{ $d->name }}" @class(['driver-option-active' => $isActiveDriver])>{{ $driverLabel }}</option>
+                                            <option value="{{ $d->name }}" data-icon="{{ $driverIcon }}" data-active="{{ $isActiveDriver ? '1' : '0' }}">{{ $d->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -136,16 +133,16 @@
                         </label>
                         <label class="checklist-field">
                             <span>Pengemudi yang Menerima</span>
-                            <div class="checklist-control-wrap checklist-control-select">
-                                <select name="driver_terima" required>
-                                    <option value="">Pilih Driver</option>
+                            <div class="checklist-control-wrap checklist-control-select checklist-driver-select-wrap">
+                                <select name="driver_terima" id="driver_terima" data-driver-select data-placeholder="Pilih Driver" required>
+                                    <option value=""></option>
                                     @foreach ($drivers as $d)
                                         @if (!$isDriver || $d->id !== $user->id)
                                             @php
                                                 $isActiveDriver = $user->id === $d->id;
-                                                $driverLabel = ($isActiveDriver ? $iconNamaAktif : $iconNamaBiasa) . ' ' . $d->name;
+                                                $driverIcon = $isActiveDriver ? $iconNamaAktif : $iconNamaBiasa;
                                             @endphp
-                                            <option value="{{ $d->name }}" @class(['driver-option-active' => $isActiveDriver])>{{ $driverLabel }}</option>
+                                            <option value="{{ $d->name }}" data-icon="{{ $driverIcon }}" data-active="{{ $isActiveDriver ? '1' : '0' }}">{{ $d->name }}</option>
                                         @endif
                                     @endforeach
                                 </select>

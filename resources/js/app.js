@@ -1,6 +1,9 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 import SignaturePad from 'signature_pad';
+import TomSelect from 'tom-select';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'tom-select/dist/css/tom-select.bootstrap5.css';
 
 window.Alpine = Alpine;
 Alpine.start();
@@ -74,6 +77,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressFill = wizardRoot.querySelector('#checklist-progress-fill');
     const progressPct = wizardRoot.querySelector('#checklist-progress-pct');
     if (!form || !steps.length) return;
+
+    wizardRoot.querySelectorAll('[data-driver-select]').forEach(select => {
+        new TomSelect(select, {
+            allowEmptyOption: false,
+            create: false,
+            maxOptions: 100,
+            placeholder: select.dataset.placeholder || 'Pilih Driver',
+            closeAfterSelect: true,
+            render: {
+                option(data, escape) {
+                    const iconClass = data.icon || 'bi bi-person';
+                    const isActive = data.active === '1';
+                    return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
+                },
+                item(data, escape) {
+                    const iconClass = data.icon || 'bi bi-person';
+                    const isActive = data.active === '1';
+                    return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
+                },
+            },
+            onInitialize() {
+                this.removeOption('');
+                this.refreshOptions(false);
+            },
+            onItemAdd() {
+                this.close();
+                this.blur();
+            },
+        });
+    });
 
     let currentStep = 1;
     const totalStep = steps.length;

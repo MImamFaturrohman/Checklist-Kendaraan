@@ -4,17 +4,19 @@
     <meta charset="utf-8">
     <title>Berita Acara Ceklist Kendaraan</title>
     <style>
-        @page { margin: 20mm 15mm; }
+        @page { margin: 18mm 14mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; }
-        .page { border: 2px solid #002a7a; padding: 20px 22px; }
+        .page { border: 2px solid #002a7a; padding: 24px 28px; }
 
-        .header { display: table; width: 100%; margin-bottom: 16px; border-bottom: 3px solid #ffd300; padding-bottom: 12px; }
-        .header-left { display: table-cell; vertical-align: middle; width: 65%; }
-        .header-right { display: table-cell; vertical-align: middle; text-align: right; width: 35%; }
-        .header h1 { font-size: 14pt; color: #002a7a; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 2px; }
-        .header .nomor-laporan { font-size: 8.5pt; color: #6b7280; }
-        .header-right img { max-height: 55px; }
+        .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #ffd300; padding-bottom: 12px; }
+        .header-table { width: 100%; border-collapse: collapse; }
+        .header-table td { vertical-align: top; }
+        .header-logo-cell { width: 84px; padding-right: 12px; }
+        .header-logo { width: 72px; max-height: 72px; object-fit: contain; }
+        .header-title h1 { font-size: 14pt; color: #002a7a; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .header-subtitle { font-size: 8.5pt; color: #6b7280; }
+        .header-number { text-align: right; font-size: 8.5pt; color: #6b7280; white-space: nowrap; width: 200px; }
 
         .section-heading { font-size: 10.5pt; font-weight: 800; color: #002a7a; padding: 5px 0; border-bottom: 3px solid #ffd300; margin: 14px 0 8px; }
 
@@ -30,33 +32,69 @@
         .status-ok { color: #16a34a; font-weight: 700; }
         .status-nok { color: #dc2626; font-weight: 700; }
 
-        .photo-section { margin: 8px 0; }
+        .photo-section { margin: 10px 0 12px; page-break-inside: avoid; }
         .photo-section p { font-weight: 700; font-size: 8.5pt; margin-bottom: 4px; color: #374151; }
-        .photo-inline img { width: 110px; height: 82px; object-fit: cover; border: 1px solid #d1d5db; margin-right: 4px; margin-bottom: 4px; }
+        .photo-inline { margin-top: 2px; }
+        .photo-inline img { width: 110px; height: 82px; object-fit: cover; border: 1px solid #d1d5db; margin-right: 4px; margin-bottom: 4px; vertical-align: top; }
 
         .perlengkapan-list { font-size: 9pt; line-height: 1.6; margin-bottom: 6px; }
         .notes-box { background: #f8fafc; border: 1px solid #d1d5db; padding: 8px 10px; margin: 6px 0; font-size: 9pt; min-height: 24px; }
         .statement { font-style: italic; color: #374151; font-size: 9pt; margin: 6px 0; }
 
-        .signature-area { width: 100%; margin-top: 20px; }
+        .signature-area { width: 100%; margin-top: 20px; page-break-inside: avoid; }
         .signature-area td { width: 50%; text-align: center; padding: 4px; vertical-align: top; }
         .sig-label { font-size: 8.5pt; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
         .sig-box { border: 1px dashed #cbd5e1; height: 70px; margin: 6px auto; width: 160px; position: relative; }
         .sig-box img { width: 100%; height: 100%; object-fit: contain; }
         .sig-name { font-weight: 700; font-size: 9.5pt; margin-top: 3px; }
+        .status-text { font-weight: 700; }
+
+        .header-number-below {
+            text-align: left;
+            padding-top: 8px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .header-logo {
+            width: 120px; 
+            height: auto;
+        }
+
+        .header-title {
+            padding-left: 20px; 
+        }
+
+        .header-table td {
+            vertical-align: middle;
+        }
+
+        .header-logo-cell {
+            width: 160px;
+        }
     </style>
 </head>
 <body>
     <div class="page">
         {{-- HEADER --}}
         <div class="header">
-            <div class="header-left">
-                <h1>BERITA ACARA CEKLIST KENDARAAN</h1>
-                <div class="nomor-laporan">Nomor Laporan: ADC-{{ str_pad($checklist->id, 10, '0', STR_PAD_LEFT) }} | {{ $checklist->tanggal->format('d F Y') }}</div>
-            </div>
-            <div class="header-right">
-                <img src="{{ public_path('images/ADCPM Landscape NEW.png') }}" alt="Logo ADC PM">
-            </div>
+            <table class="header-table">
+                <tr>
+                    <td class="header-logo-cell">
+                        <img class="header-logo" src="{{ public_path('images/ADCPM Landscape NEW.png') }}" alt="Logo ADC PM">
+                    </td>
+                    <td class="header-title">
+                        <h1>BERITA ACARA CEKLIST KENDARAAN</h1>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2" class="header-number-below">
+                        Nomor Laporan: ADC-{{ str_pad($checklist->id, 10, '0', STR_PAD_LEFT) }}
+                        <div class="header-subtitle">{{ $checklist->tanggal->format('d F Y') }}</div>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         {{-- INFO --}}
@@ -68,9 +106,9 @@
                 <td class="info-value">{{ $checklist->tanggal->format('d/m/Y') }} / {{ $checklist->jam_serah_terima }} ({{ $checklist->shift }})</td>
             </tr>
             <tr>
-                <td class="info-label">Driver Serah:</td>
+                <td class="info-label">Driver Yang Menyerahkan:</td>
                 <td class="info-value">{{ $checklist->driver_serah }}</td>
-                <td class="info-label">Driver Terima:</td>
+                <td class="info-label">Driver Yang Menerima:</td>
                 <td class="info-value">{{ $checklist->driver_terima }}</td>
             </tr>
         </table>
@@ -95,21 +133,24 @@
                 <tr><td colspan="3" class="category-header">EXTERIOR</td></tr>
                 @php $extItems = ['body_kendaraan'=>'Body kendaraan','kaca'=>'Kaca','spion'=>'Kaca Spion','lampu_utama'=>'Lampu utama','lampu_sein'=>'Lampu sein','ban'=>'Ban','velg'=>'Velg','wiper'=>'Wiper']; @endphp
                 @foreach ($extItems as $key => $label)
-                <tr><td>{{ $label }}</td><td class="{{ $checklist->exterior?->$key === 'ok' ? 'status-ok' : 'status-nok' }}">{{ strtoupper($checklist->exterior?->$key ?? '-') }}</td><td>{{ $checklist->exterior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
+                @php $status = $checklist->exterior?->$key; @endphp
+                <tr><td>{{ $label }}</td><td class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->exterior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
                 @endforeach
 
                 {{-- INTERIOR --}}
                 <tr><td colspan="3" class="category-header">INTERIOR</td></tr>
                 @php $intItems = ['jok'=>'Jok/kursi','dashboard'=>'Dashboard','ac'=>'AC','sabuk_pengaman'=>'Sabuk pengaman','audio'=>'Audio/Head Unit','kebersihan'=>'Kebersihan interior']; @endphp
                 @foreach ($intItems as $key => $label)
-                <tr><td>{{ $label }}</td><td class="{{ $checklist->interior?->$key === 'ok' ? 'status-ok' : 'status-nok' }}">{{ strtoupper($checklist->interior?->$key ?? '-') }}</td><td>{{ $checklist->interior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
+                @php $status = $checklist->interior?->$key; @endphp
+                <tr><td>{{ $label }}</td><td class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->interior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
                 @endforeach
 
                 {{-- MESIN --}}
                 <tr><td colspan="3" class="category-header">MESIN & OPERASIONAL</td></tr>
                 @php $mesinItems = ['mesin'=>'Mesin (suara normal)','oli'=>'Oli mesin','radiator'=>'Air radiator','rem'=>'Rem','kopling'=>'Kopling (manual)','transmisi'=>'Transmisi','indikator'=>'Indikator panel']; @endphp
                 @foreach ($mesinItems as $key => $label)
-                <tr><td>{{ $label }}</td><td class="{{ $checklist->mesin?->$key === 'ok' ? 'status-ok' : 'status-nok' }}">{{ strtoupper($checklist->mesin?->$key ?? '-') }}</td><td>{{ $checklist->mesin?->{$key.'_keterangan'} ?: '-' }}</td></tr>
+                @php $status = $checklist->mesin?->$key; @endphp
+                <tr><td>{{ $label }}</td><td class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->mesin?->{$key.'_keterangan'} ?: '-' }}</td></tr>
                 @endforeach
             </tbody>
         </table>
@@ -121,7 +162,7 @@
             $mesinPhotos = collect(['foto_1','foto_2','foto_3'])->filter(fn($f) => $checklist->mesin?->$f)->map(fn($f) => $checklist->mesin->$f);
         @endphp
         @if($extPhotos->isNotEmpty())
-        <div class="photo-section"><p>Foto Exterior:</p><div class="photo-inline">@foreach($extPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
+        <div class="photo-section"><p>Foto Exterior:</p><div class="photo-inline"><br>@foreach($extPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
         @endif
         @if($intPhotos->isNotEmpty())
         <div class="photo-section"><p>Foto Interior:</p><div class="photo-inline">@foreach($intPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
@@ -147,12 +188,12 @@
         <table class="signature-area">
             <tr>
                 <td>
-                    <div class="sig-label">Tanda Tangan Driver Penyerah:</div>
+                    <div class="sig-label">Tanda Tangan Driver Yang Menyerahkan:</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_serah)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_serah) }}">@endif</div>
                     <div class="sig-name">({{ $checklist->driver_serah }})</div>
                 </td>
                 <td>
-                    <div class="sig-label">Tanda Tangan Driver Penerima:</div>
+                    <div class="sig-label">Tanda Tangan Driver Yang Menerima:</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_terima)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_terima) }}">@endif</div>
                     <div class="sig-name">({{ $checklist->driver_terima }})</div>
                 </td>
