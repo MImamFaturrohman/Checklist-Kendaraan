@@ -24,16 +24,11 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <span class="dash-chip">
+                        <span class="dash-chip {{ $isAdmin ? 'dash-chip-admin' : 'dash-chip-driver' }}">
                             @if ($isAdmin)
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M12 3L19 6V11C19 16 15.5 20 12 21C8.5 20 5 16 5 11V6L12 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
                             @else
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M20 21C20 17.7 16.9 15 13 15H11C7.1 15 4 17.7 4 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                    <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
-                                </svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
                             @endif
                             {{ $userRoleLabel }}
                         </span>

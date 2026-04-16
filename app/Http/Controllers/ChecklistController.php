@@ -200,4 +200,85 @@ class ChecklistController extends Controller
         Storage::disk('public')->put($path, $image);
         return $path;
     }
+
+    /**
+     * Export all checklist data as CSV (Excel-compatible).
+     */
+    public function exportExcel()
+    {
+        $checklists = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at')->get();
+
+        $fileName = 'checklist_export_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function () use ($checklists) {
+            $file = fopen('php://output', 'w');
+            // UTF-8 BOM for Excel
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Header row
+            fputcsv($file, [
+                'No', 'Tanggal', 'Shift', 'Jam', 'Nomor Kendaraan', 'Jenis Kendaraan',
+                'Driver Serah', 'Driver Terima', 'BBM (%)', 'BBM Terakhir', 'KM Awal', 'KM Akhir',
+                'Ext-Body', 'Ext-Kaca', 'Ext-Spion', 'Ext-Lampu Utama', 'Ext-Lampu Sein', 'Ext-Ban', 'Ext-Velg', 'Ext-Wiper',
+                'Int-Jok', 'Int-Dashboard', 'Int-AC', 'Int-Sabuk', 'Int-Audio', 'Int-Kebersihan',
+                'Mesin', 'Oli', 'Radiator', 'Rem', 'Kopling', 'Transmisi', 'Indikator',
+                'STNK', 'KIR', 'Dongkrak', 'Toolkit', 'Segitiga', 'APAR', 'Ban Cadangan',
+                'Catatan',
+            ]);
+
+            foreach ($checklists as $i => $c) {
+                fputcsv($file, [
+                    $i + 1,
+                    $c->tanggal->format('Y-m-d'),
+                    $c->shift,
+                    $c->jam_serah_terima,
+                    $c->nomor_kendaraan,
+                    $c->jenis_kendaraan,
+                    $c->driver_serah,
+                    $c->driver_terima,
+                    $c->level_bbm,
+                    $c->bbm_terakhir,
+                    $c->km_awal,
+                    $c->km_akhir,
+                    strtoupper($c->exterior?->body_kendaraan ?? '-'),
+                    strtoupper($c->exterior?->kaca ?? '-'),
+                    strtoupper($c->exterior?->spion ?? '-'),
+                    strtoupper($c->exterior?->lampu_utama ?? '-'),
+                    strtoupper($c->exterior?->lampu_sein ?? '-'),
+                    strtoupper($c->exterior?->ban ?? '-'),
+                    strtoupper($c->exterior?->velg ?? '-'),
+                    strtoupper($c->exterior?->wiper ?? '-'),
+                    strtoupper($c->interior?->jok ?? '-'),
+                    strtoupper($c->interior?->dashboard ?? '-'),
+                    strtoupper($c->interior?->ac ?? '-'),
+                    strtoupper($c->interior?->sabuk_pengaman ?? '-'),
+                    strtoupper($c->interior?->audio ?? '-'),
+                    strtoupper($c->interior?->kebersihan ?? '-'),
+                    strtoupper($c->mesin?->mesin ?? '-'),
+                    strtoupper($c->mesin?->oli ?? '-'),
+                    strtoupper($c->mesin?->radiator ?? '-'),
+                    strtoupper($c->mesin?->rem ?? '-'),
+                    strtoupper($c->mesin?->kopling ?? '-'),
+                    strtoupper($c->mesin?->transmisi ?? '-'),
+                    strtoupper($c->mesin?->indikator ?? '-'),
+                    strtoupper($c->perlengkapan?->stnk ?? '-'),
+                    strtoupper($c->perlengkapan?->kir ?? '-'),
+                    strtoupper($c->perlengkapan?->dongkrak ?? '-'),
+                    strtoupper($c->perlengkapan?->toolkit ?? '-'),
+                    strtoupper($c->perlengkapan?->segitiga ?? '-'),
+                    strtoupper($c->perlengkapan?->apar ?? '-'),
+                    strtoupper($c->perlengkapan?->ban_cadangan ?? '-'),
+                    $c->catatan_khusus ?? '-',
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

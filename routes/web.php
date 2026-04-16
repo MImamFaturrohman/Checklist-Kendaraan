@@ -4,15 +4,13 @@ use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Checklist;
-use App\Models\ChecklistExterior;
-use App\Models\ChecklistInterior;
-use App\Models\ChecklistMesin;
 use App\Models\Kendaraan;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -23,12 +21,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checklists/create', function () {
         $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
         $drivers = User::where('role', 'driver')->orderBy('name')->get();
-        return view('checklists.create', compact('kendaraans', 'drivers'));
+        $user = auth()->user();
+        return view('checklists.create', compact('kendaraans', 'drivers', 'user'));
     })->name('checklists.create');
 
     Route::post('/checklists', [ChecklistController::class, 'store'])->name('checklists.store');
 
-    // API endpoints
+    // API endpoints for checklist form
     Route::get('/api/kendaraan/lookup', [ChecklistController::class, 'lookupKendaraan'])->name('api.kendaraan.lookup');
     Route::get('/api/kendaraan/last-km', [ChecklistController::class, 'lastKm'])->name('api.kendaraan.last-km');
     Route::get('/api/kendaraan/list', [KendaraanController::class, 'apiList'])->name('api.kendaraan.list');
@@ -36,12 +35,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin routes
     Route::get('/admin/database-sheet', function () {
         abort_unless(auth()->user()?->role === 'admin', 403);
-        $checklists = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at')->get();
-        $totalChecklists = $checklists->count();
-        $totalVehicles = Kendaraan::count();
-        $totalDrivers = User::where('role', 'driver')->count();
-        $thisMonth = Checklist::whereMonth('tanggal', now()->month)->whereYear('tanggal', now()->year)->count();
-        return view('admin.database-sheet', compact('checklists', 'totalChecklists', 'totalVehicles', 'totalDrivers', 'thisMonth'));
+        $checklists = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan', 'user'])
+            ->orderByDesc('created_at')->get();
+        return view('admin.database-sheet', compact('checklists'));
     })->name('admin.database-sheet');
 
     Route::get('/admin/database-sheet/export', function () {
@@ -51,13 +47,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/admin/log-foto-fisik', function () {
         abort_unless(auth()->user()?->role === 'admin', 403);
-        $checklists = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at')->get();
+        $checklists = Checklist::with(['exterior', 'interior', 'mesin'])
+            ->orderByDesc('created_at')->get();
         return view('admin.log-foto-fisik', compact('checklists'));
     })->name('admin.log-foto-fisik');
 
     Route::get('/admin/arsip-pdf', function () {
         abort_unless(auth()->user()?->role === 'admin', 403);
-        $checklists = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at')->get();
+        $checklists = Checklist::whereNotNull('pdf_path')
+            ->orderByDesc('created_at')->get();
         return view('admin.arsip-pdf', compact('checklists'));
     })->name('admin.arsip-pdf');
 
