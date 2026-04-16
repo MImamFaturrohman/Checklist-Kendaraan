@@ -30,21 +30,27 @@
             </header>
 
             <main class="checklist-content">
-                <form id="checklist-form" class="checklist-card" action="#" method="POST" enctype="multipart/form-data" novalidate>
+                <form id="checklist-form" class="checklist-card" action="{{ route('checklists.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                     @csrf
 
                     <div class="checklist-progress-head">
-                        <div class="flex justify-between text-xs font-semibold text-slate-400">
-                            <span id="checklist-step-label">LANGKAH 1</span>
-                            <span>SELESAI</span>
+                        <div class="checklist-progress-info">
+                            <span id="checklist-step-label">LANGKAH 1 DARI 7</span>
+                            <span id="checklist-progress-pct">14%</span>
                         </div>
                         <div class="checklist-progress-track">
                             <span id="checklist-progress-fill"></span>
                         </div>
                     </div>
 
+                    {{-- ==================== STEP 1: IDENTITAS ==================== --}}
                     <section class="wizard-step active" data-step="1">
-                        <h2 class="checklist-section-heading">1. Identitas Kendaraan</h2>
+                        <div class="section-banner">
+                            <span class="section-banner-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 2H15V6H9V2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="2"/></svg>
+                            </span>
+                            <span>1. Identitas Kendaraan</span>
+                        </div>
                         <div class="checklist-grid-two">
                             <label class="checklist-field">
                                 <span>Tanggal</span>
@@ -71,12 +77,19 @@
                             </label>
                             <label class="checklist-field">
                                 <span>Nomor Kendaraan</span>
-                                <input type="text" name="nomor_kendaraan" placeholder="Contoh: B 1234 ABC" required>
+                                <div class="checklist-control-wrap checklist-control-select">
+                                    <select name="nomor_kendaraan" id="nomor_kendaraan" required>
+                                        <option value="">Pilih Nomor Kendaraan</option>
+                                        @foreach ($kendaraans as $k)
+                                            <option value="{{ $k->nomor_kendaraan }}" data-jenis="{{ $k->jenis_kendaraan }}">{{ $k->nomor_kendaraan }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </label>
                         </div>
                         <label class="checklist-field">
                             <span>Jenis Kendaraan</span>
-                            <input type="text" name="jenis_kendaraan" placeholder="Contoh: Truk Engkel, Pick Up, dll" required>
+                            <input type="text" name="jenis_kendaraan" id="jenis_kendaraan" placeholder="Otomatis terisi" readonly required>
                         </label>
                         <label class="checklist-field">
                             <span>Pengemudi yang Menyerahkan</span>
@@ -88,8 +101,14 @@
                         </label>
                     </section>
 
+                    {{-- ==================== STEP 2: EXTERIOR ==================== --}}
                     <section class="wizard-step" data-step="2">
-                        <h2 class="checklist-section-heading">2. Checklist Exterior Kendaraan</h2>
+                        <div class="section-banner">
+                            <span class="section-banner-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="2"/><path d="M21 16L16 11L7 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>2. Exterior Kendaraan</span>
+                        </div>
                         <div class="checklist-item-list">
                             @foreach (['Body Kendaraan' => 'body_kendaraan', 'Kaca' => 'kaca', 'Spion' => 'spion', 'Lampu Utama' => 'lampu_utama', 'Lampu Sein' => 'lampu_sein', 'Ban' => 'ban', 'Velg' => 'velg', 'Wiper' => 'wiper'] as $label => $name)
                                 <div class="checklist-condition-row">
@@ -111,28 +130,33 @@
                             <textarea name="exterior_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea>
                         </label>
                         <div class="checklist-field">
-                            <span>Foto Bukti Exterior (Maks 4)</span>
-                            <div class="checklist-photo-grid checklist-photo-grid-4" data-upload-grid data-max-files="4">
+                            <span>Foto Bukti Exterior (Wajib 4 Sisi)</span>
+                            <div class="checklist-photo-grid checklist-photo-grid-4">
                                 @foreach (['depan', 'kanan', 'kiri', 'belakang'] as $side)
-                                    <label class="checklist-photo-slot">
-                                        <input type="file" name="exterior_foto_{{ $side }}" accept="image/*" data-photo-single>
-                                        <span class="checklist-photo-icon">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                                                <circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/>
-                                                <path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </span>
-                                        <strong>{{ strtoupper($side) }}</strong>
-                                        <small data-file-name>Belum dipilih</small>
+                                    <label class="checklist-photo-slot" data-photo-preview-slot>
+                                        <input type="file" name="exterior_foto_{{ $side }}" accept="image/*" required data-photo-single>
+                                        <div class="photo-slot-placeholder">
+                                            <span class="checklist-photo-icon">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                            </span>
+                                            <strong>{{ strtoupper($side) }}</strong>
+                                        </div>
+                                        <img class="photo-slot-preview" alt="Preview {{ $side }}" style="display:none">
+                                        <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
                                     </label>
                                 @endforeach
                             </div>
                         </div>
                     </section>
 
+                    {{-- ==================== STEP 3: INTERIOR ==================== --}}
                     <section class="wizard-step" data-step="3">
-                        <h2 class="checklist-section-heading">3. Checklist Interior Kendaraan</h2>
+                        <div class="section-banner">
+                            <span class="section-banner-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            </span>
+                            <span>3. Interior Kendaraan</span>
+                        </div>
                         <div class="checklist-item-list">
                             @foreach (['Jok / Kursi' => 'jok', 'Dashboard' => 'dashboard', 'AC' => 'ac', 'Sabuk Pengaman' => 'sabuk_pengaman', 'Audio / Head Unit' => 'audio', 'Kebersihan Interior' => 'kebersihan'] as $label => $name)
                                 <div class="checklist-condition-row">
@@ -153,17 +177,37 @@
                             <span>Catatan Kondisi Interior</span>
                             <textarea name="interior_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea>
                         </label>
-                        <label class="checklist-field">
-                            <span>Upload Foto Interior (Maks 3)</span>
-                            <div class="checklist-photo-multi">
-                                <input type="file" name="interior_foto[]" accept="image/*" multiple data-photo-multi data-max-files="3">
-                                <small data-file-multi-info>Pilih maksimal 3 gambar.</small>
+                        <div class="checklist-field">
+                            <span>Foto Interior (Wajib min. 1, maks 3)</span>
+                            <div class="dynamic-photo-container" data-dynamic-photos data-section="interior" data-max="3" data-min-required="1">
+                                <div class="dynamic-photo-grid">
+                                    <label class="checklist-photo-slot" data-photo-preview-slot>
+                                        <input type="file" name="interior_foto_1" accept="image/*" required data-photo-single>
+                                        <div class="photo-slot-placeholder">
+                                            <span class="checklist-photo-icon">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                            </span>
+                                            <strong>FOTO 1</strong>
+                                        </div>
+                                        <img class="photo-slot-preview" alt="Preview" style="display:none">
+                                        <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
+                                    </label>
+                                    <button type="button" class="dynamic-photo-add-btn" data-add-photo-btn aria-label="Tambah foto">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                    </button>
+                                </div>
                             </div>
-                        </label>
+                        </div>
                     </section>
 
+                    {{-- ==================== STEP 4: MESIN ==================== --}}
                     <section class="wizard-step" data-step="4">
-                        <h2 class="checklist-section-heading">4. Checklist Ruang Mesin</h2>
+                        <div class="section-banner">
+                            <span class="section-banner-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94L6.7 20.27a2.12 2.12 0 01-3-3l6.8-6.73A6 6 0 0118.5 2.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>4. Ruang Mesin</span>
+                        </div>
                         <div class="checklist-item-list">
                             @foreach (['Mesin (Suara Normal)' => 'mesin', 'Oli Mesin' => 'oli', 'Air Radiator' => 'radiator', 'Rem' => 'rem', 'Kopling (Manual)' => 'kopling', 'Transmisi' => 'transmisi', 'Indikator Panel' => 'indikator'] as $label => $name)
                                 <div class="checklist-condition-row">
@@ -184,55 +228,106 @@
                             <span>Catatan Kondisi Mesin & Operasional</span>
                             <textarea name="mesin_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea>
                         </label>
-                        <label class="checklist-field">
-                            <span>Upload Foto Ruang Mesin (Maks 3)</span>
-                            <div class="checklist-photo-multi">
-                                <input type="file" name="mesin_foto[]" accept="image/*" multiple data-photo-multi data-max-files="3">
-                                <small data-file-multi-info>Pilih maksimal 3 gambar.</small>
-                            </div>
-                        </label>
-                    </section>
-
-                    <section class="wizard-step" data-step="5">
-                        <h2 class="checklist-section-heading">5. BBM & Kilometer</h2>
-                        <div class="checklist-grid-two">
-                            <div class="checklist-field checklist-bbm-field">
-                                <span>Level BBM (%)</span>
-                                <div class="checklist-bbm-card">
-                                    <div class="checklist-bbm-top">
-                                        <p>Level BBM</p>
-                                        <label>
-                                            <input type="number" min="0" max="100" name="level_bbm" value="50" required data-bbm-number>
-                                            <em>%</em>
-                                        </label>
-                                    </div>
-                                    <input type="range" min="0" max="100" step="1" value="50" data-bbm-range>
-                                    <div class="checklist-bbm-scale">
-                                        <span>E (Kosong)</span>
-                                        <span>1/2</span>
-                                        <span>F (Penuh)</span>
-                                    </div>
+                        <div class="checklist-field">
+                            <span>Foto Ruang Mesin (Wajib min. 1, maks 3)</span>
+                            <div class="dynamic-photo-container" data-dynamic-photos data-section="mesin" data-max="3" data-min-required="1">
+                                <div class="dynamic-photo-grid">
+                                    <label class="checklist-photo-slot" data-photo-preview-slot>
+                                        <input type="file" name="mesin_foto_1" accept="image/*" required data-photo-single>
+                                        <div class="photo-slot-placeholder">
+                                            <span class="checklist-photo-icon">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                            </span>
+                                            <strong>FOTO 1</strong>
+                                        </div>
+                                        <img class="photo-slot-preview" alt="Preview" style="display:none">
+                                        <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
+                                    </label>
+                                    <button type="button" class="dynamic-photo-add-btn" data-add-photo-btn aria-label="Tambah foto">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                    </button>
                                 </div>
                             </div>
-                            <label class="checklist-field">
-                                <span>Pengisian BBM Terakhir</span>
-                                <div class="checklist-control-wrap checklist-control-date">
-                                    <input type="datetime-local" name="bbm_terakhir">
-                                </div>
-                            </label>
-                            <label class="checklist-field">
-                                <span>KM Awal</span>
-                                <input type="number" min="0" name="km_awal" required>
-                            </label>
-                            <label class="checklist-field">
-                                <span>KM Akhir</span>
-                                <input type="number" min="0" name="km_akhir">
-                            </label>
                         </div>
                     </section>
 
+                    {{-- ==================== STEP 5: BBM & KM ==================== --}}
+                    <section class="wizard-step" data-step="5">
+                        <div class="section-banner">
+                            <span class="section-banner-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17" stroke="currentColor" stroke-width="2"/><path d="M15 10h2a2 2 0 012 2v3" stroke="currentColor" stroke-width="2"/><path d="M7 10h4M7 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            </span>
+                            <span>5. BBM & KM</span>
+                        </div>
+
+                        {{-- BBM Level --}}
+                        <div class="bbm-card">
+                            <div class="bbm-header">
+                                <span class="bbm-label">LEVEL BBM SAAT INI</span>
+                                <span class="bbm-value" id="bbm-value-display">50<small>%</small></span>
+                            </div>
+                            <div class="bbm-slider-wrap">
+                                <input type="range" min="0" max="100" step="1" value="50" name="level_bbm" id="bbm-range" class="bbm-slider" required>
+                            </div>
+                            <div class="bbm-scale">
+                                <span>E (EMPTY)</span>
+                                <span>F (FULL)</span>
+                            </div>
+                        </div>
+
+                        {{-- Foto Indikator BBM & Dashboard --}}
+                        <div class="checklist-field" style="margin-top:14px">
+                            <label class="checklist-photo-slot checklist-photo-slot-wide" data-photo-preview-slot>
+                                <input type="file" name="foto_bbm_dashboard" accept="image/*" required data-photo-single>
+                                <div class="photo-slot-placeholder">
+                                    <span class="checklist-photo-icon">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </span>
+                                    <strong>FOTO INDIKATOR BBM & DASHBOARD</strong>
+                                </div>
+                                <img class="photo-slot-preview" alt="Preview BBM" style="display:none">
+                                <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
+                            </label>
+                        </div>
+
+                        {{-- Pengisian BBM Terakhir --}}
+                        <div class="checklist-field" style="margin-top:10px">
+                            <span>PENGISIAN BBM TERAKHIR</span>
+                            <div class="bbm-terakhir-row">
+                                <div class="checklist-control-wrap checklist-control-date">
+                                    <input type="date" name="bbm_terakhir_date" placeholder="dd/mm/yyyy">
+                                </div>
+                                <div class="checklist-control-wrap checklist-control-time">
+                                    <input type="time" name="bbm_terakhir_time" placeholder="--:--">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- KM Awal & KM Akhir --}}
+                        <div class="km-row" style="margin-top:14px">
+                            <div class="km-card">
+                                <span class="km-card-label">KM AWAL (SAAT INI)</span>
+                                <input type="number" name="km_awal" id="km_awal" min="0" value="0" readonly required class="km-card-value">
+                            </div>
+                            <div class="km-card">
+                                <span class="km-card-label">KM AKHIR (SELESAI)</span>
+                                <input type="number" name="km_akhir" id="km_akhir" min="0" required class="km-card-value km-card-editable">
+                            </div>
+                        </div>
+                        <div class="km-error" id="km-error" style="display:none">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <span id="km-error-text"></span>
+                        </div>
+                    </section>
+
+                    {{-- ==================== STEP 6: PERLENGKAPAN ==================== --}}
                     <section class="wizard-step" data-step="6">
-                        <h2 class="checklist-section-heading">6. Checklist Perlengkapan Kendaraan</h2>
+                        <div class="section-banner">
+                            <span class="section-banner-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2"/></svg>
+                            </span>
+                            <span>6. Perlengkapan Kendaraan</span>
+                        </div>
                         <div class="checklist-check-grid">
                             @foreach (['STNK' => 'stnk', 'Kartu KIR' => 'kir', 'Dongkrak' => 'dongkrak', 'Toolkit' => 'toolkit', 'Segitiga Pengaman' => 'segitiga', 'APAR' => 'apar', 'Ban Cadangan' => 'ban_cadangan'] as $label => $name)
                                 <label class="checklist-checkbox">
@@ -244,47 +339,66 @@
                         </div>
                     </section>
 
-                    <section class="wizard-step" data-step="7" x-data="{ mode: 'digital' }">
-                        <h2 class="checklist-section-heading">7. Validasi & Konfirmasi</h2>
+                    {{-- ==================== STEP 7: VALIDASI AKHIR ==================== --}}
+                    <section class="wizard-step" data-step="7">
+                        <div class="section-banner">
+                            <span class="section-banner-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>7. Validasi Akhir</span>
+                        </div>
 
                         <label class="checklist-field">
-                            <span>Catatan / Temuan Khusus</span>
-                            <textarea name="catatan_khusus" rows="4"></textarea>
+                            <span>CATATAN TAMBAHAN / TEMUAN UMUM</span>
+                            <textarea name="catatan_khusus" rows="4" placeholder="Tuliskan temuan atau catatan khusus jika ada..."></textarea>
                         </label>
+
+                        <div class="checklist-statement-box">
+                            <p><em>"Dengan membubuhkan tanda tangan, saya menyatakan pemeriksaan fisik dan operasional telah dilakukan dengan benar sesuai standar perusahaan."</em></p>
+                        </div>
+
+                        {{-- Signature Pads --}}
+                        <div class="signature-row">
+                            <div class="signature-block">
+                                <span class="signature-label">TTD DRIVER YG MENYERAHKAN</span>
+                                <div class="signature-pad-wrap">
+                                    <canvas id="sig-pad-serah" class="signature-canvas"></canvas>
+                                    <div class="signature-pad-hint" data-sig-hint="serah">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg>
+                                        <span>TAP TO SIGN</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="signature-clear-btn" data-clear-sig="serah">Hapus TTD</button>
+                                <input type="hidden" name="tanda_tangan_serah" id="sig-data-serah">
+                            </div>
+                            <div class="signature-block">
+                                <span class="signature-label">TTD DRIVER YG MENERIMA</span>
+                                <div class="signature-pad-wrap">
+                                    <canvas id="sig-pad-terima" class="signature-canvas"></canvas>
+                                    <div class="signature-pad-hint" data-sig-hint="terima">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg>
+                                        <span>TAP TO SIGN</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="signature-clear-btn" data-clear-sig="terima">Hapus TTD</button>
+                                <input type="hidden" name="tanda_tangan_terima" id="sig-data-terima">
+                            </div>
+                        </div>
 
                         <label class="checklist-confirm-box">
-                            <input type="checkbox" name="konfirmasi_data" required>
-                            <span>Saya menyatakan kendaraan sudah dicek dan data sesuai kondisi aktual.</span>
+                            <input type="checkbox" name="konfirmasi_data" id="konfirmasi_data" required>
+                            <span>Saya mengonfirmasi bahwa seluruh data di atas adalah benar dan valid.</span>
                         </label>
 
-                        <fieldset class="checklist-signature-mode">
-                            <legend>Tanda Tangan</legend>
-
-                            <label class="checklist-signature-choice">
-                                <input type="radio" name="signature_mode" value="digital" x-model="mode">
-                                <span>Tanda tangan digital (upload gambar)</span>
-                            </label>
-
-                            <label class="checklist-signature-choice">
-                                <input type="radio" name="signature_mode" value="basah" x-model="mode">
-                                <span>Tanda tangan basah</span>
-                            </label>
-                        </fieldset>
-
-                        <!-- Upload dengan animasi smooth -->
-                        <div 
-                            x-show="mode === 'digital'"
-                            x-transition:enter="transition ease-out duration-300"
-                            x-transition:enter-start="opacity-0 -translate-y-2"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-200"
-                            x-transition:leave-start="opacity-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 -translate-y-2"
-                        >
-                            <label class="checklist-field">
-                                <span>Upload Tanda Tangan Digital</span>
-                                <input type="file" name="tanda_tangan" accept="image/*">
-                            </label>
+                        {{-- Green alert: shows when form is complete --}}
+                        <div class="form-complete-alert" id="form-complete-alert" style="display:none">
+                            <div class="form-complete-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+                            </div>
+                            <div>
+                                <strong>Laporan Siap Dibuat!</strong>
+                                <p>Tekan tombol Generate to PDF di bawah untuk mengakhiri sesi dan menyimpan dokumen.</p>
+                            </div>
                         </div>
                     </section>
                 </form>
@@ -297,7 +411,7 @@
                     </svg>
                 </button>
                 <button type="button" class="checklist-nav-btn checklist-nav-next" id="wizard-next">
-                    Lanjut
+                    LANJUT
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>

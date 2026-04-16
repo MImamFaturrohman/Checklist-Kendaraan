@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Kendaraan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,9 +16,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('/checklists/create', function () {
-        return view('checklists.create');
+        $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
+        return view('checklists.create', compact('kendaraans'));
     })->name('checklists.create');
 
+    Route::post('/checklists', [ChecklistController::class, 'store'])->name('checklists.store');
+
+    // API endpoints for checklist form
+    Route::get('/api/kendaraan/lookup', [ChecklistController::class, 'lookupKendaraan'])->name('api.kendaraan.lookup');
+    Route::get('/api/kendaraan/last-km', [ChecklistController::class, 'lastKm'])->name('api.kendaraan.last-km');
+    Route::get('/api/kendaraan/list', [KendaraanController::class, 'apiList'])->name('api.kendaraan.list');
+
+    // Admin routes
     Route::get('/admin/database-sheet', function () {
         abort_unless(auth()->user()?->role === 'admin', 403);
 
@@ -43,14 +55,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('admin.arsip-pdf');
 
-    Route::get('/admin/master-armada', function () {
-        abort_unless(auth()->user()?->role === 'admin', 403);
-
-        return view('coming-soon', [
-            'title' => 'Master Armada',
-            'message' => 'Fitur master armada sedang disiapkan.',
-        ]);
-    })->name('admin.master-armada');
+    // Master Armada CRUD
+    Route::get('/admin/master-armada', [KendaraanController::class, 'index'])->name('admin.master-armada');
+    Route::post('/admin/master-armada', [KendaraanController::class, 'store'])->name('admin.master-armada.store');
+    Route::put('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'update'])->name('admin.master-armada.update');
+    Route::delete('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'destroy'])->name('admin.master-armada.destroy');
 });
 
 Route::middleware('auth')->group(function () {
