@@ -20,7 +20,7 @@
                 <div class="dash-topbar">
                     <div>
                         <h1 class="dash-brand-title">Ceklist Kendaraan</h1>
-                        <p class="dash-brand-sub">NEXUS FLEET MANAGEMENT</p>
+                        <p class="dash-brand-sub">PT ARTHA DAYA COALINDO</p>
                     </div>
 
                     <div class="flex items-center gap-2">

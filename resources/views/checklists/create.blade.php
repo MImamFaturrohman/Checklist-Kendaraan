@@ -17,7 +17,7 @@
             <header class="checklist-topbar">
                 <div>
                     <h1 class="dash-brand-title">Ceklist Kendaraan</h1>
-                    <p class="dash-brand-sub">NEXUS FLEET MANAGEMENT</p>
+                    <p class="dash-brand-sub">PT ARTHA DAYA COALINDO</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="dash-chip">{{ $userRoleLabel }}</span>
@@ -244,11 +244,12 @@
                         </div>
                     </section>
 
-                    <section class="wizard-step" data-step="7">
+                    <section class="wizard-step" data-step="7" x-data="{ mode: 'digital' }">
                         <h2 class="checklist-section-heading">7. Validasi & Konfirmasi</h2>
+
                         <label class="checklist-field">
                             <span>Catatan / Temuan Khusus</span>
-                            <textarea name="catatan_khusus" rows="4" placeholder="Tuliskan catatan khusus jika ada..."></textarea>
+                            <textarea name="catatan_khusus" rows="4"></textarea>
                         </label>
 
                         <label class="checklist-confirm-box">
@@ -258,23 +259,32 @@
 
                         <fieldset class="checklist-signature-mode">
                             <legend>Tanda Tangan</legend>
+
                             <label class="checklist-signature-choice">
-                                <input type="radio" name="signature_mode" value="digital" checked>
+                                <input type="radio" name="signature_mode" value="digital" x-model="mode">
                                 <span>Tanda tangan digital (upload gambar)</span>
                             </label>
+
                             <label class="checklist-signature-choice">
-                                <input type="radio" name="signature_mode" value="basah">
-                                <span>Tanda tangan basah (kolom dikosongkan)</span>
+                                <input type="radio" name="signature_mode" value="basah" x-model="mode">
+                                <span>Tanda tangan basah</span>
                             </label>
                         </fieldset>
 
-                        <label class="checklist-field" id="signature-upload-wrap">
-                            <span>Upload Tanda Tangan Digital</span>
-                            <input type="file" name="tanda_tangan" accept="image/*">
-                        </label>
-
-                        <div class="checklist-manual-sign" id="signature-manual-wrap" hidden>
-                            Area ini dikosongkan untuk tanda tangan basah langsung.
+                        <!-- Upload dengan animasi smooth -->
+                        <div 
+                            x-show="mode === 'digital'"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 -translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-2"
+                        >
+                            <label class="checklist-field">
+                                <span>Upload Tanda Tangan Digital</span>
+                                <input type="file" name="tanda_tangan" accept="image/*">
+                            </label>
                         </div>
                     </section>
                 </form>
