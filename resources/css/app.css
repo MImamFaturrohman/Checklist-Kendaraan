@@ -149,8 +149,18 @@
 .checklist-radio-group { display: inline-flex; align-items: center; background-color: #e2e8f0; border-radius: 999px; padding: 4px; gap: 4px; flex-shrink: 0; }
 .checklist-radio-group input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
 .checklist-radio-group label { border-radius: 999px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; color: #64748b; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
-.checklist-radio-group input[type="radio"]:checked + label { background-color: #16a34a; color: #fff; box-shadow: 0 4px 10px rgba(22,163,74,0.28); }
-.checklist-radio-group input[type="radio"][value="tidak_ok"]:checked + label { background-color: #ef4444; box-shadow: 0 4px 10px rgba(239,68,68,0.3); }
+.checklist-radio-group input[type="radio"][id$="_ok"]:checked + label {
+    background-color: #16a34a;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(22,163,74,0.28);
+}
+.checklist-radio-group input[type="radio"][id$="_no"]:checked + label,
+.checklist-radio-group input[type="radio"][value="no"]:checked + label,
+.checklist-radio-group input[type="radio"]:nth-of-type(2):checked + label {
+    background-color: #ef4444 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(239,68,68,0.3) !important;
+}
 .checklist-item-note { width: 100%; border: 1px solid #cbd5e1; border-radius: 11px; padding: 9px 11px; background-color: #fff; font-size: 0.88rem; }
 @media (max-width: 460px) { .checklist-condition-head { flex-direction: column; align-items: flex-start; } }
 
@@ -301,6 +311,8 @@
 .admin-table tbody tr:last-child { border-bottom: 0; }
 .admin-table tr:hover td { background: #f8fafc; }
 .admin-table-wrap { overflow-x: auto; }
+.status-ok { color: #16a34a; }
+.status-nok { color: #dc2626; }
 
 /* Stats */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 18px; }

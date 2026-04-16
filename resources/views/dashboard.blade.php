@@ -28,7 +28,7 @@
                             @if ($isAdmin)
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
                             @else
-                                <i class="bi bi-person-check"></i>
+                                <i class="bi bi-person-check-fill"></i>
                             @endif
                             {{ $userRoleLabel }}
                         </span>
@@ -36,11 +36,7 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button class="dash-logout-btn" type="submit" aria-label="Logout">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M15 3H7C5.9 3 5 3.9 5 5V19C5 20.1 5.9 21 7 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M10 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                    <path d="M18 8L22 12L18 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <i class="bi bi-box-arrow-right"></i>
                             </button>
                         </form>
                     </div>

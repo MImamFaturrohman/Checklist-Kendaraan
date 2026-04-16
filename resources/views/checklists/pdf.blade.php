@@ -162,7 +162,7 @@
             $mesinPhotos = collect(['foto_1','foto_2','foto_3'])->filter(fn($f) => $checklist->mesin?->$f)->map(fn($f) => $checklist->mesin->$f);
         @endphp
         @if($extPhotos->isNotEmpty())
-        <div class="photo-section"><p>Foto Exterior:</p><div class="photo-inline"><br>@foreach($extPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
+        <div class="photo-section"><p>Foto Exterior:</p><div class="photo-inline">@foreach($extPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
         @endif
         @if($intPhotos->isNotEmpty())
         <div class="photo-section"><p>Foto Interior:</p><div class="photo-inline">@foreach($intPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
@@ -182,7 +182,7 @@
         {{-- 4. CATATAN --}}
         <div class="section-heading">4. Catatan Khusus & Validasi</div>
         <div class="notes-box">{{ $checklist->catatan_khusus ?: '-' }}</div>
-        <p class="statement">"Saya menyatakan kendaraan sudah dicek dan data yang diisi sesuai dengan kondisi aktual."</p>
+        <p class="statement">"Dengan ini saya menyatakan, bahwa saya sudah melakukan pemeriksaan secara menyeluruh (eksterior, interior, mesin, dan kelengkapan) kendaraan operasional dan kendaraan berada dalam kondisi baik dan siap untuk digunakan"</p>
 
         {{-- TANDA TANGAN --}}
         <table class="signature-area">

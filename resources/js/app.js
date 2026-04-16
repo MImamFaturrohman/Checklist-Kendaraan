@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentStep = 1;
     const totalStep = steps.length;
+    let refreshSignaturePads = () => {};
 
     const updateWizardUI = () => {
         steps.forEach(s => s.classList.toggle('active', +s.dataset.step === currentStep));
@@ -125,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nextButton.classList.remove('final');
             nextButton.innerHTML = `LANJUT <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         }
+        requestAnimationFrame(() => refreshSignaturePads());
     };
 
     const validateCurrentStep = () => {
@@ -250,6 +252,93 @@ document.addEventListener('DOMContentLoaded', () => {
         const placeholder = slot.querySelector('.photo-slot-placeholder');
         const removeBtn = slot.querySelector('.photo-slot-remove');
         if (!input || !preview) return;
+        input.setAttribute('capture', 'environment');
+        input.setAttribute('accept', 'image/*');
+
+        const ensureCameraModal = () => {
+            let modal = document.getElementById('camera-capture-modal');
+            if (modal) return modal;
+
+            modal = document.createElement('div');
+            modal.id = 'camera-capture-modal';
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:10000;padding:16px;';
+            modal.innerHTML = `
+                <div style="width:min(520px,100%);background:#0f172a;border-radius:16px;padding:12px;box-shadow:0 20px 36px rgba(0,0,0,.4);">
+                    <video id="camera-capture-video" autoplay playsinline style="width:100%;max-height:60vh;border-radius:12px;background:#000;"></video>
+                    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
+                        <button type="button" data-camera-cancel style="border:none;border-radius:10px;padding:8px 12px;background:#334155;color:#fff;font-weight:700;cursor:pointer;">Batal</button>
+                        <button type="button" data-camera-shoot style="border:none;border-radius:10px;padding:8px 12px;background:#16a34a;color:#fff;font-weight:700;cursor:pointer;">Ambil Foto</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            return modal;
+        };
+
+        const openCameraCapture = async () => {
+            const modal = ensureCameraModal();
+            const video = modal.querySelector('#camera-capture-video');
+            const btnShoot = modal.querySelector('[data-camera-shoot]');
+            const btnCancel = modal.querySelector('[data-camera-cancel]');
+            let stream = null;
+
+            const closeModal = () => {
+                modal.style.display = 'none';
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                video.srcObject = null;
+                btnShoot.onclick = null;
+                btnCancel.onclick = null;
+            };
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false,
+                });
+                video.srcObject = stream;
+                modal.style.display = 'flex';
+            } catch (error) {
+                console.error(error);
+                window.alert('Kamera tidak dapat diakses. Pastikan izin kamera diaktifkan.');
+                return;
+            }
+
+            btnCancel.onclick = () => closeModal();
+            btnShoot.onclick = () => {
+                const canvas = document.createElement('canvas');
+                const width = video.videoWidth || 1280;
+                const height = video.videoHeight || 720;
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, width, height);
+                canvas.toBlob(blob => {
+                    if (!blob) return;
+                    const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    closeModal();
+                }, 'image/jpeg', 0.92);
+            };
+        };
+
+        slot.addEventListener('click', e => {
+            if (e.target.closest('.photo-slot-remove')) return;
+            e.preventDefault();
+            e.stopPropagation();
+            openCameraCapture();
+        });
+
+        input.addEventListener('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
         input.addEventListener('change', () => {
             if (input.files?.[0]) {
                 const reader = new FileReader();
@@ -277,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const label = document.createElement('label');
             label.className = 'checklist-photo-slot slot-animate-in';
             label.setAttribute('data-photo-preview-slot', '');
-            label.innerHTML = `<input type="file" name="${section}_foto_${slotCount}" accept="image/*" data-photo-single><div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO ${slotCount}</strong></div><img class="photo-slot-preview" alt="Preview" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>`;
+            label.innerHTML = `<input type="file" name="${section}_foto_${slotCount}" accept="image/*" capture="environment" data-photo-single><div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO ${slotCount}</strong></div><img class="photo-slot-preview" alt="Preview" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>`;
             grid.insertBefore(label, addBtn);
             initPhotoSlot(label);
             if (slotCount >= maxSlots) addBtn.style.display = 'none';
@@ -329,16 +418,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!canvas) return null;
         const hint = wizardRoot.querySelector(`[data-sig-hint="${hintSel}"]`);
         const clearBtn = wizardRoot.querySelector(`[data-clear-sig="${clearSel}"]`);
-        const resize = () => { const r = Math.max(window.devicePixelRatio || 1, 1); const rect = canvas.getBoundingClientRect(); canvas.width = rect.width * r; canvas.height = rect.height * r; canvas.getContext('2d').scale(r, r); };
+        const resize = () => {
+            const rect = canvas.getBoundingClientRect();
+            if (!rect.width || !rect.height) return false;
+            const r = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = rect.width * r;
+            canvas.height = rect.height * r;
+            const context = canvas.getContext('2d');
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.scale(r, r);
+            return true;
+        };
         resize();
         const pad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,0)', penColor: '#0f172a', minWidth: 1.5, maxWidth: 3 });
         pad.addEventListener('beginStroke', () => { if (hint) hint.classList.add('hidden'); });
         if (clearBtn) clearBtn.addEventListener('click', () => { pad.clear(); if (hint) hint.classList.remove('hidden'); const di = document.getElementById(dataId); if (di) di.value = ''; });
-        let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { const d = pad.toData(); resize(); pad.fromData(d); }, 200); });
+        pad._refreshCanvas = () => {
+            const data = pad.isEmpty() ? [] : pad.toData();
+            if (!resize()) return;
+            pad.clear();
+            if (data.length) {
+                pad.fromData(data);
+            } else if (hint) {
+                hint.classList.remove('hidden');
+            }
+        };
+        let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { pad._refreshCanvas(); }, 200); });
         return pad;
     };
     window._sigPadSerah = initSigPad('sig-pad-serah', 'serah', 'serah', 'sig-data-serah');
     window._sigPadTerima = initSigPad('sig-pad-terima', 'terima', 'terima', 'sig-data-terima');
+    refreshSignaturePads = () => {
+        window._sigPadSerah?._refreshCanvas?.();
+        window._sigPadTerima?._refreshCanvas?.();
+    };
 
     /* ================================================================
        FORM COMPLETENESS CHECK

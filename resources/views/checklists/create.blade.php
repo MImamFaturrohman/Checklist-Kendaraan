@@ -6,6 +6,120 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Buat Ceklist Baru - {{ config('app.name', 'Laravel') }}</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <style>
+            .section-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 16px;
+    border-radius: 12px;
+
+    /* Gradient biru seperti gambar */
+    background: linear-gradient(
+        90deg,
+        #0b2c6b 0%,
+        #123f8f 50%,
+        #3b5fa8 75%,
+        #dfe6f3 100%
+    );
+
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+
+    position: relative;
+    overflow: hidden;
+    }
+
+    /* Garis kuning di kiri */
+    .section-banner::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background: #facc15; /* kuning */
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    /* Icon biar lebih kontras */
+    .section-banner-icon {
+        color: #facc15;
+        flex-shrink: 0;
+    }
+
+    /* Text */
+    .section-banner span {
+        position: relative;
+        z-index: 1;
+    }
+
+    background: linear-gradient(
+    90deg,
+    #0b2c6b 0%,
+    #123f8f 40%,
+    rgba(59, 95, 168, 0.6) 70%,
+    rgba(223, 230, 243, 0.2) 100%
+    );
+
+    .bbm-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    outline: none;
+
+    /* Background default (akan dioverride pakai JS biar dinamis) */
+    background: linear-gradient(to right, #facc15 50%, #e5e7eb 50%);
+    }
+
+    /* Track (Chrome, Safari) */
+    .bbm-slider::-webkit-slider-runnable-track {
+        height: 6px;
+        border-radius: 999px;
+    }
+
+    /* Thumb (bulatan) */
+    .bbm-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e5e7eb;
+        margin-top: -6px; /* biar center */
+
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+
+    /* Firefox */
+    .bbm-slider::-moz-range-track {
+        height: 6px;
+        border-radius: 999px;
+        background: #e5e7eb;
+    }
+
+    .bbm-slider::-moz-range-progress {
+        background: #facc15;
+        height: 6px;
+        border-radius: 999px;
+    }
+
+    .bbm-slider::-moz-range-thumb {
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+        </style>
     </head>
     <body class="dash-body">
         @php
@@ -34,7 +148,7 @@
                         @if (!$isDriver)
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
                         @else
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                            <i class="bi bi-person-check-fill"></i>
                         @endif
                         {{ $isDriver ? 'DRIVER' : 'ADMIN' }}
                     </span>
@@ -164,7 +278,7 @@
                                         <div class="checklist-radio-group">
                                             <input type="radio" id="exterior_{{ $name }}_ok" name="exterior_{{ $name }}" value="ok" required>
                                             <label for="exterior_{{ $name }}_ok">OK</label>
-                                            <input type="radio" id="exterior_{{ $name }}_no" name="exterior_{{ $name }}" value="tidak_ok">
+                                            <input type="radio" id="exterior_{{ $name }}_no" name="exterior_{{ $name }}" value="no">
                                             <label for="exterior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
@@ -181,7 +295,7 @@
                             <div class="checklist-photo-grid checklist-photo-grid-4">
                                 @foreach (['depan', 'kanan', 'kiri', 'belakang'] as $side)
                                     <label class="checklist-photo-slot" data-photo-preview-slot>
-                                        <input type="file" name="exterior_foto_{{ $side }}" accept="image/*" required data-photo-single>
+                                        <input type="file" name="exterior_foto_{{ $side }}" accept="image/*" capture="environment" required data-photo-single>
                                         <div class="photo-slot-placeholder">
                                             <span class="checklist-photo-icon">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -210,7 +324,7 @@
                                         <div class="checklist-radio-group">
                                             <input type="radio" id="interior_{{ $name }}_ok" name="interior_{{ $name }}" value="ok" required>
                                             <label for="interior_{{ $name }}_ok">OK</label>
-                                            <input type="radio" id="interior_{{ $name }}_no" name="interior_{{ $name }}" value="tidak_ok">
+                                            <input type="radio" id="interior_{{ $name }}_no" name="interior_{{ $name }}" value="no">
                                             <label for="interior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
@@ -224,7 +338,7 @@
                             <div class="dynamic-photo-container" data-dynamic-photos data-section="interior" data-max="3" data-min-required="1">
                                 <div class="dynamic-photo-grid">
                                     <label class="checklist-photo-slot" data-photo-preview-slot>
-                                        <input type="file" name="interior_foto_1" accept="image/*" required data-photo-single>
+                                        <input type="file" name="interior_foto_1" accept="image/*" capture="environment" required data-photo-single>
                                         <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO 1</strong></div>
                                         <img class="photo-slot-preview" alt="Preview" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
                                     </label>
@@ -248,7 +362,7 @@
                                         <div class="checklist-radio-group">
                                             <input type="radio" id="mesin_{{ $name }}_ok" name="mesin_{{ $name }}" value="ok" required>
                                             <label for="mesin_{{ $name }}_ok">OK</label>
-                                            <input type="radio" id="mesin_{{ $name }}_no" name="mesin_{{ $name }}" value="tidak_ok">
+                                            <input type="radio" id="mesin_{{ $name }}_no" name="mesin_{{ $name }}" value="no">
                                             <label for="mesin_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
@@ -262,7 +376,7 @@
                             <div class="dynamic-photo-container" data-dynamic-photos data-section="mesin" data-max="3" data-min-required="1">
                                 <div class="dynamic-photo-grid">
                                     <label class="checklist-photo-slot" data-photo-preview-slot>
-                                        <input type="file" name="mesin_foto_1" accept="image/*" required data-photo-single>
+                                        <input type="file" name="mesin_foto_1" accept="image/*" capture="environment" required data-photo-single>
                                         <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO 1</strong></div>
                                         <img class="photo-slot-preview" alt="Preview" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
                                     </label>
@@ -285,7 +399,7 @@
                         </div>
                         <div class="checklist-field" style="margin-top:14px">
                             <label class="checklist-photo-slot checklist-photo-slot-wide" data-photo-preview-slot>
-                                <input type="file" name="foto_bbm_dashboard" accept="image/*" required data-photo-single>
+                                <input type="file" name="foto_bbm_dashboard" accept="image/*" capture="environment" required data-photo-single>
                                 <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO INDIKATOR BBM & DASHBOARD</strong></div>
                                 <img class="photo-slot-preview" alt="Preview BBM" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
                             </label>
@@ -331,17 +445,17 @@
                             <span>7. Konfirmasi Akhir</span>
                         </div>
                         <label class="checklist-field"><span>CATATAN TAMBAHAN / TEMUAN UMUM</span><textarea name="catatan_khusus" rows="4" placeholder="Tuliskan temuan atau catatan khusus jika ada..."></textarea></label>
-                        <div class="checklist-statement-box"><p><em>"Dengan membubuhkan tanda tangan, saya menyatakan pemeriksaan fisik dan operasional telah dilakukan dengan benar sesuai standar perusahaan."</em></p></div>
+                        <div class="checklist-statement-box"><p><em>"Pemeriksaan kendaraan telah dilakukan sesuai kondisi aktual."</em></p></div>
 
                         <div class="signature-row">
                             <div class="signature-block">
-                                <span class="signature-label">TTD DRIVER YG MENYERAHKAN</span>
+                                <span class="signature-label">TTD DRIVER YANG MENYERAHKAN</span>
                                 <div class="signature-pad-wrap"><canvas id="sig-pad-serah" class="signature-canvas"></canvas><div class="signature-pad-hint" data-sig-hint="serah"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg><span>TAP TO SIGN</span></div></div>
                                 <button type="button" class="signature-clear-btn" data-clear-sig="serah">Hapus TTD</button>
                                 <input type="hidden" name="tanda_tangan_serah" id="sig-data-serah">
                             </div>
                             <div class="signature-block">
-                                <span class="signature-label">TTD DRIVER YG MENERIMA</span>
+                                <span class="signature-label">TTD DRIVER YANG MENERIMA</span>
                                 <div class="signature-pad-wrap"><canvas id="sig-pad-terima" class="signature-canvas"></canvas><div class="signature-pad-hint" data-sig-hint="terima"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg><span>TAP TO SIGN</span></div></div>
                                 <button type="button" class="signature-clear-btn" data-clear-sig="terima">Hapus TTD</button>
                                 <input type="hidden" name="tanda_tangan_terima" id="sig-data-terima">

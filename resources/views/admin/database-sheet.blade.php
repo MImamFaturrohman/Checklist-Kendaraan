@@ -85,12 +85,16 @@
                         <table class="admin-table">
                             <thead><tr><th>Nopol</th><th>Tanggal</th><th>Body</th><th>Kaca</th><th>Spion</th><th>Lampu Utama</th><th>Lampu Sein</th><th>Ban</th><th>Velg</th><th>Wiper</th></tr></thead>
                             <tbody>
+                                @php
+                                    $statusClass = fn($value) => $value === 'ok' ? 'status-ok' : (in_array($value, ['no', 'tidak_ok'], true) ? 'status-nok' : '');
+                                    $statusLabel = fn($value) => $value === 'ok' ? 'OK' : (in_array($value, ['no', 'tidak_ok'], true) ? 'NO' : strtoupper($value ?? '-'));
+                                @endphp
                                 @foreach($checklists as $c)
                                 @if($c->exterior)
                                 <tr>
                                     <td><strong>{{ $c->nomor_kendaraan }}</strong></td><td>{{ $c->tanggal->format('d/m/Y') }}</td>
                                     @foreach(['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'] as $k)
-                                    <td class="{{ $c->exterior->$k === 'ok' ? 'status-ok' : ($c->exterior->$k ? 'status-nok' : '') }}" style="font-weight:700;font-size:0.75rem">{{ strtoupper($c->exterior->$k ?? '-') }}</td>
+                                    <td class="{{ $statusClass($c->exterior->$k) }}" style="font-weight:700;font-size:0.75rem;color:{{ $statusClass($c->exterior->$k) === 'status-ok' ? '#16a34a' : ($statusClass($c->exterior->$k) === 'status-nok' ? '#dc2626' : '#334155') }}">{{ $statusLabel($c->exterior->$k) }}</td>
                                     @endforeach
                                 </tr>
                                 @endif
@@ -111,7 +115,7 @@
                                 <tr>
                                     <td><strong>{{ $c->nomor_kendaraan }}</strong></td><td>{{ $c->tanggal->format('d/m/Y') }}</td>
                                     @foreach(['jok','dashboard','ac','sabuk_pengaman','audio','kebersihan'] as $k)
-                                    <td class="{{ $c->interior->$k === 'ok' ? 'status-ok' : ($c->interior->$k ? 'status-nok' : '') }}" style="font-weight:700;font-size:0.75rem">{{ strtoupper($c->interior->$k ?? '-') }}</td>
+                                    <td class="{{ $statusClass($c->interior->$k) }}" style="font-weight:700;font-size:0.75rem;color:{{ $statusClass($c->interior->$k) === 'status-ok' ? '#16a34a' : ($statusClass($c->interior->$k) === 'status-nok' ? '#dc2626' : '#334155') }}">{{ $statusLabel($c->interior->$k) }}</td>
                                     @endforeach
                                 </tr>
                                 @endif
@@ -132,7 +136,7 @@
                                 <tr>
                                     <td><strong>{{ $c->nomor_kendaraan }}</strong></td><td>{{ $c->tanggal->format('d/m/Y') }}</td>
                                     @foreach(['mesin','oli','radiator','rem','kopling','transmisi','indikator'] as $k)
-                                    <td class="{{ $c->mesin->$k === 'ok' ? 'status-ok' : ($c->mesin->$k ? 'status-nok' : '') }}" style="font-weight:700;font-size:0.75rem">{{ strtoupper($c->mesin->$k ?? '-') }}</td>
+                                    <td class="{{ $statusClass($c->mesin->$k) }}" style="font-weight:700;font-size:0.75rem;color:{{ $statusClass($c->mesin->$k) === 'status-ok' ? '#16a34a' : ($statusClass($c->mesin->$k) === 'status-nok' ? '#dc2626' : '#334155') }}">{{ $statusLabel($c->mesin->$k) }}</td>
                                     @endforeach
                                 </tr>
                                 @endif
