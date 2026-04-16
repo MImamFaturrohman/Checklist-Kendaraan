@@ -171,9 +171,9 @@
                 <td class="info-value">{{ $checklist->tanggal->format('Y-m-d') }} / {{ $checklist->jam_serah_terima }} ({{ $checklist->shift }})</td>
             </tr>
             <tr>
-                <td class="info-label">Driver Serah:</td>
+                <td class="info-label">Driver Yang Menyerahkan:</td>
                 <td class="info-value">{{ $checklist->driver_serah }}</td>
-                <td class="info-label">Driver Terima:</td>
+                <td class="info-label">Driver Yang Menerima:</td>
                 <td class="info-value">{{ $checklist->driver_terima }}</td>
             </tr>
         </table>
@@ -345,14 +345,14 @@
             {{ $checklist->catatan_khusus ?: '-' }}
         </div>
         <p class="statement">
-            "Saya menyatakan kendaraan sudah dicek dan data yang diisi sesuai dengan kondisi aktual."
+            "Dengan ini saya menyatakan, bahwa saya sudah melakukan pemeriksaan secara menyeluruh (eksterior, interior, mesin, dan kelengkapan) kendaraan operasional dan kendaraan berada dalam kondisi baik dan siap utk digunakan."
         </p>
 
         {{-- TANDA TANGAN --}}
         <table class="signature-area">
             <tr>
                 <td>
-                    <div class="sig-label">Tanda Tangan Driver Penyerah:</div>
+                    <div class="sig-label">Tanda Tangan Driver Yang Menyerahkan:</div>
                     <div class="sig-box">
                         @if($checklist->tanda_tangan_serah)
                             <img src="{{ storage_path('app/public/' . $checklist->tanda_tangan_serah) }}" alt="TTD Serah">
@@ -361,7 +361,7 @@
                     <div class="sig-name">({{ $checklist->driver_serah }})</div>
                 </td>
                 <td>
-                    <div class="sig-label">Tanda Tangan Driver Penerima:</div>
+                    <div class="sig-label">Tanda Tangan Driver Yang Menerima:</div>
                     <div class="sig-box">
                         @if($checklist->tanda_tangan_terima)
                             <img src="{{ storage_path('app/public/' . $checklist->tanda_tangan_terima) }}" alt="TTD Terima">

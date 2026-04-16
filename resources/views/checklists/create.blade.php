@@ -65,7 +65,6 @@
                                         <option value="">Pilih Shift</option>
                                         <option>Pagi</option>
                                         <option>Siang</option>
-                                        <option>Malam</option>
                                     </select>
                                 </div>
                             </label>
@@ -117,8 +116,8 @@
                                         <div class="checklist-radio-group">
                                             <input type="radio" id="exterior_{{ $name }}_ok" name="exterior_{{ $name }}" value="ok" required>
                                             <label for="exterior_{{ $name }}_ok">OK</label>
-                                            <input type="radio" id="exterior_{{ $name }}_no" name="exterior_{{ $name }}" value="tidak_ok">
-                                            <label for="exterior_{{ $name }}_no">Tidak OK</label>
+                                            <input type="radio" id="exterior_{{ $name }}_no" name="exterior_{{ $name }}" value="no">
+                                            <label for="exterior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
                                     <input type="text" name="exterior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
@@ -165,8 +164,8 @@
                                         <div class="checklist-radio-group">
                                             <input type="radio" id="interior_{{ $name }}_ok" name="interior_{{ $name }}" value="ok" required>
                                             <label for="interior_{{ $name }}_ok">OK</label>
-                                            <input type="radio" id="interior_{{ $name }}_no" name="interior_{{ $name }}" value="tidak_ok">
-                                            <label for="interior_{{ $name }}_no">Tidak OK</label>
+                                            <input type="radio" id="interior_{{ $name }}_no" name="interior_{{ $name }}" value="no">
+                                            <label for="interior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
                                     <input type="text" name="interior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
@@ -216,8 +215,8 @@
                                         <div class="checklist-radio-group">
                                             <input type="radio" id="mesin_{{ $name }}_ok" name="mesin_{{ $name }}" value="ok" required>
                                             <label for="mesin_{{ $name }}_ok">OK</label>
-                                            <input type="radio" id="mesin_{{ $name }}_no" name="mesin_{{ $name }}" value="tidak_ok">
-                                            <label for="mesin_{{ $name }}_no">Tidak OK</label>
+                                            <input type="radio" id="mesin_{{ $name }}_no" name="mesin_{{ $name }}" value="no">
+                                            <label for="mesin_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
                                     <input type="text" name="mesin_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
@@ -354,7 +353,7 @@
                         </label>
 
                         <div class="checklist-statement-box">
-                            <p><em>"Dengan membubuhkan tanda tangan, saya menyatakan pemeriksaan fisik dan operasional telah dilakukan dengan benar sesuai standar perusahaan."</em></p>
+                            <p><em>"Pemeriksaan kendaraan telah dilakukan sesuai kondisi aktual"</em></p>
                         </div>
 
                         {{-- Signature Pads --}}
@@ -387,7 +386,7 @@
 
                         <label class="checklist-confirm-box">
                             <input type="checkbox" name="konfirmasi_data" id="konfirmasi_data" required>
-                            <span>Saya mengonfirmasi bahwa seluruh data di atas adalah benar dan valid.</span>
+                            <span>Saya mengkonfirmasi bahwa seluruh data di atas adalah benar dan valid.</span>
                         </label>
 
                         {{-- Green alert: shows when form is complete --}}
