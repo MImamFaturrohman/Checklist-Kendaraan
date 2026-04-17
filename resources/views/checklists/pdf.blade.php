@@ -32,15 +32,19 @@
         .status-ok { color: #16a34a; font-weight: 700; }
         .status-nok { color: #dc2626; font-weight: 700; }
 
-        .photo-section { margin: 10px 0 12px; page-break-before:  auto; margin-top: 12px; }
-        .photo-section p { font-weight: 700; font-size: 8.5pt; margin-bottom: 4px; color: #374151; }
-        .photo-inline { margin-top: 2px; }
+        .photo-section { margin: 14px 0 12px; page-break-inside: avoid; }
+        .photo-section p { font-weight: 700; font-size: 8.5pt; margin-bottom: 6px; color: #374151; }
+        .photo-inline { margin-top: 4px; }
         .photo-inline img {
                 width: auto;
-                height: auto; 
-                max-width: 150px;        
-                max-height: 82px;     
-                object-fit: cover;     
+                height: auto;
+                max-width: 150px;
+                max-height: 82px;
+                object-fit: cover;
+                border: 1px solid #d1d5db;
+                margin-right: 4px;
+                margin-bottom: 4px;
+                vertical-align: top;
             }
 
         .perlengkapan-list { font-size: 9pt; line-height: 1.6; margin-bottom: 6px; }
@@ -224,18 +228,14 @@
             $intPhotos = collect(['foto_1','foto_2','foto_3'])->filter(fn($f) => $checklist->interior?->$f)->map(fn($f) => $checklist->interior->$f);
             $mesinPhotos = collect(['foto_1','foto_2','foto_3'])->filter(fn($f) => $checklist->mesin?->$f)->map(fn($f) => $checklist->mesin->$f);
         @endphp
-        <table style="width:100%; margin-top:10px;" class="photo-wrapper">
-            <tr>
-                <td>
-                    <p style="font-weight:700; font-size:8.5pt;">Foto Exterior:</p>
-                    <div class="photo-inline">
-                        @foreach($extPhotos as $p)
-                            <img src="{{ storage_path('app/public/'.$p) }}">
-                        @endforeach
-                    </div>
-                </td>
-            </tr>
-        </table>
+        <div class="photo-section" style="page-break-inside: avoid; margin-top: 16px;">
+            <p style="font-weight:700; font-size:8.5pt; margin-bottom:6px; color:#374151;">Foto Exterior:</p>
+            <div class="photo-inline">
+                @foreach($extPhotos as $p)
+                    <img src="{{ storage_path('app/public/'.$p) }}">
+                @endforeach
+            </div>
+        </div>
         @if($intPhotos->isNotEmpty())
         <div class="photo-section"><p>Foto Interior:</p><div class="photo-inline">@foreach($intPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
         @endif
@@ -246,7 +246,7 @@
         {{-- 3. PERLENGKAPAN --}}
         <div class="section-heading">3. Perlengkapan Tersedia</div>
         @php
-            $pLabels = ['stnk'=>'STNK','kir'=>'Kartu KIR','dongkrak'=>'Dongkrak','toolkit'=>'Toolkit','segitiga'=>'Segitiga Pengaman','apar'=>'APAR','ban_cadangan'=>'Ban cadangan'];
+            $pLabels = ['stnk'=>'STNK','kir'=>'Kartu KIR dan QR Kartu BBM','dongkrak'=>'Dongkrak','toolkit'=>'Toolkit','segitiga'=>'Segitiga Pengaman','apar'=>'APAR','ban_cadangan'=>'Ban cadangan'];
             $available = collect($pLabels)->filter(fn($l,$k) => $checklist->perlengkapan?->$k === 'ada')->values();
         @endphp
         <div class="perlengkapan-list">{{ $available->isNotEmpty() ? $available->implode(', ') : 'Tidak ada data perlengkapan.' }}</div>

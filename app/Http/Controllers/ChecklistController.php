@@ -251,7 +251,7 @@ class ChecklistController extends Controller
                 'Ext-Body', 'Ext-Kaca', 'Ext-Spion', 'Ext-Lampu Utama', 'Ext-Lampu Sein', 'Ext-Ban', 'Ext-Velg', 'Ext-Wiper',
                 'Int-Jok', 'Int-Dashboard', 'Int-AC', 'Int-Sabuk', 'Int-Audio', 'Int-Kebersihan',
                 'Mesin', 'Oli', 'Radiator', 'Rem', 'Kopling', 'Transmisi', 'Indikator',
-                'STNK', 'KIR', 'Dongkrak', 'Toolkit', 'Segitiga', 'APAR', 'Ban Cadangan',
+                'STNK', 'KIR & QR BBM', 'Dongkrak', 'Toolkit', 'Segitiga', 'APAR', 'Ban Cadangan',
                 'Catatan',
             ]];
 

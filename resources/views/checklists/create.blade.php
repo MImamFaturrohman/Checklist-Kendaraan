@@ -407,8 +407,8 @@
                         <div class="checklist-field" style="margin-top:10px">
                             <span>PENGISIAN BBM TERAKHIR</span>
                             <div class="bbm-terakhir-row">
-                                <div class="checklist-control-wrap checklist-control-date"><input type="date" name="bbm_terakhir_date"></div>
-                                <div class="checklist-control-wrap checklist-control-time"><input type="time" name="bbm_terakhir_time"></div>
+                                <div class="checklist-control-wrap checklist-control-date"><input type="date" name="bbm_terakhir_date" required></div>
+                                <div class="checklist-control-wrap checklist-control-time"><input type="time" name="bbm_terakhir_time" required></div>
                             </div>
                         </div>
                         <div class="km-row" style="margin-top:14px">
@@ -428,7 +428,7 @@
                             <span>6. Perlengkapan Unit</span>
                         </div>
                         <div class="checklist-check-grid">
-                            @foreach (['STNK' => 'stnk', 'Kartu KIR' => 'kir', 'Dongkrak' => 'dongkrak', 'Toolkit' => 'toolkit', 'Segitiga Pengaman' => 'segitiga', 'APAR' => 'apar', 'Ban Cadangan' => 'ban_cadangan'] as $label => $name)
+                            @foreach (['STNK' => 'stnk', 'Kartu KIR dan QR Kartu BBM' => 'kir', 'Dongkrak' => 'dongkrak', 'Toolkit' => 'toolkit', 'Segitiga Pengaman' => 'segitiga', 'APAR' => 'apar', 'Ban Cadangan' => 'ban_cadangan'] as $label => $name)
                                 <label class="checklist-checkbox">
                                     <input type="checkbox" name="perlengkapan[{{ $name }}]" value="1">
                                     <span class="checklist-checkmark" aria-hidden="true"></span>

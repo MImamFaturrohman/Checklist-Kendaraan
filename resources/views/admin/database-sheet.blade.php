@@ -150,7 +150,7 @@
                 <div data-tab-panel="perlengkapan" style="display:none">
                     <div class="admin-table-wrap">
                         <table class="admin-table">
-                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>STNK</th><th>KIR</th><th>Dongkrak</th><th>Toolkit</th><th>Segitiga</th><th>APAR</th><th>Ban Cad.</th></tr></thead>
+                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>STNK</th><th>KIR & QR BBM</th><th>Dongkrak</th><th>Toolkit</th><th>Segitiga</th><th>APAR</th><th>Ban Cad.</th></tr></thead>
                             <tbody>
                                 @foreach($checklists as $c)
                                 @if($c->perlengkapan)
