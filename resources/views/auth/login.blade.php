@@ -4,73 +4,128 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <meta name="description" content="Login - Ceklist Kendaraan Sistem Serah Terima Operasional">
+        <title>Login - {{ config('app.name', 'Ceklist Kendaraan') }}</title>
         @vite(['resources/css/auth.css', 'resources/js/app.js'])
     </head>
     <body class="auth-page-body">
-        <div class="auth-floating-shapes">
-            <div class="auth-shape auth-shape-1"></div>
-            <div class="auth-shape auth-shape-2"></div>
-            <div class="auth-shape auth-shape-3"></div>
-        </div>
+        {{-- Animated background particles --}}
+        <div class="auth-particles" id="auth-particles"></div>
 
-        <div class="auth-container">
-            {{-- LEFT: Car visual --}}
-            <div class="auth-visual">
-                <img src="{{ asset('images/mobil pick up.jpeg') }}" alt="Kendaraan Operasional" class="auth-car-img">
-                <div class="auth-visual-overlay">
-                    <p class="auth-visual-text">FLEET MONITORING & INSPECTION</p>
+        {{-- Main login card --}}
+        <div class="auth-card" id="login-card">
+            {{-- Vehicle image header with logo overlay --}}
+            <div class="auth-card-image">
+                <img src="{{ asset('images/mobil pick up.jpeg') }}" alt="Kendaraan Operasional" class="auth-hero-img">
+                <div class="auth-card-image-overlay"></div>
+                <div class="auth-logo-overlay">
+                    <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" alt="Logo PT Artha" class="auth-logo-img">
                 </div>
             </div>
 
-            {{-- RIGHT: Login form --}}
-            <div class="auth-form-side">
-                <div class="auth-form-inner">
-                    <div class="text-center mb-4">
-                        <div class="auth-brand-box py-3 px-2">
-                            <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" alt="Logo ADC PM" class="img-fluid" style="max-height: 70px;">
+            {{-- Card body --}}
+            <div class="auth-card-body">
+                {{-- Title section --}}
+                <div class="auth-card-header">
+                    <h1 class="auth-title" id="login-title">CEKLIST KENDARAAN</h1>
+                    <p class="auth-subtitle" id="login-subtitle">SISTEM SERAH TERIMA OPERASIONAL</p>
+                </div>
+
+                {{-- Status message --}}
+                @if (session('status'))
+                    <div class="auth-alert auth-alert-success" role="alert" id="login-status">
+                        <i class="bi bi-check-circle-fill"></i>
+                        {{ session('status') }}
+                    </div>
+                @endif
+
+                {{-- Login form --}}
+                <form method="POST" action="{{ route('login') }}" class="auth-form" data-login-form id="login-form">
+                    @csrf
+
+                    {{-- Username field --}}
+                    <div class="auth-field" id="username-field">
+                        <div class="auth-input-group @error('username') has-error @enderror">
+                            <span class="auth-input-icon">
+                                <i class="bi bi-person-fill" aria-hidden="true"></i>
+                            </span>
+                            <input
+                                id="username"
+                                type="text"
+                                name="username"
+                                class="auth-input"
+                                value="{{ old('username') }}"
+                                placeholder="{{ __('Username') }}"
+                                required
+                                autofocus
+                                autocomplete="username"
+                            >
                         </div>
-                        <h1 class="auth-title h4 fw-bold mt-3 mb-1">CEKLIST KENDARAAN</h1>
-                        <p class="auth-subtitle small mb-0">Sistem Serah Terima Operasional</p>
+                        @error('username')
+                            <div class="auth-error-msg" id="username-error">
+                                <i class="bi bi-exclamation-circle"></i> {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
-                    @if (session('status'))
-                        <div class="alert alert-success small py-2 mb-3" role="alert">{{ session('status') }}</div>
-                    @endif
-
-                    <form method="POST" action="{{ route('login') }}" class="mt-2" data-login-form>
-                        @csrf
-                        <div class="mb-3">
-                            <label for="username" class="visually-hidden">{{ __('Username') }}</label>
-                            <div class="input-group auth-input-group rounded-4 overflow-hidden shadow-sm">
-                                <span class="input-group-text ps-3"><i class="bi bi-person" aria-hidden="true"></i></span>
-                                <input id="username" type="text" name="username" class="form-control py-3 @error('username') is-invalid @enderror" value="{{ old('username') }}" placeholder="{{ __('Username') }}" required autofocus autocomplete="username">
-                            </div>
-                            @error('username')
-                                <div class="invalid-feedback d-block small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="visually-hidden">{{ __('Password') }}</label>
-                            <div class="input-group auth-input-group rounded-4 overflow-hidden shadow-sm">
-                                <span class="input-group-text ps-3"><i class="bi bi-lock" aria-hidden="true"></i></span>
-                                <input id="password" type="password" name="password" class="form-control py-3 @error('password') is-invalid @enderror" placeholder="{{ __('Password') }}" required autocomplete="current-password">
-                                <button class="input-group-text auth-password-toggle px-3" type="button" data-password-toggle aria-label="Toggle password visibility">
-                                    <i class="bi bi-eye" data-password-icon aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            @error('password')
-                                <div class="invalid-feedback d-block small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary auth-btn-primary text-white" data-login-submit>
-                                {{ __('Masuk Aplikasi') }}
+                    {{-- Password field --}}
+                    <div class="auth-field" id="password-field">
+                        <div class="auth-input-group @error('password') has-error @enderror">
+                            <span class="auth-input-icon">
+                                <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                            </span>
+                            <input
+                                id="password"
+                                type="password"
+                                name="password"
+                                class="auth-input"
+                                placeholder="{{ __('Password') }}"
+                                required
+                                autocomplete="current-password"
+                            >
+                            <button class="auth-password-toggle" type="button" data-password-toggle aria-label="Toggle password visibility" id="password-toggle">
+                                <i class="bi bi-eye" data-password-icon aria-hidden="true"></i>
                             </button>
                         </div>
-                    </form>
-                </div>
+                        @error('password')
+                            <div class="auth-error-msg" id="password-error">
+                                <i class="bi bi-exclamation-circle"></i> {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    {{-- Submit button --}}
+                    <button type="submit" class="auth-btn-submit" data-login-submit id="login-submit">
+                        <span class="auth-btn-text">Sign In</span>
+                        <span class="auth-btn-arrow">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    </button>
+                </form>
             </div>
         </div>
+
+        {{-- Inline script for particles --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const container = document.getElementById('auth-particles');
+                if (!container) return;
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'auth-particle';
+                    const size = Math.random() * 4 + 2;
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 8 + 6) + 's';
+                    particle.style.opacity = Math.random() * 0.3 + 0.1;
+                    container.appendChild(particle);
+                }
+            });
+        </script>
     </body>
 </html>

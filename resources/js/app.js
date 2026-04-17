@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentStep = 1;
     const totalStep = steps.length;
-    let refreshSignaturePads = () => {};
+    let refreshSignaturePads = () => { };
 
     const updateWizardUI = () => {
         steps.forEach(s => s.classList.toggle('active', +s.dataset.step === currentStep));
@@ -468,4 +468,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(st);
 
     updateWizardUI();
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const slider = document.getElementById("bbm-range");
+    const display = document.getElementById("bbm-value-display");
+
+    if (!slider) return;
+
+    function updateSlider() {
+        const value = slider.value;
+
+        // update text
+        if (display) {
+            display.innerHTML = value + "<small>%</small>";
+        }
+
+        // FORCE warna (ini kuncinya)
+        slider.style.background = `linear-gradient(to right, #facc15 ${value}%, #e5e7eb ${value}%)`;
+    }
+
+    // init pertama
+    updateSlider();
+
+    // saat digeser
+    slider.addEventListener("input", updateSlider);
 });

@@ -25,17 +25,23 @@
         .info-label { font-weight: 700; color: #374151; width: 130px; }
         .info-value { color: #111827; }
 
-        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt; }
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 8.5pt; }
         .data-table th { background: #f1f5f9; padding: 6px 8px; text-align: left; font-weight: 700; color: #374151; border: 1px solid #d1d5db; font-size: 8pt; }
         .data-table td { padding: 5px 8px; border: 1px solid #d1d5db; }
         .category-header { background: #e0e7ff; font-weight: 800; color: #1e40af; font-size: 8.5pt; }
         .status-ok { color: #16a34a; font-weight: 700; }
         .status-nok { color: #dc2626; font-weight: 700; }
 
-        .photo-section { margin: 10px 0 12px; page-break-inside: avoid; }
+        .photo-section { margin: 10px 0 12px; page-break-before:  auto; margin-top: 12px; }
         .photo-section p { font-weight: 700; font-size: 8.5pt; margin-bottom: 4px; color: #374151; }
         .photo-inline { margin-top: 2px; }
-        .photo-inline img { width: 110px; height: 82px; object-fit: cover; border: 1px solid #d1d5db; margin-right: 4px; margin-bottom: 4px; vertical-align: top; }
+        .photo-inline img {
+                width: auto;
+                height: auto; 
+                max-width: 150px;        
+                max-height: 82px;     
+                object-fit: cover;     
+            }
 
         .perlengkapan-list { font-size: 9pt; line-height: 1.6; margin-bottom: 6px; }
         .notes-box { background: #f8fafc; border: 1px solid #d1d5db; padding: 8px 10px; margin: 6px 0; font-size: 9pt; min-height: 24px; }
@@ -71,6 +77,53 @@
 
         .header-logo-cell {
             width: 160px;
+        }
+
+        .status-row {
+        width: 100%;
+        margin-top: 6px;
+        }
+
+        .status-row:after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+
+        /* kiri (teks) */
+        .status-left {
+            float: left;
+            width: 55%;
+            font-size: 9pt;
+        }
+
+        /* kanan (gambar) */
+        .status-right {
+            float: right;
+            width: 40%;
+            text-align: right;
+        }
+
+        /* gambar diperbesar */
+        .status-right img {
+            width: 100%;
+            max-width: 170px; 
+            height: auto;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+
+        .data-table {
+        page-break-inside: auto;
+        }
+
+        .data-table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        .photo-wrapper {
+            page-break-inside: avoid;
         }
     </style>
 </head>
@@ -115,14 +168,24 @@
 
         {{-- 1. STATUS OPERASIONAL --}}
         <div class="section-heading">1. Status Operasional</div>
-        <p style="margin-bottom:4px;font-size:9pt">
-            KM Awal: <strong>{{ number_format($checklist->km_awal) }}</strong> | KM Akhir: <strong>{{ number_format($checklist->km_akhir ?? 0) }}</strong> | BBM: <strong>{{ $checklist->level_bbm }}%</strong>
-            @if($checklist->bbm_terakhir) | Isi Terakhir: {{ $checklist->bbm_terakhir }} @endif
-        </p>
+        <div class="status-row">
+            <div class="status-left">
+                <p>
+                    KM Awal: <strong>{{ number_format($checklist->km_awal) }}</strong><br>
+                    KM Akhir: <strong>{{ number_format($checklist->km_akhir ?? 0) }}</strong><br>
+                    BBM: <strong>{{ $checklist->level_bbm }}%</strong><br>
+                    @if($checklist->bbm_terakhir)
+                        Isi Terakhir: {{ $checklist->bbm_terakhir }}
+                    @endif
+                </p>
+            </div>
 
-        @if($checklist->foto_bbm_dashboard)
-        <div class="photo-section"><p>Foto Indikator BBM & Dashboard:</p><div class="photo-inline"><img src="{{ storage_path('app/public/' . $checklist->foto_bbm_dashboard) }}"></div></div>
-        @endif
+            <div class="status-right">
+                @if($checklist->foto_bbm_dashboard)
+                    <img src="{{ storage_path('app/public/' . $checklist->foto_bbm_dashboard) }}">
+                @endif
+            </div>
+        </div>
 
         {{-- 2. KONDISI FISIK --}}
         <div class="section-heading">2. Kondisi Fisik & Keterangan</div>
@@ -161,9 +224,18 @@
             $intPhotos = collect(['foto_1','foto_2','foto_3'])->filter(fn($f) => $checklist->interior?->$f)->map(fn($f) => $checklist->interior->$f);
             $mesinPhotos = collect(['foto_1','foto_2','foto_3'])->filter(fn($f) => $checklist->mesin?->$f)->map(fn($f) => $checklist->mesin->$f);
         @endphp
-        @if($extPhotos->isNotEmpty())
-        <div class="photo-section"><p>Foto Exterior:</p><div class="photo-inline">@foreach($extPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
-        @endif
+        <table style="width:100%; margin-top:10px;" class="photo-wrapper">
+            <tr>
+                <td>
+                    <p style="font-weight:700; font-size:8.5pt;">Foto Exterior:</p>
+                    <div class="photo-inline">
+                        @foreach($extPhotos as $p)
+                            <img src="{{ storage_path('app/public/'.$p) }}">
+                        @endforeach
+                    </div>
+                </td>
+            </tr>
+        </table>
         @if($intPhotos->isNotEmpty())
         <div class="photo-section"><p>Foto Interior:</p><div class="photo-inline">@foreach($intPhotos as $p)<img src="{{ storage_path('app/public/'.$p) }}">@endforeach</div></div>
         @endif
