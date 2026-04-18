@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Berita Acara Ceklist Kendaraan</title>
     <style>
+
         @page { margin: 18mm 14mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; }
@@ -206,14 +207,14 @@
         {{-- 2. KONDISI FISIK --}}
         <div class="section-heading">2. Kondisi Fisik</div>
         <table class="data-table">
-            <thead><tr><th style="width:38%">Bagian Kendaraan</th><th style="width:14%">Status</th><th style="width:48%">Keterangan</th></tr></thead>
+            <thead><tr><th style="width:38%">Bagian Kendaraan</th><th style="text-align: center; width:14%">Status</th><th style="width:48%">Keterangan</th></tr></thead>
             <tbody>
                 {{-- EXTERIOR --}}
                 <tr><td colspan="3" class="category-header">EXTERIOR</td></tr>
                 @php $extItems = ['body_kendaraan'=>'Body kendaraan','kaca'=>'Kaca','spion'=>'Kaca Spion','lampu_utama'=>'Lampu utama','lampu_sein'=>'Lampu sein','ban'=>'Ban','velg'=>'Velg','wiper'=>'Wiper']; @endphp
                 @foreach ($extItems as $key => $label)
                 @php $status = $checklist->exterior?->$key; @endphp
-                <tr><td>{{ $label }}</td><td class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->exterior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
+                <tr><td>{{ $label }}</td><td style="text-align: center;" class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->exterior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
                 @endforeach
 
                 {{-- INTERIOR --}}
@@ -221,7 +222,7 @@
                 @php $intItems = ['jok'=>'Jok/kursi','dashboard'=>'Dashboard','ac'=>'AC','sabuk_pengaman'=>'Sabuk pengaman','audio'=>'Audio/Head Unit','kebersihan'=>'Kebersihan interior']; @endphp
                 @foreach ($intItems as $key => $label)
                 @php $status = $checklist->interior?->$key; @endphp
-                <tr><td>{{ $label }}</td><td class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->interior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
+                <tr><td>{{ $label }}</td><td style="text-align: center;" class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->interior?->{$key.'_keterangan'} ?: '-' }}</td></tr>
                 @endforeach
 
                 {{-- MESIN --}}
@@ -229,7 +230,7 @@
                 @php $mesinItems = ['mesin'=>'Mesin (suara normal)','oli'=>'Oli mesin','radiator'=>'Air radiator','rem'=>'Rem','kopling'=>'Kopling (manual)','transmisi'=>'Transmisi','indikator'=>'Indikator panel']; @endphp
                 @foreach ($mesinItems as $key => $label)
                 @php $status = $checklist->mesin?->$key; @endphp
-                <tr><td>{{ $label }}</td><td class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->mesin?->{$key.'_keterangan'} ?: '-' }}</td></tr>
+                <tr><td>{{ $label }}</td><td style="text-align: center;" class="{{ $status === 'ok' ? 'status-ok' : 'status-nok' }}"><span class="status-text">{{ $status === 'ok' ? 'OK' : ($status ? 'NO' : '-') }}</span></td><td>{{ $checklist->mesin?->{$key.'_keterangan'} ?: '-' }}</td></tr>
                 @endforeach
             </tbody>
         </table>
