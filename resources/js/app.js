@@ -178,6 +178,143 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const validateCurrentStep = () => {
         const el = steps.find(s => +s.dataset.step === currentStep);
+
+        // VALIDASI RADIO & KETERANGAN (STEP 2,3,4)
+        if ([2, 3, 4].includes(currentStep)) {
+            const current = steps.find(s => +s.dataset.step === currentStep);
+            if (!current) return true;
+
+            const rows = current.querySelectorAll('.checklist-condition-row');
+
+            for (const row of rows) {
+                const radios = row.querySelectorAll('input[type="radio"]');
+                const checked = Array.from(radios).find(r => r.checked);
+
+                // 1. BELUM PILIH RADIO
+                if (!checked) {
+                    showModal(
+                        'error',
+                        'Checklist Belum Lengkap',
+                        'Masih ada kondisi yang belum dipilih (OK / NO).',
+                        [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
+                    );
+
+                    row.style.borderColor = '#ef4444';
+                    return false;
+                }
+
+                // 2. JIKA PILIH NO → KETERANGAN WAJIB
+                if (checked.value === 'no') {
+                    const note = row.querySelector('.checklist-item-note');
+
+                    if (!note || !note.value.trim()) {
+                        showModal(
+                            'error',
+                            'Keterangan Wajib Diisi',
+                            'Item dengan kondisi "NO" harus diberi keterangan.',
+                            [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
+                        );
+
+                        note.style.borderColor = '#ef4444';
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Validasi foto
+        if (currentStep === 2 || currentStep === 5) {
+            const requiredPhotos = el.querySelectorAll('[data-required-photo]');
+            let allPhotosValid = true;
+            requiredPhotos.forEach(input => {
+                if (!input.files || input.files.length === 0) {
+                    allPhotosValid = false;
+                    input.classList.add('is-invalid');
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+            if (!allPhotosValid) {
+                showModal(
+                    'error',
+                    'Foto Wajib Diisi',
+                    'Harap unggah semua foto yang diperlukan sebelum melanjutkan.',
+                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
+                );
+                return false;
+            }
+        }
+
+        // VALIDASI MINIMAL FOTO (INTERIOR / MESIN)
+        const dynamicContainers = steps
+            .find(s => +s.dataset.step === currentStep)
+            ?.querySelectorAll('[data-dynamic-photos][data-min-photos]');
+
+        if (dynamicContainers && dynamicContainers.length) {
+            for (const container of dynamicContainers) {
+                const minPhotos = +(container.dataset.minPhotos) || 1;
+
+                const inputs = container.querySelectorAll('input[type="file"]');
+
+                let filled = 0;
+                inputs.forEach(input => {
+                    if (input.files && input.files.length > 0) {
+                        filled++;
+                    }
+                });
+
+                if (filled < minPhotos) {
+                    showModal(
+                        'error',
+                        'Foto Belum Cukup',
+                        `Minimal ${minPhotos} foto harus diupload pada bagian ini.`,
+                        [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
+                    );
+                    return false;
+                }
+            }
+        }
+
+        // Validasi khusus step KM (Step 5)
+        if (currentStep === 5) {
+            if (!isKmAwalValid || !isKmAkhirValid) {
+                showModal(
+                    'error',
+                    'Data Tidak Valid',
+                    'Periksa kembali KM Awal dan KM Akhir. Data masih belum sesuai.',
+                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
+                );
+                return false;
+            }
+        }
+
+        // Validasi (step 7)
+        if (currentStep === 7) {
+            const sigSerah = window._sigPadSerah;
+            const sigTerima = window._sigPadTerima;
+
+            if (!sigSerah || sigSerah.isEmpty()) {
+                showModal(
+                    'error',
+                    'Tanda Tangan Diperlukan',
+                    'Tanda tangan driver yang menyerahkan belum diisi.',
+                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
+                );
+                return false;
+            }
+
+            if (!sigTerima || sigTerima.isEmpty()) {
+                showModal(
+                    'error',
+                    'Tanda Tangan Diperlukan',
+                    'Tanda tangan driver yang menerima belum diisi.',
+                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
+                );
+                return false;
+            }
+
+        }
+
         if (!el) return true;
         const fields = el.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([data-no-validate]), select, textarea');
         for (const f of fields) {
@@ -186,6 +323,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return true;
     };
+
+    // RESET ERROR STYLE SAAT INTERAKSI
+    document.querySelectorAll('.checklist-condition-row').forEach(row => {
+        const radios = row.querySelectorAll('input[type="radio"]');
+        const note = row.querySelector('.checklist-item-note');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                row.style.borderColor = '';
+            });
+        });
+
+        if (note) {
+            note.addEventListener('input', () => {
+                note.style.borderColor = '';
+            });
+        }
+    });
 
     prevButton.addEventListener('click', () => {
         if (currentStep > 1) { currentStep--; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -431,7 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const sel = nomorSelect.options[nomorSelect.selectedIndex];
             jenisInput.value = sel?.dataset?.jenis || '';
             if (nomorSelect.value && kmAwalInput) {
-                try { const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`); const d = await r.json(); kmAwalInput.value = d.km || 0; } catch { kmAwalInput.value = 0; }
+                try { const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`); const d = await r.json(); /* kmAwalInput.value = d.km || 0; */ } catch { kmAwalInput.value = 0; }
             }
         });
     }
@@ -446,14 +601,65 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ================================================================
        KM VALIDATION
        ================================================================ */
+
+    const kmAwalError = document.getElementById('km-awal-error');
+    const kmAwalErrorText = document.getElementById('km-awal-error-text');
+
+    let lastKmDatabase = 0;
+    let isKmAwalValid = false;
+    let isKmAkhirValid = true;
+
+    // Ambil KM terakhir dari DB saat pilih kendaraan
+    if (nomorSelect && kmAwalInput) {
+        nomorSelect.addEventListener('change', async () => {
+            if (nomorSelect.value) {
+                try {
+                    const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`);
+                    const d = await r.json();
+                    lastKmDatabase = d.km || 0;
+                } catch {
+                    lastKmDatabase = 0;
+                }
+            }
+        });
+    }
+
+    // VALIDASI KM AWAL
+    if (kmAwalInput && kmAwalError) {
+        kmAwalInput.addEventListener('input', () => {
+            const val = +(kmAwalInput.value) || 0;
+
+            if (val !== lastKmDatabase) {
+                kmAwalError.style.display = 'flex';
+                kmAwalErrorText.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir (${lastKmDatabase}).`;
+                kmAwalInput.style.borderColor = '#ef4444';
+                isKmAwalValid = false;
+            } else {
+                kmAwalError.style.display = 'none';
+                kmAwalInput.style.borderColor = '';
+                isKmAwalValid = true;
+            }
+        });
+    }
+
     const kmAkhirInput = document.getElementById('km_akhir');
     const kmError = document.getElementById('km-error');
     const kmErrorText = document.getElementById('km-error-text');
     if (kmAkhirInput && kmAwalInput && kmError) {
         kmAkhirInput.addEventListener('input', () => {
-            const awal = +(kmAwalInput.value) || 0, akhir = +(kmAkhirInput.value) || 0;
-            if (akhir > 0 && akhir < awal) { kmError.style.display = 'flex'; kmErrorText.textContent = `KM Akhir (${akhir}) tidak boleh lebih kecil dari KM Awal (${awal}).`; kmAkhirInput.style.borderColor = '#ef4444'; }
-            else { kmError.style.display = 'none'; kmAkhirInput.style.borderColor = ''; }
+            const awal = +(kmAwalInput.value) || 0;
+            const akhir = +(kmAkhirInput.value) || 0;
+
+            if (akhir > 0 && akhir < awal) {
+                kmError.style.display = 'flex';
+                kmErrorText.textContent = `KM Akhir (${akhir}) tidak boleh lebih kecil dari KM Awal (${awal}).`;
+                kmAkhirInput.style.borderColor = '#ef4444';
+                isKmAkhirValid = false;
+            } else {
+                kmError.style.display = 'none';
+                kmAkhirInput.style.borderColor = '';
+                isKmAkhirValid = true;
+            }
         });
     }
 

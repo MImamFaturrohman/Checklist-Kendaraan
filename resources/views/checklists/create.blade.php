@@ -282,7 +282,7 @@
                                             <label for="exterior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
-                                    <input type="text" name="exterior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
+                                    <input type="text" name="exterior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...(Wajib jika NO)">
                                 </div>
                             @endforeach
                         </div>
@@ -295,7 +295,7 @@
                             <div class="checklist-photo-grid checklist-photo-grid-4">
                                 @foreach (['depan', 'kanan', 'kiri', 'belakang'] as $side)
                                     <label class="checklist-photo-slot" data-photo-preview-slot>
-                                        <input type="file" name="exterior_foto_{{ $side }}" accept="image/*" capture="environment" required data-photo-single>
+                                        <input type="file" name="exterior_foto_{{ $side }}" accept="image/*" capture="environment" required data-photo-single data-required-photo>
                                         <div class="photo-slot-placeholder">
                                             <span class="checklist-photo-icon">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -328,14 +328,14 @@
                                             <label for="interior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
-                                    <input type="text" name="interior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
+                                    <input type="text" name="interior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...(Wajib jika NO)">
                                 </div>
                             @endforeach
                         </div>
                         <label class="checklist-field"><span>Catatan Kondisi Interior</span><textarea name="interior_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea></label>
                         <div class="checklist-field">
                             <span>Foto Interior (Wajib min. 1, maks 3)</span>
-                            <div class="dynamic-photo-container" data-dynamic-photos data-section="interior" data-max="3" data-min-required="1">
+                            <div class="dynamic-photo-container" data-dynamic-photos data-min-photos="1" data-section="interior" data-max="3" data-min-required="1">
                                 <div class="dynamic-photo-grid">
                                     <label class="checklist-photo-slot" data-photo-preview-slot>
                                         <input type="file" name="interior_foto_1" accept="image/*" capture="environment" required data-photo-single>
@@ -366,14 +366,14 @@
                                             <label for="mesin_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
-                                    <input type="text" name="mesin_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
+                                    <input type="text" name="mesin_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...(Wajib Jika NO)">
                                 </div>
                             @endforeach
                         </div>
                         <label class="checklist-field"><span>Catatan Kondisi Mesin & Operasional</span><textarea name="mesin_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea></label>
                         <div class="checklist-field">
                             <span>Foto Ruang Mesin (Wajib min. 1, maks 3)</span>
-                            <div class="dynamic-photo-container" data-dynamic-photos data-section="mesin" data-max="3" data-min-required="1">
+                            <div class="dynamic-photo-container" data-dynamic-photos data-min-photos="1" data-section="mesin" data-max="3" data-min-required="1">
                                 <div class="dynamic-photo-grid">
                                     <label class="checklist-photo-slot" data-photo-preview-slot>
                                         <input type="file" name="mesin_foto_1" accept="image/*" capture="environment" required data-photo-single>
@@ -399,7 +399,7 @@
                         </div>
                         <div class="checklist-field" style="margin-top:14px">
                             <label class="checklist-photo-slot checklist-photo-slot-wide" data-photo-preview-slot>
-                                <input type="file" name="foto_bbm_dashboard" accept="image/*" capture="environment" required data-photo-single>
+                                <input type="file" name="foto_bbm_dashboard" accept="image/*" capture="environment" required data-photo-single data-required-photo>
                                 <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO INDIKATOR BBM & DASHBOARD</strong></div>
                                 <img class="photo-slot-preview" alt="Preview BBM" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
                             </label>
@@ -412,8 +412,12 @@
                             </div>
                         </div>
                         <div class="km-row" style="margin-top:14px">
-                            <div class="km-card"><span class="km-card-label">KM AWAL (SAAT INI)</span><input type="number" name="km_awal" id="km_awal" min="0" value="0" readonly required class="km-card-value"></div>
+                            <div class="km-card"><span class="km-card-label">KM AWAL (SAAT INI)</span><input type="number" name="km_awal" id="km_awal" min="0" value="0" required class="km-card-value km-card-editable"></div>
                             <div class="km-card"><span class="km-card-label">KM AKHIR (SELESAI)</span><input type="number" name="km_akhir" id="km_akhir" min="0" required class="km-card-value km-card-editable"></div>
+                        </div>
+                        <div id="km-awal-error" class="km-error" style="display:none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <span id="km-awal-error-text"></span>
                         </div>
                         <div class="km-error" id="km-error" style="display:none">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
