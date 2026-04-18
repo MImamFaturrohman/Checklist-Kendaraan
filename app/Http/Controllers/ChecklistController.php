@@ -154,6 +154,13 @@ class ChecklistController extends Controller
 
             $pdfUrl = 'http://127.0.0.1:8000/storage/' . ltrim($pdfPath, '/');
 
+            // Auto-sync to Google Spreadsheet
+            try {
+                $this->syncSingleToSpreadsheet($checklist);
+            } catch (\Throwable $e) {
+                Log::warning('Auto-sync to Google Sheets failed', ['message' => $e->getMessage()]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Checklist berhasil disimpan!',
@@ -354,6 +361,7 @@ class ChecklistController extends Controller
                 'Mesin', 'Oli', 'Radiator', 'Rem', 'Kopling', 'Transmisi', 'Indikator',
                 'STNK', 'KIR & QR BBM', 'Dongkrak', 'Toolkit', 'Segitiga', 'APAR', 'Ban Cadangan',
                 'Catatan',
+                'Catatan Exterior', 'Catatan Interior', 'Catatan Mesin',
             ]];
 
             foreach ($checklists as $i => $checklist) {
@@ -451,6 +459,9 @@ class ChecklistController extends Controller
             strtoupper($c->perlengkapan?->apar ?? '-'),
             strtoupper($c->perlengkapan?->ban_cadangan ?? '-'),
             $c->catatan_khusus ?? '-',
+            $c->exterior?->catatan ?? '-',
+            $c->interior?->catatan ?? '-',
+            $c->mesin?->catatan ?? '-',
         ];
     }
 
@@ -477,5 +488,51 @@ class ChecklistController extends Controller
         ]);
 
         $sheets->spreadsheets->batchUpdate($spreadsheetId, $request);
+    }
+
+    /**
+     * Append a single checklist row to Google Spreadsheet.
+     */
+    private function syncSingleToSpreadsheet(Checklist $checklist): void
+    {
+        $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
+        $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
+        $credentialsPath = (string) config('services.google_sheets.credentials_path');
+
+        if ($spreadsheetId === '' || $credentialsPath === '' || !file_exists($credentialsPath)) {
+            return;
+        }
+
+        $checklist->loadMissing(['exterior', 'interior', 'mesin', 'perlengkapan']);
+
+        // Calculate row number (total checklists)
+        $rowNumber = Checklist::where('id', '<=', $checklist->id)->count();
+        $row = $this->checklistToSpreadsheetRow($checklist, $rowNumber);
+
+        $normalizedRow = array_map(function ($cell) {
+            if ($cell === null) return '';
+            if (is_scalar($cell)) return $cell;
+            if ($cell instanceof \DateTimeInterface) return $cell->format('Y-m-d H:i:s');
+            return (string) $cell;
+        }, array_values($row));
+
+        $client = new GoogleClient();
+        $client->setAuthConfig($credentialsPath);
+        $client->setScopes([Sheets::SPREADSHEETS]);
+
+        $sheets = new Sheets($client);
+        $this->ensureSheetExists($sheets, $spreadsheetId, $sheetName);
+
+        $range = "{$sheetName}!A1";
+        $valueRange = new ValueRange();
+        $valueRange->setMajorDimension('ROWS');
+        $valueRange->setValues([$normalizedRow]);
+
+        $sheets->spreadsheets_values->append(
+            $spreadsheetId,
+            $range,
+            $valueRange,
+            ['valueInputOption' => 'RAW', 'insertDataOption' => 'INSERT_ROWS']
+        );
     }
 }

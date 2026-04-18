@@ -54,10 +54,10 @@
                 </form>
 
                 {{-- Search --}}
-                <form method="GET" action="{{ route('admin.master-armada') }}" class="admin-toolbar" style="margin-top:16px">
+                <form method="GET" action="{{ route('admin.master-armada') }}" class="admin-toolbar" style="margin-top:16px" data-admin-toolbar>
                     <div class="admin-search-wrap">
                         <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nomor atau jenis kendaraan..." class="admin-search-input">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nomor atau jenis kendaraan..." class="admin-search-input" data-admin-search>
                         @if(request('search'))
                             <a href="{{ route('admin.master-armada') }}" class="admin-search-clear" title="Hapus pencarian">&times;</a>
                         @endif

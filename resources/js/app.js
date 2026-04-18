@@ -49,6 +49,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ================================================================
+       ADMIN REAL-TIME SEARCH & FILTER
+       ================================================================ */
+    document.querySelectorAll('[data-admin-toolbar]').forEach(toolbar => {
+        let searchTimer = null;
+
+        // Debounced search: auto-submit after 400ms pause
+        const searchInput = toolbar.querySelector('[data-admin-search]');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => toolbar.submit(), 400);
+            });
+        }
+
+        // Instant filter: auto-submit on select/date change
+        toolbar.querySelectorAll('[data-admin-filter]').forEach(filterEl => {
+            filterEl.addEventListener('change', () => {
+                clearTimeout(searchTimer);
+                toolbar.submit();
+            });
+        });
+    });
+
+    /* ================================================================
        ADMIN TABS
        ================================================================ */
     document.querySelectorAll('[data-tab-btn]').forEach(btn => {

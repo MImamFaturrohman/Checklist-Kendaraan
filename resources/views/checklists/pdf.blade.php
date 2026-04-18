@@ -4,10 +4,22 @@
     <meta charset="utf-8">
     <title>Berita Acara Ceklist Kendaraan</title>
     <style>
+        @font-face {
+            font-family: 'Arial';
+            src: url('{{ public_path("fonts/ARIAL.TTF") }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Arial';
+            src: url('{{ public_path("fonts/ARIALBD.TTF") }}') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
 
         @page { margin: 18mm 14mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; }
+        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; }
         .page { border: 2px solid #002a7a; padding: 24px 28px; margin: 20px; }
 
         .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #ffd300; padding-bottom: 12px; }
@@ -39,12 +51,15 @@
         .photo-inline img {
                 width: auto;
                 height: auto;
+                min-width: 85px;
+                min-height: 60px;
                 max-width: 150px;
-                max-height: 82px;
+                max-height: 110px;
                 object-fit: cover;
                 border: 1px solid #d1d5db;
-                margin-right: 4px;
-                margin-bottom: 4px;
+                border-radius: 3px;
+                margin-right: 6px;
+                margin-bottom: 6px;
                 vertical-align: top;
             }
 
@@ -54,7 +69,7 @@
 
         .signature-area { width: 100%; margin-top: 20px; page-break-inside: avoid; }
         .signature-area td { width: 50%; text-align: center; padding: 4px; vertical-align: top; }
-        .sig-label { font-size: 8.5pt; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
+        .sig-label { font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
         .sig-box { border: 1px dashed #cbd5e1; height: 70px; margin: 6px auto; width: 160px; position: relative; }
         .sig-box img { width: 100%; height: 100%; object-fit: contain; }
         .sig-name { font-weight: 700; font-size: 9.5pt; margin-top: 3px; }
@@ -234,6 +249,37 @@
                 @endforeach
             </tbody>
         </table>
+
+        <!-- {{-- CATATAN KONDISI --}}
+        @php
+            $catatanExt = $checklist->exterior?->catatan;
+            $catatanInt = $checklist->interior?->catatan;
+            $catatanMesin = $checklist->mesin?->catatan;
+            $hasCatatan = $catatanExt || $catatanInt || $catatanMesin;
+        @endphp
+        @if($hasCatatan)
+        <div style="margin-bottom: 12px;">
+            <div class="section-heading" style="font-size:9.5pt; margin-top:8px;">Catatan Kondisi</div>
+            @if($catatanExt)
+            <div style="margin-bottom:4px;">
+                <strong style="font-size:8.5pt; color:#1e40af;">Exterior:</strong>
+                <div class="notes-box">{{ $catatanExt }}</div>
+            </div>
+            @endif
+            @if($catatanInt)
+            <div style="margin-bottom:4px;">
+                <strong style="font-size:8.5pt; color:#1e40af;">Interior:</strong>
+                <div class="notes-box">{{ $catatanInt }}</div>
+            </div>
+            @endif
+            @if($catatanMesin)
+            <div style="margin-bottom:4px;">
+                <strong style="font-size:8.5pt; color:#1e40af;">Mesin & Operasional:</strong>
+                <div class="notes-box">{{ $catatanMesin }}</div>
+            </div>
+            @endif
+        </div>
+        @endif -->
 
         {{-- PHOTOS --}}
         @php
