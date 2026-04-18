@@ -464,7 +464,7 @@
 
                         <label class="checklist-confirm-box">
                             <input type="checkbox" name="konfirmasi_data" id="konfirmasi_data" required>
-                            <span>Saya mengonfirmasi bahwa seluruh data di atas adalah benar dan valid.</span>
+                            <span>Saya menyetujui.</span>
                         </label>
 
                         <div class="form-complete-alert" id="form-complete-alert" style="display:none">

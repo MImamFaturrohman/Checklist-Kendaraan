@@ -19,44 +19,33 @@
         </header>
         <div class="admin-card">
             @php
-                $baseUrl = 'http://127.0.0.1:8000';
+                $baseUrl = url('/');
                 $resolvePdfUrl = function (?string $path) use ($baseUrl) {
-                    if (!$path) {
-                        return null;
-                    }
-
-                    if (str_starts_with($path, 'http://localhost')) {
-                        return str_replace('http://localhost', $baseUrl, $path);
-                    }
-
-                    if (str_starts_with($path, $baseUrl)) {
-                        return $path;
-                    }
-
-                    if (str_starts_with($path, '/storage/')) {
-                        return $baseUrl . $path;
-                    }
-
-                    if (str_starts_with($path, 'storage/')) {
-                        return $baseUrl . '/' . $path;
-                    }
-
+                    if (!$path) return null;
+                    if (str_starts_with($path, 'http')) return $path;
+                    if (str_starts_with($path, '/storage/')) return $baseUrl . $path;
+                    if (str_starts_with($path, 'storage/')) return $baseUrl . '/' . $path;
                     return $baseUrl . '/storage/' . ltrim($path, '/');
                 };
             @endphp
+
             <div class="stat-grid">
-                <div class="stat-card"><div class="stat-value">{{ $checklists->count() }}</div><div class="stat-label">Total Laporan</div></div>
-                <div class="stat-card"><div class="stat-value">{{ $checklists->where('tanggal', '>=', now()->startOfMonth())->count() }}</div><div class="stat-label">Bulan Ini</div></div>
+                <div class="stat-card"><div class="stat-value">{{ $stats['total'] }}</div><div class="stat-label">Total Laporan</div></div>
+                <div class="stat-card"><div class="stat-value">{{ $stats['bulan_ini'] }}</div><div class="stat-label">Bulan Ini</div></div>
             </div>
+
+            {{-- Search & Filter --}}
+            <x-admin-toolbar route="admin.arsip-pdf" :nopolList="$nopolList" />
+
             <div class="admin-table-wrap">
                 <table class="admin-table">
                     <thead>
                         <tr><th>#</th><th>Tanggal</th><th>Nopol</th><th>Driver Serah</th><th>Driver Terima</th><th>Shift</th><th>Aksi</th></tr>
                     </thead>
                     <tbody>
-                        @forelse($checklists as $i => $c)
+                        @forelse($checklists as $c)
                         <tr>
-                            <td>{{ $i + 1 }}</td>
+                            <td>{{ ($checklists->currentPage() - 1) * $checklists->perPage() + $loop->iteration }}</td>
                             <td>{{ $c->tanggal->format('d/m/Y') }}</td>
                             <td><strong>{{ $c->nomor_kendaraan }}</strong></td>
                             <td>{{ $c->driver_serah }}</td>
@@ -79,6 +68,7 @@
                     </tbody>
                 </table>
             </div>
+            <div class="admin-pagination">{{ $checklists->links() }}</div>
         </div>
     </div>
 </body>

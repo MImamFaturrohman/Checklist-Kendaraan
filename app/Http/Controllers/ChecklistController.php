@@ -211,6 +211,107 @@ class ChecklistController extends Controller
     }
 
     /**
+     * Apply common search/filter to checklist query.
+     */
+    private function applyChecklistFilters(Request $request, $query)
+    {
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor_kendaraan', 'like', "%{$search}%")
+                    ->orWhere('driver_serah', 'like', "%{$search}%")
+                    ->orWhere('driver_terima', 'like', "%{$search}%")
+                    ->orWhere('jenis_kendaraan', 'like', "%{$search}%");
+            });
+        }
+
+        if ($from = $request->input('tanggal_dari')) {
+            $query->whereDate('tanggal', '>=', $from);
+        }
+        if ($to = $request->input('tanggal_sampai')) {
+            $query->whereDate('tanggal', '<=', $to);
+        }
+        if ($nopol = $request->input('nopol')) {
+            $query->where('nomor_kendaraan', $nopol);
+        }
+        if ($shift = $request->input('shift')) {
+            $query->where('shift', $shift);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Database Sheet admin page with pagination, search, filter.
+     */
+    public function databaseSheet(Request $request)
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        // Stats (unfiltered)
+        $allChecklists = Checklist::all();
+        $stats = [
+            'total' => $allChecklists->count(),
+            'kendaraan_unik' => $allChecklists->unique('nomor_kendaraan')->count(),
+            'driver_aktif' => $allChecklists->unique('driver_serah')->count(),
+            'bulan_ini' => $allChecklists->where('tanggal', '>=', now()->startOfMonth())->count(),
+        ];
+
+        // Nopol options for filter dropdown
+        $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
+
+        // Filtered + paginated query
+        $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan', 'user'])
+            ->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $query);
+        $checklists = $query->paginate(10)->withQueryString();
+
+        return view('admin.database-sheet', compact('checklists', 'stats', 'nopolList'));
+    }
+
+    /**
+     * Log Foto Fisik admin page with pagination, search, filter.
+     */
+    public function logFotoFisik(Request $request)
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        $query = Checklist::with(['exterior', 'interior', 'mesin'])
+            ->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $query);
+        $checklists = $query->paginate(10)->withQueryString();
+
+        // Nopol options
+        $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
+
+        return view('admin.log-foto-fisik', compact('checklists', 'nopolList'));
+    }
+
+    /**
+     * Arsip PDF admin page with pagination, search, filter.
+     */
+    public function arsipPdf(Request $request)
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        // Stats (unfiltered)
+        $allPdf = Checklist::whereNotNull('pdf_path');
+        $stats = [
+            'total' => (clone $allPdf)->count(),
+            'bulan_ini' => (clone $allPdf)->whereDate('tanggal', '>=', now()->startOfMonth())->count(),
+        ];
+
+        // Nopol options
+        $nopolList = Checklist::whereNotNull('pdf_path')
+            ->select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
+
+        $query = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $query);
+        $checklists = $query->paginate(10)->withQueryString();
+
+        return view('admin.arsip-pdf', compact('checklists', 'stats', 'nopolList'));
+    }
+
+    /**
      * Sync all checklist data to Google Spreadsheet.
      */
     public function exportExcel()

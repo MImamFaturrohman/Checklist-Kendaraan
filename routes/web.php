@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -33,31 +33,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/kendaraan/list', [KendaraanController::class, 'apiList'])->name('api.kendaraan.list');
 
     // Admin routes
-    Route::get('/admin/database-sheet', function () {
-        abort_unless(auth()->user()?->role === 'admin', 403);
-        $checklists = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan', 'user'])
-            ->orderByDesc('created_at')->get();
-        return view('admin.database-sheet', compact('checklists'));
-    })->name('admin.database-sheet');
+    Route::get('/admin/database-sheet', [ChecklistController::class, 'databaseSheet'])->name('admin.database-sheet');
 
     Route::get('/admin/database-sheet/export', function () {
         abort_unless(auth()->user()?->role === 'admin', 403);
         return app(ChecklistController::class)->exportExcel();
     })->name('admin.database-sheet.export');
 
-    Route::get('/admin/log-foto-fisik', function () {
-        abort_unless(auth()->user()?->role === 'admin', 403);
-        $checklists = Checklist::with(['exterior', 'interior', 'mesin'])
-            ->orderByDesc('created_at')->get();
-        return view('admin.log-foto-fisik', compact('checklists'));
-    })->name('admin.log-foto-fisik');
+    Route::get('/admin/log-foto-fisik', [ChecklistController::class, 'logFotoFisik'])->name('admin.log-foto-fisik');
 
-    Route::get('/admin/arsip-pdf', function () {
-        abort_unless(auth()->user()?->role === 'admin', 403);
-        $checklists = Checklist::whereNotNull('pdf_path')
-            ->orderByDesc('created_at')->get();
-        return view('admin.arsip-pdf', compact('checklists'));
-    })->name('admin.arsip-pdf');
+    Route::get('/admin/arsip-pdf', [ChecklistController::class, 'arsipPdf'])->name('admin.arsip-pdf');
 
     // Master Armada CRUD
     Route::get('/admin/master-armada', [KendaraanController::class, 'index'])->name('admin.master-armada');

@@ -78,35 +78,82 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressPct = wizardRoot.querySelector('#checklist-progress-pct');
     if (!form || !steps.length) return;
 
-    wizardRoot.querySelectorAll('[data-driver-select]').forEach(select => {
-        new TomSelect(select, {
-            allowEmptyOption: false,
-            create: false,
-            maxOptions: 100,
-            placeholder: select.dataset.placeholder || 'Pilih Driver',
-            closeAfterSelect: true,
-            render: {
-                option(data, escape) {
-                    const iconClass = data.icon || 'bi bi-person';
-                    const isActive = data.active === '1';
-                    return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
-                },
-                item(data, escape) {
-                    const iconClass = data.icon || 'bi bi-person';
-                    const isActive = data.active === '1';
-                    return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
-                },
+    /* ---- Driver Select: paired filtering (serah ↔ terima) ---- */
+    const driverSelectEls = wizardRoot.querySelectorAll('[data-driver-select]');
+    const tomSelectInstances = {};
+    const allDriverOptions = {};
+
+    const tomSelectConfig = (selectEl) => ({
+        allowEmptyOption: false,
+        create: false,
+        maxOptions: 100,
+        placeholder: selectEl.dataset.placeholder || 'Pilih Driver',
+        closeAfterSelect: true,
+        render: {
+            option(data, escape) {
+                const iconClass = data.icon || 'bi bi-person';
+                const isActive = data.active === '1';
+                return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
             },
-            onInitialize() {
-                this.removeOption('');
-                this.refreshOptions(false);
+            item(data, escape) {
+                const iconClass = data.icon || 'bi bi-person';
+                const isActive = data.active === '1';
+                return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
             },
-            onItemAdd() {
-                this.close();
-                this.blur();
-            },
-        });
+        },
+        onInitialize() {
+            this.removeOption('');
+            this.refreshOptions(false);
+        },
+        onItemAdd() {
+            this.close();
+            this.blur();
+        },
     });
+
+    driverSelectEls.forEach(select => {
+        const ts = new TomSelect(select, tomSelectConfig(select));
+        const id = select.id;
+        tomSelectInstances[id] = ts;
+        // Backup all original options
+        allDriverOptions[id] = { ...ts.options };
+    });
+
+    // Link serah ↔ terima: exclude selected driver from the other dropdown
+    const serahTS = tomSelectInstances['driver_serah'];
+    const terimaTS = tomSelectInstances['driver_terima'];
+
+    if (serahTS && terimaTS) {
+        const syncDriverOptions = (changedId, selectedValue, previousValue) => {
+            const otherTS = changedId === 'driver_serah' ? terimaTS : serahTS;
+            const otherId = changedId === 'driver_serah' ? 'driver_terima' : 'driver_serah';
+
+            // Restore previously excluded option
+            if (previousValue && allDriverOptions[otherId][previousValue]) {
+                otherTS.addOption(allDriverOptions[otherId][previousValue]);
+            }
+            // Remove newly selected option from the other dropdown
+            if (selectedValue && otherTS.options[selectedValue]) {
+                if (otherTS.getValue() === selectedValue) {
+                    otherTS.clear(true);
+                }
+                otherTS.removeOption(selectedValue);
+            }
+            otherTS.refreshOptions(false);
+        };
+
+        let prevSerah = serahTS.getValue();
+        let prevTerima = terimaTS.getValue();
+
+        serahTS.on('change', (value) => {
+            syncDriverOptions('driver_serah', value, prevSerah);
+            prevSerah = value;
+        });
+        terimaTS.on('change', (value) => {
+            syncDriverOptions('driver_terima', value, prevTerima);
+            prevTerima = value;
+        });
+    }
 
     let currentStep = 1;
     const totalStep = steps.length;

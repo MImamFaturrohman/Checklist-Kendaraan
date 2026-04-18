@@ -19,86 +19,18 @@
         </header>
         <div class="admin-card" data-tab-group>
             @php
-                $baseUrl = 'http://127.0.0.1:8000';
+                $baseUrl = url('/');
                 $resolvePhotoUrl = function (?string $path) use ($baseUrl) {
-                    if (!$path) {
-                        return null;
-                    }
-
-                    if (str_starts_with($path, 'http://localhost')) {
-                        return str_replace('http://localhost', $baseUrl, $path);
-                    }
-
-                    if (str_starts_with($path, $baseUrl)) {
-                        return $path;
-                    }
-
-                    if (str_starts_with($path, '/storage/')) {
-                        return $baseUrl . $path;
-                    }
-
-                    if (str_starts_with($path, 'storage/')) {
-                        return $baseUrl . '/' . $path;
-                    }
-
+                    if (!$path) return null;
+                    if (str_starts_with($path, 'http')) return $path;
+                    if (str_starts_with($path, '/storage/')) return $baseUrl . $path;
+                    if (str_starts_with($path, 'storage/')) return $baseUrl . '/' . $path;
                     return $baseUrl . '/storage/' . ltrim($path, '/');
                 };
-
-                $collectRows = function ($fieldMap, ?string $relation = null) use ($checklists, $resolvePhotoUrl) {
-                    $rows = collect();
-
-                    foreach ($checklists as $c) {
-                        $waktuChecklist = trim(($c->tanggal?->format('d/m/Y') ?? '-') . ' ' . ($c->jam_serah_terima ?? ''));
-                        $photos = collect();
-                        foreach ($fieldMap as $field => $label) {
-                            $path = $relation ? data_get($c, "{$relation}.{$field}") : data_get($c, $field);
-                            if (!$path) {
-                                continue;
-                            }
-
-                            $photos->push([
-                                'label' => $label,
-                                'url' => $resolvePhotoUrl($path),
-                            ]);
-                        }
-
-                        if ($photos->isNotEmpty()) {
-                            $rows->push([
-                                'id' => $c->id,
-                                'waktu' => $waktuChecklist,
-                                'created_sort' => $c->created_at?->timestamp ?? 0,
-                                'unit' => $c->nomor_kendaraan,
-                                'photos' => $photos->values(),
-                            ]);
-                        }
-                    }
-
-                    return $rows->sortByDesc('created_sort')->values();
-                };
-
-                $rowsEksterior = $collectRows([
-                    'foto_depan' => 'Depan',
-                    'foto_kanan' => 'Kanan',
-                    'foto_kiri' => 'Kiri',
-                    'foto_belakang' => 'Belakang',
-                ], 'exterior');
-
-                $rowsInterior = $collectRows([
-                    'foto_1' => 'Interior 1',
-                    'foto_2' => 'Interior 2',
-                    'foto_3' => 'Interior 3',
-                ], 'interior');
-
-                $rowsMesin = $collectRows([
-                    'foto_1' => 'Mesin 1',
-                    'foto_2' => 'Mesin 2',
-                    'foto_3' => 'Mesin 3',
-                ], 'mesin');
-
-                $rowsBbm = $collectRows([
-                    'foto_bbm_dashboard' => 'BBM',
-                ]);
             @endphp
+
+            {{-- Search & Filter --}}
+            <x-admin-toolbar route="admin.log-foto-fisik" :nopolList="$nopolList" />
 
             <div class="admin-tabs">
                 <button class="admin-tab active" data-tab-btn="exterior">Eksterior</button>
@@ -109,40 +41,34 @@
 
             {{-- Exterior photos --}}
             <div data-tab-panel="exterior">
-                <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px;font-weight:600">{{ $rowsEksterior->count() }} foto eksterior ditemukan</p>
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Nomor Unit</th>
-                                <th>Foto</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Waktu</th><th>Nomor Unit</th><th>Foto</th></tr></thead>
                         <tbody>
-                            @forelse($rowsEksterior as $row)
+                            @php $hasExterior = false; @endphp
+                            @foreach($checklists as $c)
+                                @if($c->exterior && ($c->exterior->foto_depan || $c->exterior->foto_kanan || $c->exterior->foto_kiri || $c->exterior->foto_belakang))
+                                @php $hasExterior = true; @endphp
                                 <tr>
-                                    <td>{{ $row['waktu'] }}</td>
-                                    <td><strong>{{ $row['unit'] }}</strong></td>
+                                    <td>{{ $c->tanggal?->format('d/m/Y') }} {{ $c->jam_serah_terima ?? '' }}</td>
+                                    <td><strong>{{ $c->nomor_kendaraan }}</strong></td>
                                     <td>
                                         <div style="display:flex;gap:8px;flex-wrap:wrap">
-                                            @foreach($row['photos'] as $photo)
-                                                <a href="{{ $photo['url'] }}" target="_blank" rel="noopener" title="{{ $photo['label'] }}">
-                                                    <img
-                                                        src="{{ $photo['url'] }}"
-                                                        alt="{{ $photo['label'] }}"
-                                                        class="photo-log-table-thumb"
-                                                        loading="lazy"
-                                                        style="width:110px;height:82px;min-width:110px;max-width:110px;min-height:82px;max-height:82px;object-fit:cover;display:block;"
-                                                    >
-                                                </a>
+                                            @foreach(['foto_depan' => 'Depan', 'foto_kanan' => 'Kanan', 'foto_kiri' => 'Kiri', 'foto_belakang' => 'Belakang'] as $field => $label)
+                                                @if($c->exterior->$field)
+                                                    <a href="{{ $resolvePhotoUrl($c->exterior->$field) }}" target="_blank" rel="noopener" title="{{ $label }}">
+                                                        <img src="{{ $resolvePhotoUrl($c->exterior->$field) }}" alt="{{ $label }}" loading="lazy" style="width:110px;height:82px;object-fit:cover;border-radius:6px;display:block;">
+                                                    </a>
+                                                @endif
                                             @endforeach
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
+                                @endif
+                            @endforeach
+                            @unless($hasExterior)
                                 <tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:24px">Belum ada foto eksterior.</td></tr>
-                            @endforelse
+                            @endunless
                         </tbody>
                     </table>
                 </div>
@@ -150,40 +76,35 @@
 
             {{-- Interior photos --}}
             <div data-tab-panel="interior" style="display:none">
-                <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px;font-weight:600">{{ $rowsInterior->count() }} foto interior ditemukan</p>
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Nomor Unit</th>
-                                <th>Foto</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Waktu</th><th>Nomor Unit</th><th>Foto</th></tr></thead>
                         <tbody>
-                            @forelse($rowsInterior as $row)
+                            @php $hasInterior = false; @endphp
+                            @foreach($checklists as $c)
+                                @if($c->interior && ($c->interior->foto_1 || $c->interior->foto_2 || $c->interior->foto_3))
+                                @php $hasInterior = true; @endphp
                                 <tr>
-                                    <td>{{ $row['waktu'] }}</td>
-                                    <td><strong>{{ $row['unit'] }}</strong></td>
+                                    <td>{{ $c->tanggal?->format('d/m/Y') }} {{ $c->jam_serah_terima ?? '' }}</td>
+                                    <td><strong>{{ $c->nomor_kendaraan }}</strong></td>
                                     <td>
                                         <div style="display:flex;gap:8px;flex-wrap:wrap">
-                                            @foreach($row['photos'] as $photo)
-                                                <a href="{{ $photo['url'] }}" target="_blank" rel="noopener" title="{{ $photo['label'] }}">
-                                                    <img
-                                                        src="{{ $photo['url'] }}"
-                                                        alt="{{ $photo['label'] }}"
-                                                        class="photo-log-table-thumb"
-                                                        loading="lazy"
-                                                        style="width:110px;height:82px;min-width:110px;max-width:110px;min-height:82px;max-height:82px;object-fit:cover;display:block;"
-                                                    >
-                                                </a>
-                                            @endforeach
+                                            @for($i = 1; $i <= 3; $i++)
+                                                @php $f = "foto_{$i}"; @endphp
+                                                @if($c->interior->$f)
+                                                    <a href="{{ $resolvePhotoUrl($c->interior->$f) }}" target="_blank" rel="noopener" title="Interior {{ $i }}">
+                                                        <img src="{{ $resolvePhotoUrl($c->interior->$f) }}" alt="Interior {{ $i }}" loading="lazy" style="width:110px;height:82px;object-fit:cover;border-radius:6px;display:block;">
+                                                    </a>
+                                                @endif
+                                            @endfor
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
+                                @endif
+                            @endforeach
+                            @unless($hasInterior)
                                 <tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:24px">Belum ada foto interior.</td></tr>
-                            @endforelse
+                            @endunless
                         </tbody>
                     </table>
                 </div>
@@ -191,40 +112,35 @@
 
             {{-- Mesin photos --}}
             <div data-tab-panel="mesin" style="display:none">
-                <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px;font-weight:600">{{ $rowsMesin->count() }} foto mesin ditemukan</p>
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Nomor Unit</th>
-                                <th>Foto</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Waktu</th><th>Nomor Unit</th><th>Foto</th></tr></thead>
                         <tbody>
-                            @forelse($rowsMesin as $row)
+                            @php $hasMesin = false; @endphp
+                            @foreach($checklists as $c)
+                                @if($c->mesin && ($c->mesin->foto_1 || $c->mesin->foto_2 || $c->mesin->foto_3))
+                                @php $hasMesin = true; @endphp
                                 <tr>
-                                    <td>{{ $row['waktu'] }}</td>
-                                    <td><strong>{{ $row['unit'] }}</strong></td>
+                                    <td>{{ $c->tanggal?->format('d/m/Y') }} {{ $c->jam_serah_terima ?? '' }}</td>
+                                    <td><strong>{{ $c->nomor_kendaraan }}</strong></td>
                                     <td>
                                         <div style="display:flex;gap:8px;flex-wrap:wrap">
-                                            @foreach($row['photos'] as $photo)
-                                                <a href="{{ $photo['url'] }}" target="_blank" rel="noopener" title="{{ $photo['label'] }}">
-                                                    <img
-                                                        src="{{ $photo['url'] }}"
-                                                        alt="{{ $photo['label'] }}"
-                                                        class="photo-log-table-thumb"
-                                                        loading="lazy"
-                                                        style="width:110px;height:82px;min-width:110px;max-width:110px;min-height:82px;max-height:82px;object-fit:cover;display:block;"
-                                                    >
-                                                </a>
-                                            @endforeach
+                                            @for($i = 1; $i <= 3; $i++)
+                                                @php $f = "foto_{$i}"; @endphp
+                                                @if($c->mesin->$f)
+                                                    <a href="{{ $resolvePhotoUrl($c->mesin->$f) }}" target="_blank" rel="noopener" title="Mesin {{ $i }}">
+                                                        <img src="{{ $resolvePhotoUrl($c->mesin->$f) }}" alt="Mesin {{ $i }}" loading="lazy" style="width:110px;height:82px;object-fit:cover;border-radius:6px;display:block;">
+                                                    </a>
+                                                @endif
+                                            @endfor
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
+                                @endif
+                            @endforeach
+                            @unless($hasMesin)
                                 <tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:24px">Belum ada foto mesin.</td></tr>
-                            @endforelse
+                            @endunless
                         </tbody>
                     </table>
                 </div>
@@ -232,44 +148,36 @@
 
             {{-- BBM photos --}}
             <div data-tab-panel="bbm" style="display:none">
-                <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px;font-weight:600">{{ $rowsBbm->count() }} foto BBM ditemukan</p>
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Nomor Unit</th>
-                                <th>Foto</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Waktu</th><th>Nomor Unit</th><th>Foto</th></tr></thead>
                         <tbody>
-                            @forelse($rowsBbm as $row)
+                            @php $hasBbm = false; @endphp
+                            @foreach($checklists as $c)
+                                @if($c->foto_bbm_dashboard)
+                                @php $hasBbm = true; @endphp
                                 <tr>
-                                    <td>{{ $row['waktu'] }}</td>
-                                    <td><strong>{{ $row['unit'] }}</strong></td>
+                                    <td>{{ $c->tanggal?->format('d/m/Y') }} {{ $c->jam_serah_terima ?? '' }}</td>
+                                    <td><strong>{{ $c->nomor_kendaraan }}</strong></td>
                                     <td>
                                         <div style="display:flex;gap:8px;flex-wrap:wrap">
-                                            @foreach($row['photos'] as $photo)
-                                                <a href="{{ $photo['url'] }}" target="_blank" rel="noopener" title="{{ $photo['label'] }}">
-                                                    <img
-                                                        src="{{ $photo['url'] }}"
-                                                        alt="{{ $photo['label'] }}"
-                                                        class="photo-log-table-thumb"
-                                                        loading="lazy"
-                                                        style="width:110px;height:82px;min-width:110px;max-width:110px;min-height:82px;max-height:82px;object-fit:cover;display:block;"
-                                                    >
-                                                </a>
-                                            @endforeach
+                                            <a href="{{ $resolvePhotoUrl($c->foto_bbm_dashboard) }}" target="_blank" rel="noopener" title="BBM">
+                                                <img src="{{ $resolvePhotoUrl($c->foto_bbm_dashboard) }}" alt="BBM" loading="lazy" style="width:110px;height:82px;object-fit:cover;border-radius:6px;display:block;">
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
+                                @endif
+                            @endforeach
+                            @unless($hasBbm)
                                 <tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:24px">Belum ada foto BBM.</td></tr>
-                            @endforelse
+                            @endunless
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <div class="admin-pagination">{{ $checklists->links() }}</div>
         </div>
     </div>
 </body>

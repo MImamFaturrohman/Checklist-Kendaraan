@@ -34,10 +34,10 @@
 
             {{-- Stats --}}
             <div class="stat-grid">
-                <div class="stat-card"><div class="stat-value">{{ $checklists->count() }}</div><div class="stat-label">Total Ceklist</div></div>
-                <div class="stat-card"><div class="stat-value">{{ $checklists->unique('nomor_kendaraan')->count() }}</div><div class="stat-label">Kendaraan Unik</div></div>
-                <div class="stat-card"><div class="stat-value">{{ $checklists->unique('driver_serah')->count() }}</div><div class="stat-label">Driver Aktif</div></div>
-                <div class="stat-card"><div class="stat-value">{{ $checklists->where('tanggal', '>=', now()->startOfMonth())->count() }}</div><div class="stat-label">Bulan Ini</div></div>
+                <div class="stat-card"><div class="stat-value">{{ $stats['total'] }}</div><div class="stat-label">Total Ceklist</div></div>
+                <div class="stat-card"><div class="stat-value">{{ $stats['kendaraan_unik'] }}</div><div class="stat-label">Kendaraan Unik</div></div>
+                <div class="stat-card"><div class="stat-value">{{ $stats['driver_aktif'] }}</div><div class="stat-label">Driver Aktif</div></div>
+                <div class="stat-card"><div class="stat-value">{{ $stats['bulan_ini'] }}</div><div class="stat-label">Bulan Ini</div></div>
             </div>
 
             {{-- Export --}}
@@ -47,6 +47,9 @@
                     Sinkronkan ke Spreadsheet
                 </a>
             </div>
+
+            {{-- Search & Filter --}}
+            <x-admin-toolbar route="admin.database-sheet" :nopolList="$nopolList" :showShift="true" />
 
             {{-- Tabs --}}
             <div data-tab-group>
@@ -64,9 +67,10 @@
                         <table class="admin-table">
                             <thead><tr><th>#</th><th>Tanggal</th><th>Shift</th><th>Nopol</th><th>Jenis</th><th>Driver Serah</th><th>Driver Terima</th><th>BBM</th><th>KM Awal</th><th>KM Akhir</th></tr></thead>
                             <tbody>
-                                @forelse($checklists as $i => $c)
+                                @forelse($checklists as $c)
                                 <tr>
-                                    <td>{{ $i+1 }}</td><td>{{ $c->tanggal->format('d/m/Y') }}</td><td>{{ $c->shift }}</td>
+                                    <td>{{ ($checklists->currentPage() - 1) * $checklists->perPage() + $loop->iteration }}</td>
+                                    <td>{{ $c->tanggal->format('d/m/Y') }}</td><td>{{ $c->shift }}</td>
                                     <td><strong>{{ $c->nomor_kendaraan }}</strong></td><td>{{ $c->jenis_kendaraan }}</td>
                                     <td>{{ $c->driver_serah }}</td><td>{{ $c->driver_terima }}</td>
                                     <td>{{ $c->level_bbm }}%</td><td>{{ number_format($c->km_awal) }}</td><td>{{ number_format($c->km_akhir ?? 0) }}</td>
@@ -77,7 +81,13 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="admin-pagination">{{ $checklists->links() }}</div>
                 </div>
+
+                @php
+                    $statusClass = fn($value) => $value === 'ok' ? 'status-ok' : (in_array($value, ['no', 'tidak_ok'], true) ? 'status-nok' : '');
+                    $statusLabel = fn($value) => $value === 'ok' ? 'OK' : (in_array($value, ['no', 'tidak_ok'], true) ? 'NO' : strtoupper($value ?? '-'));
+                @endphp
 
                 {{-- EXTERIOR --}}
                 <div data-tab-panel="exterior" style="display:none">
@@ -85,10 +95,6 @@
                         <table class="admin-table">
                             <thead><tr><th>Nopol</th><th>Tanggal</th><th>Body</th><th>Kaca</th><th>Spion</th><th>Lampu Utama</th><th>Lampu Sein</th><th>Ban</th><th>Velg</th><th>Wiper</th></tr></thead>
                             <tbody>
-                                @php
-                                    $statusClass = fn($value) => $value === 'ok' ? 'status-ok' : (in_array($value, ['no', 'tidak_ok'], true) ? 'status-nok' : '');
-                                    $statusLabel = fn($value) => $value === 'ok' ? 'OK' : (in_array($value, ['no', 'tidak_ok'], true) ? 'NO' : strtoupper($value ?? '-'));
-                                @endphp
                                 @foreach($checklists as $c)
                                 @if($c->exterior)
                                 <tr>

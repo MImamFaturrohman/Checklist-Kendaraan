@@ -6,8 +6,8 @@
     <style>
         @page { margin: 18mm 14mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; }
-        .page { border: 2px solid #002a7a; padding: 24px 28px; }
+        body { font-family: Arial; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; }
+        .page { border: 2px solid #002a7a; padding: 24px 28px; margin: 20px; }
 
         .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #ffd300; padding-bottom: 12px; }
         .header-table { width: 100%; border-collapse: collapse; }
@@ -144,10 +144,22 @@
                         <h1>BERITA ACARA CEKLIST KENDARAAN</h1>
                     </td>
                 </tr>
+                @php
+                    $tahun = \Carbon\Carbon::parse($checklist->tanggal)->format('y');
 
+                    $bulanRomawi = [
+                        1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
+                        5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
+                        9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+                    ];
+
+                    $bulan = $bulanRomawi[\Carbon\Carbon::parse($checklist->tanggal)->month];
+
+                    $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
+                @endphp
                 <tr>
                     <td colspan="2" class="header-number-below">
-                        Nomor Laporan: ADC-{{ str_pad($checklist->id, 10, '0', STR_PAD_LEFT) }}
+                        Nomor Laporan: ADC-{{ $tahun }}{{ $bulan }}{{ $id }}
                         <div class="header-subtitle">{{ $checklist->tanggal->format('d F Y') }}</div>
                     </td>
                 </tr>
@@ -159,8 +171,8 @@
             <tr>
                 <td class="info-label">Kendaraan:</td>
                 <td class="info-value"><strong>{{ $checklist->nomor_kendaraan }}</strong> ({{ $checklist->jenis_kendaraan }})</td>
-                <td class="info-label" style="width:90px">Waktu:</td>
-                <td class="info-value">{{ $checklist->tanggal->format('d/m/Y') }} / {{ $checklist->jam_serah_terima }} ({{ $checklist->shift }})</td>
+                <td class="info-label" style="width:90px">Tanggal | Waktu:</td>
+                <td class="info-value">{{ $checklist->tanggal->format('d F Y') }} | {{ $checklist->jam_serah_terima }} WIB (Shift {{ $checklist->shift }})</td>
             </tr>
             <tr>
                 <td class="info-label">Driver Yang Menyerahkan:</td>
@@ -179,7 +191,7 @@
                     KM Akhir: <strong>{{ number_format($checklist->km_akhir ?? 0) }}</strong><br>
                     BBM: <strong>{{ $checklist->level_bbm }}%</strong><br>
                     @if($checklist->bbm_terakhir)
-                        Isi Terakhir: {{ $checklist->bbm_terakhir }}
+                        Pengisian BBM Terakhir: {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->format('Y F d | H:i') }} WIB
                     @endif
                 </p>
             </div>
@@ -192,7 +204,7 @@
         </div>
 
         {{-- 2. KONDISI FISIK --}}
-        <div class="section-heading">2. Kondisi Fisik & Keterangan</div>
+        <div class="section-heading">2. Kondisi Fisik</div>
         <table class="data-table">
             <thead><tr><th style="width:38%">Bagian Kendaraan</th><th style="width:14%">Status</th><th style="width:48%">Keterangan</th></tr></thead>
             <tbody>
@@ -260,14 +272,14 @@
         <table class="signature-area">
             <tr>
                 <td>
-                    <div class="sig-label">Tanda Tangan Driver Yang Menyerahkan:</div>
+                    <div class="sig-label">Driver Yang Menyerahkan:</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_serah)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_serah) }}">@endif</div>
-                    <div class="sig-name">({{ $checklist->driver_serah }})</div>
+                    <div class="sig-name">{{ $checklist->driver_serah }}</div>
                 </td>
                 <td>
-                    <div class="sig-label">Tanda Tangan Driver Yang Menerima:</div>
+                    <div class="sig-label">Driver Yang Menerima:</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_terima)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_terima) }}">@endif</div>
-                    <div class="sig-name">({{ $checklist->driver_terima }})</div>
+                    <div class="sig-name">{{ $checklist->driver_terima }}</div>
                 </td>
             </tr>
         </table>

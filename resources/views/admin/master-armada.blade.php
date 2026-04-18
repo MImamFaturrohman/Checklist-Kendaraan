@@ -53,6 +53,26 @@
                     </div>
                 </form>
 
+                {{-- Search --}}
+                <form method="GET" action="{{ route('admin.master-armada') }}" class="admin-toolbar" style="margin-top:16px">
+                    <div class="admin-search-wrap">
+                        <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nomor atau jenis kendaraan..." class="admin-search-input">
+                        @if(request('search'))
+                            <a href="{{ route('admin.master-armada') }}" class="admin-search-clear" title="Hapus pencarian">&times;</a>
+                        @endif
+                    </div>
+                    <div class="admin-filter-row">
+                        <button type="submit" class="admin-filter-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Cari
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('admin.master-armada') }}" class="admin-filter-reset">Reset</a>
+                        @endif
+                    </div>
+                </form>
+
                 {{-- Table --}}
                 <table class="armada-table">
                     <thead>
@@ -64,9 +84,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($kendaraans as $i => $k)
+                        @forelse($kendaraans as $k)
                             <tr id="row-{{ $k->id }}">
-                                <td>{{ $i + 1 }}</td>
+                                <td>{{ ($kendaraans->currentPage() - 1) * $kendaraans->perPage() + $loop->iteration }}</td>
                                 <td>
                                     <span class="view-mode">{{ $k->nomor_kendaraan }}</span>
                                     <input class="edit-mode" type="text" value="{{ $k->nomor_kendaraan }}" name="nomor_kendaraan" form="edit-form-{{ $k->id }}" style="display:none;width:100%;border:1px solid #d1d5db;border-radius:8px;padding:6px 8px;font-size:0.85rem">
@@ -96,6 +116,8 @@
                         @endforelse
                     </tbody>
                 </table>
+
+                <div class="admin-pagination">{{ $kendaraans->links() }}</div>
             </div>
         </div>
 

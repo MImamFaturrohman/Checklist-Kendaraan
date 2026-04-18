@@ -7,9 +7,18 @@ use Illuminate\Http\Request;
 
 class KendaraanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
+        $query = Kendaraan::orderBy('nomor_kendaraan');
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor_kendaraan', 'like', "%{$search}%")
+                    ->orWhere('jenis_kendaraan', 'like', "%{$search}%");
+            });
+        }
+
+        $kendaraans = $query->paginate(10)->withQueryString();
         return view('admin.master-armada', compact('kendaraans'));
     }
 
