@@ -4,43 +4,51 @@ namespace Database\Seeders;
 
 use App\Models\Kendaraan;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     public function run(): void
     {
-        // Create admin user
-        User::create([
-            'name' => 'Administrator',
-            'username' => 'admin',
-            'email' => 'admin@arthadaya.com',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-        ]);
+        // =========================
+        // USER SEEDER
+        // =========================
 
-        // Create driver user
-        User::create([
-            'name' => 'M. Rizcky DT',
-            'username' => 'rizcky',
-            'email' => 'rizcky@arthadaya.com',
-            'password' => Hash::make('password'),
-            'role' => 'driver',
-        ]);
+        User::firstOrCreate(
+            ['username' => 'admin'], // 🔑 kondisi unik
+            [
+                'name' => 'Administrator',
+                'email' => 'admin@arthadaya.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]
+        );
 
-        User::create([
-            'name' => 'Hasan Nawawi',
-            'username' => 'hasan',
-            'email' => 'hasan@arthadaya.com',
-            'password' => Hash::make('password'),
-            'role' => 'driver',
-        ]);
+        User::firstOrCreate(
+            ['username' => 'rizcky'],
+            [
+                'name' => 'M. Rizcky DT',
+                'email' => 'rizcky@arthadaya.com',
+                'password' => Hash::make('password'),
+                'role' => 'driver',
+            ]
+        );
 
-        // Seed kendaraan master data
+        User::firstOrCreate(
+            ['username' => 'hasan'],
+            [
+                'name' => 'Hasan Nawawi',
+                'email' => 'hasan@arthadaya.com',
+                'password' => Hash::make('password'),
+                'role' => 'driver',
+            ]
+        );
+
+        // =========================
+        // KENDARAAN SEEDER
+        // =========================
+
         $kendaraans = [
             ['nomor_kendaraan' => 'B 2784 PZU', 'jenis_kendaraan' => 'MITSUBISHI XPANDER'],
             ['nomor_kendaraan' => 'B 1234 ABC', 'jenis_kendaraan' => 'TOYOTA AVANZA'],
@@ -53,7 +61,12 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($kendaraans as $k) {
-            Kendaraan::create($k);
+            Kendaraan::firstOrCreate(
+                ['nomor_kendaraan' => $k['nomor_kendaraan']], // 🔑 unik
+                [
+                    'jenis_kendaraan' => $k['jenis_kendaraan'],
+                ]
+            );
         }
     }
 }
