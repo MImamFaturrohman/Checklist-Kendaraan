@@ -325,21 +325,21 @@ class ChecklistController extends Controller
     {
         $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
-        $credentialsPath = config('services.google_sheets.credentials_json');
+        $credentialsJson = config('services.google_sheets.credentials_json');
 
-        if ($spreadsheetId === '' || $credentialsPath === '') {
+        if (!$spreadsheetId || !$credentialsJson) {
             return redirect()->route('admin.database-sheet')->with(
                 'error',
-                'Konfigurasi Google Sheets belum lengkap. Isi GOOGLE_SHEETS_SPREADSHEET_ID dan GOOGLE_SHEETS_CREDENTIALS_PATH di .env.'
+                'Konfigurasi Google Sheets belum lengkap. Isi GOOGLE_SHEETS_SPREADSHEET_ID dan GOOGLE_SHEETS_CREDENTIALS_JSON di .env.'
             );
         }
 
-        if (!file_exists($credentialsPath)) {
-            return redirect()->route('admin.database-sheet')->with(
-                'error',
-                "File service account tidak ditemukan: {$credentialsPath}"
-            );
-        }
+        // if (!file_exists($credentialsJson)) {
+        //     return redirect()->route('admin.database-sheet')->with(
+        //         'error',
+        //         "File service account tidak ditemukan: {$credentialsJson}"
+        //     );
+        // }
 
         try {
             $checklists = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])
@@ -497,11 +497,11 @@ class ChecklistController extends Controller
     {
         $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
-        $credentialsPath = config('services.google_sheets.credentials_json');
+        $credentialsJson = config('services.google_sheets.credentials_json');
 
-        if ($spreadsheetId === '' || $credentialsPath === '' || !file_exists($credentialsPath)) {
+        if (!$spreadsheetId || !$credentialsJson) {
             return;
-        }
+        }   
 
         $checklist->loadMissing(['exterior', 'interior', 'mesin', 'perlengkapan']);
 
