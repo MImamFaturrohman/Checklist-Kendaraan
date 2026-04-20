@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(
             ['username' => 'admin'], // 🔑 kondisi unik
             [
-                'name' => 'Administrator',
+                'name' => 'Admin Pusat',
                 'email' => 'admin@arthadaya.com',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         );
 
         User::firstOrCreate(
-            ['username' => 'rizcky'],
+            ['username' => 'rizky'],
             [
                 'name' => 'M. Rizcky DT',
                 'email' => 'rizcky@arthadaya.com',
@@ -50,14 +50,13 @@ class DatabaseSeeder extends Seeder
         // =========================
 
         $kendaraans = [
-            ['nomor_kendaraan' => 'B 2784 PZU', 'jenis_kendaraan' => 'MITSUBISHI XPANDER'],
-            ['nomor_kendaraan' => 'B 1234 ABC', 'jenis_kendaraan' => 'TOYOTA AVANZA'],
-            ['nomor_kendaraan' => 'B 5678 DEF', 'jenis_kendaraan' => 'HINO DUTRO'],
-            ['nomor_kendaraan' => 'B 9012 GHI', 'jenis_kendaraan' => 'ISUZU ELF'],
-            ['nomor_kendaraan' => 'B 3456 JKL', 'jenis_kendaraan' => 'MITSUBISHI CANTER'],
-            ['nomor_kendaraan' => 'B 7890 MNO', 'jenis_kendaraan' => 'TOYOTA HILUX'],
-            ['nomor_kendaraan' => 'B 2345 PQR', 'jenis_kendaraan' => 'SUZUKI CARRY'],
-            ['nomor_kendaraan' => 'B 6789 STU', 'jenis_kendaraan' => 'DAIHATSU GRAN MAX'],
+            ['nomor_kendaraan' => 'B 2784 PZU', 'jenis_kendaraan' => 'MITSUBISHI XPANDER', 'km_awal' => 3252],
+            ['nomor_kendaraan' => 'B 9394 PAO', 'jenis_kendaraan' => 'TOYOTA HILUX PICK UP', 'km_awal' => 2931],
+            ['nomor_kendaraan' => 'B 9396 PAO', 'jenis_kendaraan' => 'TOYOTA HILUX PICK UP', 'km_awal' => 1234],
+            ['nomor_kendaraan' => 'B 9398 PAO', 'jenis_kendaraan' => 'TOYOTA HILUX PICK UP', 'km_awal' => 5678],
+            ['nomor_kendaraan' => 'B 9400 PAO', 'jenis_kendaraan' => 'TOYOTA HILUX PICK UP', 'km_awal' => 9012],
+            ['nomor_kendaraan' => 'B 9402 PAO', 'jenis_kendaraan' => 'TOYOTA HILUX PICK UP', 'km_awal' => 3456],
+            ['nomor_kendaraan' => 'B 9458 PAO', 'jenis_kendaraan' => 'DAIHATSU GRAN MAX PICK UP', 'km_awal' => 7890],
         ];
 
         foreach ($kendaraans as $k) {

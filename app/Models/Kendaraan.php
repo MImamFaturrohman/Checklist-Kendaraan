@@ -10,6 +10,7 @@ class Kendaraan extends Model
     protected $fillable = [
         'nomor_kendaraan',
         'jenis_kendaraan',
+        'set_km',
     ];
 
     public function checklists(): HasMany

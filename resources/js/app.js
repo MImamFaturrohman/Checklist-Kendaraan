@@ -610,7 +610,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const sel = nomorSelect.options[nomorSelect.selectedIndex];
             jenisInput.value = sel?.dataset?.jenis || '';
             if (nomorSelect.value && kmAwalInput) {
-                try { const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`); const d = await r.json(); /* kmAwalInput.value = d.km || 0; */ } catch { kmAwalInput.value = 0; }
+                try {
+                    const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`);
+                    const d = await r.json();
+                    const newKm = d.km || 0;
+                    // kmAwalInput.value = newKm;
+                    lastKmDatabase = newKm;
+                    kmAwalInput.dispatchEvent(new Event('input'));
+                } catch {
+                    kmAwalInput.value = 0;
+                    lastKmDatabase = 0;
+                    kmAwalInput.dispatchEvent(new Event('input'));
+                }
             }
         });
     }
@@ -633,20 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isKmAwalValid = false;
     let isKmAkhirValid = true;
 
-    // Ambil KM terakhir dari DB saat pilih kendaraan
-    if (nomorSelect && kmAwalInput) {
-        nomorSelect.addEventListener('change', async () => {
-            if (nomorSelect.value) {
-                try {
-                    const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`);
-                    const d = await r.json();
-                    lastKmDatabase = d.km || 0;
-                } catch {
-                    lastKmDatabase = 0;
-                }
-            }
-        });
-    }
+    // Ambil KM terakhir dari DB saat pilih kendaraan (sudah dilakukan di atas)
 
     // VALIDASI KM AWAL
     if (kmAwalInput && kmAwalError) {
@@ -655,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (val !== lastKmDatabase) {
                 kmAwalError.style.display = 'flex';
-                kmAwalErrorText.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir (${lastKmDatabase}).`;
+                kmAwalErrorText.textContent = `KM Awal tidak sesuai dengan data terakhir.`;
                 kmAwalInput.style.borderColor = '#ef4444';
                 isKmAwalValid = false;
             } else {

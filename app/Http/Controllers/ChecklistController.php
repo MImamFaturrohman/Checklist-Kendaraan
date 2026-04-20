@@ -199,8 +199,15 @@ class ChecklistController extends Controller
             ->orderByDesc('created_at')
             ->first();
 
+        if ($lastChecklist) {
+            $km = $lastChecklist->km_akhir;
+        } else {
+            $kendaraan = Kendaraan::where('nomor_kendaraan', $nomor)->first();
+            $km = $kendaraan?->set_km ?? 0;
+        }
+
         return response()->json([
-            'km' => $lastChecklist?->km_akhir ?? 0,
+            'km' => $km,
         ]);
     }
 
