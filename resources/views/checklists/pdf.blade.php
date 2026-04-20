@@ -17,10 +17,22 @@
             font-style: normal;
         }
 
-        @page { margin: 18mm 14mm; }
+        @page { margin: 30px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; }
-        .page { border: 2px solid #002a7a; padding: 24px 28px; margin: 20px; }
+        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; margin: 15px; border: 2px solid #002a7a; padding: 10px; padding-top: 10px; }
+
+        /* .page-border {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            bottom: 30px;
+            padding: 10px;
+            border: 2px solid #002a7a;
+            z-index: -1;
+        } */
+
+        .page { padding: 10px; padding-top 10px; }
 
         .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #ffd300; padding-bottom: 12px; }
         .header-table { width: 100%; border-collapse: collapse; }
@@ -148,6 +160,7 @@
     </style>
 </head>
 <body>
+    
     <div class="page">
         {{-- HEADER --}}
         <div class="header">
