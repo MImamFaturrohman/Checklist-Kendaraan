@@ -38,7 +38,7 @@ return [
     'google_sheets' => [
         'spreadsheet_id' => env('GOOGLE_SHEETS_SPREADSHEET_ID'),
         'sheet_name' => env('GOOGLE_SHEETS_SHEET_NAME', 'Database Sheet'),
-        'credentials_path' => env('GOOGLE_SHEETS_CREDENTIALS_PATH'),
+        'credentials_path' => env('GOOGLE_SHEETS_CREDENTIALS_JSON'),
     ],
 
 ];
