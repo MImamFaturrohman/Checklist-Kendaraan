@@ -325,7 +325,7 @@ class ChecklistController extends Controller
     {
         $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
-        $credentialsPath = (string) config('services.google_sheets.credentials_path');
+        $credentialsPath = storage_path(config('services.google_sheets.credentials_path'));
 
         if ($spreadsheetId === '' || $credentialsPath === '') {
             return redirect()->route('admin.database-sheet')->with(
@@ -497,7 +497,7 @@ class ChecklistController extends Controller
     {
         $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
-        $credentialsPath = (string) config('services.google_sheets.credentials_path');
+        $credentialsPath = storage_path(config('services.google_sheets.credentials_path'));
 
         if ($spreadsheetId === '' || $credentialsPath === '' || !file_exists($credentialsPath)) {
             return;
