@@ -11,6 +11,7 @@ WORKDIR /app
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
-RUN chmod -R 777 storage bootstrap/cache
+RUN php artisan storage:link || true
+RUN chmod -R 775 storage bootstrap/cache public/storage
 
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
