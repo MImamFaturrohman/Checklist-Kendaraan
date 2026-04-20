@@ -152,7 +152,7 @@ class ChecklistController extends Controller
 
             $checklist->update(['pdf_path' => $pdfPath]);
 
-            $pdfUrl = 'http://127.0.0.1:8000/storage/' . ltrim($pdfPath, '/');
+            $pdfUrl = $pdfUrl = Storage::url($pdfPath);
 
             // Auto-sync to Google Spreadsheet
             try {
