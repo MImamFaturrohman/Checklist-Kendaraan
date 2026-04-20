@@ -497,7 +497,7 @@ class ChecklistController extends Controller
     {
         $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
-        $credentialsPath = storage_path(config('services.google_sheets.credentials_path'));
+        $credentialsPath = config('services.google_sheets.credentials_json');
 
         if ($spreadsheetId === '' || $credentialsPath === '' || !file_exists($credentialsPath)) {
             return;
