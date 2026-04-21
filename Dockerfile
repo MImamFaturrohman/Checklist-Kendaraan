@@ -1,14 +1,19 @@
 FROM php:8.3-cli
 
+# Install dependencies + node
 RUN apt-get update && apt-get install -y \
     git unzip zip libpng-dev libjpeg-dev libfreetype6-dev \
+    nodejs npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql
 
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-
+# Set working dir
 WORKDIR /app
+
+# Copy project
 COPY . .
 
 # Install PHP deps
