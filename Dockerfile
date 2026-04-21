@@ -14,7 +14,11 @@ RUN composer install --no-dev --optimize-autoloader
 RUN php artisan storage:link || true
 RUN chmod -R 775 storage bootstrap/cache public/storage
 
-CMD php artisan config:cache && \
+CMD php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
+    php artisan config:cache && \
     php artisan route:cache && \
     php artisan migrate --force && \
     php artisan db:seed --force && \
