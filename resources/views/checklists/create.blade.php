@@ -141,7 +141,7 @@
             <header class="checklist-topbar">
                 <div>
                     <h1 class="dash-brand-title">Ceklist Kendaraan</h1>
-                    <p class="dash-brand-sub">PT ARTHA DAYA COALINDO</p>
+                    <p class="dash-brand-sub">ADC Fleet Management.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="dash-chip {{ $isDriver ? 'dash-chip-driver' : 'dash-chip-admin' }}">

@@ -15,10 +15,10 @@ RUN composer install --no-dev --optimize-autoloader
 RUN apt-get update && apt-get install -y nodejs npm
 RUN npm install
 RUN npm run build
-RUN php artisan storage:link || true
 RUN chmod -R 775 storage bootstrap/cache public/storage
 
-CMD php artisan config:clear && \
+CMD php artisan storage:link && \
+    php artisan config:clear && \
     php artisan cache:clear && \
     php artisan route:clear && \
     php artisan view:clear && \
