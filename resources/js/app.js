@@ -649,16 +649,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // VALIDASI KM AWAL
     if (kmAwalInput && kmAwalError) {
         kmAwalInput.addEventListener('input', () => {
-            const val = +(kmAwalInput.value) || 0;
+            const rawVal = kmAwalInput.value;
+            const val = Number(rawVal);
 
-            if (val !== lastKmDatabase) {
+            if (rawVal === '') {
                 kmAwalError.style.display = 'flex';
-                kmAwalErrorText.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir.`;
+                kmAwalErrorText.textContent = `Isi KM Awal`;
+                kmAwalInput.style.borderColor = '#2563eb';
+                kmAwalError.classList.remove('km-error-danger');
+                kmAwalError.classList.add('km-error-primary');
+                isKmAwalValid = false;
+            } else if (val !== lastKmDatabase) {
+                kmAwalError.style.display = 'flex';
+                kmAwalErrorText.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir (${lastKmDatabase}).`;
                 kmAwalInput.style.borderColor = '#ef4444';
+                kmAwalError.classList.remove('km-error-primary');
+                kmAwalError.classList.add('km-error-danger');
                 isKmAwalValid = false;
             } else {
                 kmAwalError.style.display = 'none';
                 kmAwalInput.style.borderColor = '';
+                kmAwalError.classList.remove('km-error-danger');
+                kmAwalError.classList.remove('km-error-primary');
                 isKmAwalValid = true;
             }
         });
@@ -676,10 +688,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 kmError.style.display = 'flex';
                 kmErrorText.textContent = `KM Akhir (${akhir}) tidak boleh lebih kecil dari KM Awal (${awal}).`;
                 kmAkhirInput.style.borderColor = '#ef4444';
+                kmError.classList.add('km-error-danger');
                 isKmAkhirValid = false;
             } else {
                 kmError.style.display = 'none';
                 kmAkhirInput.style.borderColor = '';
+                kmError.classList.remove('km-error-danger');
                 isKmAkhirValid = true;
             }
         });
