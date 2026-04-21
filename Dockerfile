@@ -1,7 +1,5 @@
 FROM php:8.3-cli
 
-ARG CACHEBUST=1
-
 RUN apt-get update && apt-get install -y \
     git unzip zip libpng-dev libjpeg-dev libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
