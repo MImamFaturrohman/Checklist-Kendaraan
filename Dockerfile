@@ -9,10 +9,14 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+
 WORKDIR /app
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
+RUN apt-get update && apt-get install -y nodejs npm
+RUN npm install
+RUN npm run build
 RUN php artisan storage:link || true
 RUN chmod -R 775 storage bootstrap/cache public/storage
 
