@@ -11,19 +11,22 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
 
+# Install PHP deps
 RUN composer install --no-dev --optimize-autoloader
-RUN apt-get update && apt-get install -y nodejs npm
+
+# Build frontend
 RUN npm install
 RUN npm run build
-RUN chmod -R 775 storage bootstrap/cache public/storage
 
+# Permission (WAJIB di container)
+RUN chmod -R 777 storage bootstrap/cache
+
+# Expose port
+EXPOSE 8080
+
+# 🚀 Runtime command
 CMD php artisan storage:link && \
-    php artisan config:clear && \
-    php artisan cache:clear && \
-    php artisan route:clear && \
-    php artisan view:clear && \
-    php artisan config:cache && \
-    php artisan route:cache && \
+    php artisan optimize:clear && \
     php artisan migrate --force && \
     php artisan db:seed --force && \
-    php artisan serve --host=0.0.0.0 --port=$PORT
+    php -S 0.0.0.0:$PORT -t public
