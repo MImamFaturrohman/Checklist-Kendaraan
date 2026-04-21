@@ -42,7 +42,7 @@
         .header-title-main { font-family: 'Arial', sans-serif; font-size: 14pt; color: #002a7a; font-weight: 700; letter-spacing: 0.5px; }
         .header-pm {
             font-size: 11pt;
-            font-weight: 600;
+            font-weight: 700;
             margin-top: 2px;
         }
         .header-subtitle { font-size: 8.5pt; color: #6b7280; }
@@ -68,9 +68,9 @@
                 width: auto;
                 height: auto;
                 min-width: 85px;
-                min-height: 85px;
-                max-width: 130px;
-                max-height: 130px;
+                min-height: 63.75px;
+                max-width: 150px;
+                max-height: 112.5px;
                 object-fit: cover;
                 border: 1px solid #d1d5db;
                 border-radius: 3px;
