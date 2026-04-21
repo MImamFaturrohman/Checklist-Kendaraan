@@ -37,23 +37,27 @@
         .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #ffd300; padding-bottom: 12px; }
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { vertical-align: top; }
-        .header-logo-cell { width: 84px; padding-right: 12px; }
-        .header-logo { width: 72px; max-height: 72px; object-fit: contain; }
-        .header-title h1 { font-size: 14pt; color: #002a7a; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .header-left { width: 40%; text-align: middle; }
+        .header-logo { width: 250px; height: auto; max-height: 250px; object-fit: contain; }
+        .header-title-main { font-family: 'Arial', sans-serif; font-size: 14pt; color: #002a7a; font-weight: 700; letter-spacing: 0.5px; }
+        .header-pm {
+            font-size: 11pt;
+            font-weight: 600;
+            margin-top: 2px;
+        }
         .header-subtitle { font-size: 8.5pt; color: #6b7280; }
-        .header-number { text-align: right; font-size: 8.5pt; color: #6b7280; white-space: nowrap; width: 200px; }
 
-        .section-heading { font-size: 10.5pt; font-weight: 800; color: #002a7a; padding: 5px 0; border-bottom: 3px solid #ffd300; margin: 14px 0 8px; }
+        .section-heading { font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: 700; color: #002a7a; padding: 5px 0; /*border-bottom: 3px solid #ffd300;*/ margin: 14px 0 8px; }
 
-        .info-grid { width: 100%; margin-bottom: 12px; }
-        .info-grid td { padding: 2px 0; vertical-align: top; font-size: 9pt; }
-        .info-label { font-weight: 700; color: #374151; width: 130px; }
-        .info-value { color: #111827; }
+        .info-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; font-size: 9; }
+        .info-table td { border: 1px solid #9ca3af; padding: 6px 8px; vertical-align: middle; font-size: 9pt; }
+        .info-table .label { font-weight: 700; background: #f3f4f6; color: #111827; width: 22%; }
+        .info-table .value { color: #111827; width: 28%; }
 
         .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 8.5pt; }
         .data-table th { background: #f1f5f9; padding: 6px 8px; text-align: left; font-weight: 700; color: #374151; border: 1px solid #d1d5db; font-size: 8pt; }
         .data-table td { padding: 5px 8px; border: 1px solid #d1d5db; }
-        .category-header { background: #e0e7ff; font-weight: 800; color: #1e40af; font-size: 8.5pt; }
+        .category-header { background: #e0e7ff; font-weight: 700; color: #1e40af; font-size: 8.5pt; }
         .status-ok { color: #16a34a; font-weight: 700; }
         .status-nok { color: #dc2626; font-weight: 700; }
 
@@ -64,9 +68,9 @@
                 width: auto;
                 height: auto;
                 min-width: 85px;
-                min-height: 60px;
-                max-width: 150px;
-                max-height: 110px;
+                min-height: 85px;
+                max-width: 130px;
+                max-height: 130px;
                 object-fit: cover;
                 border: 1px solid #d1d5db;
                 border-radius: 3px;
@@ -82,66 +86,62 @@
         .signature-area { width: 100%; margin-top: 20px; page-break-inside: avoid; }
         .signature-area td { width: 50%; text-align: center; padding: 4px; vertical-align: top; }
         .sig-label { font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
-        .sig-box { border: 1px dashed #cbd5e1; height: 70px; margin: 6px auto; width: 160px; position: relative; }
+        .sig-box { height: 70px; margin: 6px auto; width: 160px; position: relative; }
         .sig-box img { width: 100%; height: 100%; object-fit: contain; }
         .sig-name { font-weight: 700; font-size: 9.5pt; margin-top: 3px; }
         .status-text { font-weight: 700; }
 
-        .header-number-below {
-            text-align: left;
-            padding-top: 8px;
-            font-size: 12px;
+        .header-number {
+            width: 100%;
+            text-align: right;
+            margin-top: 3px;
+            font-size: 9px;
             color: #555;
         }
 
-        .header-logo {
-            width: 120px; 
-            height: auto;
-        }
-
-        .header-title {
-            padding-left: 20px; 
+        .header-right {
+            font-family: 'Arial', sans-serif;
+            width: 60%;
+            text-align: right;
         }
 
         .header-table td {
             vertical-align: middle;
         }
 
-        .header-logo-cell {
-            width: 160px;
-        }
-
-        .status-row {
-        width: 100%;
-        margin-top: 6px;
-        }
-
-        .status-row:after {
-            content: "";
-            display: block;
-            clear: both;
-        }
-
-        /* kiri (teks) */
-        .status-left {
-            float: left;
-            width: 55%;
-            font-size: 9pt;
-        }
-
-        /* kanan (gambar) */
-        .status-right {
-            float: right;
-            width: 40%;
-            text-align: right;
-        }
-
-        /* gambar diperbesar */
-        .status-right img {
+        .status-table {
             width: 100%;
-            max-width: 170px; 
-            max-height: 130px;
-            height: auto;
+            border-collapse: collapse;
+            margin-top: 6px;
+            margin-bottom: 12px;
+        }
+
+        .status-table td {
+            border: 1px solid #9ca3af;
+            padding: 6px 8px;
+            vertical-align: middle;
+        }
+
+        .status-label {
+            width: 25%;
+            font-weight: 700;
+            background: #f3f4f6;
+        }
+
+        .status-value {
+            width: 35%;
+        }
+
+        .status-photo {
+            width: 40%;
+            text-align: center;
+        }
+
+        .status-photo img {
+            width: 100%;
+            max-width: 170px;
+            max-height: 170px;
+            object-fit: cover;
             border: 1px solid #d1d5db;
             border-radius: 4px;
         }
@@ -158,6 +158,19 @@
         .photo-wrapper {
             page-break-inside: avoid;
         }
+
+        .signature-footer-line {
+            margin-top: 16px;
+            border-top: 1px solid #9ca3af;
+        }
+
+        .note {
+            text-align: center;
+            font-size: 8pt;
+            color: #6b7280;
+            margin-top: 6px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -167,71 +180,94 @@
         <div class="header">
             <table class="header-table">
                 <tr>
-                    <td class="header-logo-cell">
+                    <td class="header-left">
                         <img class="header-logo" src="{{ public_path('images/ADCPM Landscape NEW.png') }}" alt="Logo ADC PM">
                     </td>
-                    <td class="header-title">
-                        <h1>BERITA ACARA CEKLIST KENDARAAN</h1>
-                    </td>
-                </tr>
-                @php
-                    $tahun = \Carbon\Carbon::parse($checklist->tanggal)->format('y');
-
-                    $bulanRomawi = [
-                        1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
-                        5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
-                        9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
-                    ];
-
-                    $bulan = $bulanRomawi[\Carbon\Carbon::parse($checklist->tanggal)->month];
-
-                    $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
-                @endphp
-                <tr>
-                    <td colspan="2" class="header-number-below">
-                        Nomor Laporan: ADC-{{ $tahun }}{{ $bulan }}{{ $id }}
-                        <div class="header-subtitle">{{ $checklist->tanggal->format('d F Y') }}</div>
+                    <td class="header-right">
+                        <div class="header-title-main">
+                            BERITA ACARA CEKLIST KENDARAAN
+                        </div>
+                        <div class="header-pm">
+                            PM UNIT SURALAYA
+                        </div>
                     </td>
                 </tr>
             </table>
+            @php
+                $tahun = \Carbon\Carbon::parse($checklist->tanggal)->format('y');
+    
+                $bulanRomawi = [
+                    1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
+                    5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
+                    9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+                ];
+    
+                $bulan = $bulanRomawi[\Carbon\Carbon::parse($checklist->tanggal)->month];
+    
+                $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
+            @endphp
+            <div class="header-number">
+                No. ADC-{{ $tahun }}{{ $bulan }}{{ $id }} | {{ $checklist->tanggal->format('d F Y') }}
+            </div>
         </div>
 
         {{-- INFO --}}
-        <table class="info-grid">
+        <table class="info-table">
             <tr>
-                <td class="info-label">Kendaraan:</td>
-                <td class="info-value"><strong>{{ $checklist->nomor_kendaraan }}</strong> ({{ $checklist->jenis_kendaraan }})</td>
-                <td class="info-label" style="width:90px">Tanggal | Waktu:</td>
-                <td class="info-value">{{ $checklist->tanggal->format('d F Y') }} | {{ $checklist->jam_serah_terima }} WIB (Shift {{ $checklist->shift }})</td>
+                <td class="label">No. Kendaraan</td>
+                <td class="value">{{ $checklist->nomor_kendaraan }}</td>
+                <td class="label">Tanggal / Shift</td>
+                <td class="value">{{ $checklist->tanggal->format('d F Y') }} / {{ $checklist->shift }}</td>
             </tr>
             <tr>
-                <td class="info-label">Driver Yang Menyerahkan:</td>
-                <td class="info-value">{{ $checklist->driver_serah }}</td>
-                <td class="info-label">Driver Yang Menerima:</td>
-                <td class="info-value">{{ $checklist->driver_terima }}</td>
+                <td class="label">Jenis Kendaraan</td>
+                <td class="value">{{ $checklist->jenis_kendaraan }}</td>
+                <td class="label">Jam Serah Terima</td>
+                <td class="value">{{ $checklist->jam_serah_terima }} WIB</td>
+            </tr>
+            <tr>
+                <td class="label">Driver Yang Menyerahkan</td>
+                <td class="value">{{ $checklist->driver_serah }}</td>
+                <td class="label">Driver Yang Menerima</td>
+                <td class="value">{{ $checklist->driver_terima }}</td>
             </tr>
         </table>
 
         {{-- 1. STATUS OPERASIONAL --}}
         <div class="section-heading">1. Status Operasional</div>
-        <div class="status-row">
-            <div class="status-left">
-                <p>
-                    KM Awal: <strong>{{ number_format($checklist->km_awal) }}</strong><br>
-                    KM Akhir: <strong>{{ number_format($checklist->km_akhir ?? 0) }}</strong><br>
-                    BBM: <strong>{{ $checklist->level_bbm }}%</strong><br>
-                    @if($checklist->bbm_terakhir)
-                        Pengisian BBM Terakhir: {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->format('Y F d | H:i') }} WIB
-                    @endif
-                </p>
-            </div>
+        <table class="status-table">
+            <tr>
+                <td class="status-label">KM Awal</td>
+                <td class="status-value"><strong>{{ number_format($checklist->km_awal) }}</strong></td>
 
-            <div class="status-right">
-                @if($checklist->foto_bbm_dashboard)
-                    <img src="{{ storage_path('app/public/' . $checklist->foto_bbm_dashboard) }}">
-                @endif
-            </div>
-        </div>
+                <td class="status-photo" rowspan="4">
+                    @if($checklist->foto_bbm_dashboard)
+                        <img src="{{ storage_path('app/public/' . $checklist->foto_bbm_dashboard) }}">
+                    @endif
+                </td>
+            </tr>
+
+            <tr>
+                <td class="status-label">KM Akhir</td>
+                <td class="status-value"><strong>{{ number_format($checklist->km_akhir ?? 0) }}</strong></td>
+            </tr>
+
+            <tr>
+                <td class="status-label">Level BBM</td>
+                <td class="status-value"><strong>{{ $checklist->level_bbm }}%</strong></td>
+            </tr>
+
+            <tr>
+                <td class="status-label">Pengisian Terakhir</td>
+                <td class="status-value">
+                    @if($checklist->bbm_terakhir)
+                        {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->format('Y F d | H:i') }} WIB
+                    @else
+                        -
+                    @endif
+                </td>
+            </tr>
+        </table>
 
         {{-- 2. KONDISI FISIK --}}
         <div class="section-heading">2. Kondisi Fisik</div>
@@ -344,6 +380,10 @@
                 </td>
             </tr>
         </table>
+        <div class="signature-footer-line"></div>
+        <div class="note">
+            Dokumen ini dihasilkan secara otomatis oleh Sistem Ceklist ADC Fleet Management.
+        </div>
     </div>
 </body>
 </html>
