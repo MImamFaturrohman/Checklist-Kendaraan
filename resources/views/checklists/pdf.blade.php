@@ -70,7 +70,7 @@
                 min-width: 85px;
                 min-height: 63.75px;
                 max-width: 150px;
-                max-height: 112.5px;
+                max-height: 105px;
                 object-fit: cover;
                 border: 1px solid #d1d5db;
                 border-radius: 3px;
