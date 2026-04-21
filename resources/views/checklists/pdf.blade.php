@@ -140,6 +140,7 @@
         .status-right img {
             width: 100%;
             max-width: 170px; 
+            max-height: 130px;
             height: auto;
             border: 1px solid #d1d5db;
             border-radius: 4px;
