@@ -412,7 +412,7 @@
                             </div>
                         </div>
                         <div class="km-row" style="margin-top:14px">
-                            <div class="km-card"><span class="km-card-label">KM AWAL (SAAT INI)</span><input type="number" name="km_awal" id="km_awal" min="0" value="0" required class="km-card-value km-card-editable"></div>
+                            <div class="km-card"><span class="km-card-label">KM AWAL (SAAT INI)</span><input type="number" name="km_awal" id="km_awal" min="0" required class="km-card-value km-card-editable"></div>
                             <div class="km-card"><span class="km-card-label">KM AKHIR (SELESAI)</span><input type="number" name="km_akhir" id="km_akhir" min="0" required class="km-card-value km-card-editable"></div>
                         </div>
                         <div id="km-awal-error" class="km-error" style="display:none;">
