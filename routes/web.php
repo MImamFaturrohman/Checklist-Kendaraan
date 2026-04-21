@@ -18,6 +18,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    Route::get('/version', function () {
+    return 'VERSION 123';
+});
+
     Route::get('/checklists/create', function () {
         $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
         $drivers = User::where('role', 'driver')->orderBy('name')->get();
