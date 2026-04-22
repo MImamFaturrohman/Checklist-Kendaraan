@@ -44,7 +44,7 @@
             font-size: 12pt;
             font-weight: 700;
             color:#3d4654;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         .header-subtitle { font-size: 8.5pt; color: #6b7280; }
 
@@ -95,8 +95,9 @@
         .header-number {
             width: 100%;
             text-align: right;
-            margin-top: 2px;
+            margin-top: 1px;
             font-size: 11px;
+            font-weight: 700;
             color: #002a7a;
         }
 
@@ -132,8 +133,10 @@
 
         .status-table td {
             border: 1px solid #d1d5db;
-            padding: 6px 8px;
+            padding: 3px 6px;
             vertical-align: middle;
+            font-size: 9pt;
+            height: 25px;
         }
 
         .status-label {
@@ -149,15 +152,23 @@
             width: 40%;
             text-align: center;
             background-color: #fff;
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 0 !important; 
+            font-size: 0 !important;
+            border: 1px solid #d1d5db;
         }
 
         .status-photo img {
+            display: block;
             width: 100%;
-            max-width: 150px;
-            max-height: 105px;
+            height: 92px;
             object-fit: cover;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
+            border: none;
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 0 !important; 
+            font-size: 0 !important;
         }
 
         .data-table {
@@ -204,46 +215,50 @@
                         <div class="header-pm">
                             PM UNIT SURALAYA
                         </div>
+                        @php
+                            $tahun = \Carbon\Carbon::parse($checklist->tanggal)->format('y');
+                
+                            $bulanRomawi = [
+                                1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
+                                5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
+                                9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+                            ];
+                
+                            $bulan = $bulanRomawi[\Carbon\Carbon::parse($checklist->tanggal)->month];
+                
+                            $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
+                        @endphp
+                        <div class="header-number">
+                            No. ADC-{{ $tahun }}{{ $bulan }}{{ $id }} | {{ $checklist->tanggal->format('d F Y') }}
+                        </div>
                     </td>
                 </tr>
             </table>
-            @php
-                $tahun = \Carbon\Carbon::parse($checklist->tanggal)->format('y');
-    
-                $bulanRomawi = [
-                    1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
-                    5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
-                    9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
-                ];
-    
-                $bulan = $bulanRomawi[\Carbon\Carbon::parse($checklist->tanggal)->month];
-    
-                $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
-            @endphp
-            <div class="header-number">
-                No. ADC-{{ $tahun }}{{ $bulan }}{{ $id }} | {{ $checklist->tanggal->format('d F Y') }}
-            </div>
         </div>
 
         {{-- INFO --}}
         <table class="info-table">
             <tr>
-                <td class="label">No. Kendaraan</td>
-                <td class="value">{{ $checklist->nomor_kendaraan }}</td>
-                <td class="label">Tanggal / Shift</td>
-                <td class="value">{{ $checklist->tanggal->format('d F Y') }} / {{ $checklist->shift }}</td>
+                {{-- Kolom 1: Lebar ditingkatkan ke 26% --}}
+                <td class="label" style="width: 26%;">No. Kendaraan</td>
+                {{-- Kolom 2: Lebar ditingkatkan ke 32% --}}
+                <td class="value" style="width: 32%;">{{ $checklist->nomor_kendaraan }}</td>
+                {{-- Kolom 3: Tetap 22% --}}
+                <td class="label" style="width: 22%;">Tanggal | Shift</td>
+                {{-- Kolom 4: Lebar dikurangi ke 20% --}}
+                <td class="value" style="width: 20%;">{{ $checklist->tanggal->format('d F Y') }} | {{ $checklist->shift }}</td>
             </tr>
             <tr>
-                <td class="label">Jenis Kendaraan</td>
-                <td class="value">{{ $checklist->jenis_kendaraan }}</td>
-                <td class="label">Jam Serah Terima</td>
-                <td class="value">{{ $checklist->jam_serah_terima }} WIB</td>
+                <td class="label" style="width: 26%;">Jenis Kendaraan</td>
+                <td class="value" style="width: 32%;">{{ $checklist->jenis_kendaraan }}</td>
+                <td class="label" style="width: 22%;">Jam Serah Terima</td>
+                <td class="value" style="width: 20%;">{{ $checklist->jam_serah_terima }} WIB</td>
             </tr>
             <tr>
-                <td class="label">Driver Yang Menyerahkan</td>
-                <td class="value">{{ $checklist->driver_serah }}</td>
-                <td class="label">Driver Yang Menerima</td>
-                <td class="value">{{ $checklist->driver_terima }}</td>
+                <td class="label" style="width: 26%;">Driver Yang Menyerahkan</td>
+                <td class="value" style="width: 32%;">{{ $checklist->driver_serah }}</td>
+                <td class="label" style="width: 22%;">Driver Yang Menerima</td>
+                <td class="value" style="width: 20%;">{{ $checklist->driver_terima }}</td>
             </tr>
         </table>
 
@@ -255,10 +270,7 @@
 
                 <td class="status-label">KM Akhir: {{ number_format($checklist->km_akhir ?? 0) }}</td>
 
-                <td class="status-photo" rowspan="3">
-                    @if($checklist->foto_bbm_dashboard)
-                        <img src="{{ storage_path('app/public/' . $checklist->foto_bbm_dashboard) }}">
-                    @endif
+                <td class="status-photo" rowspan="3">@if($checklist->foto_bbm_dashboard)<img src="{{ storage_path('app/public/' . $checklist->foto_bbm_dashboard) }}">@endif
                 </td>
             </tr>
 
@@ -271,7 +283,7 @@
 
             <tr>
                 <td class="status-label">Pengisian Terakhir</td>
-                <td class="status-value">
+                <td class="status-value" style="font-weight: 700;">
                     @if($checklist->bbm_terakhir)
                         {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->format('d F Y | H:i') }} WIB
                     @else

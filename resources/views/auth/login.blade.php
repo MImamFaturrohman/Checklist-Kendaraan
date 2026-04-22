@@ -104,6 +104,17 @@
                         </span>
                     </button>
                 </form>
+
+                {{-- Back to landing --}}
+                <div class="auth-back-wrap">
+                    <a href="{{ route('landing') }}" class="auth-back-link">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Kembali ke Halaman Utama
+                    </a>
+                </div>
+
             </div>
         </div>
 
