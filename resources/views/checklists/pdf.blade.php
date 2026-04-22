@@ -41,17 +41,17 @@
         .header-logo { width: 250px; height: auto; max-height: 250px; object-fit: contain; }
         .header-title-main { font-family: 'Arial', sans-serif; font-size: 14pt; color: #002a7a; font-weight: 700; letter-spacing: 0.5px; }
         .header-pm {
-            font-size: 11pt;
+            font-size: 12pt;
             font-weight: 700;
             color:#3d4654;
             margin-top: 2px;
         }
         .header-subtitle { font-size: 8.5pt; color: #6b7280; }
 
-        .section-heading { font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: 700; color: #002a7a; padding: 5px 0; /*border-bottom: 3px solid #ffd300;*/ margin: 14px 0 8px; }
+        .section-heading { font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: 700; color: #002a7a; padding: 5px 0; border-left: 3px solid #ffd300; padding-left: 8px; margin: 14px 0 8px; }
 
         .info-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; font-size: 9; }
-        .info-table td { border: 1px solid #9ca3af; padding: 6px 8px; vertical-align: middle; font-size: 9pt; }
+        .info-table td { border: 1px solid #d1d5db; padding: 6px 8px; vertical-align: middle; font-size: 9pt; }
         .info-table .label { font-weight: 700; background: #f3f4f6; color: #111827; width: 22%; }
         .info-table .value { color: #111827; width: 28%; }
 
@@ -96,7 +96,7 @@
             width: 100%;
             text-align: right;
             margin-top: 3px;
-            font-size: 10px;
+            font-size: 11px;
             color: #002a7a;
         }
 
@@ -117,16 +117,21 @@
             margin-bottom: 12px;
         }
 
+        
         .status-table tr:nth-child(odd) {
             background-color: #f3f4f6;
         }
-
+        
         .status-table tr:nth-child(even) {
             background-color: #ffffff;
         }
+        
+        .status-table th {
+            border: 1px solid #d1d5db;
+        }
 
         .status-table td {
-            border: 1px solid #9ca3af;
+            border: 1px solid #d1d5db;
             padding: 6px 8px;
             vertical-align: middle;
         }
@@ -143,6 +148,7 @@
         .status-photo {
             width: 40%;
             text-align: center;
+            background-color: #fff;
         }
 
         .status-photo img {
@@ -242,11 +248,12 @@
         </table>
 
         {{-- 1. STATUS OPERASIONAL --}}
-        <div class="section-heading">1. Status Operasional</div>
+        <div class="section-heading">A. Status Operasional</div>
         <table class="status-table">
             <tr>
-                <td class="status-label">KM Awal</td>
-                <td class="status-value"><strong>{{ number_format($checklist->km_awal) }}</strong></td>
+                <td class="status-label">KM Awal: {{ number_format($checklist->km_awal) }}</td>
+
+                <td class="status-label">KM Akhir: {{ number_format($checklist->km_akhir ?? 0) }}</td>
 
                 <td class="status-photo" rowspan="3">
                     @if($checklist->foto_bbm_dashboard)
@@ -256,13 +263,10 @@
             </tr>
 
             <tr>
-                <td class="status-label">KM Akhir</td>
-                <td class="status-value"><strong>{{ number_format($checklist->km_akhir ?? 0) }}</strong></td>
-            </tr>
-
-            <tr>
                 <td class="status-label">Level BBM</td>
-                <td class="status-value"><strong>{{ $checklist->level_bbm }}%</strong></td>
+                <td class="status-value">
+                    <strong>{{ $checklist->level_bbm }}%</strong>
+                </td>
             </tr>
 
             <tr>
@@ -278,9 +282,9 @@
         </table>
 
         {{-- 2. KONDISI FISIK --}}
-        <div class="section-heading">2. Kondisi Fisik</div>
+        <div class="section-heading">B. Kondisi Fisik</div>
         <table class="data-table">
-            <thead style="text-align: center;"><tr><th style="width:38%">Bagian Kendaraan</th><th style="width:14%">Status</th><th style="width:48%">Keterangan</th></tr></thead>
+            <thead><tr><th style="width:38%; text-align: center;">Bagian Kendaraan</th><th style="width:14%; text-align: center;">Status</th><th style="width:48%; text-align: center;">Keterangan</th></tr></thead>
             <tbody>
                 {{-- EXTERIOR --}}
                 <tr><td colspan="3" class="category-header">EXTERIOR</td></tr>
@@ -299,7 +303,7 @@
                 @endforeach
 
                 {{-- MESIN --}}
-                <tr><td colspan="3" class="category-header">MESIN & OPERASIONAL</td></tr>
+                <tr><td colspan="3" class="category-header">MESIN</td></tr>
                 @php $mesinItems = ['mesin'=>'Mesin (suara normal)','oli'=>'Oli mesin','radiator'=>'Air radiator','rem'=>'Rem','kopling'=>'Kopling (manual)','transmisi'=>'Transmisi','indikator'=>'Indikator panel']; @endphp
                 @foreach ($mesinItems as $key => $label)
                 @php $status = $checklist->mesin?->$key; @endphp
@@ -361,7 +365,7 @@
         @endif
 
         {{-- 3. PERLENGKAPAN --}}
-        <div class="section-heading">3. Perlengkapan Tersedia</div>
+        <div class="section-heading">C. Perlengkapan Tersedia</div>
         @php
             $pLabels = ['stnk'=>'STNK','kir'=>'Kartu KIR dan QR Kartu BBM','dongkrak'=>'Dongkrak','toolkit'=>'Toolkit','segitiga'=>'Segitiga Pengaman','apar'=>'APAR','ban_cadangan'=>'Ban cadangan'];
             $available = collect($pLabels)->filter(fn($l,$k) => $checklist->perlengkapan?->$k === 'ada')->values();
@@ -369,7 +373,7 @@
         <div class="perlengkapan-list">{{ $available->isNotEmpty() ? $available->implode(', ') : 'Tidak ada data perlengkapan.' }}</div>
 
         {{-- 4. CATATAN --}}
-        <div class="section-heading">4. Catatan Khusus</div>
+        <div class="section-heading">D. Catatan Khusus</div>
         <div class="notes-box">{{ $checklist->catatan_khusus ?: '-' }}</div>
         <p class="statement">"Dengan ini saya menyatakan, bahwa saya sudah melakukan pemeriksaan secara menyeluruh (eksterior, interior, mesin, dan kelengkapan) kendaraan operasional dan kendaraan berada dalam kondisi baik dan siap untuk digunakan"</p>
 
