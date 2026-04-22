@@ -95,7 +95,7 @@
         .header-number {
             width: 100%;
             text-align: right;
-            margin-top: 3px;
+            margin-top: 2px;
             font-size: 11px;
             color: #002a7a;
         }
@@ -153,8 +153,8 @@
 
         .status-photo img {
             width: 100%;
-            max-width: 170px;
-            max-height: 170px;
+            max-width: 150px;
+            max-height: 105px;
             object-fit: cover;
             border: 1px solid #d1d5db;
             border-radius: 4px;
