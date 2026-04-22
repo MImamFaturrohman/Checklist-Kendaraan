@@ -9,116 +9,116 @@
 
         <style>
             .section-banner {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
-    padding: 12px 16px;
-    border-radius: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
 
-    /* Gradient biru seperti gambar */
-    background: linear-gradient(
-        90deg,
-        #0b2c6b 0%,
-        #123f8f 50%,
-        #3b5fa8 75%,
-        #dfe6f3 100%
-    );
+            /* Gradient biru seperti gambar */
+            background: linear-gradient(
+                90deg,
+                #0b2c6b 0%,
+                #123f8f 50%,
+                #3b5fa8 75%,
+                #dfe6f3 100%
+            );
 
-    color: white;
-    font-weight: 600;
-    font-size: 16px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
 
-    position: relative;
-    overflow: hidden;
-    }
+            position: relative;
+            overflow: hidden;
+            }
 
-    /* Garis kuning di kiri */
-    .section-banner::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 6px;
-        background: #facc15; /* kuning */
-        border-top-left-radius: 12px;
-        border-bottom-left-radius: 12px;
-    }
+            /* Garis kuning di kiri */
+            .section-banner::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 6px;
+                background: #facc15; /* kuning */
+                border-top-left-radius: 12px;
+                border-bottom-left-radius: 12px;
+            }
 
-    /* Icon biar lebih kontras */
-    .section-banner-icon {
-        color: #facc15;
-        flex-shrink: 0;
-    }
+            /* Icon biar lebih kontras */
+            .section-banner-icon {
+                color: #facc15;
+                flex-shrink: 0;
+            }
 
-    /* Text */
-    .section-banner span {
-        position: relative;
-        z-index: 1;
-    }
+            /* Text */
+            .section-banner span {
+                position: relative;
+                z-index: 1;
+            }
 
-    background: linear-gradient(
-    90deg,
-    #0b2c6b 0%,
-    #123f8f 40%,
-    rgba(59, 95, 168, 0.6) 70%,
-    rgba(223, 230, 243, 0.2) 100%
-    );
+            background: linear-gradient(
+            90deg,
+            #0b2c6b 0%,
+            #123f8f 40%,
+            rgba(59, 95, 168, 0.6) 70%,
+            rgba(223, 230, 243, 0.2) 100%
+            );
 
-    .bbm-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 999px;
-    outline: none;
+            .bbm-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            outline: none;
 
-    /* Background default (akan dioverride pakai JS biar dinamis) */
-    background: linear-gradient(to right, #facc15 50%, #e5e7eb 50%);
-    }
+            /* Background default (akan dioverride pakai JS biar dinamis) */
+            background: linear-gradient(to right, #facc15 50%, #e5e7eb 50%);
+            }
 
-    /* Track (Chrome, Safari) */
-    .bbm-slider::-webkit-slider-runnable-track {
-        height: 6px;
-        border-radius: 999px;
-    }
+            /* Track (Chrome, Safari) */
+            .bbm-slider::-webkit-slider-runnable-track {
+                height: 6px;
+                border-radius: 999px;
+            }
 
-    /* Thumb (bulatan) */
-    .bbm-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        height: 18px;
-        width: 18px;
-        border-radius: 50%;
-        background: white;
-        border: 2px solid #e5e7eb;
-        margin-top: -6px; /* biar center */
+            /* Thumb (bulatan) */
+            .bbm-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                height: 18px;
+                width: 18px;
+                border-radius: 50%;
+                background: white;
+                border: 2px solid #e5e7eb;
+                margin-top: -6px; /* biar center */
 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        cursor: pointer;
-    }
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                cursor: pointer;
+            }
 
-    /* Firefox */
-    .bbm-slider::-moz-range-track {
-        height: 6px;
-        border-radius: 999px;
-        background: #e5e7eb;
-    }
+            /* Firefox */
+            .bbm-slider::-moz-range-track {
+                height: 6px;
+                border-radius: 999px;
+                background: #e5e7eb;
+            }
 
-    .bbm-slider::-moz-range-progress {
-        background: #facc15;
-        height: 6px;
-        border-radius: 999px;
-    }
+            .bbm-slider::-moz-range-progress {
+                background: #facc15;
+                height: 6px;
+                border-radius: 999px;
+            }
 
-    .bbm-slider::-moz-range-thumb {
-        height: 18px;
-        width: 18px;
-        border-radius: 50%;
-        background: white;
-        border: 2px solid #e5e7eb;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        cursor: pointer;
-    }
+            .bbm-slider::-moz-range-thumb {
+                height: 18px;
+                width: 18px;
+                border-radius: 50%;
+                background: white;
+                border: 2px solid #e5e7eb;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                cursor: pointer;
+            }
         </style>
     </head>
     <body class="dash-body">
@@ -141,7 +141,7 @@
             <header class="checklist-topbar">
                 <div>
                     <h1 class="dash-brand-title">Ceklist Kendaraan</h1>
-                    <p class="dash-brand-sub">ADC Fleet Management.</p>
+                    <p class="dash-brand-sub">ADC PORT Management.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="dash-chip {{ $isDriver ? 'dash-chip-driver' : 'dash-chip-admin' }}">

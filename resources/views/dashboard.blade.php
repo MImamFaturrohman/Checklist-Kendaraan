@@ -11,8 +11,18 @@
         @php
             $user = auth()->user();
             $isAdmin = $user?->role === 'admin';
-            $userRoleLabel = $isAdmin ? 'ADMIN' : 'DRIVER';
+            $isManager = $user?->role === 'manager';
+            $isDriver = $user?->role === 'driver';
+            $userRoleLabel = $isAdmin ? 'ADMIN' : ($isManager ? 'MANAGER' : 'DRIVER');
             $userName = $user?->name ?? $user?->username ?? 'User';
+
+            $pendingCount = 0;
+            if ($isManager) {
+                $pendingCount = \App\Models\PeminjamanRequest::where('status', 'pending')->count();
+            }
+            if ($isAdmin) {
+                $pendingCount = \App\Models\PeminjamanRequest::where('status', 'pending')->count();
+            }
         @endphp
 
         <div class="dash-shell">
@@ -24,9 +34,11 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <span class="dash-chip {{ $isAdmin ? 'dash-chip-admin' : 'dash-chip-driver' }}">
+                        <span class="dash-chip {{ $isAdmin ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
                             @if ($isAdmin)
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
+                            @elseif ($isManager)
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             @else
                                 <i class="bi bi-person-check-fill"></i>
                             @endif
@@ -43,36 +55,82 @@
                 </div>
 
                 <div class="dash-hero">
-                    <p class="dash-hero-kicker">{{ $isAdmin ? 'AKSES ADMINISTRATOR' : 'SELAMAT BEKERJA,' }}</p>
-                    <h2 class="dash-hero-name">{{ $isAdmin ? 'Pusat Kontrol Fleet' : $userName }}</h2>
+                    @if($isAdmin)
+                        <p class="dash-hero-kicker">AKSES ADMINISTRATOR</p>
+                        <h2 class="dash-hero-name">Pusat Kontrol Fleet</h2>
+                    @elseif($isManager)
+                        <p class="dash-hero-kicker">AKSES MANAGER</p>
+                        <h2 class="dash-hero-name">Panel Persetujuan</h2>
+                    @else
+                        <p class="dash-hero-kicker">SELAMAT BEKERJA,</p>
+                        <h2 class="dash-hero-name">{{ $userName }}</h2>
+                    @endif
                     <div class="dash-hero-tags">
                         <span class="dash-tag dash-tag-outline">ID: {{ strtoupper($user?->username ?? 'USER-00') }}</span>
                         <span class="dash-tag dash-tag-yellow">Status: Aktif</span>
+                        @if(($isAdmin || $isManager) && $pendingCount > 0)
+                            <span class="dash-tag" style="background:#ef4444;color:#fff">
+                                {{ $pendingCount }} Request Menunggu
+                            </span>
+                        @endif
                     </div>
                 </div>
             </section>
 
             <main class="dash-content">
                 <div class="dash-desktop-grid">
+
+                    {{-- MAIN COLUMN --}}
                     <div class="dash-main-column">
-                        <section>
-                            <h3 class="dash-section-title">TUGAS UTAMA</h3>
-                            <a href="{{ route('checklists.create') }}" class="dash-main-card dash-pressable">
-                                <div>
-                                    <p class="dash-main-title">Buat Ceklist Baru</p>
-                                    <p class="dash-main-sub">Mulai inspeksi unit hari ini</p>
-                                </div>
-                                <span class="dash-main-icon" aria-hidden="true">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                                        <rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
-                                        <path d="M9 2H15V6H9V2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                                        <path d="M9 12L11.2 14.2L15 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </span>
-                            </a>
-                        </section>
+
+                        @if($isManager)
+                            {{-- Manager: show peminjaman approval card --}}
+                            <section>
+                                <h3 class="dash-section-title">TUGAS UTAMA</h3>
+                                <a href="{{ route('manager.peminjaman') }}" class="dash-main-card dash-pressable">
+                                    <div>
+                                        <p class="dash-main-title">Persetujuan Peminjaman</p>
+                                        <p class="dash-main-sub">
+                                            @if($pendingCount > 0)
+                                                {{ $pendingCount }} request menunggu persetujuan Anda
+                                            @else
+                                                Semua request sudah diproses
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <span class="dash-main-icon" aria-hidden="true" style="position:relative">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                            <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        @if($pendingCount > 0)
+                                            <span class="dash-pending-dot"></span>
+                                        @endif
+                                    </span>
+                                </a>
+                            </section>
+                        @else
+                            {{-- Admin & Driver: show ceklist card --}}
+                            <section>
+                                <h3 class="dash-section-title">TUGAS UTAMA</h3>
+                                <a href="{{ route('checklists.create') }}" class="dash-main-card dash-pressable">
+                                    <div>
+                                        <p class="dash-main-title">Buat Ceklist Baru</p>
+                                        <p class="dash-main-sub">Mulai inspeksi unit hari ini</p>
+                                    </div>
+                                    <span class="dash-main-icon" aria-hidden="true">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                            <rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M9 2H15V6H9V2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M9 12L11.2 14.2L15 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </a>
+                            </section>
+                        @endif
+
                     </div>
 
+                    {{-- ADMIN SIDE PANEL --}}
                     @if ($isAdmin)
                         <aside class="dash-side-column">
                             <section>
@@ -120,10 +178,25 @@
                                         </span>
                                         MASTER ARMADA
                                     </a>
+
+                                    <a href="{{ route('admin.peminjaman') }}" class="dash-admin-card dash-pressable" style="position:relative">
+                                        <span class="dash-admin-icon dash-admin-peminjaman" aria-hidden="true">
+                                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+                                        REQUEST PEMINJAMAN
+                                        @if($pendingCount > 0)
+                                            <span class="dash-admin-pending-badge">{{ $pendingCount }}</span>
+                                        @endif
+                                    </a>
                                 </div>
                             </section>
                         </aside>
                     @endif
+
                 </div>
             </main>
         </div>

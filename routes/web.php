@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\KendaraanController;
+use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Checklist;
 use App\Models\Kendaraan;
@@ -9,9 +10,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+// Landing page (public)
+Route::get('/', [PeminjamanController::class, 'landingPage'])->name('landing');
+Route::post('/peminjaman', [PeminjamanController::class, 'store'])->name('peminjaman.store');
+
+// Public kendaraan list API for landing page form
+Route::get('/api/kendaraan/public-list', [KendaraanController::class, 'apiList'])->name('api.kendaraan.public-list');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
@@ -49,6 +53,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/master-armada', [KendaraanController::class, 'store'])->name('admin.master-armada.store');
     Route::put('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'update'])->name('admin.master-armada.update');
     Route::delete('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'destroy'])->name('admin.master-armada.destroy');
+
+    // Admin: request peminjaman list (read-only)
+    Route::get('/admin/peminjaman', [PeminjamanController::class, 'adminIndex'])->name('admin.peminjaman');
+
+    // Manager: approval page
+    Route::get('/manager/peminjaman', [PeminjamanController::class, 'managerIndex'])->name('manager.peminjaman');
+    Route::post('/manager/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('manager.peminjaman.approve');
+    Route::post('/manager/peminjaman/{peminjaman}/reject', [PeminjamanController::class, 'reject'])->name('manager.peminjaman.reject');
 });
 
 Route::middleware('auth')->group(function () {

@@ -16,6 +16,16 @@ class DatabaseSeeder extends Seeder
         // =========================
 
         User::firstOrCreate(
+            ['username' => 'manager'], 
+            [
+                'name' => 'Manager Pusat',
+                'email' => 'manager@arthadaya.com',
+                'password' => Hash::make('password'),
+                'role' => 'manager',
+            ]
+        );
+
+        User::firstOrCreate(
             ['username' => 'admin'], // 🔑 kondisi unik
             [
                 'name' => 'Admin Pusat',
