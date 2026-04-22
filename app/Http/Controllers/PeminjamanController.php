@@ -11,7 +11,7 @@ class PeminjamanController extends Controller
 {
     public function landingPage()
     {
-        $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get(['nomor_kendaraan', 'jenis_kendaraan']);
+        $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get(['nomor_kendaraan', 'jenis_kendaraan', 'bidang']);
 
         return view('landing', compact('kendaraans'));
     }

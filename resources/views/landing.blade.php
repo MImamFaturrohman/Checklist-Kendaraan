@@ -390,8 +390,9 @@
                     <thead>
                         <tr>
                             <th style="width:56px">#</th>
-                            <th style="width:45%">Nomor Kendaraan</th>
+                            <th style="width:38%">Nomor Kendaraan</th>
                             <th>Jenis Kendaraan</th>
+                            <th>Bidang</th>
                         </tr>
                     </thead>
                     <tbody id="armada-tbody">
@@ -544,6 +545,7 @@ function renderTable() {
             <td>${start + i + 1}</td>
             <td><span class="landing-nopol-badge">${escHtml(k.nomor_kendaraan)}</span></td>
             <td>${escHtml(k.jenis_kendaraan)}</td>
+            <td>${k.bidang ? escHtml(k.bidang) : '<span style="color:#94a3b8">—</span>'}</td>
         </tr>
     `).join('');
 
@@ -603,7 +605,8 @@ document.getElementById('armada-search').addEventListener('input', function () {
         document.getElementById('search-clear-btn').style.display = q ? '' : 'none';
         filtered = KENDARAANS.filter(k =>
             k.nomor_kendaraan.toLowerCase().includes(q) ||
-            k.jenis_kendaraan.toLowerCase().includes(q)
+            k.jenis_kendaraan.toLowerCase().includes(q) ||
+            (k.bidang && k.bidang.toLowerCase().includes(q))
         );
         currentPage = 1;
         renderTable();

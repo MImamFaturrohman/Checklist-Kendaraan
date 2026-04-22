@@ -27,10 +27,11 @@ class KendaraanController extends Controller
         $request->validate([
             'nomor_kendaraan' => 'required|string|max:20|unique:kendaraans,nomor_kendaraan',
             'jenis_kendaraan' => 'required|string|max:100',
-            'set_km' => 'nullable|integer|min:0',
+            'bidang'          => 'nullable|string|max:100',
+            'set_km'          => 'nullable|integer|min:0',
         ]);
 
-        $kendaraan = Kendaraan::create($request->only('nomor_kendaraan', 'jenis_kendaraan', 'set_km'));
+        $kendaraan = Kendaraan::create($request->only('nomor_kendaraan', 'jenis_kendaraan', 'bidang', 'set_km'));
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -48,10 +49,11 @@ class KendaraanController extends Controller
         $request->validate([
             'nomor_kendaraan' => 'required|string|max:20|unique:kendaraans,nomor_kendaraan,' . $kendaraan->id,
             'jenis_kendaraan' => 'required|string|max:100',
-            'set_km' => 'nullable|integer|min:0',
+            'bidang'          => 'nullable|string|max:100',
+            'set_km'          => 'nullable|integer|min:0',
         ]);
 
-        $kendaraan->update($request->only('nomor_kendaraan', 'jenis_kendaraan', 'set_km'));
+        $kendaraan->update($request->only('nomor_kendaraan', 'jenis_kendaraan', 'bidang', 'set_km'));
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -84,7 +86,7 @@ class KendaraanController extends Controller
     public function apiList()
     {
         return response()->json(
-            Kendaraan::orderBy('nomor_kendaraan')->get(['id', 'nomor_kendaraan', 'jenis_kendaraan', 'set_km'])
+            Kendaraan::orderBy('nomor_kendaraan')->get(['id', 'nomor_kendaraan', 'jenis_kendaraan', 'bidang', 'set_km'])
         );
     }
 }

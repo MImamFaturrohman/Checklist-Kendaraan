@@ -46,6 +46,10 @@
                             <label style="display:block;margin-bottom:6px;font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Jenis Kendaraan</label>
                             <input type="text" name="jenis_kendaraan" placeholder="MITSUBISHI XPANDER" required>
                         </div>
+                        <div style="flex: 1; min-width: 160px;">
+                            <label style="display:block;margin-bottom:6px;font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Bidang</label>
+                            <input type="text" name="bidang" placeholder="Operasional, dll.">
+                        </div>
                         <div style="width: 140px;">
                             <label style="display:block;margin-bottom:6px;font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Set KM</label>
                             <input type="number" name="set_km" placeholder="50000" min="0">
@@ -89,6 +93,7 @@
                                 <th>#</th>
                                 <th>Nomor Kendaraan</th>
                                 <th>Jenis Kendaraan</th>
+                                <th>Bidang</th>
                                 <th>Set KM</th>
                                 <th style="text-align:center">Aksi</th>
                             </tr>
@@ -104,6 +109,10 @@
                                     <td>
                                         <span class="view-mode">{{ $k->jenis_kendaraan }}</span>
                                         <input class="edit-mode" type="text" value="{{ $k->jenis_kendaraan }}" name="jenis_kendaraan" form="edit-form-{{ $k->id }}" style="display:none;width:100%;border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;font-size:0.85rem">
+                                    </td>
+                                    <td>
+                                        <span class="view-mode">{{ $k->bidang ?: '—' }}</span>
+                                        <input class="edit-mode" type="text" value="{{ $k->bidang }}" name="bidang" form="edit-form-{{ $k->id }}" style="display:none;width:100%;border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;font-size:0.85rem" placeholder="Bidang...">
                                     </td>
                                     <td>
                                         <span class="view-mode">{{ number_format($k->set_km ?? 0, 0, ',', '.') }}</span>
@@ -126,7 +135,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" style="text-align:center;color:#9ca3af;padding:32px">Belum ada data kendaraan.</td>
+                                    <td colspan="6" style="text-align:center;color:#9ca3af;padding:32px">Belum ada data kendaraan.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -203,12 +212,14 @@
                 const formData = new FormData(form);
                 
                 const tr = document.getElementById('row-' + id);
-                const nopol = tr.querySelector('input[name="nomor_kendaraan"]').value;
-                const jenis = tr.querySelector('input[name="jenis_kendaraan"]').value;
+                const nopol  = tr.querySelector('input[name="nomor_kendaraan"]').value;
+                const jenis  = tr.querySelector('input[name="jenis_kendaraan"]').value;
+                const bidang = tr.querySelector('input[name="bidang"]').value;
                 const set_km = tr.querySelector('input[name="set_km"]').value;
-                
+
                 formData.append('nomor_kendaraan', nopol);
                 formData.append('jenis_kendaraan', jenis);
+                formData.append('bidang', bidang);
                 formData.append('set_km', set_km);
                 
                 try {

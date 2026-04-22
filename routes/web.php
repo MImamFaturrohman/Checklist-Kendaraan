@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
@@ -53,6 +54,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/master-armada', [KendaraanController::class, 'store'])->name('admin.master-armada.store');
     Route::put('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'update'])->name('admin.master-armada.update');
     Route::delete('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'destroy'])->name('admin.master-armada.destroy');
+
+    // Admin: Driver CRUD
+    Route::get('/admin/drivers', [DriverController::class, 'index'])->name('admin.drivers');
+    Route::post('/admin/drivers', [DriverController::class, 'store'])->name('admin.drivers.store');
+    Route::put('/admin/drivers/{user}', [DriverController::class, 'update'])->name('admin.drivers.update');
+    Route::delete('/admin/drivers/{user}', [DriverController::class, 'destroy'])->name('admin.drivers.destroy');
 
     // Admin: request peminjaman list (read-only)
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'adminIndex'])->name('admin.peminjaman');

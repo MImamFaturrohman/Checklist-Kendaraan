@@ -18,7 +18,6 @@ class ChecklistMesin extends Model
         'kopling', 'kopling_keterangan',
         'transmisi', 'transmisi_keterangan',
         'indikator', 'indikator_keterangan',
-        'catatan',
         'foto_1', 'foto_2', 'foto_3',
     ];
 

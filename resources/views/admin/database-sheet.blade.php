@@ -65,7 +65,7 @@
                 <div data-tab-panel="all">
                     <div class="admin-table-wrap">
                         <table class="admin-table">
-                            <thead><tr><th>#</th><th>Tanggal</th><th>Shift</th><th>Nopol</th><th>Jenis</th><th>Driver Serah</th><th>Driver Terima</th><th>BBM</th><th>KM Awal</th><th>KM Akhir</th><th>Catatan Ext.</th><th>Catatan Int.</th><th>Catatan Mesin</th></tr></thead>
+                            <thead><tr><th>#</th><th>Tanggal</th><th>Shift</th><th>Nopol</th><th>Jenis</th><th>Driver Serah</th><th>Driver Terima</th><th>BBM</th><th>KM Awal</th><th>KM Akhir</th></tr></thead>
                             <tbody>
                                 @forelse($checklists as $c)
                                 <tr>
@@ -74,12 +74,9 @@
                                     <td><strong>{{ $c->nomor_kendaraan }}</strong></td><td>{{ $c->jenis_kendaraan }}</td>
                                     <td>{{ $c->driver_serah }}</td><td>{{ $c->driver_terima }}</td>
                                     <td>{{ $c->level_bbm }}%</td><td>{{ number_format($c->km_awal) }}</td><td>{{ number_format($c->km_akhir ?? 0) }}</td>
-                                    <td style="font-size:0.72rem;max-width:120px;white-space:normal">{{ $c->exterior?->catatan ?: '-' }}</td>
-                                    <td style="font-size:0.72rem;max-width:120px;white-space:normal">{{ $c->interior?->catatan ?: '-' }}</td>
-                                    <td style="font-size:0.72rem;max-width:120px;white-space:normal">{{ $c->mesin?->catatan ?: '-' }}</td>
                                 </tr>
                                 @empty
-                                <tr><td colspan="13" style="text-align:center;color:#94a3b8;padding:24px">Belum ada data.</td></tr>
+                                <tr><td colspan="10" style="text-align:center;color:#94a3b8;padding:24px">Belum ada data.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -96,7 +93,7 @@
                 <div data-tab-panel="exterior" style="display:none">
                     <div class="admin-table-wrap">
                         <table class="admin-table">
-                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>Body</th><th>Kaca</th><th>Spion</th><th>Lampu Utama</th><th>Lampu Sein</th><th>Ban</th><th>Velg</th><th>Wiper</th><th>Catatan</th></tr></thead>
+                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>Body</th><th>Kaca</th><th>Spion</th><th>Lampu Utama</th><th>Lampu Sein</th><th>Ban</th><th>Velg</th><th>Wiper</th></tr></thead>
                             <tbody>
                                 @foreach($checklists as $c)
                                 @if($c->exterior)
@@ -105,7 +102,6 @@
                                     @foreach(['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'] as $k)
                                     <td class="{{ $statusClass($c->exterior->$k) }}" style="font-weight:700;font-size:0.75rem;color:{{ $statusClass($c->exterior->$k) === 'status-ok' ? '#16a34a' : ($statusClass($c->exterior->$k) === 'status-nok' ? '#dc2626' : '#334155') }}">{{ $statusLabel($c->exterior->$k) }}</td>
                                     @endforeach
-                                    <td style="font-size:0.72rem;max-width:120px;white-space:normal">{{ $c->exterior->catatan ?: '-' }}</td>
                                 </tr>
                                 @endif
                                 @endforeach
@@ -118,7 +114,7 @@
                 <div data-tab-panel="interior" style="display:none">
                     <div class="admin-table-wrap">
                         <table class="admin-table">
-                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>Jok</th><th>Dashboard</th><th>AC</th><th>Sabuk</th><th>Audio</th><th>Kebersihan</th><th>Catatan</th></tr></thead>
+                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>Jok</th><th>Dashboard</th><th>AC</th><th>Sabuk</th><th>Audio</th><th>Kebersihan</th></tr></thead>
                             <tbody>
                                 @foreach($checklists as $c)
                                 @if($c->interior)
@@ -127,7 +123,6 @@
                                     @foreach(['jok','dashboard','ac','sabuk_pengaman','audio','kebersihan'] as $k)
                                     <td class="{{ $statusClass($c->interior->$k) }}" style="font-weight:700;font-size:0.75rem;color:{{ $statusClass($c->interior->$k) === 'status-ok' ? '#16a34a' : ($statusClass($c->interior->$k) === 'status-nok' ? '#dc2626' : '#334155') }}">{{ $statusLabel($c->interior->$k) }}</td>
                                     @endforeach
-                                    <td style="font-size:0.72rem;max-width:120px;white-space:normal">{{ $c->interior->catatan ?: '-' }}</td>
                                 </tr>
                                 @endif
                                 @endforeach
@@ -140,7 +135,7 @@
                 <div data-tab-panel="mesin" style="display:none">
                     <div class="admin-table-wrap">
                         <table class="admin-table">
-                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>Mesin</th><th>Oli</th><th>Radiator</th><th>Rem</th><th>Kopling</th><th>Transmisi</th><th>Indikator</th><th>Catatan</th></tr></thead>
+                            <thead><tr><th>Nopol</th><th>Tanggal</th><th>Mesin</th><th>Oli</th><th>Radiator</th><th>Rem</th><th>Kopling</th><th>Transmisi</th><th>Indikator</th></tr></thead>
                             <tbody>
                                 @foreach($checklists as $c)
                                 @if($c->mesin)
@@ -149,7 +144,6 @@
                                     @foreach(['mesin','oli','radiator','rem','kopling','transmisi','indikator'] as $k)
                                     <td class="{{ $statusClass($c->mesin->$k) }}" style="font-weight:700;font-size:0.75rem;color:{{ $statusClass($c->mesin->$k) === 'status-ok' ? '#16a34a' : ($statusClass($c->mesin->$k) === 'status-nok' ? '#dc2626' : '#334155') }}">{{ $statusLabel($c->mesin->$k) }}</td>
                                     @endforeach
-                                    <td style="font-size:0.72rem;max-width:120px;white-space:normal">{{ $c->mesin->catatan ?: '-' }}</td>
                                 </tr>
                                 @endif
                                 @endforeach

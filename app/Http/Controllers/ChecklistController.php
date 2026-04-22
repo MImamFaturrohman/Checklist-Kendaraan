@@ -86,7 +86,6 @@ class ChecklistController extends Controller
                 $exteriorData[$item] = $request->input("exterior_{$item}");
                 $exteriorData["{$item}_keterangan"] = $request->input("exterior_{$item}_catatan");
             }
-            $exteriorData['catatan'] = $request->input('exterior_catatan');
 
             // Save exterior photos
             foreach (['depan', 'kanan', 'kiri', 'belakang'] as $side) {
@@ -103,7 +102,6 @@ class ChecklistController extends Controller
                 $interiorData[$item] = $request->input("interior_{$item}");
                 $interiorData["{$item}_keterangan"] = $request->input("interior_{$item}_catatan");
             }
-            $interiorData['catatan'] = $request->input('interior_catatan');
 
             for ($i = 1; $i <= 3; $i++) {
                 if ($request->hasFile("interior_foto_{$i}")) {
@@ -119,7 +117,6 @@ class ChecklistController extends Controller
                 $mesinData[$item] = $request->input("mesin_{$item}");
                 $mesinData["{$item}_keterangan"] = $request->input("mesin_{$item}_catatan");
             }
-            $mesinData['catatan'] = $request->input('mesin_catatan');
 
             for ($i = 1; $i <= 3; $i++) {
                 if ($request->hasFile("mesin_foto_{$i}")) {
@@ -368,7 +365,6 @@ class ChecklistController extends Controller
                 'Mesin', 'Oli', 'Radiator', 'Rem', 'Kopling', 'Transmisi', 'Indikator',
                 'STNK', 'KIR & QR BBM', 'Dongkrak', 'Toolkit', 'Segitiga', 'APAR', 'Ban Cadangan',
                 'Catatan',
-                'Catatan Exterior', 'Catatan Interior', 'Catatan Mesin',
             ]];
 
             foreach ($checklists as $i => $checklist) {
@@ -466,9 +462,6 @@ class ChecklistController extends Controller
             strtoupper($c->perlengkapan?->apar ?? '-'),
             strtoupper($c->perlengkapan?->ban_cadangan ?? '-'),
             $c->catatan_khusus ?? '-',
-            $c->exterior?->catatan ?? '-',
-            $c->interior?->catatan ?? '-',
-            $c->mesin?->catatan ?? '-',
         ];
     }
 

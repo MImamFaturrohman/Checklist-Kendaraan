@@ -19,7 +19,6 @@ class ChecklistExterior extends Model
         'ban', 'ban_keterangan',
         'velg', 'velg_keterangan',
         'wiper', 'wiper_keterangan',
-        'catatan',
         'foto_depan', 'foto_kanan', 'foto_kiri', 'foto_belakang',
     ];
 

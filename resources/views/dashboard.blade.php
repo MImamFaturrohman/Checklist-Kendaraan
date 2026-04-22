@@ -192,6 +192,17 @@
                                             <span class="dash-admin-pending-badge">{{ $pendingCount }}</span>
                                         @endif
                                     </a>
+
+                                    <a href="{{ route('admin.drivers') }}" class="dash-admin-card dash-pressable">
+                                        <span class="dash-admin-icon" aria-hidden="true">
+                                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                <path d="M16 11l2 2 4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
+                                        MANAJEMEN DRIVER
+                                    </a>
                                 </div>
                             </section>
                         </aside>

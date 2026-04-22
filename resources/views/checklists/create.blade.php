@@ -286,10 +286,6 @@
                                 </div>
                             @endforeach
                         </div>
-                        <label class="checklist-field">
-                            <span>Catatan Kondisi Exterior</span>
-                            <textarea name="exterior_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea>
-                        </label>
                         <div class="checklist-field">
                             <span>Foto Bukti Exterior (Wajib 4 Sisi)</span>
                             <div class="checklist-photo-grid checklist-photo-grid-4">
@@ -332,7 +328,6 @@
                                 </div>
                             @endforeach
                         </div>
-                        <label class="checklist-field"><span>Catatan Kondisi Interior</span><textarea name="interior_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea></label>
                         <div class="checklist-field">
                             <span>Foto Interior (Wajib min. 1, maks 3)</span>
                             <div class="dynamic-photo-container" data-dynamic-photos data-min-photos="1" data-section="interior" data-max="3" data-min-required="1">
@@ -370,7 +365,6 @@
                                 </div>
                             @endforeach
                         </div>
-                        <label class="checklist-field"><span>Catatan Kondisi Mesin & Operasional</span><textarea name="mesin_catatan" rows="3" placeholder="Isi catatan bila ada temuan..."></textarea></label>
                         <div class="checklist-field">
                             <span>Foto Ruang Mesin (Wajib min. 1, maks 3)</span>
                             <div class="dynamic-photo-container" data-dynamic-photos data-min-photos="1" data-section="mesin" data-max="3" data-min-required="1">

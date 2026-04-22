@@ -17,7 +17,6 @@ class ChecklistInterior extends Model
         'sabuk_pengaman', 'sabuk_pengaman_keterangan',
         'audio', 'audio_keterangan',
         'kebersihan', 'kebersihan_keterangan',
-        'catatan',
         'foto_1', 'foto_2', 'foto_3',
     ];
 
