@@ -19,7 +19,7 @@
 
         @page { margin: 30px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; margin: 15px; border: 2px solid #002a7a; padding: 10px; padding-top: 10px; }
+        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; margin: 10px; padding: 10px; padding-top: 10px; }
 
         /* .page-border {
             position: fixed;
@@ -34,7 +34,7 @@
 
         .page { padding: 10px; padding-top 10px; }
 
-        .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #ffd300; padding-bottom: 12px; }
+        .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #002a7a; padding-bottom: 12px; }
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { vertical-align: top; }
         .header-left { width: 40%; text-align: middle; }
@@ -43,6 +43,7 @@
         .header-pm {
             font-size: 11pt;
             font-weight: 700;
+            color:#3d4654;
             margin-top: 2px;
         }
         .header-subtitle { font-size: 8.5pt; color: #6b7280; }
@@ -95,8 +96,8 @@
             width: 100%;
             text-align: right;
             margin-top: 3px;
-            font-size: 9px;
-            color: #555;
+            font-size: 10px;
+            color: #002a7a;
         }
 
         .header-right {
@@ -116,6 +117,14 @@
             margin-bottom: 12px;
         }
 
+        .status-table tr:nth-child(odd) {
+            background-color: #f3f4f6;
+        }
+
+        .status-table tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
         .status-table td {
             border: 1px solid #9ca3af;
             padding: 6px 8px;
@@ -125,7 +134,6 @@
         .status-label {
             width: 25%;
             font-weight: 700;
-            background: #f3f4f6;
         }
 
         .status-value {
@@ -240,7 +248,7 @@
                 <td class="status-label">KM Awal</td>
                 <td class="status-value"><strong>{{ number_format($checklist->km_awal) }}</strong></td>
 
-                <td class="status-photo" rowspan="4">
+                <td class="status-photo" rowspan="3">
                     @if($checklist->foto_bbm_dashboard)
                         <img src="{{ storage_path('app/public/' . $checklist->foto_bbm_dashboard) }}">
                     @endif
@@ -261,7 +269,7 @@
                 <td class="status-label">Pengisian Terakhir</td>
                 <td class="status-value">
                     @if($checklist->bbm_terakhir)
-                        {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->format('Y F d | H:i') }} WIB
+                        {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->format('d F Y | H:i') }} WIB
                     @else
                         -
                     @endif
@@ -272,7 +280,7 @@
         {{-- 2. KONDISI FISIK --}}
         <div class="section-heading">2. Kondisi Fisik</div>
         <table class="data-table">
-            <thead><tr><th style="width:38%">Bagian Kendaraan</th><th style="text-align: center; width:14%">Status</th><th style="width:48%">Keterangan</th></tr></thead>
+            <thead style="text-align: center;"><tr><th style="width:38%">Bagian Kendaraan</th><th style="width:14%">Status</th><th style="width:48%">Keterangan</th></tr></thead>
             <tbody>
                 {{-- EXTERIOR --}}
                 <tr><td colspan="3" class="category-header">EXTERIOR</td></tr>
@@ -361,7 +369,7 @@
         <div class="perlengkapan-list">{{ $available->isNotEmpty() ? $available->implode(', ') : 'Tidak ada data perlengkapan.' }}</div>
 
         {{-- 4. CATATAN --}}
-        <div class="section-heading">4. Catatan Khusus & Validasi</div>
+        <div class="section-heading">4. Catatan Khusus</div>
         <div class="notes-box">{{ $checklist->catatan_khusus ?: '-' }}</div>
         <p class="statement">"Dengan ini saya menyatakan, bahwa saya sudah melakukan pemeriksaan secara menyeluruh (eksterior, interior, mesin, dan kelengkapan) kendaraan operasional dan kendaraan berada dalam kondisi baik dan siap untuk digunakan"</p>
 
@@ -369,12 +377,12 @@
         <table class="signature-area">
             <tr>
                 <td>
-                    <div class="sig-label">Driver Yang Menyerahkan:</div>
+                    <div class="sig-label">Yang Menyerahkan,</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_serah)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_serah) }}">@endif</div>
                     <div class="sig-name">{{ $checklist->driver_serah }}</div>
                 </td>
                 <td>
-                    <div class="sig-label">Driver Yang Menerima:</div>
+                    <div class="sig-label">Yang Menerima,</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_terima)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_terima) }}">@endif</div>
                     <div class="sig-name">{{ $checklist->driver_terima }}</div>
                 </td>
@@ -382,7 +390,7 @@
         </table>
         <div class="signature-footer-line"></div>
         <div class="note">
-            Dokumen ini dihasilkan secara otomatis oleh Sistem Ceklist ADC Fleet Management.
+            Dokumen ini dihasilkan secara otomatis oleh Sistem Ceklist ADC Port Management.
         </div>
     </div>
 </body>
