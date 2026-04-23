@@ -49,6 +49,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/admin/arsip-pdf', [ChecklistController::class, 'arsipPdf'])->name('admin.arsip-pdf');
 
+    // Combined Portal Pemeriksaan Kendaraan
+    Route::get('/admin/portal-pemeriksaan', [ChecklistController::class, 'portalPemeriksaan'])->name('admin.portal-pemeriksaan');
+
+    // AJAX API endpoints for real-time portal search
+    Route::get('/api/admin/portal/database-sheet', [ChecklistController::class, 'apiPortalDatabaseSheet'])->name('api.admin.portal.database-sheet');
+    Route::get('/api/admin/portal/log-foto', [ChecklistController::class, 'apiPortalLogFoto'])->name('api.admin.portal.log-foto');
+    Route::get('/api/admin/portal/arsip-pdf', [ChecklistController::class, 'apiPortalArsipPdf'])->name('api.admin.portal.arsip-pdf');
+    Route::get('/api/admin/portal/charts', [ChecklistController::class, 'apiPortalCharts'])->name('api.admin.portal.charts');
+
     // Master Armada CRUD
     Route::get('/admin/master-armada', [KendaraanController::class, 'index'])->name('admin.master-armada');
     Route::post('/admin/master-armada', [KendaraanController::class, 'store'])->name('admin.master-armada.store');

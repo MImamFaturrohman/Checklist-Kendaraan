@@ -39,7 +39,6 @@ class PeminjamanController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Request peminjaman berhasil dikirim! Silakan tunggu persetujuan dari manager.',
         ]);
     }
 

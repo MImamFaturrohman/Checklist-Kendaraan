@@ -187,17 +187,24 @@
                             <label class="checklist-field">
                                 <span>Tanggal</span>
                                 <div class="checklist-control-wrap checklist-control-date">
-                                    <input type="date" name="tanggal" required>
+                                    <input type="date" name="tanggal" id="input-tanggal" required
+                                        {{ $isDriver ? 'readonly' : '' }}>
                                 </div>
                             </label>
                             <label class="checklist-field">
                                 <span>Shift</span>
                                 <div class="checklist-control-wrap checklist-control-select">
-                                    <select name="shift" required>
+                                    <select name="{{ $isDriver ? '_shift_display' : 'shift' }}"
+                                            id="input-shift" required
+                                            {{ $isDriver ? 'disabled' : '' }}>
                                         <option value="">Pilih Shift</option>
-                                        <option>Pagi</option>
-                                        <option>Siang</option>
+                                        <option value="Pagi">Pagi</option>
+                                        <option value="Siang">Siang</option>
                                     </select>
+                                    {{-- Hidden input agar nilai shift tetap terkirim meski select disabled --}}
+                                    @if($isDriver)
+                                        <input type="hidden" name="shift" id="input-shift-hidden">
+                                    @endif
                                 </div>
                             </label>
                             <label class="checklist-field">
@@ -502,3 +509,41 @@
         </div>
     </body>
 </html>
+
+@if($isDriver)
+<script>
+(function () {
+    /* ─ Deteksi shift berdasarkan jam ─ */
+    function detectShift(hour) {
+        if (hour >= 7 && hour < 12)  return 'Pagi';
+        if (hour >= 12 && hour < 16) return 'Siang';
+        return '';
+    }
+
+    /* ─ Auto-fill tanggal & shift ─ */
+    const now   = new Date();
+    const year  = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day   = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
+    const shift = detectShift(now.getHours());
+
+    const tanggalEl    = document.getElementById('input-tanggal');
+    const shiftEl      = document.getElementById('input-shift');
+    const shiftHidden  = document.getElementById('input-shift-hidden');
+
+    /* Tanggal (readonly, nilai tetap terkirim) */
+    if (tanggalEl && !tanggalEl.value) tanggalEl.value = today;
+
+    /* Shift: isi select display + hidden input untuk submit */
+    if (shift) {
+        if (shiftEl) {
+            Array.from(shiftEl.options).forEach(opt => {
+                if (opt.value === shift) opt.selected = true;
+            });
+        }
+        if (shiftHidden) shiftHidden.value = shift;
+    }
+})();
+</script>
+@endif

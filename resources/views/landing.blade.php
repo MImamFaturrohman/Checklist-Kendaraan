@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Ceklist Kendaraan - PT ARTHA DAYA COALINDO</title>
+    <link rel="icon" type="image/png" sizes="128x128" href="{{ asset('images/VMS.png') }}">
+    <title>Vechicle Management System - PT ARTHA DAYA COALINDO</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -259,7 +260,7 @@
         <a href="{{ route('landing') }}" class="landing-nav-brand">
             <img src="{{ asset('images/ADC PM Logo NEW.png') }}" alt="Logo" class="landing-nav-logo">
             <div>
-                <div class="landing-nav-title">Ceklist Kendaraan</div>
+                <div class="landing-nav-title">Vechicle Management System</div>
                 <div class="landing-nav-sub">PT ARTHA DAYA COALINDO</div>
             </div>
         </a>
@@ -311,7 +312,7 @@
                     <span>Ajukan Peminjaman</span>
                 </h1>
                 <p class="lp-hero-desc">
-                    Lihat daftar kendaraan operasional yang tersedia, kemudian ajukan permintaan peminjaman.
+                    Lihat daftar kendaraan operasional, kemudian ajukan permohonan peminjaman.
                 </p>
                 <div class="lp-hero-btns">
                     <a href="#armada" class="lp-btn-primary" onclick="smoothTo('armada',event)">
@@ -343,7 +344,7 @@
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 12h.01M12 16h.01M8 12h.01M8 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </div>
                     <div>
-                        <p class="lp-feat-title">Ajukan Permintaan</p>
+                        <p class="lp-feat-title">Ajukan Permohonan</p>
                         <p class="lp-feat-desc">Isi formulir online dengan detail kebutuhan peminjaman Anda.</p>
                     </div>
                 </div>
@@ -353,7 +354,7 @@
                     </div>
                     <div>
                         <p class="lp-feat-title">Menunggu Persetujuan</p>
-                        <p class="lp-feat-desc">Request Anda akan diproses dan disetujui oleh Manager yang berwenang.</p>
+                        <p class="lp-feat-desc">Permohonan Anda akan diproses dan disetujui oleh Manager yang berwenang.</p>
                     </div>
                 </div>
             </div>
@@ -410,8 +411,8 @@
     {{-- FORM SECTION --}}
     <section class="landing-section reveal" id="form-peminjaman">
         <div style="margin-bottom:20px">
-            <h2 class="landing-section-title">Form Request Peminjaman Kendaraan</h2>
-            <p class="landing-section-sub">Isi formulir di bawah untuk mengajukan permintaan peminjaman kendaraan</p>
+            <h2 class="landing-section-title">Form Permohonan Peminjaman Kendaraan</h2>
+            <p class="landing-section-sub">Isi formulir di bawah untuk mengajukan permohonan peminjaman kendaraan</p>
         </div>
 
         <div class="landing-card landing-form-card">
@@ -420,7 +421,7 @@
                     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span>Request Peminjaman Kendaraan</span>
+                <span>Permohonan Peminjaman Kendaraan</span>
             </div>
 
             <form id="form-request" autocomplete="off">
@@ -480,7 +481,7 @@
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                         <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                    <span>Request Anda akan dikirim ke Manager untuk mendapatkan persetujuan. Harap menunggu konfirmasi lebih lanjut.</span>
+                    <span>Permohonan Anda akan dikirim ke Manager untuk mendapatkan persetujuan. Harap menunggu konfirmasi lebih lanjut.</span>
                 </div>
 
                 <button type="submit" class="landing-submit-btn" id="btn-submit-request" style="margin-top:14px">
@@ -488,7 +489,7 @@
                     <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2ZM14 2V8H20M12 18V12M12 12L9 15M12 12L15 15"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    Kirim Request Peminjaman
+                    Kirim Permohonan Peminjaman
                 </button>
             </form>
         </div>
@@ -500,11 +501,7 @@
 <footer class="landing-footer">
     <div class="landing-container">
         <div class="landing-footer-inner">
-            <div class="landing-footer-brand">
-                <img src="{{ asset('images/ADC PM Logo NEW.png') }}" alt="Logo" style="height:30px;border-radius:6px">
-                <span>Ceklist Kendaraan &mdash; PT ARTHA DAYA COALINDO</span>
-            </div>
-            <p class="landing-footer-copy">&copy; {{ date('Y') }} All rights reserved.</p>
+            <p class="landing-footer-copy">&copy; {{ date('Y') }} Port Management Unit Suralaya</p>
         </div>
     </div>
 </footer>
@@ -654,10 +651,10 @@ document.getElementById('form-request').addEventListener('submit', async functio
         if (res.ok && data.success) {
             Swal.fire({
                 icon: 'success',
-                title: 'Request Terkirim!',
-                html: `<p style="color:#374151;font-size:.93rem;margin-bottom:12px">${data.message}</p>
+                title: 'Permohonan Terkirim!',
+                html: `
                        <div style="padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:.8rem;color:#92400e;text-align:left">
-                           <strong>ℹ️ Catatan:</strong> Request sedang menunggu <strong>persetujuan Manager</strong>. Anda akan dihubungi lebih lanjut.
+                           <strong>ℹ️ Catatan:</strong> Permohonan sedang menunggu <strong>persetujuan Manager</strong>. Anda akan dihubungi oleh Administrator lebih lanjut.
                        </div>`,
                 confirmButtonText: 'OK, Mengerti',
                 confirmButtonColor: '#002a7a',

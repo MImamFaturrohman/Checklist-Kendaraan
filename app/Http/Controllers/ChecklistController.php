@@ -323,6 +323,284 @@ class ChecklistController extends Controller
     }
 
     /**
+     * Combined Portal Pemeriksaan Kendaraan page.
+     */
+    public function portalPemeriksaan(Request $request)
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
+
+        // Database Sheet stats (unfiltered)
+        $allChecklists = Checklist::all();
+        $dbStats = [
+            'total'           => $allChecklists->count(),
+            'kendaraan_unik'  => $allChecklists->unique('nomor_kendaraan')->count(),
+            'driver_aktif'    => $allChecklists->unique('driver_serah')->count(),
+            'bulan_ini'       => $allChecklists->where('tanggal', '>=', now()->startOfMonth())->count(),
+        ];
+
+        // Arsip PDF stats (unfiltered)
+        $allPdf   = Checklist::whereNotNull('pdf_path');
+        $pdfStats = [
+            'total'     => (clone $allPdf)->count(),
+            'bulan_ini' => (clone $allPdf)->whereDate('tanggal', '>=', now()->startOfMonth())->count(),
+        ];
+
+        // Chart data
+        $chartData = $this->buildChartData();
+
+        // Initial paginated data (no filters)
+        $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $dbQuery);
+        $dbChecklists = $dbQuery->paginate(10, ['*'], 'db_page')->withQueryString();
+
+        $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $fotoQuery);
+        $fotoChecklists = $fotoQuery->paginate(10, ['*'], 'foto_page')->withQueryString();
+
+        $pdfQuery = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $pdfQuery);
+        $pdfChecklists = $pdfQuery->paginate(10, ['*'], 'pdf_page')->withQueryString();
+
+        $dbMeta   = ['current_page' => $dbChecklists->currentPage(),   'last_page' => $dbChecklists->lastPage(),   'total' => $dbChecklists->total(),   'per_page' => $dbChecklists->perPage()];
+        $fotoMeta = ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()];
+        $pdfMeta  = ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()];
+
+        return view('admin.portal-pemeriksaan', compact(
+            'nopolList', 'dbStats', 'pdfStats', 'chartData',
+            'dbChecklists', 'fotoChecklists', 'pdfChecklists',
+            'dbMeta', 'fotoMeta', 'pdfMeta'
+        ));
+    }
+
+    /**
+     * AJAX: Database Sheet filtered data (JSON).
+     */
+    public function apiPortalDatabaseSheet(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        $perPage = min((int) $request->input('per_page', 10), 100);
+        $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $query);
+        $rows = $query->paginate($perPage)->withQueryString();
+
+        $data = $rows->map(fn($c) => [
+            'id'              => $c->id,
+            'tanggal'         => $c->tanggal?->format('d/m/Y'),
+            'shift'           => $c->shift,
+            'nomor_kendaraan' => $c->nomor_kendaraan,
+            'jenis_kendaraan' => $c->jenis_kendaraan,
+            'driver_serah'    => $c->driver_serah,
+            'driver_terima'   => $c->driver_terima,
+            'level_bbm'       => $c->level_bbm,
+            'km_awal'         => number_format($c->km_awal),
+            'km_akhir'        => number_format($c->km_akhir ?? 0),
+            'exterior'        => $c->exterior ? [
+                'body_kendaraan' => $c->exterior->body_kendaraan,
+                'kaca'           => $c->exterior->kaca,
+                'spion'          => $c->exterior->spion,
+                'lampu_utama'    => $c->exterior->lampu_utama,
+                'lampu_sein'     => $c->exterior->lampu_sein,
+                'ban'            => $c->exterior->ban,
+                'velg'           => $c->exterior->velg,
+                'wiper'          => $c->exterior->wiper,
+            ] : null,
+            'interior'        => $c->interior ? [
+                'jok'           => $c->interior->jok,
+                'dashboard'     => $c->interior->dashboard,
+                'ac'            => $c->interior->ac,
+                'sabuk_pengaman'=> $c->interior->sabuk_pengaman,
+                'audio'         => $c->interior->audio,
+                'kebersihan'    => $c->interior->kebersihan,
+            ] : null,
+            'mesin'           => $c->mesin ? [
+                'mesin'      => $c->mesin->mesin,
+                'oli'        => $c->mesin->oli,
+                'radiator'   => $c->mesin->radiator,
+                'rem'        => $c->mesin->rem,
+                'kopling'    => $c->mesin->kopling,
+                'transmisi'  => $c->mesin->transmisi,
+                'indikator'  => $c->mesin->indikator,
+            ] : null,
+        ]);
+
+        return response()->json([
+            'data'         => $data,
+            'current_page' => $rows->currentPage(),
+            'last_page'    => $rows->lastPage(),
+            'total'        => $rows->total(),
+            'per_page'     => $rows->perPage(),
+        ]);
+    }
+
+    /**
+     * AJAX: Log Foto Fisik filtered data (JSON).
+     */
+    public function apiPortalLogFoto(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        $perPage = min((int) $request->input('per_page', 10), 100);
+        $baseUrl = url('/');
+        $resolveUrl = function (?string $path) use ($baseUrl) {
+            if (!$path) return null;
+            if (str_starts_with($path, 'http')) return $path;
+            if (str_starts_with($path, '/storage/')) return $baseUrl . $path;
+            if (str_starts_with($path, 'storage/')) return $baseUrl . '/' . $path;
+            return $baseUrl . '/storage/' . ltrim($path, '/');
+        };
+
+        $query = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $query);
+        $rows = $query->paginate($perPage)->withQueryString();
+
+        $data = $rows->map(fn($c) => [
+            'id'              => $c->id,
+            'waktu'           => ($c->tanggal?->format('d/m/Y') ?? '') . ' ' . ($c->jam_serah_terima ?? ''),
+            'nomor_kendaraan' => $c->nomor_kendaraan,
+            'foto_bbm'        => $resolveUrl($c->foto_bbm_dashboard),
+            'exterior'        => $c->exterior ? [
+                'foto_depan'    => $resolveUrl($c->exterior->foto_depan),
+                'foto_kanan'    => $resolveUrl($c->exterior->foto_kanan),
+                'foto_kiri'     => $resolveUrl($c->exterior->foto_kiri),
+                'foto_belakang' => $resolveUrl($c->exterior->foto_belakang),
+            ] : null,
+            'interior'        => $c->interior ? [
+                'foto_1' => $resolveUrl($c->interior->foto_1),
+                'foto_2' => $resolveUrl($c->interior->foto_2),
+                'foto_3' => $resolveUrl($c->interior->foto_3),
+            ] : null,
+            'mesin'           => $c->mesin ? [
+                'foto_1' => $resolveUrl($c->mesin->foto_1),
+                'foto_2' => $resolveUrl($c->mesin->foto_2),
+                'foto_3' => $resolveUrl($c->mesin->foto_3),
+            ] : null,
+        ]);
+
+        return response()->json([
+            'data'         => $data,
+            'current_page' => $rows->currentPage(),
+            'last_page'    => $rows->lastPage(),
+            'total'        => $rows->total(),
+            'per_page'     => $rows->perPage(),
+        ]);
+    }
+
+    /**
+     * AJAX: Arsip PDF filtered data (JSON).
+     */
+    public function apiPortalArsipPdf(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+
+        $perPage = min((int) $request->input('per_page', 10), 100);
+        $baseUrl = url('/');
+        $resolveUrl = function (?string $path) use ($baseUrl) {
+            if (!$path) return null;
+            if (str_starts_with($path, 'http')) return $path;
+            if (str_starts_with($path, '/storage/')) return $baseUrl . $path;
+            if (str_starts_with($path, 'storage/')) return $baseUrl . '/' . $path;
+            return $baseUrl . '/storage/' . ltrim($path, '/');
+        };
+
+        $query = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
+        $this->applyChecklistFilters($request, $query);
+        $rows = $query->paginate($perPage)->withQueryString();
+
+        $data = $rows->map(fn($c) => [
+            'id'              => $c->id,
+            'tanggal'         => $c->tanggal?->format('d/m/Y'),
+            'nomor_kendaraan' => $c->nomor_kendaraan,
+            'driver_serah'    => $c->driver_serah,
+            'driver_terima'   => $c->driver_terima,
+            'shift'           => $c->shift,
+            'pdf_url'         => $resolveUrl($c->pdf_path),
+        ]);
+
+        return response()->json([
+            'data'         => $data,
+            'current_page' => $rows->currentPage(),
+            'last_page'    => $rows->lastPage(),
+            'total'        => $rows->total(),
+            'per_page'     => $rows->perPage(),
+        ]);
+    }
+
+    /**
+     * AJAX: Chart data for the portal.
+     */
+    public function apiPortalCharts(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+        return response()->json($this->buildChartData());
+    }
+
+    /**
+     * Build chart data arrays for the portal page.
+     */
+    private function buildChartData(): array
+    {
+        // Ceklist per kendaraan (top 10)
+        $perKendaraan = Checklist::select('nomor_kendaraan', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('nomor_kendaraan')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        // Ceklist per shift
+        $perShift = Checklist::select('shift', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('shift')
+            ->orderByDesc('total')
+            ->get();
+
+        // Ceklist per bulan (12 bulan terakhir)
+        $perBulan = Checklist::select(
+                \Illuminate\Support\Facades\DB::raw("DATE_FORMAT(tanggal, '%Y-%m') as bulan"),
+                \Illuminate\Support\Facades\DB::raw('count(*) as total')
+            )
+            ->where('tanggal', '>=', now()->subMonths(11)->startOfMonth())
+            ->groupBy('bulan')
+            ->orderBy('bulan')
+            ->get();
+
+        // Kondisi kendaraan: ok vs tidak_ok (exterior body_kendaraan)
+        $exteriorOk  = \App\Models\ChecklistExterior::where('body_kendaraan', 'ok')->count();
+        $exteriorNok = \App\Models\ChecklistExterior::whereIn('body_kendaraan', ['no', 'tidak_ok'])->count();
+
+        // Rata-rata BBM level per kendaraan
+        $bbmPerKendaraan = Checklist::select('nomor_kendaraan', \Illuminate\Support\Facades\DB::raw('avg(level_bbm) as avg_bbm'))
+            ->groupBy('nomor_kendaraan')
+            ->orderByDesc('avg_bbm')
+            ->limit(8)
+            ->get();
+
+        return [
+            'perKendaraan' => [
+                'labels' => $perKendaraan->pluck('nomor_kendaraan')->toArray(),
+                'data'   => $perKendaraan->pluck('total')->toArray(),
+            ],
+            'perShift' => [
+                'labels' => $perShift->pluck('shift')->toArray(),
+                'data'   => $perShift->pluck('total')->toArray(),
+            ],
+            'perBulan' => [
+                'labels' => $perBulan->pluck('bulan')->toArray(),
+                'data'   => $perBulan->pluck('total')->toArray(),
+            ],
+            'kondisi' => [
+                'ok'  => $exteriorOk,
+                'nok' => $exteriorNok,
+            ],
+            'bbmPerKendaraan' => [
+                'labels' => $bbmPerKendaraan->pluck('nomor_kendaraan')->toArray(),
+                'data'   => $bbmPerKendaraan->pluck('avg_bbm')->map(fn($v) => round($v, 1))->toArray(),
+            ],
+        ];
+    }
+
+    /**
      * Sync all checklist data to Google Spreadsheet.
      */
     public function exportExcel()
