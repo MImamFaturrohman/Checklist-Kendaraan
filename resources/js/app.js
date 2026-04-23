@@ -191,8 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (progressPct) progressPct.textContent = `${pct}%`;
         prevButton.disabled = currentStep === 1;
         if (currentStep === totalStep) {
+            // Last step = Preview → show Generate PDF
             nextButton.classList.add('final');
-            nextButton.innerHTML = `GENERATE TO PDF <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>`;
+            nextButton.innerHTML = `GENERATE PDF <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>`;
+        } else if (currentStep === totalStep - 1) {
+            // Step before preview = Konfirmasi → show "Lihat Preview"
+            nextButton.classList.remove('final');
+            nextButton.innerHTML = `LIHAT PREVIEW <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>`;
         } else {
             nextButton.classList.remove('final');
             nextButton.innerHTML = `LANJUT <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -372,15 +377,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     nextButton.addEventListener('click', async () => {
         if (!validateCurrentStep()) return;
-        if (currentStep < totalStep) { currentStep++; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-        // Final step — check confirmation
-        const konfirmasi = document.getElementById('konfirmasi_data');
-        if (konfirmasi && !konfirmasi.checked) {
-            showModal('error', 'Konfirmasi Diperlukan', 'Anda harus mencentang checkbox konfirmasi data sebelum dapat membuat laporan PDF.', [
-                { label: 'OK, Saya Mengerti', class: 'modal-btn-secondary', action: 'close' }
-            ]);
+
+        if (currentStep === totalStep - 1) {
+            // Step 7 (Konfirmasi) → validate checkbox, then populate and show preview
+            const konfirmasi = document.getElementById('konfirmasi_data');
+            if (konfirmasi && !konfirmasi.checked) {
+                showModal('error', 'Konfirmasi Diperlukan', 'Anda harus mencentang checkbox konfirmasi data sebelum dapat melihat preview.', [
+                    { label: 'OK, Saya Mengerti', class: 'modal-btn-secondary', action: 'close' }
+                ]);
+                return;
+            }
+            populatePreview();
+            currentStep++;
+            updateWizardUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
+        if (currentStep < totalStep) {
+            currentStep++;
+            updateWizardUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // Final step (Preview) → submit to DB + generate PDF
         await submitChecklist();
     });
 
@@ -419,6 +440,159 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         modal.style.display = 'flex';
+    };
+
+    /* ================================================================
+       PREVIEW POPULATION
+       ================================================================ */
+    const populatePreview = () => {
+        const container = document.getElementById('preview-content');
+        if (!container) return;
+
+        /* ── helpers ── */
+        const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const fv  = name => form.querySelector(`[name="${name}"]`)?.value?.trim() || '—';
+        const rv  = name => { const r = form.querySelector(`[name="${name}"]:checked`); return r?.value?.toUpperCase() || '—'; };
+        const nv  = name => form.querySelector(`[name="${name}"]`)?.value?.trim() || '';
+        const cbv = name => !!form.querySelector(`[name="${name}"]`)?.checked;
+        const photoSrc = name => {
+            const input = form.querySelector(`[name="${name}"]`);
+            const slot  = input?.closest('[data-photo-preview-slot]');
+            const img   = slot?.querySelector('.photo-slot-preview');
+            return (img && img.style.display !== 'none' && img.src) ? img.src : null;
+        };
+        const sigSerahUrl  = window._sigPadSerah  && !window._sigPadSerah.isEmpty()  ? window._sigPadSerah.toDataURL()  : null;
+        const sigTerimaUrl = window._sigPadTerima && !window._sigPadTerima.isEmpty() ? window._sigPadTerima.toDataURL() : null;
+
+        /* ── ui components ── */
+        const badge = v => v === 'OK'
+            ? `<span class="pvw-badge pvw-ok">OK</span>`
+            : v === 'NO' ? `<span class="pvw-badge pvw-no">NO</span>`
+            : `<span class="pvw-badge">—</span>`;
+
+        const pvwRow = (label, value) =>
+            `<div class="pvw-row"><span class="pvw-label">${esc(label)}</span><span class="pvw-value">${value}</span></div>`;
+
+        const pvwSection = (title, body) => `
+            <div class="pvw-section">
+                <div class="pvw-section-head"><span>${esc(title)}</span></div>
+                <div class="pvw-section-body">${body}</div>
+            </div>`;
+
+        const pvwTable = (items, labels, prefix) => {
+            const rows = items.map(k => {
+                const val  = rv(`${prefix}_${k}`);
+                const note = nv(`${prefix}_${k}_catatan`);
+                return `<tr>
+                    <td>${esc(labels[k] || k)}</td>
+                    <td>${badge(val)}</td>
+                    <td class="pvw-note-cell">${note ? esc(note) : '<span class="pvw-none">—</span>'}</td>
+                </tr>`;
+            }).join('');
+            return `<table class="pvw-table">
+                <thead><tr><th>Item</th><th>Status</th><th>Keterangan</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+        };
+
+        const pvwPhotos = sources => {
+            const imgs = sources.filter(p => p.src).map(p =>
+                `<div class="pvw-photo-slot"><img src="${p.src}" alt="${esc(p.label)}"><span>${esc(p.label)}</span></div>`
+            ).join('');
+            return imgs ? `<div class="pvw-photo-grid">${imgs}</div>` : '';
+        };
+
+        /* ── A. Identitas ── */
+        const sA = `
+            ${pvwRow('Tanggal', esc(fv('tanggal')))}
+            ${pvwRow('Shift', esc(fv('shift')))}
+            ${pvwRow('Jam Serah Terima', esc(fv('jam_serah_terima')))}
+            ${pvwRow('Nomor Kendaraan', `<strong>${esc(fv('nomor_kendaraan'))}</strong>`)}
+            ${pvwRow('Jenis Kendaraan', esc(fv('jenis_kendaraan')))}
+            ${pvwRow('Driver Menyerahkan', esc(fv('driver_serah')))}
+            ${pvwRow('Driver Menerima', esc(fv('driver_terima')))}
+        `;
+
+        /* ── B. Eksterior ── */
+        const extItems  = ['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'];
+        const extLabels = {body_kendaraan:'Body Kendaraan',kaca:'Kaca',spion:'Spion',lampu_utama:'Lampu Utama',lampu_sein:'Lampu Sein',ban:'Ban',velg:'Velg',wiper:'Wiper'};
+        const extPhotos = ['depan','kanan','kiri','belakang'].map(s => ({label: s.toUpperCase(), src: photoSrc(`exterior_foto_${s}`)}));
+        const sB = pvwTable(extItems, extLabels, 'exterior') + pvwPhotos(extPhotos);
+
+        /* ── C. Interior ── */
+        const intItems  = ['jok','dashboard','ac','sabuk_pengaman','audio','kebersihan'];
+        const intLabels = {jok:'Jok / Kursi',dashboard:'Dashboard',ac:'AC',sabuk_pengaman:'Sabuk Pengaman',audio:'Audio / Head Unit',kebersihan:'Kebersihan Interior'};
+        const intPhotos = [1,2,3].map(i => ({label:`Foto ${i}`, src: photoSrc(`interior_foto_${i}`)}));
+        const sC = pvwTable(intItems, intLabels, 'interior') + pvwPhotos(intPhotos);
+
+        /* ── D. Mesin ── */
+        const msnItems  = ['mesin','oli','radiator','rem','kopling','transmisi','indikator'];
+        const msnLabels = {mesin:'Mesin (Suara Normal)',oli:'Oli Mesin',radiator:'Air Radiator',rem:'Rem',kopling:'Kopling (Manual)',transmisi:'Transmisi',indikator:'Indikator Panel'};
+        const msnPhotos = [1,2,3].map(i => ({label:`Foto ${i}`, src: photoSrc(`mesin_foto_${i}`)}));
+        const sD = pvwTable(msnItems, msnLabels, 'mesin') + pvwPhotos(msnPhotos);
+
+        /* ── E. BBM & KM ── */
+        const bbmDate = fv('bbm_terakhir_date');
+        const bbmTime = fv('bbm_terakhir_time');
+        const bbmTerakhir = [bbmDate, bbmTime].filter(v => v !== '—').join(' ') || '—';
+        const bbmPhotoSrc = photoSrc('foto_bbm_dashboard');
+        const sE = `
+            ${pvwRow('Level BBM', `<strong>${esc(fv('level_bbm'))}%</strong>`)}
+            ${pvwRow('Pengisian BBM Terakhir', esc(bbmTerakhir))}
+            ${pvwRow('KM Awal', esc(fv('km_awal')))}
+            ${pvwRow('KM Akhir', esc(fv('km_akhir')))}
+            ${bbmPhotoSrc ? `<div class="pvw-photo-grid"><div class="pvw-photo-slot"><img src="${bbmPhotoSrc}" alt="Dashboard BBM"><span>Dashboard BBM</span></div></div>` : ''}
+        `;
+
+        /* ── F. Perlengkapan ── */
+        const plItems = {stnk:'STNK', kir:'Kartu KIR & QR BBM', dongkrak:'Dongkrak', toolkit:'Toolkit', segitiga:'Segitiga Pengaman', apar:'APAR', ban_cadangan:'Ban Cadangan'};
+        const sF = `<div class="pvw-perlengkapan-grid">` +
+            Object.entries(plItems).map(([k, label]) => {
+                const ada = cbv(`perlengkapan[${k}]`);
+                return `<div class="pvw-perlengkapan-item ${ada ? 'ada' : 'tidak'}">
+                    <span class="pvw-pl-icon">${ada ? '✓' : '✗'}</span>
+                    <span>${esc(label)}</span>
+                </div>`;
+            }).join('') + `</div>`;
+
+        /* ── G. Catatan & TTD ── */
+        const catatanVal = nv('catatan_khusus');
+        const sG = `
+            <div style="margin-bottom:14px">
+                <span class="pvw-label" style="display:block;margin-bottom:6px">Catatan Tambahan</span>
+                ${catatanVal
+                    ? `<div class="pvw-catatan">${esc(catatanVal)}</div>`
+                    : '<span class="pvw-none">Tidak ada catatan tambahan.</span>'}
+            </div>
+            <div class="pvw-sig-grid">
+                <div class="pvw-sig-block">
+                    <div class="pvw-sig-label">TTD Driver Menyerahkan</div>
+                    ${sigSerahUrl
+                        ? `<img src="${sigSerahUrl}" class="pvw-sig-img" alt="TTD Serah">`
+                        : '<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}
+                </div>
+                <div class="pvw-sig-block">
+                    <div class="pvw-sig-label">TTD Driver Menerima</div>
+                    ${sigTerimaUrl
+                        ? `<img src="${sigTerimaUrl}" class="pvw-sig-img" alt="TTD Terima">`
+                        : '<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = `
+            <div class="pvw-notice">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span>Periksa semua data di bawah ini. Klik <strong>GENERATE PDF</strong> untuk menyimpan dan membuat laporan.</span>
+            </div>
+            ${pvwSection('A. Identitas Unit', sA)}
+            ${pvwSection('B. Kondisi Eksterior', sB)}
+            ${pvwSection('C. Kondisi Interior', sC)}
+            ${pvwSection('D. Kondisi Mesin', sD)}
+            ${pvwSection('E. BBM & Kilometer', sE)}
+            ${pvwSection('F. Perlengkapan Unit', sF)}
+            ${pvwSection('G. Catatan & Tanda Tangan', sG)}
+        `;
     };
 
     /* ---- Form Submit ---- */

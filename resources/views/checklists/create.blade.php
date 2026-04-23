@@ -467,7 +467,24 @@
 
                         <div class="form-complete-alert" id="form-complete-alert" style="display:none">
                             <div class="form-complete-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg></div>
-                            <div><strong>Laporan Siap Dibuat!</strong><p>Tekan tombol Generate to PDF di bawah untuk mengakhiri sesi dan menyimpan dokumen.</p></div>
+                            <div><strong>Data Siap Dipreview!</strong><p>Tekan tombol <strong>Lihat Preview</strong> untuk memeriksa semua data sebelum menyimpan.</p></div>
+                        </div>
+                    </section>
+
+                    {{-- ==================== STEP 8: PREVIEW ==================== --}}
+                    <section class="wizard-step" data-step="8">
+                        <div class="section-banner">
+                            <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>8. Preview Ringkasan Checklist</span>
+                        </div>
+                        <div id="preview-content">
+                            <div style="text-align:center;padding:48px 0;color:#94a3b8">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="margin-bottom:12px;opacity:.4"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <p style="font-size:.88rem">Memuat ringkasan data...</p>
+                            </div>
                         </div>
                     </section>
                 </form>
