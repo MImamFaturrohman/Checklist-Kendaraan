@@ -9,26 +9,61 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body class="dash-body">
-<div class="admin-shell">
 
-    {{-- ============================================================
-         TOPBAR
-    ============================================================ --}}
-    <header class="checklist-topbar">
-        <div>
-            <h1 class="dash-brand-title">Portal Pemeriksaan Kendaraan</h1>
-            <p class="dash-brand-sub">PT ARTHA DAYA COALINDO</p>
+    {{-- Background decoration layers --}}
+    <div class="dash-bg-cubes" aria-hidden="true"></div>
+    <div class="dash-bg-stardust" aria-hidden="true"></div>
+    <div class="dash-bg-orb-gold" aria-hidden="true"></div>
+    <div class="dash-bg-orb-blue" aria-hidden="true"></div>
+    <div class="dash-bg-wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%" preserveAspectRatio="none">
+            <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50 L 1440 400 L 0 400 Z" fill="url(#pp_fill)"></path>
+            <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50" stroke="url(#pp_stroke)" stroke-width="3" stroke-linecap="round"></path>
+            <defs>
+                <linearGradient id="pp_fill" x1="720" y1="50" x2="720" y2="400" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#D4AF37" stop-opacity="0.12"></stop>
+                    <stop offset="1" stop-color="#0A2342" stop-opacity="0"></stop>
+                </linearGradient>
+                <linearGradient id="pp_stroke" x1="0" y1="150" x2="1440" y2="150" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0A2342"></stop>
+                    <stop offset="0.4" stop-color="#D4AF37"></stop>
+                    <stop offset="1" stop-color="#60A5FA"></stop>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
+    {{-- ══ NAVBAR ══ --}}
+    <nav class="dash-nav" id="dash-nav">
+        <div class="dash-nav-inner">
+            <div class="dash-nav-brand">
+                <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo">
+                <div>
+                    <div class="dash-nav-title">Portal Pemeriksaan Kendaraan</div>
+                    <span class="dash-nav-sub">PT ARTHA DAYA COALINDO</span>
+                </div>
+            </div>
+            <div class="dash-nav-actions" id="dash-nav-actions">
+                <button class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Toggle Tema">
+                    <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
+                    <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
+                </button>
+                <span class="dash-chip dash-chip-admin">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
+                    <span class="dash-nav-chip-label">ADMIN</span>
+                </span>
+                <a href="{{ route('dashboard') }}" class="dash-nav-btn-glass" aria-label="Dashboard">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="dash-nav-btn-label">Dashboard</span>
+                </a>
+            </div>
+            <button class="dash-mobile-menu-btn" id="dash-mobile-menu-btn" aria-label="Buka Menu" aria-expanded="false">
+                <i class="bi bi-list" id="dash-mobile-menu-icon"></i>
+            </button>
         </div>
-        <div class="flex items-center gap-2">
-            <span class="dash-chip dash-chip-admin">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-                ADMIN
-            </span>
-            <a href="{{ route('dashboard') }}" class="checklist-icon-btn" title="Kembali ke Dashboard">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-        </div>
-    </header>
+    </nav>
+
+<div class="admin-shell" style="position:relative;z-index:1">
 
     <div class="portal-wrapper">
 
@@ -602,124 +637,138 @@
     let pdfPage  = 1, pdfPerPage  = 10;
 
     /* ================================================================
-       CHARTS
+       CHARTS — dark-mode aware, rebuilds on theme toggle
     ================================================================ */
-    const BLUE   = '#002a7a';
     const YELLOW = '#ffd700';
     const GREEN  = '#16a34a';
     const RED    = '#dc2626';
-    const SLATE  = '#64748b';
-    const INDIGO = '#4f46e5';
+    const SLATE  = '#94a3b8';
+    const INDIGO = '#818cf8';
 
-    const COMMON_OPTS = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-    };
+    let _chartInstances = {};
 
-    // Ceklist per bulan — line
-    (function () {
-        const ctx = document.getElementById('chartBulan');
-        if (!ctx) return;
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: CHART_DATA.perBulan.labels,
-                datasets: [{
-                    data: CHART_DATA.perBulan.data,
-                    borderColor: BLUE,
-                    backgroundColor: 'rgba(0,42,122,.08)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 4,
-                    pointBackgroundColor: BLUE,
-                }],
-            },
-            options: {
-                ...COMMON_OPTS,
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                    x: { ticks: { maxRotation: 45, font: { size: 11 } } },
+    function _buildCharts() {
+        Object.values(_chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
+        _chartInstances = {};
+
+        const dark  = document.body.classList.contains('dark');
+        const blue  = dark ? '#60a5fa' : '#002a7a';
+        const grid  = dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)';
+        const tick  = dark ? 'rgba(200,218,255,0.65)' : '#64748b';
+        const lgnd  = dark ? 'rgba(200,218,255,0.75)' : '#475569';
+        const bdr   = dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)';
+
+        const commonOpts = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+        };
+        const xyScales = {
+            y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
+            x: { ticks: { maxRotation: 45, font: { size: 11 }, color: tick }, grid: { color: grid } },
+        };
+
+        // Ceklist per bulan — line
+        const ctxBulan = document.getElementById('chartBulan');
+        if (ctxBulan) {
+            _chartInstances.bulan = new Chart(ctxBulan, {
+                type: 'line',
+                data: {
+                    labels: CHART_DATA.perBulan.labels,
+                    datasets: [{
+                        data: CHART_DATA.perBulan.data,
+                        borderColor: blue,
+                        backgroundColor: dark ? 'rgba(96,165,250,0.1)' : 'rgba(0,42,122,0.08)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: blue,
+                    }],
                 },
-            },
-        });
-    })();
+                options: { ...commonOpts, scales: xyScales },
+            });
+        }
 
-    // Ceklist per kendaraan — bar
-    (function () {
-        const ctx = document.getElementById('chartKendaraan');
-        if (!ctx) return;
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: CHART_DATA.perKendaraan.labels,
-                datasets: [{
-                    data: CHART_DATA.perKendaraan.data,
-                    backgroundColor: BLUE,
-                    borderRadius: 4,
-                }],
-            },
-            options: {
-                ...COMMON_OPTS,
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                    x: { ticks: { maxRotation: 45, font: { size: 10 } } },
+        // Ceklist per kendaraan — bar
+        const ctxKendaraan = document.getElementById('chartKendaraan');
+        if (ctxKendaraan) {
+            _chartInstances.kendaraan = new Chart(ctxKendaraan, {
+                type: 'bar',
+                data: {
+                    labels: CHART_DATA.perKendaraan.labels,
+                    datasets: [{
+                        data: CHART_DATA.perKendaraan.data,
+                        backgroundColor: blue,
+                        borderRadius: 4,
+                    }],
                 },
-            },
-        });
-    })();
+                options: {
+                    ...commonOpts,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
+                        x: { ticks: { maxRotation: 45, font: { size: 10 }, color: tick }, grid: { color: grid } },
+                    },
+                },
+            });
+        }
 
-    // Distribusi shift — doughnut
-    (function () {
-        const ctx = document.getElementById('chartShift');
-        if (!ctx) return;
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: CHART_DATA.perShift.labels,
-                datasets: [{
-                    data: CHART_DATA.perShift.data,
-                    backgroundColor: [BLUE, YELLOW, SLATE, GREEN, INDIGO],
-                    borderWidth: 2,
-                }],
-            },
-            options: {
-                ...COMMON_OPTS,
-                plugins: {
-                    legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, padding: 10 } },
+        // Distribusi shift — doughnut
+        const ctxShift = document.getElementById('chartShift');
+        if (ctxShift) {
+            _chartInstances.shift = new Chart(ctxShift, {
+                type: 'doughnut',
+                data: {
+                    labels: CHART_DATA.perShift.labels,
+                    datasets: [{
+                        data: CHART_DATA.perShift.data,
+                        backgroundColor: [blue, YELLOW, SLATE, GREEN, INDIGO],
+                        borderWidth: 2,
+                        borderColor: bdr,
+                    }],
                 },
-                cutout: '58%',
-            },
-        });
-    })();
+                options: {
+                    ...commonOpts,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: { font: { size: 11 }, padding: 10, color: lgnd },
+                        },
+                    },
+                    cutout: '58%',
+                },
+            });
+        }
 
-    // Rata-rata BBM — horizontal bar
-    (function () {
-        const ctx = document.getElementById('chartBbm');
-        if (!ctx) return;
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: CHART_DATA.bbmPerKendaraan.labels,
-                datasets: [{
-                    data: CHART_DATA.bbmPerKendaraan.data,
-                    backgroundColor: CHART_DATA.bbmPerKendaraan.data.map(v =>
-                        v >= 70 ? GREEN : v >= 40 ? YELLOW : RED
-                    ),
-                    borderRadius: 4,
-                }],
-            },
-            options: {
-                ...COMMON_OPTS,
-                indexAxis: 'y',
-                scales: {
-                    x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { size: 11 } } },
-                    y: { ticks: { font: { size: 11 } } },
+        // Rata-rata BBM — horizontal bar
+        const ctxBbm = document.getElementById('chartBbm');
+        if (ctxBbm) {
+            _chartInstances.bbm = new Chart(ctxBbm, {
+                type: 'bar',
+                data: {
+                    labels: CHART_DATA.bbmPerKendaraan.labels,
+                    datasets: [{
+                        data: CHART_DATA.bbmPerKendaraan.data,
+                        backgroundColor: CHART_DATA.bbmPerKendaraan.data.map(v =>
+                            v >= 70 ? GREEN : v >= 40 ? YELLOW : RED
+                        ),
+                        borderRadius: 4,
+                    }],
                 },
-            },
-        });
-    })();
+                options: {
+                    ...commonOpts,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { size: 11 }, color: tick }, grid: { color: grid } },
+                        y: { ticks: { font: { size: 11 }, color: tick }, grid: { color: grid } },
+                    },
+                },
+            });
+        }
+    }
+
+    _buildCharts();
 
     /* ================================================================
        SECTION TABS
@@ -1132,6 +1181,53 @@
         p => { pdfPage = p; fetchPdf(true); }
     );
 
+})();
+</script>
+
+<script>
+/* ── Theme Toggle ── */
+(function () {
+    const body  = document.body;
+    const icon  = document.getElementById('dash-theme-icon');
+    const btn   = document.getElementById('dash-theme-toggle');
+    const label = document.getElementById('dash-theme-label');
+    function applyTheme(isDark) {
+        body.classList.toggle('dark', isDark);
+        if (icon)  icon.className    = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+    applyTheme(saved === 'dark');
+    if (btn) btn.addEventListener('click', function () {
+        const next = !body.classList.contains('dark');
+        applyTheme(next);
+        localStorage.setItem('vms-theme', next ? 'dark' : 'light');
+        localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+        // Rebuild charts so axis/grid colours match the new theme
+        setTimeout(_buildCharts, 60);
+    });
+})();
+/* ── Mobile hamburger ── */
+(function () {
+    const menuBtn    = document.getElementById('dash-mobile-menu-btn');
+    const navActions = document.getElementById('dash-nav-actions');
+    const menuIcon   = document.getElementById('dash-mobile-menu-icon');
+    if (!menuBtn || !navActions) return;
+    function closeMenu() {
+        navActions.classList.remove('mobile-open');
+        menuIcon.className = 'bi bi-list';
+        menuBtn.setAttribute('aria-expanded', 'false');
+    }
+    menuBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = navActions.classList.toggle('mobile-open');
+        menuIcon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+    document.addEventListener('click', function (e) {
+        if (!navActions.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
 })();
 </script>
 </body>

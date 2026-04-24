@@ -228,6 +228,10 @@
             gap: 8px 16px;
         }
         .lp-form-full { grid-column: 1 / -1; }
+        /* Desktop: tanggal peminjaman hanya 50% lebar (kolom kiri) */
+        @media (min-width: 769px) {
+            .lp-form-half-desktop { grid-column: 1 / 2; }
+        }
 
         /* ── SCROLL REVEAL ── */
         .reveal { opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s ease; }
@@ -449,6 +453,25 @@
                             placeholder="Contoh: Staff HSE, Supervisor Operasional" required>
                     </div>
 
+                    {{-- Bidang / Bagian (samping Posisi / Jabatan di desktop) --}}
+                    <div class="checklist-field">
+                        <span>Bidang / Bagian <span style="color:#ef4444">*</span></span>
+                        <div class="checklist-control-wrap checklist-control-select">
+                            <select id="bidang_id" name="bidang_id" required>
+                                <option value="">-- Pilih bidang / bagian --</option>
+                                @foreach($bidangRoots as $parent)
+                                    @if($parent->children->isNotEmpty())
+                                        <optgroup label="{{ $parent->nama }}">
+                                            @foreach($parent->children as $bd)
+                                                <option value="{{ $bd->id }}">{{ $bd->nama }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     {{-- Nomor Kendaraan --}}
                     <div class="checklist-field">
                         <span>No. Polisi Kendaraan <span style="color:#ef4444">*</span></span>
@@ -466,16 +489,16 @@
                         </div>
                     </div>
 
-                    {{-- Jenis Kendaraan (auto-fill) --}}
-                    <div class="checklist-field lp-form-full">
+                    {{-- Jenis Kendaraan (samping No. Polisi di desktop) --}}
+                    <div class="checklist-field">
                         <span>Jenis Kendaraan</span>
                         <input type="text" id="jenis_kendaraan" name="jenis_kendaraan"
                             placeholder="Terisi otomatis setelah memilih nomor polisi" readonly
                             style="background:#f8fafc;color:#64748b;cursor:not-allowed">
                     </div>
 
-                    {{-- Hari / Tanggal Peminjaman --}}
-                    <div class="checklist-field lp-form-full">
+                    {{-- Hari / Tanggal Peminjaman (50% lebar di desktop) --}}
+                    <div class="checklist-field lp-form-half-desktop">
                         <span>Hari / Tanggal Peminjaman <span style="color:#ef4444">*</span></span>
                         <input type="date" id="tanggal_peminjaman" name="tanggal_peminjaman" required
                             min="{{ date('Y-m-d') }}">
@@ -491,13 +514,14 @@
                     {{-- Pernyataan --}}
                     <div class="checklist-field lp-form-full" style="margin-top:4px">
                         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;font-size:0.84rem;color:#1e3a5f;line-height:1.65">
-                            <p style="font-weight:700;margin-bottom:8px">Saya yang meminjam kendaraan dinas PT ADC PM SLA, dengan ini menyatakan <span style="text-decoration:underline">bersedia</span> untuk:</p>
-                            <ol style="padding-left:18px;margin:0; list-style-type: decimal !important;">
-                                <li>Memperbaiki dan menanggung biaya perbaikan bila terjadi kerusakan pada kendaraan</li>
-                                <li>Memberikan penggantian kendaraan jika kendaraan hilang (dengan spesifikasi kendaraan yang sama)</li>
-                                <li>Menyediakan kendaraan pengganti untuk operasional kantor ADC PM SLA selama kendaraan sedang dalam perbaikan, jika kendaraan mengalami kerusakan</li>
-                                <li>Mengisi ulang bahan bakar yang terpakai</li>
-                            </ol>
+                            <p style="font-weight:700;margin-bottom:8px">{{ $pernyataanPengantar }}</p>
+                            @if($pernyataans->isNotEmpty())
+                                <ol style="padding-left:18px;margin:0; list-style-type: decimal !important;">
+                                    @foreach($pernyataans as $p)
+                                        <li>{{ $p->isi_pernyataan }}</li>
+                                    @endforeach
+                                </ol>
+                            @endif
                         </div>
                     </div>
 

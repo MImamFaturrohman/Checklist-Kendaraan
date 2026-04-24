@@ -229,7 +229,7 @@
                             $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
                         @endphp
                         <div class="header-number">
-                            No. ADC-{{ $tahun }}{{ $bulan }}{{ $id }} | {{ $checklist->tanggal->format('d F Y') }}
+                            No. ADC-{{ $tahun }}{{ $bulan }}DRV{{ $id }} | {{ $checklist->tanggal->format('d F Y') }}
                         </div>
                     </td>
                 </tr>
@@ -406,7 +406,7 @@
         </table>
         <div class="signature-footer-line"></div>
         <div class="note">
-            Dokumen ini dihasilkan secara otomatis oleh Sistem Ceklist ADC Port Management.
+            Dokumen ini dihasilkan secara otomatis oleh Vehicle Management System ADC Port Management.
         </div>
     </div>
 </body>

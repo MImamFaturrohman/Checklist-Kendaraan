@@ -4135,6 +4135,14 @@ select.admin-filter-input {
     position: relative;
     min-width: 148px;
 }
+.mgmt-filter-select-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+}
 .mgmt-filter-select {
     width: 100%;
     padding: 8px 12px 8px 32px;
@@ -4865,6 +4873,8 @@ select.admin-filter-input {
     background: linear-gradient(135deg, #0A2342 0%, #0e1f3a 50%, #050B14 100%);
     color: #f1f5f9;
     transition: background 0.4s ease, color 0.4s ease;
+    /* Native form controls (date/time picker) follow dark theme where supported */
+    color-scheme: dark;
 }
 
 .dash-body.dark .dash-bg-cubes   { opacity: 0.55; }
@@ -5131,8 +5141,10 @@ select.admin-filter-input {
 }
 
 /* ===================================================================
-   CHECKLIST — DARK MODE OVERRIDES
+   CHECKLIST — DARK MODE OVERRIDES (comprehensive)
    =================================================================== */
+
+/* ── Card ── */
 .dash-body.dark .checklist-card {
     background: rgba(16, 38, 80, 0.82);
     border-color: rgba(212, 175, 55, 0.14);
@@ -5141,124 +5153,290 @@ select.admin-filter-input {
     -webkit-backdrop-filter: blur(12px);
 }
 
+/* ── Progress ── */
+.dash-body.dark .checklist-progress-info { color: rgba(200, 218, 255, 0.55); }
+.dash-body.dark .checklist-progress-track { background: rgba(255, 255, 255, 0.1); }
+
+/* ── Form field labels ── */
 .dash-body.dark .checklist-field > span,
-.dash-body.dark .checklist-field > label > span,
-.dash-body.dark .checklist-field label span {
-    color: rgba(200, 218, 255, 0.75);
+.dash-body.dark .checklist-field > label > span {
+    color: rgba(200, 218, 255, 0.6);
 }
 
+/* ── Text inputs / selects / textareas ── */
 .dash-body.dark .checklist-field input,
 .dash-body.dark .checklist-field select,
 .dash-body.dark .checklist-field textarea {
-    background: rgba(5, 11, 20, 0.55);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: #f1f5f9;
+    background: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #e8f0fe;
 }
 
 .dash-body.dark .checklist-field input:focus,
 .dash-body.dark .checklist-field select:focus,
 .dash-body.dark .checklist-field textarea:focus {
     border-color: #D4AF37;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
 }
 
 .dash-body.dark .checklist-field input[readonly] {
-    background: rgba(5, 11, 20, 0.4);
-    color: rgba(200, 218, 255, 0.45);
+    background: rgba(5, 11, 20, 0.5);
+    color: rgba(200, 218, 255, 0.4);
     border-color: rgba(255, 255, 255, 0.07);
 }
 
 .dash-body.dark .checklist-field input::placeholder,
+.dash-body.dark .checklist-field select::placeholder,
 .dash-body.dark .checklist-field textarea::placeholder {
-    color: rgba(200, 218, 255, 0.3);
+    color: rgba(200, 218, 255, 0.28);
 }
 
-.dash-body.dark .checklist-condition-row {
-    background: rgba(10, 35, 66, 0.55);
-    border-color: rgba(255, 255, 255, 0.07);
+/* ── Select dropdown arrow (change to lighter colour) ── */
+.dash-body.dark .checklist-control-select::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%2393aed8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 7l4 4 4-4'/%3E%3C/svg%3E");
 }
 
-.dash-body.dark .checklist-condition-head > span {
+/* ── TomSelect custom driver dropdown ── */
+.dash-body.dark .ts-wrapper.single .ts-control {
+    background: rgba(8, 20, 50, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    color: #e8f0fe !important;
+}
+
+.dash-body.dark .ts-wrapper.single.focus .ts-control {
+    border-color: #D4AF37 !important;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14) !important;
+}
+
+.dash-body.dark .ts-dropdown {
+    background: #0d1f40 !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dash-body.dark .ts-dropdown .option {
     color: rgba(200, 218, 255, 0.85);
 }
 
+.dash-body.dark .ts-dropdown .option.active,
+.dash-body.dark .ts-dropdown .option:hover {
+    background: rgba(212, 175, 55, 0.14);
+    color: #f1f5f9;
+}
+
+.dash-body.dark .ts-dropdown .driver-option-row i { color: rgba(200, 218, 255, 0.45); }
+.dash-body.dark .ts-dropdown .driver-option-row.is-active i { color: #4ade80; }
+.dash-body.dark .ts-control .driver-option-row i { color: rgba(200, 218, 255, 0.55); }
+.dash-body.dark .ts-control .driver-option-row.is-active i { color: #4ade80; }
+
+/* ── Driver static display ── */
+.dash-body.dark .driver-static-display {
+    background: rgba(8, 20, 50, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #4ade80;
+}
+
+/* ── Condition rows (exterior / interior / mesin) ── */
+.dash-body.dark .checklist-condition-row {
+    background: rgba(10, 28, 65, 0.65);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dash-body.dark .checklist-condition-row span { color: rgba(200, 218, 255, 0.88); }
+
+/* ── Radio group (OK / NO pill) ── */
+.dash-body.dark .checklist-radio-group {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dash-body.dark .checklist-radio-group label {
+    color: rgba(200, 218, 255, 0.6);
+}
+
+.dash-body.dark .checklist-radio-group input[type="radio"][id$="_ok"]:checked + label {
+    background-color: #16a34a;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(22, 163, 74, 0.4);
+}
+
+.dash-body.dark .checklist-radio-group input[type="radio"][id$="_no"]:checked + label,
+.dash-body.dark .checklist-radio-group input[type="radio"][value="no"]:checked + label {
+    background-color: #ef4444 !important;
+    color: #fff !important;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* ── Note input inside condition rows ── */
 .dash-body.dark .checklist-item-note {
-    background: rgba(5, 11, 20, 0.45);
+    background: rgba(5, 11, 20, 0.55);
     border-color: rgba(255, 255, 255, 0.1);
     color: #e2e8f0;
 }
 
-.dash-body.dark .checklist-item-note::placeholder { color: rgba(200, 218, 255, 0.3); }
+.dash-body.dark .checklist-item-note::placeholder { color: rgba(200, 218, 255, 0.28); }
 
-.dash-body.dark .checklist-footer {
-    background: rgba(7, 16, 36, 0.88);
-    border-top-color: rgba(212, 175, 55, 0.12);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-}
-
-.dash-body.dark .checklist-progress-head { color: rgba(200, 218, 255, 0.65); }
-
-.dash-body.dark .checklist-progress-track {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.dash-body.dark .checklist-nav-back {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.14);
-    color: rgba(200, 218, 255, 0.75);
-}
-
-.dash-body.dark .checklist-nav-back:hover {
-    background: rgba(255, 255, 255, 0.15);
-}
-
+/* ── Photo slots ── */
 .dash-body.dark .checklist-photo-slot {
-    background: rgba(10, 35, 66, 0.55);
-    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(10, 28, 65, 0.6);
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
 .dash-body.dark .checklist-photo-slot:hover {
-    border-color: rgba(212, 175, 55, 0.4);
-    background: rgba(10, 35, 66, 0.75);
+    border-color: rgba(212, 175, 55, 0.45);
+    background: rgba(10, 35, 80, 0.8);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
-.dash-body.dark .checklist-photo-icon { color: rgba(200, 218, 255, 0.4); }
-.dash-body.dark .photo-slot-placeholder strong { color: rgba(200, 218, 255, 0.6); }
+.dash-body.dark .checklist-photo-icon { color: rgba(200, 218, 255, 0.38); }
+.dash-body.dark .photo-slot-placeholder strong { color: rgba(200, 218, 255, 0.55); }
 
-.dash-body.dark .checklist-checkbox span:not(.checklist-checkmark) { color: rgba(200, 218, 255, 0.85); }
+.dash-body.dark .dynamic-photo-add-btn {
+    background: rgba(10, 28, 65, 0.6);
+    border-color: rgba(212, 175, 55, 0.28);
+    color: #D4AF37;
+}
 
+.dash-body.dark .dynamic-photo-add-btn:hover {
+    background: rgba(10, 35, 80, 0.8);
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* ── BBM card & slider ── */
+.dash-body.dark .bbm-card {
+    background: rgba(10, 28, 65, 0.68);
+    border-color: rgba(212, 175, 55, 0.16);
+}
+
+.dash-body.dark .bbm-label { color: rgba(200, 218, 255, 0.65); }
+.dash-body.dark .bbm-value { color: #e8f0fe; }
+.dash-body.dark .bbm-scale { color: rgba(200, 218, 255, 0.42); }
+
+.dash-body.dark .bbm-slider::-webkit-slider-thumb {
+    background: #1e3a8a;
+    border-color: #D4AF37;
+}
+
+.dash-body.dark .bbm-terakhir-row input {
+    background: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #e8f0fe;
+}
+
+/* ── KM cards ── */
+.dash-body.dark .km-card {
+    background: rgba(10, 28, 65, 0.68);
+    border-color: rgba(255, 255, 255, 0.09);
+}
+
+.dash-body.dark .km-card-label { color: rgba(200, 218, 255, 0.5); }
+
+.dash-body.dark .km-card-editable {
+    background: rgba(5, 11, 20, 0.55);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #f1f5f9;
+}
+
+.dash-body.dark .km-card-editable:focus {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
+}
+
+/* ── Perlengkapan checkboxes ── */
+.dash-body.dark .checklist-checkbox {
+    background: rgba(10, 28, 65, 0.55);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dash-body.dark .checklist-checkbox:hover {
+    background: rgba(10, 35, 80, 0.78);
+    border-color: rgba(212, 175, 55, 0.35);
+}
+
+.dash-body.dark .checklist-checkbox span:not(.checklist-checkmark) {
+    color: rgba(200, 218, 255, 0.88);
+}
+
+.dash-body.dark .checklist-checkmark {
+    border-color: rgba(200, 218, 255, 0.3);
+    background: rgba(5, 11, 20, 0.45);
+}
+
+.dash-body.dark .checklist-checkbox input[type="checkbox"]:checked + .checklist-checkmark {
+    background-color: #D4AF37;
+    border-color: #D4AF37;
+}
+
+/* ── Statement box & confirm checkbox ── */
 .dash-body.dark .checklist-statement-box {
-    background: rgba(10, 35, 66, 0.55);
-    border-color: rgba(212, 175, 55, 0.18);
+    background: rgba(10, 28, 65, 0.6);
+    border-color: rgba(212, 175, 55, 0.2);
+    color: rgba(200, 218, 255, 0.75);
+}
+
+.dash-body.dark .checklist-confirm-box {
+    background: rgba(10, 28, 65, 0.55);
+    border-color: rgba(212, 175, 55, 0.22);
+    color: rgba(200, 218, 255, 0.88);
+}
+
+.dash-body.dark .checklist-confirm-box:hover {
+    background: rgba(10, 35, 80, 0.75);
+    border-color: rgba(212, 175, 55, 0.38);
+}
+
+/* ── Signature pads — keep canvas white so drawing is visible ── */
+.dash-body.dark .signature-label { color: rgba(200, 218, 255, 0.55); }
+
+.dash-body.dark .signature-pad-wrap {
+    border-color: rgba(212, 175, 55, 0.28);
+    background: #f8fafc;
+}
+
+.dash-body.dark .signature-pad-wrap:hover { border-color: rgba(212, 175, 55, 0.5); }
+
+.dash-body.dark .signature-canvas { background: #f8fafc; }
+
+.dash-body.dark .signature-pad-hint {
+    color: #94a3b8;
+    background: rgba(248, 250, 252, 0.75);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.dash-body.dark .signature-clear-btn {
+    color: #f87171;
+    background: transparent;
+    border: none;
+}
+
+/* ── Form complete alert ── */
+.dash-body.dark .form-complete-alert {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(34, 197, 94, 0.28);
+}
+
+.dash-body.dark .form-complete-alert strong { color: #86efac; }
+.dash-body.dark .form-complete-alert p { color: #4ade80; }
+
+/* ── Footer & nav buttons ── */
+.dash-body.dark .checklist-footer {
+    background: rgba(7, 16, 36, 0.9);
+    border-top-color: rgba(212, 175, 55, 0.14);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.dash-body.dark .checklist-nav-back {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.14);
     color: rgba(200, 218, 255, 0.7);
 }
 
-.dash-body.dark .signature-label { color: rgba(200, 218, 255, 0.65); }
-.dash-body.dark .signature-pad-wrap { background: rgba(5, 11, 20, 0.55); border-color: rgba(255, 255, 255, 0.1); }
-.dash-body.dark .signature-canvas { background: rgba(255, 255, 255, 0.04); }
-.dash-body.dark .signature-pad-hint { color: rgba(200, 218, 255, 0.35); }
-.dash-body.dark .signature-clear-btn { color: rgba(200, 218, 255, 0.55); border-color: rgba(255, 255, 255, 0.1); }
-
-.dash-body.dark .bbm-card {
-    background: rgba(10, 35, 66, 0.65);
-    border-color: rgba(212, 175, 55, 0.14);
-}
-
-.dash-body.dark .bbm-label  { color: rgba(200, 218, 255, 0.65); }
-.dash-body.dark .bbm-scale  { color: rgba(200, 218, 255, 0.45); }
-
-.dash-body.dark .km-card {
-    background: rgba(10, 35, 66, 0.65);
-    border-color: rgba(255, 255, 255, 0.08);
-}
-
-.dash-body.dark .km-card-label { color: rgba(200, 218, 255, 0.55); }
-
-.dash-body.dark .km-card-value {
+.dash-body.dark .checklist-nav-back:hover {
+    background: rgba(255, 255, 255, 0.14);
     color: #f1f5f9;
-    background: rgba(5, 11, 20, 0.4);
-    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .dash-body.dark .checklist-icon-btn {
@@ -5267,8 +5445,491 @@ select.admin-filter-input {
     color: rgba(200, 218, 255, 0.8);
 }
 
-/* Light mode — checklist card: light blue */
+/* ── Light mode — checklist card: light blue ── */
 .dash-body:not(.dark) .checklist-card {
     background: linear-gradient(135deg, #f0f7ff 0%, #e8f3ff 100%);
     border-color: rgba(59, 130, 246, 0.15);
+}
+
+/* ===================================================================
+   ADMIN / PORTAL / ARMADA / MANAGER — DARK MODE OVERRIDES
+   =================================================================== */
+
+/* ── Shared: admin-card & armada-card ── */
+.dash-body.dark .admin-card,
+.dash-body.dark .armada-card {
+    background: rgba(16, 38, 80, 0.80);
+    border-color: rgba(212, 175, 55, 0.13);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    color: #e8f0fe;
+}
+
+/* ── Admin tabs ── */
+.dash-body.dark .admin-tab {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(200, 218, 255, 0.65);
+}
+
+.dash-body.dark .admin-tab.active,
+.dash-body.dark .admin-tab:hover {
+    background: #1e4080;
+    border-color: #1e4080;
+    color: #fff;
+}
+
+/* ── Admin table ── */
+.dash-body.dark .admin-table th,
+.dash-body.dark .armada-table th {
+    background: rgba(5, 11, 20, 0.55);
+    color: rgba(200, 218, 255, 0.65);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.dash-body.dark .admin-table td,
+.dash-body.dark .armada-table td {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+    color: rgba(200, 218, 255, 0.88);
+}
+
+.dash-body.dark .admin-table tbody tr,
+.dash-body.dark .armada-table tbody tr {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.dash-body.dark .admin-table tbody tr:hover td,
+.dash-body.dark .armada-table tr:hover td {
+    background: rgba(212, 175, 55, 0.07);
+}
+
+/* ── Admin alerts ── */
+.dash-body.dark .admin-alert-success {
+    background: rgba(22, 163, 74, 0.12);
+    color: #86efac;
+    border-color: rgba(34, 197, 94, 0.25);
+}
+
+/* ── Armada form inputs ── */
+.dash-body.dark .armada-form-row input,
+.dash-body.dark .armada-form-row select {
+    background: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #e8f0fe;
+}
+
+.dash-body.dark .armada-btn-edit {
+    background: rgba(37, 99, 235, 0.2);
+    color: #93c5fd;
+}
+
+.dash-body.dark .armada-btn-delete {
+    background: rgba(220, 38, 38, 0.18);
+    color: #fca5a5;
+}
+
+/* ── Portal Pemeriksaan — stat cards ── */
+.dash-body.dark .portal-stat-card {
+    background: rgba(16, 38, 80, 0.80);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dash-body.dark .portal-stat-value { color: #e8f0fe; }
+.dash-body.dark .portal-stat-label { color: rgba(200, 218, 255, 0.55); }
+
+/* ── Portal Pemeriksaan — chart cards ── */
+.dash-body.dark .portal-chart-card {
+    background: rgba(16, 38, 80, 0.78);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dash-body.dark .portal-chart-card h3,
+.dash-body.dark .portal-chart-card .chart-title {
+    color: rgba(200, 218, 255, 0.75);
+}
+
+/* ── Portal — filter bar / search ── */
+.dash-body.dark .portal-filter-bar,
+.dash-body.dark .portal-filter-group {
+    background: rgba(8, 20, 50, 0.65);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dash-body.dark .portal-filter-bar input,
+.dash-body.dark .portal-filter-bar select {
+    background: rgba(5, 11, 20, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8f0fe;
+}
+
+.dash-body.dark .portal-filter-bar label { color: rgba(200, 218, 255, 0.6); }
+
+/* ── Mgmt (Portal Manajemen) — stat cards ── */
+.dash-body.dark .mgmt-stat-card {
+    background: rgba(16, 38, 80, 0.80);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dash-body.dark .mgmt-stat-value { color: #e8f0fe; }
+.dash-body.dark .mgmt-stat-label { color: rgba(200, 218, 255, 0.55); }
+
+/* ── Mgmt tab bar (class is .mgmt-tab, not .admin-tab) ── */
+.dash-body.dark .mgmt-tab-bar {
+    background: rgba(5, 11, 20, 0.55);
+}
+
+.dash-body.dark .mgmt-tab {
+    color: rgba(200, 218, 255, 0.65);
+}
+
+.dash-body.dark .mgmt-tab:hover {
+    color: #e8f0fe;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.dash-body.dark .mgmt-tab.active {
+    background: #1e4080;
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.dash-body.dark .mgmt-tab-count {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(200, 218, 255, 0.8);
+}
+
+.dash-body.dark .mgmt-tab.active .mgmt-tab-count {
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+}
+
+/* ── Portal Manajemen — panel, table, filters, pagination ── */
+.dash-body.dark .mgmt-panel {
+    background: rgba(8, 20, 50, 0.72);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.dash-body.dark .mgmt-panel-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.dash-body.dark .mgmt-ph-title { color: #e8f0fe; }
+.dash-body.dark .mgmt-ph-sub  { color: rgba(200, 218, 255, 0.5); }
+
+.dash-body.dark .mgmt-add-panel { background: rgba(5, 11, 20, 0.45); border-bottom-color: rgba(255, 255, 255, 0.08); }
+.dash-body.dark .mgmt-add-inner { background: rgba(5, 11, 20, 0.35); }
+.dash-body.dark .mgmt-add-heading { color: rgba(200, 218, 255, 0.75); }
+.dash-body.dark .mgmt-label { color: rgba(200, 218, 255, 0.55); }
+.dash-body.dark .mgmt-input {
+    background-color: rgba(5, 11, 20, 0.55);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8f0fe;
+}
+.dash-body.dark .mgmt-input::placeholder { color: rgba(200, 218, 255, 0.35); }
+
+.dash-body.dark .mgmt-filter-bar {
+    background: rgba(5, 11, 20, 0.35);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+.dash-body.dark .mgmt-search-icon { color: rgba(200, 218, 255, 0.4); }
+.dash-body.dark .mgmt-search-input {
+    background-color: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8f0fe;
+}
+.dash-body.dark .mgmt-filter-select-icon {
+    color: rgba(200, 218, 255, 0.45);
+}
+.dash-body.dark .mgmt-filter-select {
+    background-color: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8f0fe;
+    color-scheme: dark;
+}
+.dash-body.dark .mgmt-filter-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+.dash-body.dark .mgmt-perpage-label { color: rgba(200, 218, 255, 0.5); }
+.dash-body.dark .mgmt-perpage-select {
+    background-color: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8f0fe;
+}
+.dash-body.dark .mgmt-reset-btn {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(200, 218, 255, 0.65);
+}
+.dash-body.dark .mgmt-reset-btn:hover {
+    background-color: rgba(212, 175, 55, 0.12);
+    color: #D4AF37;
+}
+
+.dash-body.dark .mgmt-table thead th {
+    background: rgba(5, 11, 20, 0.55);
+    color: rgba(200, 218, 255, 0.65);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.dash-body.dark .mgmt-table td {
+    color: rgba(200, 218, 255, 0.9);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+.dash-body.dark .mgmt-table tbody tr {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+.dash-body.dark .mgmt-table tbody tr:hover {
+    background: rgba(212, 175, 55, 0.07);
+}
+.dash-body.dark .mgmt-table .text-muted { color: rgba(200, 218, 255, 0.5); }
+.dash-body.dark .mgmt-empty { color: rgba(200, 218, 255, 0.45); }
+
+.dash-body.dark .mgmt-nopol {
+    background: rgba(22, 101, 52, 0.2);
+    color: #86efac;
+    border-color: rgba(34, 197, 94, 0.3);
+}
+.dash-body.dark .mgmt-user-name { color: #e8f0fe; }
+.dash-body.dark .mgmt-username { color: #93c5fd; }
+.dash-body.dark .mgmt-role-driver { background: rgba(30, 64, 128, 0.45); color: #93c5fd; }
+.dash-body.dark .mgmt-role-pic { background: rgba(88, 28, 135, 0.35); color: #c4b5fd; }
+
+.dash-body.dark .mgmt-act-edit   { background: rgba(30, 64, 128, 0.4); color: #93c5fd; }
+.dash-body.dark .mgmt-act-edit:hover { background: rgba(30, 64, 128, 0.55); }
+.dash-body.dark .mgmt-act-del    { background: rgba(127, 29, 29, 0.35); color: #fca5a5; }
+.dash-body.dark .mgmt-act-del:hover  { background: rgba(127, 29, 29, 0.5); }
+.dash-body.dark .mgmt-act-save   { background: rgba(22, 101, 52, 0.25); color: #86efac; }
+.dash-body.dark .mgmt-act-cancel { background: rgba(255, 255, 255, 0.06); color: rgba(200, 218, 255, 0.65); }
+
+.dash-body.dark .mgmt-pag-btn {
+    background-color: rgba(8, 20, 50, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(200, 218, 255, 0.75);
+}
+.dash-body.dark .mgmt-pag-btn:hover:not(:disabled) {
+    background: rgba(30, 64, 128, 0.5);
+    border-color: #3b82f6;
+    color: #e8f0fe;
+}
+.dash-body.dark .mgmt-pag-btn.active {
+    background: #1e4080;
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+/* ── Manager request cards ── */
+.dash-body.dark .manager-request-card {
+    background: rgba(16, 38, 80, 0.78);
+    border-color: rgba(212, 175, 55, 0.13);
+}
+
+.dash-body.dark .manager-request-name { color: #e8f0fe; }
+
+.dash-body.dark .manager-request-meta,
+.dash-body.dark .manager-request-meta span {
+    color: rgba(200, 218, 255, 0.55);
+}
+
+.dash-body.dark .manager-request-card .admin-card { background: rgba(5, 11, 20, 0.45); }
+
+/* ── Status badges keep original colours ── */
+.dash-body.dark .status-badge { opacity: 0.9; }
+
+/* ── Light mode — admin/armada cards ── */
+.dash-body:not(.dark) .admin-card,
+.dash-body:not(.dark) .armada-card {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f3ff 100%);
+    border-color: rgba(59, 130, 246, 0.14);
+}
+
+.dash-body:not(.dark) .portal-stat-card,
+.dash-body:not(.dark) .portal-chart-card,
+.dash-body:not(.dark) .mgmt-stat-card {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f3ff 100%);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — Portal Pemeriksaan — sections, filters, tabs, inputs
+══════════════════════════════════════════════════════════════════ */
+
+/* Chart card title (fix selector — HTML uses .portal-chart-title) */
+.dash-body.dark .portal-chart-title { color: rgba(200, 218, 255, 0.72); }
+
+/* Section wrapper */
+.dash-body.dark .portal-section {
+    background: rgba(8, 20, 50, 0.72);
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.38);
+}
+
+/* Section header title */
+.dash-body.dark .portal-section-title { color: rgba(200, 218, 255, 0.88); }
+
+/* Section export / action button */
+.dash-body.dark .btn-export {
+    background: rgba(30, 64, 128, 0.7);
+    border-color: rgba(212, 175, 55, 0.25);
+    color: #e8f0fe;
+}
+
+/* Section tabs (Database Sheet / Log Foto / Arsip PDF) */
+.dash-body.dark .portal-section-tab {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(200, 218, 255, 0.65);
+}
+.dash-body.dark .portal-section-tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(212, 175, 55, 0.35);
+    color: #f1f5f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.dash-body.dark .portal-section-tab.active {
+    background: rgba(30, 64, 128, 0.95);
+    border-color: #D4AF37;
+    color: #D4AF37;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Local filters row inside each section */
+.dash-body.dark .portal-local-filters {
+    background: rgba(5, 11, 20, 0.45);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+.dash-body.dark .portal-perpage-label { color: rgba(200, 218, 255, 0.5); }
+.dash-body.dark .portal-local-reset {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(200, 218, 255, 0.6);
+}
+.dash-body.dark .portal-local-reset:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.3);
+    color: #D4AF37;
+}
+
+/* Admin search input */
+.dash-body.dark .admin-search-input {
+    background: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8f0fe;
+}
+.dash-body.dark .admin-search-input::placeholder { color: rgba(200, 218, 255, 0.35); }
+
+/* Admin filter inputs (date, select, text) — use background-color, NOT
+   `background` shorthand, so select chevron background-image does not tile */
+.dash-body.dark .admin-filter-input {
+    background-color: rgba(8, 20, 50, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e8f0fe;
+}
+.dash-body.dark select.admin-filter-input {
+    background-color: rgba(8, 20, 50, 0.7);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2393aed8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+}
+.dash-body.dark .admin-filter-input option { background: #0e1f3a; }
+.dash-body.dark .admin-filter-input::placeholder { color: rgba(200, 218, 255, 0.35); }
+
+.dash-body.dark .admin-filter-input[type="date"],
+.dash-body.dark input[type="date"].admin-filter-input {
+    background-color: rgba(8, 20, 50, 0.85);
+    color: #e8f0fe;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Fix TomSelect Dropdown di Dark Mode */
+.dash-body.dark .ts-control,
+.dash-body.dark .ts-control input {
+    background-color: rgba(13, 25, 48, 0.7) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Bagian list pilihan yang muncul ke bawah */
+.dash-body.dark .ts-dropdown {
+    background-color: #0f172a !important; /* Biru sangat gelap */
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Warna saat opsi di-hover atau dipilih */
+.dash-body.dark .ts-dropdown .active {
+    background-color: #1e293b !important;
+    color: #D4AF37 !important; /* Warna emas agar senada */
+}
+
+/* Warna teks di dalam opsi */
+.dash-body.dark .ts-dropdown .option {
+    color: #cbd5e1 !important;
+}
+
+/* Memutihkan icon kalender pada input date di Dark Mode */
+.dash-body.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(244deg) brightness(100%) contrast(100%);
+    cursor: pointer;
+}
+
+/* Date inputs — `color-scheme` must be a keyword, not a colour */
+.dash-body.dark input[type="date"] {
+    color-scheme: dark;
+}
+
+/* Portal empty state text */
+.dash-body.dark .portal-empty { color: rgba(200, 218, 255, 0.45); }
+
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — Manager history table — override hardcoded inline colours
+══════════════════════════════════════════════════════════════════ */
+.dash-body.dark .admin-table td > div,
+.dash-body.dark .admin-table td > p {
+    color: rgba(200, 218, 255, 0.85) !important;
+}
+.dash-body.dark .admin-table td > span:not(.status-badge):not(.landing-nopol-badge) {
+    color: rgba(200, 218, 255, 0.65) !important;
+}
+/* Keep landing-nopol-badge readable in dark */
+.dash-body.dark .landing-nopol-badge {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* Manager alasan / vehicle sub-text */
+.dash-body.dark .manager-alasan-label { color: rgba(200, 218, 255, 0.5); }
+.dash-body.dark .manager-alasan-text  { color: rgba(200, 218, 255, 0.8); }
+.dash-body.dark .manager-vehicle-jenis { color: rgba(200, 218, 255, 0.6); }
+
+/* Manager vehicle block */
+.dash-body.dark .manager-vehicle-block {
+    background: rgba(5, 11, 20, 0.4);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+/* Admin pagination links */
+.dash-body.dark .admin-pagination a,
+.dash-body.dark .admin-pagination span {
+    color: rgba(200, 218, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(8, 20, 50, 0.5);
+}
+.dash-body.dark .admin-pagination .page-item.active .page-link,
+.dash-body.dark .admin-pagination [aria-current="page"] span {
+    background: #1e4080;
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+/* ── Override hardcoded inline colours on <td> elements (not status colours) ── */
+/* Targets dark/grey text values that are hard to read on dark backgrounds */
+.dash-body.dark .admin-table td[style*="#64748b"],
+.dash-body.dark .admin-table td[style*="#94a3b8"],
+.dash-body.dark .admin-table td[style*="#374151"],
+.dash-body.dark .admin-table td[style*="#0f172a"] {
+    color: rgba(200, 218, 255, 0.80) !important;
+}
+/* "Unknown" status colour from statusStyle helper (#334155) — turn to muted blue-white */
+.dash-body.dark .admin-table td[style*="#334155"] {
+    color: rgba(200, 218, 255, 0.6) !important;
 }

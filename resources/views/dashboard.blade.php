@@ -222,6 +222,24 @@
                                     </span>
                                 </a>
 
+                                {{-- Peminjaman Kendaraan --}}
+                                <a href="{{ route('admin.peminjaman') }}" class="dash-main-card dash-pressable" style="position:relative">
+                                    <div>
+                                        <p class="dash-main-title">Peminjaman Kendaraan</p>
+                                        <p class="dash-main-sub">Daftar permohonan &amp; unduh PDF</p>
+                                    </div>
+                                    <span class="dash-main-icon" aria-hidden="true">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                    </span>
+                                    @if($pendingCount > 0)
+                                        <span class="dash-pending-dot" style="top:18px;right:18px"></span>
+                                    @endif
+                                </a>
+
                                 {{-- Portal Manajemen Administrasi --}}
                                 <a href="{{ route('admin.portal-manajemen') }}" class="dash-main-card dash-pressable">
                                     <div>
@@ -281,14 +299,15 @@
                             <section>
                                 <h3 class="dash-section-title">PANEL MANAJEMEN (ADMIN)</h3>
                                 <div class="dash-admin-grid">
-                                    <a href="{{ route('admin.portal-manajemen') }}" class="dash-admin-card dash-pressable">
-                                        <span class="dash-admin-icon dash-admin-armada" aria-hidden="true">
+                                    <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-admin-card dash-pressable">
+                                        <span class="dash-admin-icon" aria-hidden="true">
                                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                                <path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                <ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/>
                                             </svg>
                                         </span>
-                                        PORTAL MANAJEMEN
+                                        PORTAL PEMERIKSAAN
                                     </a>
 
                                     <a href="{{ route('admin.peminjaman') }}" class="dash-admin-card dash-pressable" style="position:relative">
@@ -299,21 +318,20 @@
                                                 <path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                             </svg>
                                         </span>
-                                        REQUEST PEMINJAMAN
+                                        PEMINJAMAN KENDARAAN
                                         @if($pendingCount > 0)
                                             <span class="dash-admin-pending-badge">{{ $pendingCount }}</span>
                                         @endif
                                     </a>
 
-                                    <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-admin-card dash-pressable">
-                                        <span class="dash-admin-icon" aria-hidden="true">
+                                    <a href="{{ route('admin.portal-manajemen') }}" class="dash-admin-card dash-pressable">
+                                        <span class="dash-admin-icon dash-admin-armada" aria-hidden="true">
                                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                                <ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                             </svg>
                                         </span>
-                                        PORTAL PEMERIKSAAN
+                                        PORTAL MANAJEMEN
                                     </a>
                                 </div>
                             </section>

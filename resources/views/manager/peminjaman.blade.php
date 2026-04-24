@@ -9,29 +9,61 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="dash-body">
-    <div class="admin-shell">
 
-        <header class="checklist-topbar" style="margin-bottom:6px">
-            <div>
-                <h1 class="dash-brand-title">Persetujuan Peminjaman</h1>
-                <p class="dash-brand-sub">PT ARTHA DAYA COALINDO</p>
+    {{-- Background decoration layers --}}
+    <div class="dash-bg-cubes" aria-hidden="true"></div>
+    <div class="dash-bg-stardust" aria-hidden="true"></div>
+    <div class="dash-bg-orb-gold" aria-hidden="true"></div>
+    <div class="dash-bg-orb-blue" aria-hidden="true"></div>
+    <div class="dash-bg-wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%" preserveAspectRatio="none">
+            <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50 L 1440 400 L 0 400 Z" fill="url(#mp_fill)"></path>
+            <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50" stroke="url(#mp_stroke)" stroke-width="3" stroke-linecap="round"></path>
+            <defs>
+                <linearGradient id="mp_fill" x1="720" y1="50" x2="720" y2="400" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#D4AF37" stop-opacity="0.12"></stop>
+                    <stop offset="1" stop-color="#0A2342" stop-opacity="0"></stop>
+                </linearGradient>
+                <linearGradient id="mp_stroke" x1="0" y1="150" x2="1440" y2="150" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0A2342"></stop>
+                    <stop offset="0.4" stop-color="#D4AF37"></stop>
+                    <stop offset="1" stop-color="#60A5FA"></stop>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
+    {{-- ══ NAVBAR ══ --}}
+    <nav class="dash-nav" id="dash-nav">
+        <div class="dash-nav-inner">
+            <div class="dash-nav-brand">
+                <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo">
+                <div>
+                    <div class="dash-nav-title">Persetujuan Peminjaman</div>
+                    <span class="dash-nav-sub">PT ARTHA DAYA COALINDO</span>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="dash-nav-actions" id="dash-nav-actions">
+                <button class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Toggle Tema">
+                    <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
+                    <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
+                </button>
                 <span class="dash-chip dash-chip-manager">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    MANAGER
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="dash-nav-chip-label">MANAGER</span>
                 </span>
-                <a href="{{ route('dashboard') }}" class="checklist-icon-btn" aria-label="Kembali ke dashboard">
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
-                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                <a href="{{ route('dashboard') }}" class="dash-nav-btn-glass" aria-label="Dashboard">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="dash-nav-btn-label">Dashboard</span>
                 </a>
             </div>
-        </header>
+            <button class="dash-mobile-menu-btn" id="dash-mobile-menu-btn" aria-label="Buka Menu" aria-expanded="false">
+                <i class="bi bi-list" id="dash-mobile-menu-icon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="admin-shell" style="position:relative;z-index:1">
 
         {{-- TAB BUTTONS --}}
         <div class="admin-tabs" style="margin-top:16px">
@@ -67,6 +99,10 @@
                                         <span>NIP: {{ $req->nip }}</span>
                                         <span class="meta-sep">&bull;</span>
                                         <span>{{ $req->jabatan }}</span>
+                                        @if($req->bidang)
+                                            <span class="meta-sep">&bull;</span>
+                                            <span>{{ $req->bidang->labelLengkap() }}</span>
+                                        @endif
                                         <span class="meta-sep">&bull;</span>
                                         @if($req->tanggal_peminjaman)
                                             <span>{{ \Carbon\Carbon::parse($req->tanggal_peminjaman)->translatedFormat('d M Y') }}</span>
@@ -151,6 +187,9 @@
                                         <td>
                                             <div style="font-weight:700;color:#0f172a">{{ $req->nama_lengkap }}</div>
                                             <div style="font-size:0.76rem;color:#64748b">{{ $req->nip }} &bull; {{ $req->jabatan }}</div>
+                                            @if($req->bidang)
+                                                <div style="font-size:0.72rem;color:#94a3b8">{{ $req->bidang->labelLengkap() }}</div>
+                                            @endif
                                             @if($req->tanggal_peminjaman)
                                                 <div style="font-size:0.72rem;color:#94a3b8">{{ \Carbon\Carbon::parse($req->tanggal_peminjaman)->translatedFormat('d M Y') }}</div>
                                             @endif
@@ -278,6 +317,51 @@
                 Swal.fire({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Tidak dapat menghubungi server.' });
             }
         }
+    </script>
+
+    <script>
+    /* ── Theme Toggle ── */
+    (function () {
+        const body  = document.body;
+        const icon  = document.getElementById('dash-theme-icon');
+        const btn   = document.getElementById('dash-theme-toggle');
+        const label = document.getElementById('dash-theme-label');
+        function applyTheme(isDark) {
+            body.classList.toggle('dark', isDark);
+            if (icon)  icon.className    = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        }
+        const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+        applyTheme(saved === 'dark');
+        if (btn) btn.addEventListener('click', function () {
+            const next = !body.classList.contains('dark');
+            applyTheme(next);
+            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
+            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+        });
+    })();
+    /* ── Mobile hamburger ── */
+    (function () {
+        const menuBtn    = document.getElementById('dash-mobile-menu-btn');
+        const navActions = document.getElementById('dash-nav-actions');
+        const menuIcon   = document.getElementById('dash-mobile-menu-icon');
+        if (!menuBtn || !navActions) return;
+        function closeMenu() {
+            navActions.classList.remove('mobile-open');
+            menuIcon.className = 'bi bi-list';
+            menuBtn.setAttribute('aria-expanded', 'false');
+        }
+        menuBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isOpen = navActions.classList.toggle('mobile-open');
+            menuIcon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+            menuBtn.setAttribute('aria-expanded', String(isOpen));
+        });
+        document.addEventListener('click', function (e) {
+            if (!navActions.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+    })();
     </script>
 </body>
 </html>

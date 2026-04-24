@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\BidangController;
+use App\Http\Controllers\Admin\PernyataanController;
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\KendaraanController;
@@ -10,7 +12,6 @@ use App\Models\Checklist;
 use App\Models\Kendaraan;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 
 // Landing page (public)
 Route::get('/', [PeminjamanController::class, 'landingPage'])->name('landing');
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
         $drivers = User::where('role', 'driver')->orderBy('name')->get();
         $user = auth()->user();
+
         return view('checklists.create', compact('kendaraans', 'drivers', 'user'));
     })->name('checklists.create');
 
@@ -43,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/admin/database-sheet/export', function () {
         abort_unless(auth()->user()?->role === 'admin', 403);
+
         return app(ChecklistController::class)->exportExcel();
     })->name('admin.database-sheet.export');
 
@@ -79,7 +82,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/admin/portal/kendaraan', [UserManagementController::class, 'apiKendaraan'])->name('api.admin.portal.kendaraan');
     Route::get('/api/admin/portal/users', [UserManagementController::class, 'apiUsers'])->name('api.admin.portal.users');
 
-    // Admin: request peminjaman list (read-only) + PDF download
+    // Admin: resource API (JSON) — dipakai halaman Peminjaman Kendaraan (AJAX)
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('bidangs', BidangController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('pernyataans', PernyataanController::class)->only(['index', 'store', 'update', 'destroy']);
+    });
+
+    // Admin: peminjaman kendaraan + PDF download
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'adminIndex'])->name('admin.peminjaman');
     Route::get('/admin/peminjaman/{peminjaman}/pdf', [PeminjamanController::class, 'downloadPdf'])->name('admin.peminjaman.pdf');
 

@@ -11,6 +11,7 @@ class PeminjamanRequest extends Model
         'nama_lengkap',
         'nip',
         'jabatan',
+        'bidang_id',
         'nomor_kendaraan',
         'jenis_kendaraan',
         'tanggal_peminjaman',
@@ -33,6 +34,11 @@ class PeminjamanRequest extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function bidang(): BelongsTo
+    {
+        return $this->belongsTo(Bidang::class, 'bidang_id');
     }
 
     public function isPending(): bool

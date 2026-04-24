@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
         // =========================
 
         User::firstOrCreate(
-            ['username' => 'manager'], 
+            ['username' => 'manager'],
             [
                 'name' => 'Manager Pusat',
                 'email' => 'manager@arthadaya.com',
@@ -78,5 +78,7 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
+
+        $this->call(BidangPernyataanSeeder::class);
     }
 }

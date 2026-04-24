@@ -17,11 +17,20 @@
             font-style: normal;
         }
 
-        @page { margin: 30px 36px; }
+        @page { margin: 30px 36px 38px 36px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; font-size: 10pt; padding: 15px; margin: 15px; color: #1a1a2e; line-height: 1.5; }
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt;
+            margin: 15px;
+            padding: 15px;
+            color: #1a1a2e;
+            line-height: 1.5;
+            position: relative;
+        }
+        
+        .pdf-main { padding-bottom: 22mm; }
 
-        /* ── HEADER ── */
         .header { width: 100%; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid #002a7a; }
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { vertical-align: middle; }
@@ -32,44 +41,53 @@
         .header-pm    { font-size: 12pt; font-weight: bold; color: #3d4654; margin-top: 1px; }
         .header-no    { font-size: 11pt; font-weight: bold; color: #002a7a; margin-top: 1px; }
 
-        /* ── BODY ── */
         .body-text { font-size: 10pt; color: #1a1a2e; margin: 14px 0 10px; }
 
-        /* ── IDENTITY TABLE ── */
-        .identity-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
-        .identity-table td { font-size: 10pt; padding: 3px 4px; vertical-align: bottom; }
-        .id-label { width: 34%; font-weight: normal; }
-        .id-colon { width: 2%; text-align: center; }
-        .id-value { width: 62%; padding-bottom: 1px; }
-        .id-slash { width: 2%; text-align: center; }
+        /* Kolom label diseragamkan mengikuti teks terpanjang: "Hari / Tanggal Peminjaman" */
+        .pdf-kv-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+        .pdf-kv-table td { font-size: 10pt; padding: 2px 0; vertical-align: top; }
+        .pdf-kv-label {
+            width: 48mm;
+            white-space: nowrap;
+            font-weight: normal;
+        }
 
-        /* ── VEHICLE TABLE ── */
-        .vehicle-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
-        .vehicle-table td { font-size: 10pt; padding: 3px 4px; vertical-align: bottom; }
-        .v-label { width: 34%; }
-        .v-colon { width: 2%; text-align: center; }
-        .v-value { width: 64%; border-bottom: padding-bottom: 1px; }
-
-        /* ── DECLARATION ── */
+        .pdf-kv-colon { width: 3mm; text-align: left; }
+        .pdf-kv-value { padding-bottom: 2px; word-wrap: break-word; }
+        
         .declaration { font-size: 10pt; color: #1a1a2e; margin: 12px 0 8px; }
         .declaration-list { font-size: 10pt; padding-left: 22px; margin: 6px 0; }
         .declaration-list li { margin-bottom: 4px; }
-
-        /* ── CLOSING ── */
+        
         .closing { font-size: 10pt; margin-top: 14px; color: #1a1a2e; }
 
-        /* ── SIGNATURE ── */
         .sig-table { width: 100%; border-collapse: collapse; margin-top: 28px; }
         .sig-table td { width: 50%; text-align: center; vertical-align: top; padding: 0 10px; font-size: 10pt; }
-        .sig-label    { font-weight: bold; margin-bottom: 4px; }
-        .sig-position { font-size: 9.5pt; color: #374151; margin-bottom: 2px; }
-        .sig-date     { font-size: 10pt; margin-bottom: 6px; }
+        .sig-label    { font-weight: bold; margin-bottom: 2px; }
+        .sig-position { font-size: 9.5pt; color: #374151; margin-bottom: 0px; }
         .sig-img-box  { height: 75px; margin: 6px auto; display: flex; align-items: center; justify-content: center; }
         .sig-img-box img { max-height: 70px; max-width: 180px; object-fit: contain; }
-        .sig-name     { font-weight: bold; font-size: 10pt; margin-top: 4px; border-top: 1px solid #374151; padding-top: 4px; display: inline-block; min-width: 160px; }
+        .sig-name     { font-weight: bold; font-size: 10pt; margin-top: 4px; padding-top: 4px; display: inline-block; min-width: 160px; }
 
-        .note { text-align: center; font-size: 8pt; color: #6b7280; margin-top: 18px; font-style: italic; border-top: 1px solid #d1d5db; padding-top: 6px; }
-    </style>
+        /* Hanya disclaimer di bagian bawah halaman */
+        .pdf-footer-note {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 5mm;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+        .note {
+            text-align: center;
+            font-size: 8pt;
+            color: #6b7280;
+            margin: 0;
+            font-style: italic;
+            border-top: 1px solid #d1d5db;
+            padding-top: 8px;
+        }
+        </style>
 </head>
 <body>
 @php
@@ -90,14 +108,18 @@
     $docId    = str_pad($peminjaman->id, 4, '0', STR_PAD_LEFT);
     $docBulan = $bulanRomawi[$tgl->month];
     $docTahun = $tgl->format('y');
-    $docNo    = "No. ADC-{$docTahun}{$docBulan}{$docId}";
+    $docNo    = "No. ADC-{$docTahun}{$docBulan}KND{$docId}";
 
     $tglApproved = $tgl->day . ' ' . ($bulanId[$tgl->month]) . ' ' . $tgl->year;
     $tglPinjamStr = $tglPinjam->day . ' ' . ($bulanId[$tglPinjam->month]) . ' ' . $tglPinjam->year;
     $hariPinjam   = $tglPinjam->locale('id')->isoFormat('dddd');
+
+    $bidangTeks = $peminjaman->bidang
+        ? $peminjaman->bidang->labelLengkap()
+        : '–';
 @endphp
 
-    {{-- ── HEADER ── --}}
+    <div class="pdf-main">
     <div class="header">
         <table class="header-table">
             <tr>
@@ -113,65 +135,67 @@
         </table>
     </div>
 
-    {{-- ── IDENTITY ── --}}
     <p class="body-text">Saya yang bertanda tangan dibawah ini :</p>
 
-    <table class="identity-table">
+    <table class="pdf-kv-table">
         <tr>
-            <td class="id-label">Nama Pegawai</td>
-            <td class="id-colon">:</td>
-            <td class="id-value">{{ $peminjaman->nama_lengkap }}</td>
+            <td class="pdf-kv-label">Nama Pegawai</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $peminjaman->nama_lengkap }}</td>
         </tr>
         <tr>
-            <td class="id-label">NIP</td>
-            <td class="id-colon">:</td>
-            <td class="id-value">{{ $peminjaman->nip }}</td>
+            <td class="pdf-kv-label">NIP</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $peminjaman->nip }}</td>
         </tr>
         <tr>
-            <td class="id-label">Posisi</td>
-            <td class="id-colon">:</td>
-            <td colspan="3" class="id-value">{{ $peminjaman->jabatan }}</td>
+            <td class="pdf-kv-label">Posisi</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $peminjaman->jabatan }}</td>
+        </tr>
+        <tr>
+            <td class="pdf-kv-label">Bidang / Bagian</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $bidangTeks }}</td>
         </tr>
     </table>
 
-    {{-- ── VEHICLE ── --}}
     <p class="body-text">Mohon untuk dapat dipinjamkan kendaraan dinas <em>Port Management</em>, sebagai berikut :</p>
 
-    <table class="vehicle-table">
+    <table class="pdf-kv-table">
         <tr>
-            <td class="v-label">Jenis Kendaraan</td>
-            <td class="v-colon">:</td>
-            <td class="v-value">{{ $peminjaman->jenis_kendaraan }}</td>
+            <td class="pdf-kv-label">Jenis Kendaraan</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $peminjaman->jenis_kendaraan }}</td>
         </tr>
         <tr>
-            <td class="v-label">Nomor Kendaraan</td>
-            <td class="v-colon">:</td>
-            <td class="v-value">{{ $peminjaman->nomor_kendaraan }}</td>
+            <td class="pdf-kv-label">Nomor Kendaraan</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $peminjaman->nomor_kendaraan }}</td>
         </tr>
         <tr>
-            <td class="v-label">Hari / Tanggal Peminjaman</td>
-            <td class="v-colon">:</td>
-            <td class="v-value">{{ $hariPinjam }}, {{ $tglPinjamStr }}</td>
+            <td class="pdf-kv-label">Hari / Tanggal Peminjaman</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $hariPinjam }}, {{ $tglPinjamStr }}</td>
         </tr>
         <tr>
-            <td class="v-label">Untuk Keperluan</td>
-            <td class="v-colon">:</td>
-            <td class="v-value">{{ $peminjaman->alasan }}</td>
+            <td class="pdf-kv-label">Untuk Keperluan</td>
+            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-value">{{ $peminjaman->alasan }}</td>
         </tr>
     </table>
 
-    {{-- ── DECLARATION ── --}}
-    <p class="declaration">Saya yang meminjam kendaraan dinas PT ADC PM SLA, dengan ini menyatakan <strong>bersedia</strong> untuk:</p>
-    <ol class="declaration-list">
-        <li>Memperbaiki dan menanggung biaya perbaikan bila terjadi kerusakan pada kendaraan</li>
-        <li>Memberikan penggantian kendaraan jika kendaraan hilang (dengan spesifikasi kendaraan yang sama)</li>
-        <li>Menyediakan kendaraan pengganti untuk operasional kantor ADC PM SLA selama kendaraan sedang dalam perbaikan, jika kendaraan mengalami kerusakan</li>
-        <li>Mengisi ulang bahan bakar yang terpakai</li>
-    </ol>
+    <p class="declaration">{{ $pernyataanPengantar }}</p>
+    @if($pernyataans->isNotEmpty())
+        <ol class="declaration-list">
+            @foreach($pernyataans as $p)
+                <li>{{ $p->isi_pernyataan }}</li>
+            @endforeach
+        </ol>
+    @endif
 
     <p class="closing">Demikian disampaikan. Atas perhatian dan kerjasamanya kami ucapkan terima kasih.</p>
 
-    {{-- ── SIGNATURE ── --}}
     <table class="sig-table">
         <tr>
             <td>
@@ -198,8 +222,11 @@
             </td>
         </tr>
     </table>
+    </div>
 
-    <p class="note">Dokumen ini dihasilkan secara otomatis oleh Vehicle Management System ADC Port Management.</p>
+    <div class="pdf-footer-note">
+        <p class="note">Dokumen ini dihasilkan secara otomatis oleh Vehicle Management System ADC Port Management.</p>
+    </div>
 
 </body>
 </html>
