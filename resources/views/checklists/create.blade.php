@@ -122,10 +122,94 @@
         </style>
     </head>
     <body class="dash-body">
+
         @php
-            $userRole = $user->role ?? 'driver';
-            $isDriver = $userRole === 'driver';
+            $userRole      = $user->role ?? 'driver';
+            $isDriver      = $userRole === 'driver';
+            $isAdminRole   = $userRole === 'admin';
+            $isManagerRole = $userRole === 'manager';
+            $isPicRole     = $userRole === 'pic_kendaraan';
+            $userRoleLabel = $isAdminRole ? 'ADMIN' : ($isManagerRole ? 'MANAGER' : ($isPicRole ? 'PIC KENDARAAN' : 'DRIVER'));
+            $userName      = $user->name ?? $user->username ?? 'User';
         @endphp
+
+        {{-- Background decoration layers (same as dashboard) --}}
+        <div class="dash-bg-cubes" aria-hidden="true"></div>
+        <div class="dash-bg-stardust" aria-hidden="true"></div>
+        <div class="dash-bg-orb-gold" aria-hidden="true"></div>
+        <div class="dash-bg-orb-blue" aria-hidden="true"></div>
+        <div class="dash-bg-wave" aria-hidden="true">
+            <svg viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%" preserveAspectRatio="none">
+                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50 L 1440 400 L 0 400 Z" fill="url(#cl_fill)"></path>
+                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50" stroke="url(#cl_stroke)" stroke-width="3" stroke-linecap="round"></path>
+                <path d="M0 350 C 400 380, 500 250, 900 300 C 1200 350, 1300 200, 1440 150" stroke="rgba(255,255,255,0.06)" stroke-width="2" stroke-dasharray="8 8"></path>
+                <circle cx="700" cy="200" r="4" fill="#D4AF37"></circle>
+                <circle cx="1000" cy="50" r="4" fill="#D4AF37"></circle>
+                <defs>
+                    <linearGradient id="cl_fill" x1="720" y1="50" x2="720" y2="400" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#D4AF37" stop-opacity="0.12"></stop>
+                        <stop offset="1" stop-color="#0A2342" stop-opacity="0"></stop>
+                    </linearGradient>
+                    <linearGradient id="cl_stroke" x1="0" y1="150" x2="1440" y2="150" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#0A2342"></stop>
+                        <stop offset="0.4" stop-color="#D4AF37"></stop>
+                        <stop offset="1" stop-color="#60A5FA"></stop>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        {{-- ══ NAVBAR ══ --}}
+        <nav class="dash-nav" id="dash-nav">
+            <div class="dash-nav-inner">
+
+                {{-- Brand --}}
+                <div class="dash-nav-brand">
+                    <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo">
+                    <div>
+                        <div class="dash-nav-title">Ceklist Kendaraan</div>
+                        <span class="dash-nav-sub">PT ARTHA DAYA COALINDO</span>
+                    </div>
+                </div>
+
+                {{-- Actions --}}
+                <div class="dash-nav-actions" id="dash-nav-actions">
+
+                    {{-- Theme toggle --}}
+                    <button class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Toggle Tema">
+                        <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
+                        <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
+                    </button>
+
+                    {{-- Role chip --}}
+                    <span class="dash-chip {{ $isAdminRole ? 'dash-chip-admin' : ($isManagerRole ? 'dash-chip-manager' : 'dash-chip-driver') }}">
+                        @if ($isAdminRole)
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
+                        @elseif ($isManagerRole)
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        @else
+                            <i class="bi bi-person-check-fill"></i>
+                        @endif
+                        <span class="dash-nav-chip-label">{{ $userRoleLabel }}</span>
+                    </span>
+
+                    {{-- Back to dashboard --}}
+                    <a href="{{ route('dashboard') }}" class="dash-nav-btn-glass" aria-label="Kembali ke Dashboard">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="dash-nav-btn-label">Dashboard</span>
+                    </a>
+
+                </div>
+
+                {{-- Mobile hamburger --}}
+                <button class="dash-mobile-menu-btn" id="dash-mobile-menu-btn" aria-label="Buka Menu" aria-expanded="false">
+                    <i class="bi bi-list" id="dash-mobile-menu-icon"></i>
+                </button>
+
+            </div>
+        </nav>
 
         {{-- PDF Result Modal --}}
         <div class="modal-overlay" id="pdf-modal" style="display:none">
@@ -138,26 +222,6 @@
         </div>
 
         <div class="checklist-shell" data-checklist-wizard>
-            <header class="checklist-topbar">
-                <div>
-                    <h1 class="dash-brand-title">Ceklist Kendaraan</h1>
-                    <p class="dash-brand-sub">ADC PORT Management.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="dash-chip {{ $isDriver ? 'dash-chip-driver' : 'dash-chip-admin' }}">
-                        @if (!$isDriver)
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-                        @else
-                            <i class="bi bi-person-check-fill"></i>
-                        @endif
-                        {{ $isDriver ? 'DRIVER' : 'ADMIN' }}
-                    </span>
-                    <a href="{{ route('dashboard') }}" class="checklist-icon-btn" aria-label="Kembali ke dashboard">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </a>
-                </div>
-            </header>
-
             <main class="checklist-content">
                 <form id="checklist-form" class="checklist-card" action="{{ route('checklists.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                     @csrf
@@ -509,6 +573,64 @@
         </div>
     </body>
 </html>
+
+<script>
+/* ── Theme Toggle (same as dashboard) ── */
+(function () {
+    const body  = document.body;
+    const icon  = document.getElementById('dash-theme-icon');
+    const btn   = document.getElementById('dash-theme-toggle');
+    const label = document.getElementById('dash-theme-label');
+
+    function applyTheme(isDark) {
+        body.classList.toggle('dark', isDark);
+        if (icon)  icon.className    = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+
+    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+    applyTheme(saved === 'dark');
+
+    if (btn) {
+        btn.addEventListener('click', function () {
+            const next = !body.classList.contains('dark');
+            applyTheme(next);
+            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
+            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+        });
+    }
+})();
+
+/* ── Mobile navbar dropdown ── */
+(function () {
+    const menuBtn    = document.getElementById('dash-mobile-menu-btn');
+    const navActions = document.getElementById('dash-nav-actions');
+    const menuIcon   = document.getElementById('dash-mobile-menu-icon');
+
+    if (!menuBtn || !navActions) return;
+
+    function closeMenu() {
+        navActions.classList.remove('mobile-open');
+        menuIcon.className = 'bi bi-list';
+        menuBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    menuBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = navActions.classList.toggle('mobile-open');
+        menuIcon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!navActions.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+})();
+</script>
 
 @if($isDriver)
 <script>

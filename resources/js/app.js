@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'tom-select/dist/css/tom-select.bootstrap5.css';
 
 window.Alpine = Alpine;
+window.SignaturePad = SignaturePad;
 Alpine.start();
 
 document.addEventListener('DOMContentLoaded', () => {

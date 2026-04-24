@@ -11,36 +11,21 @@
         <style>
             /* Gradient tokens — diubah JS saat toggle tema */
             :root {
-                --grad-1: #0a1628;
-                --grad-2: #162a52;
-                --grad-3: #0d1a33;
+                --grad-1: #0A2342;
+                --grad-2: #0e1f3a;
+                --grad-3: #050B14;
             }
 
             .auth-page-body {
                 margin: 0;
                 padding: 0;
                 min-height: 100vh;
-                background: linear-gradient(-45deg, var(--grad-1), var(--grad-2), var(--grad-3), var(--grad-1));
-                background-size: 400% 400%;
-                animation: gradientBG 15s ease infinite;
+                background: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 50%, var(--grad-3) 100%);
                 overflow: hidden;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-            }
-
-            @keyframes gradientBG {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-            }
-
-            .auth-bg-canvas {
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 0;
-                pointer-events: none;
+                transition: background 0.5s ease;
             }
 
             .auth-card {
@@ -51,21 +36,53 @@
     </head>
     <body class="auth-page-body">
 
+        {{-- Premium Background Layers --}}
+        <div class="auth-bg-cubes" aria-hidden="true"></div>
+        <div class="auth-bg-stardust" aria-hidden="true"></div>
+        <div class="auth-bg-orb-gold" aria-hidden="true"></div>
+        <div class="auth-bg-orb-blue" aria-hidden="true"></div>
+        <div class="auth-bg-wave" aria-hidden="true">
+            <svg viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%" preserveAspectRatio="none">
+                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50 L 1440 400 L 0 400 Z" fill="url(#auth_fill)"></path>
+                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50" stroke="url(#auth_stroke)" stroke-width="3" stroke-linecap="round"></path>
+                <path d="M0 350 C 400 380, 500 250, 900 300 C 1200 350, 1300 200, 1440 150" stroke="rgba(255,255,255,0.08)" stroke-width="2" stroke-dasharray="8 8"></path>
+                <circle cx="700" cy="200" r="4" fill="#D4AF37"></circle>
+                <circle cx="1000" cy="50" r="4" fill="#D4AF37"></circle>
+                <defs>
+                    <linearGradient id="auth_fill" x1="720" y1="50" x2="720" y2="400" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#D4AF37" stop-opacity="0.12"></stop>
+                        <stop offset="1" stop-color="#0A2342" stop-opacity="0"></stop>
+                    </linearGradient>
+                    <linearGradient id="auth_stroke" x1="0" y1="150" x2="1440" y2="150" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#0A2342"></stop>
+                        <stop offset="0.4" stop-color="#D4AF37"></stop>
+                        <stop offset="1" stop-color="#60A5FA"></stop>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
         {{-- Theme toggle button --}}
         <button class="auth-theme-toggle" id="theme-toggle" title="Ganti Tema" aria-label="Toggle tema">
             <i class="bi bi-sun-fill" id="theme-icon"></i>
         </button>
 
-        {{-- Animated background canvas --}}
-        <canvas class="auth-bg-canvas" id="auth-bg-canvas"></canvas>
-
         {{-- Login card --}}
         <div class="auth-card" id="login-card">
             <div class="auth-card-image">
-                <img src="{{ asset('images/VMSme.png') }}" alt="VMS - Vehicle Management System" class="auth-hero-img">
+                <img src="{{ asset('images/VMS.png') }}" alt="VMS - Vehicle Management System" class="auth-hero-img">
             </div>
 
             <div class="auth-card-body">
+
+                {{-- ── Title ─────────────────────────────────────────── --}}
+                <div class="auth-card-header">
+                    <h1 class="auth-title">Vehicle Management System</h1>
+                    <div class="auth-subtitle-divider">
+                        <span class="auth-subtitle">Portal Kendaraan Operasional</span>
+                    </div>
+                </div>
+
                 @if (session('status'))
                     <div class="auth-alert auth-alert-success" role="alert" id="login-status">
                         <i class="bi bi-check-circle-fill"></i>
@@ -120,78 +137,6 @@
         </div>
 
         <script>
-        /* ── Canvas animated lines ── */
-        (function () {
-            const canvas = document.getElementById('auth-bg-canvas');
-            const ctx    = canvas.getContext('2d');
-
-            let W, H;
-            function resize() {
-                W = canvas.width  = window.innerWidth;
-                H = canvas.height = window.innerHeight;
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            const lineBase = [
-                {
-                    startYFrac: 0.22, endYFrac: 0.18,
-                    cp1: { xFrac: 0.25, yFrac: 0.08 },
-                    cp2: { xFrac: 0.70, yFrac: 0.32 },
-                    phases: [0.00, 1.40, 2.60, 0.90],
-                    speeds: [0.30, 0.19, 0.23, 0.37],
-                    amps:   [0.07, 0.04, 0.06, 0.05],
-                    lineWidth: 2.2,
-                    dark:  'rgba(201, 162, 39, 0.55)',
-                    light: 'rgba(59, 95, 192, 0.38)',
-                },
-                {
-                    startYFrac: 0.80, endYFrac: 0.76,
-                    cp1: { xFrac: 0.30, yFrac: 0.92 },
-                    cp2: { xFrac: 0.68, yFrac: 0.68 },
-                    phases: [1.20, 0.50, 3.10, 1.80],
-                    speeds: [0.25, 0.33, 0.18, 0.28],
-                    amps:   [0.06, 0.05, 0.07, 0.04],
-                    lineWidth: 1.6,
-                    dark:  'rgba(201, 162, 39, 0.38)',
-                    light: 'rgba(59, 95, 192, 0.24)',
-                },
-            ];
-
-            let t = 0;
-
-            function drawLine(l, stroke, lw, time) {
-                const sy  = (l.startYFrac + Math.sin(time * l.speeds[0] + l.phases[0]) * l.amps[0]) * H;
-                const ey  = (l.endYFrac   + Math.cos(time * l.speeds[1] + l.phases[1]) * l.amps[1]) * H;
-                const c1x = (l.cp1.xFrac  + Math.sin(time * l.speeds[2] + l.phases[2]) * l.amps[2]) * W;
-                const c1y = (l.cp1.yFrac  + Math.cos(time * l.speeds[0] + l.phases[3]) * l.amps[3]) * H;
-                const c2x = (l.cp2.xFrac  + Math.cos(time * l.speeds[1] + l.phases[1]) * l.amps[2]) * W;
-                const c2y = (l.cp2.yFrac  + Math.sin(time * l.speeds[3] + l.phases[0]) * l.amps[3]) * H;
-                ctx.beginPath();
-                ctx.moveTo(0, sy);
-                ctx.bezierCurveTo(c1x, c1y, c2x, c2y, W, ey);
-                ctx.strokeStyle = stroke;
-                ctx.lineWidth   = lw;
-                ctx.stroke();
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, W, H);
-                t += 0.025;
-                const isLight = document.body.classList.contains('light-mode');
-                lineBase.forEach(l => {
-                    const s = isLight ? l.light : l.dark;
-                    const glow = s.replace(/[\d.]+\)$/, '0.08)');
-                    drawLine(l, glow, l.lineWidth * 6, t);
-                });
-                lineBase.forEach(l => {
-                    drawLine(l, isLight ? l.light : l.dark, l.lineWidth, t);
-                });
-                requestAnimationFrame(animate);
-            }
-            animate();
-        })();
-
         /* ── Theme toggle ── */
         (function () {
             const btn  = document.getElementById('theme-toggle');
@@ -199,7 +144,7 @@
             const body = document.body;
             const root = document.documentElement;
 
-            const DARK  = { g1: '#0a1628', g2: '#162a52', g3: '#0d1a33' };
+            const DARK  = { g1: '#0A2342', g2: '#0e1f3a', g3: '#050B14' };
             const LIGHT = { g1: '#c7d9f8', g2: '#dbeafe', g3: '#e8f0fe' };
 
             function applyTheme(isLight) {

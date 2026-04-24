@@ -34,7 +34,7 @@
 }
 
 /* ================================================================
-   PAGE BODY — dark navy background
+   PAGE BODY — BBM-style deep navy background
    ================================================================ */
 .auth-page-body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -46,22 +46,83 @@
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
-    background: radial-gradient(ellipse at 30% 40%,
-            #0f2657 0%,
-            #0a1628 45%,
-            #060e1e 100%);
+    background: linear-gradient(135deg, #0A2342 0%, #0e1f3a 50%, #050B14 100%);
+    transition: background 0.5s ease;
 }
 
 /* ================================================================
-   BACKGROUND CANVAS — animated lines
+   PREMIUM BACKGROUND LAYERS — Cube texture
    ================================================================ */
-.auth-bg-canvas {
+.auth-bg-cubes {
     position: fixed;
     inset: 0;
-    width: 100%;
-    height: 100%;
+    z-index: 1;
     pointer-events: none;
-    z-index: 0;
+    background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    opacity: 0.6;
+    mix-blend-mode: overlay;
+    filter: contrast(1.25);
+    transition: opacity 0.5s ease;
+}
+
+/* ================================================================
+   PREMIUM BACKGROUND LAYERS — Stardust texture
+   ================================================================ */
+.auth-bg-stardust {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+    opacity: 0.2;
+    mix-blend-mode: overlay;
+    transition: opacity 0.5s ease;
+}
+
+/* ================================================================
+   PREMIUM BACKGROUND LAYERS — Glow orbs
+   ================================================================ */
+.auth-bg-orb-gold {
+    position: fixed;
+    top: -15%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.15);
+    filter: blur(140px);
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.5s ease;
+}
+
+.auth-bg-orb-blue {
+    position: fixed;
+    bottom: -15%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.15);
+    filter: blur(160px);
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.5s ease;
+}
+
+/* ================================================================
+   PREMIUM BACKGROUND LAYERS — SVG Wave bottom
+   ================================================================ */
+.auth-bg-wave {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 55%;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0.7;
+    transition: opacity 0.5s ease;
 }
 
 /* ================================================================
@@ -143,27 +204,45 @@
 }
 
 .auth-title {
-    font-size: 1.3rem;
+    font-size: 1rem;
     font-weight: 900;
     color: #ffffff;
-    letter-spacing: 2px;
-    margin: 0 0 0.3rem 0;
+    letter-spacing: 3px;
+    margin: 0 0 0.55rem;
     text-transform: uppercase;
-    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
 }
 
 .auth-title span {
     color: var(--auth-gold-light);
 }
 
+/* Ornamental divider row: ─── SUBTITLE ─── */
+.auth-subtitle-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 auto;
+}
+
+.auth-subtitle-divider::before,
+.auth-subtitle-divider::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--auth-gold) 40%, var(--auth-gold) 60%, transparent);
+    opacity: 0.75;
+}
+
 .auth-subtitle {
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: rgba(200, 218, 255, 0.85);
-    letter-spacing: 2.5px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--auth-gold);
+    letter-spacing: 2.8px;
     text-transform: uppercase;
-    margin: 0;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+    text-shadow: 0 1px 8px rgba(201, 162, 39, 0.4);
 }
 
 /* ================================================================
@@ -449,8 +528,8 @@
 
 .auth-back-link:hover {
     color: #ffffff;
-    border-color: rgba(201, 162, 39, 0.5);
-    background: rgba(201, 162, 39, 0.12);
+    border-color: #6e92d8;
+    background: #4e70bf;
     transform: translateX(-2px);
 }
 
@@ -593,6 +672,35 @@
 }
 
 /* ================================================================
+   LIGHT MODE — premium background layers
+   ================================================================ */
+.light-mode .auth-bg-cubes {
+    opacity: 0.15;
+    mix-blend-mode: multiply;
+    filter: contrast(1.1);
+}
+
+.light-mode .auth-bg-stardust {
+    opacity: 0.06;
+    mix-blend-mode: multiply;
+}
+
+.light-mode .auth-bg-orb-gold {
+    background: rgba(212, 175, 55, 0.18);
+    filter: blur(120px);
+}
+
+.light-mode .auth-bg-orb-blue {
+    background: rgba(59, 95, 192, 0.14);
+    filter: blur(140px);
+}
+
+.light-mode .auth-bg-wave {
+    opacity: 0.18;
+    filter: hue-rotate(210deg) brightness(0.8) saturate(0.7);
+}
+
+/* ================================================================
    LIGHT MODE — background tokens (dipakai via JS setProperty)
    ================================================================ */
 .light-mode .auth-theme-toggle {
@@ -635,7 +743,7 @@
    LIGHT MODE — TYPOGRAPHY
    ================================================================ */
 .light-mode .auth-title {
-    color: #0a1628;
+    color: #0f2657;
     text-shadow: 0 1px 6px rgba(255, 255, 255, 0.7);
 }
 
@@ -644,8 +752,14 @@
 }
 
 .light-mode .auth-subtitle {
-    color: #4a6080;
+    color: var(--auth-gold);
     text-shadow: none;
+}
+
+.light-mode .auth-subtitle-divider::before,
+.light-mode .auth-subtitle-divider::after {
+    background: linear-gradient(90deg, transparent, var(--auth-gold) 40%, var(--auth-gold) 60%, transparent);
+    opacity: 0.5;
 }
 
 .light-mode .auth-label {

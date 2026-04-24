@@ -5,6 +5,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserManagementController;
 use App\Models\Checklist;
 use App\Models\Kendaraan;
 use App\Models\User;
@@ -70,8 +71,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/admin/drivers/{user}', [DriverController::class, 'update'])->name('admin.drivers.update');
     Route::delete('/admin/drivers/{user}', [DriverController::class, 'destroy'])->name('admin.drivers.destroy');
 
-    // Admin: request peminjaman list (read-only)
+    // Combined Portal Manajemen Administrasi (Master Armada + Manajemen User)
+    Route::get('/admin/portal-manajemen-administrasi', [UserManagementController::class, 'portal'])->name('admin.portal-manajemen');
+    Route::post('/admin/users', [UserManagementController::class, 'storeUser'])->name('admin.users.store');
+    Route::put('/admin/users/{user}', [UserManagementController::class, 'updateUser'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [UserManagementController::class, 'destroyUser'])->name('admin.users.destroy');
+    Route::get('/api/admin/portal/kendaraan', [UserManagementController::class, 'apiKendaraan'])->name('api.admin.portal.kendaraan');
+    Route::get('/api/admin/portal/users', [UserManagementController::class, 'apiUsers'])->name('api.admin.portal.users');
+
+    // Admin: request peminjaman list (read-only) + PDF download
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'adminIndex'])->name('admin.peminjaman');
+    Route::get('/admin/peminjaman/{peminjaman}/pdf', [PeminjamanController::class, 'downloadPdf'])->name('admin.peminjaman.pdf');
 
     // Manager: approval page
     Route::get('/manager/peminjaman', [PeminjamanController::class, 'managerIndex'])->name('manager.peminjaman');
@@ -83,6 +93,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/api-update', [ProfileController::class, 'apiUpdate'])->name('profile.api.update');
 });
 
 require __DIR__.'/auth.php';

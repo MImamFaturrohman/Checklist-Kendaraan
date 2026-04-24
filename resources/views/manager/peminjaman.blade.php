@@ -66,8 +66,12 @@
                                     <div class="manager-request-meta">
                                         <span>NIP: {{ $req->nip }}</span>
                                         <span class="meta-sep">&bull;</span>
-                                        <span>{{ $req->divisi }}</span>
+                                        <span>{{ $req->jabatan }}</span>
                                         <span class="meta-sep">&bull;</span>
+                                        @if($req->tanggal_peminjaman)
+                                            <span>{{ \Carbon\Carbon::parse($req->tanggal_peminjaman)->translatedFormat('d M Y') }}</span>
+                                            <span class="meta-sep">&bull;</span>
+                                        @endif
                                         <span>{{ $req->created_at->format('d M Y, H:i') }}</span>
                                     </div>
                                 </div>
@@ -132,7 +136,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Nama / NIP / Divisi</th>
+                                    <th>Nama / NIP / Jabatan</th>
                                     <th>Kendaraan</th>
                                     <th>Keperluan</th>
                                     <th>Status</th>
@@ -146,7 +150,10 @@
                                         <td>{{ ($historyRequests->currentPage() - 1) * $historyRequests->perPage() + $loop->iteration }}</td>
                                         <td>
                                             <div style="font-weight:700;color:#0f172a">{{ $req->nama_lengkap }}</div>
-                                            <div style="font-size:0.76rem;color:#64748b">{{ $req->nip }} &bull; {{ $req->divisi }}</div>
+                                            <div style="font-size:0.76rem;color:#64748b">{{ $req->nip }} &bull; {{ $req->jabatan }}</div>
+                                            @if($req->tanggal_peminjaman)
+                                                <div style="font-size:0.72rem;color:#94a3b8">{{ \Carbon\Carbon::parse($req->tanggal_peminjaman)->translatedFormat('d M Y') }}</div>
+                                            @endif
                                         </td>
                                         <td>
                                             <span class="landing-nopol-badge">{{ $req->nomor_kendaraan }}</span>

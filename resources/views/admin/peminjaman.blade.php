@@ -53,7 +53,7 @@
                     <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <input type="text" name="search" value="{{ request('search') }}"
-                    placeholder="Cari nama, NIP, divisi, atau kendaraan..."
+                    placeholder="Cari nama, NIP, jabatan, atau kendaraan..."
                     class="admin-search-input">
                 @if(request('search'))
                     <a href="{{ route('admin.peminjaman', ['status' => request('status')]) }}"
@@ -94,6 +94,7 @@
                             <th>Catatan</th>
                             <th>Diajukan</th>
                             <th>Diproses</th>
+                            <th>PDF</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,7 +104,10 @@
                                 <td>
                                     <div style="font-weight:700;color:#0f172a">{{ $req->nama_lengkap }}</div>
                                     <div style="font-size:0.76rem;color:#64748b">{{ $req->nip }}</div>
-                                    <div style="font-size:0.76rem;color:#94a3b8">{{ $req->divisi }}</div>
+                                    <div style="font-size:0.76rem;color:#94a3b8">{{ $req->jabatan }}</div>
+                                    @if($req->tanggal_peminjaman)
+                                        <div style="font-size:0.72rem;color:#94a3b8">{{ \Carbon\Carbon::parse($req->tanggal_peminjaman)->translatedFormat('d M Y') }}</div>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="landing-nopol-badge">{{ $req->nomor_kendaraan }}</span>
@@ -147,10 +151,25 @@
                                         <span style="color:#d1d5db">—</span>
                                     @endif
                                 </td>
+                                <td style="white-space:nowrap">
+                                    @if($req->isApproved())
+                                        <a href="{{ route('admin.peminjaman.pdf', $req) }}"
+                                           target="_blank"
+                                           style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:#002a7a;color:#fff;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;transition:background .15s"
+                                           onmouseover="this.style.background='#0038a8'" onmouseout="this.style.background='#002a7a'">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                                                <path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3M3 12l9-9 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            {{ $req->pdf_path ? 'Unduh PDF' : 'Cetak PDF' }}
+                                        </a>
+                                    @else
+                                        <span style="color:#d1d5db;font-size:0.76rem">—</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" style="text-align:center;color:#9ca3af;padding:40px 12px">
+                                <td colspan="9" style="text-align:center;color:#9ca3af;padding:40px 12px">
                                     Tidak ada data request peminjaman.
                                 </td>
                             </tr>

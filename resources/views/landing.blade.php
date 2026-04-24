@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" sizes="128x128" href="{{ asset('images/VMS.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/VMS.png') }}">
     <title>Vechicle Management System - PT ARTHA DAYA COALINDO</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -428,26 +428,30 @@
                 @csrf
                 <div class="lp-form-grid">
 
+                    {{-- Nama Lengkap --}}
                     <div class="checklist-field">
                         <span>Nama Lengkap <span style="color:#ef4444">*</span></span>
                         <input type="text" id="nama_lengkap" name="nama_lengkap"
                             placeholder="Masukkan nama lengkap Anda" required>
                     </div>
 
+                    {{-- NIP --}}
                     <div class="checklist-field">
                         <span>NIP <span style="color:#ef4444">*</span></span>
                         <input type="text" id="nip" name="nip"
                             placeholder="Nomor Induk Pegawai" required>
                     </div>
 
+                    {{-- Posisi / Jabatan --}}
                     <div class="checklist-field">
-                        <span>Divisi / Departemen <span style="color:#ef4444">*</span></span>
-                        <input type="text" id="divisi" name="divisi"
-                            placeholder="Contoh: HSE, Operasional, HR" required>
+                        <span>Posisi / Jabatan <span style="color:#ef4444">*</span></span>
+                        <input type="text" id="jabatan" name="jabatan"
+                            placeholder="Contoh: Staff HSE, Supervisor Operasional" required>
                     </div>
 
+                    {{-- Nomor Kendaraan --}}
                     <div class="checklist-field">
-                        <span>Kendaraan yang Dipinjam <span style="color:#ef4444">*</span></span>
+                        <span>No. Polisi Kendaraan <span style="color:#ef4444">*</span></span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select id="nomor_kendaraan" name="nomor_kendaraan" required
                                 onchange="onKendaraanChange(this)">
@@ -462,16 +466,59 @@
                         </div>
                     </div>
 
+                    {{-- Jenis Kendaraan (auto-fill) --}}
                     <div class="checklist-field lp-form-full">
                         <span>Jenis Kendaraan</span>
                         <input type="text" id="jenis_kendaraan" name="jenis_kendaraan"
-                            placeholder="Terisi otomatis setelah memilih kendaraan" readonly>
+                            placeholder="Terisi otomatis setelah memilih nomor polisi" readonly
+                            style="background:#f8fafc;color:#64748b;cursor:not-allowed">
                     </div>
 
+                    {{-- Hari / Tanggal Peminjaman --}}
                     <div class="checklist-field lp-form-full">
-                        <span>Alasan / Keperluan Peminjaman <span style="color:#ef4444">*</span></span>
+                        <span>Hari / Tanggal Peminjaman <span style="color:#ef4444">*</span></span>
+                        <input type="date" id="tanggal_peminjaman" name="tanggal_peminjaman" required
+                            min="{{ date('Y-m-d') }}">
+                    </div>
+
+                    {{-- Keperluan --}}
+                    <div class="checklist-field lp-form-full">
+                        <span>Keperluan / Tujuan Peminjaman <span style="color:#ef4444">*</span></span>
                         <textarea id="alasan" name="alasan" rows="4"
                             placeholder="Jelaskan keperluan atau tujuan peminjaman kendaraan..." required></textarea>
+                    </div>
+
+                    {{-- Pernyataan --}}
+                    <div class="checklist-field lp-form-full" style="margin-top:4px">
+                        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;font-size:0.84rem;color:#1e3a5f;line-height:1.65">
+                            <p style="font-weight:700;margin-bottom:8px">Saya yang meminjam kendaraan dinas PT ADC PM SLA, dengan ini menyatakan <span style="text-decoration:underline">bersedia</span> untuk:</p>
+                            <ol style="padding-left:18px;margin:0; list-style-type: decimal !important;">
+                                <li>Memperbaiki dan menanggung biaya perbaikan bila terjadi kerusakan pada kendaraan</li>
+                                <li>Memberikan penggantian kendaraan jika kendaraan hilang (dengan spesifikasi kendaraan yang sama)</li>
+                                <li>Menyediakan kendaraan pengganti untuk operasional kantor ADC PM SLA selama kendaraan sedang dalam perbaikan, jika kendaraan mengalami kerusakan</li>
+                                <li>Mengisi ulang bahan bakar yang terpakai</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    {{-- Tanda Tangan --}}
+                    <div class="checklist-field lp-form-full">
+                        <span>Tanda Tangan Pemohon <span style="color:#ef4444">*</span></span>
+                        <div style="max-width:380px;margin-top:6px">
+                            <div class="signature-pad-wrap" style="height:140px">
+                                <canvas id="sig-pad-peminjaman" class="signature-canvas" style="height:120px"></canvas>
+                                <div class="signature-pad-hint" id="sig-hint-peminjaman">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                        <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span>TAP UNTUK TANDA TANGAN</span>
+                                </div>
+                            </div>
+                            <button type="button" id="sig-clear-peminjaman" class="signature-clear-btn">
+                                &#x2715; Hapus Tanda Tangan
+                            </button>
+                        </div>
+                        <input type="hidden" name="tanda_tangan" id="sig-data-peminjaman">
                     </div>
 
                 </div>
@@ -626,6 +673,68 @@ function smoothTo(id, e) {
     if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
+/* ── SIGNATURE PAD ── */
+let _sigPad = null;
+
+function initSigPad() {
+    const canvas = document.getElementById('sig-pad-peminjaman');
+    if (!canvas || !window.SignaturePad) return;
+
+    const hint    = document.getElementById('sig-hint-peminjaman');
+    const clearBtn = document.getElementById('sig-clear-peminjaman');
+    const dataIn  = document.getElementById('sig-data-peminjaman');
+
+    const resize = () => {
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return false;
+        const r = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width  = rect.width  * r;
+        canvas.height = rect.height * r;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(r, r);
+        return true;
+    };
+
+    resize();
+    _sigPad = new window.SignaturePad(canvas, {
+        backgroundColor: 'rgba(255,255,255,0)',
+        penColor: '#0f172a',
+        minWidth: 1.5,
+        maxWidth: 3
+    });
+
+    _sigPad.addEventListener('beginStroke', () => {
+        if (hint) hint.classList.add('hidden');
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            _sigPad.clear();
+            if (hint) hint.classList.remove('hidden');
+            if (dataIn) dataIn.value = '';
+        });
+    }
+
+    let rt;
+    window.addEventListener('resize', () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => {
+            const data = _sigPad.isEmpty() ? [] : _sigPad.toData();
+            resize();
+            _sigPad.clear();
+            if (data.length) _sigPad.fromData(data);
+            else if (hint) hint.classList.remove('hidden');
+        }, 200);
+    });
+}
+
+/* Wait for app.js to expose SignaturePad, then init */
+(function tryInit(attempts) {
+    if (window.SignaturePad) { initSigPad(); return; }
+    if (attempts > 0) setTimeout(() => tryInit(attempts - 1), 150);
+})(20);
+
 /* ── FORM AUTO-FILL ── */
 function onKendaraanChange(select) {
     const opt = select.selectedOptions[0];
@@ -635,13 +744,24 @@ function onKendaraanChange(select) {
 /* ── FORM SUBMIT ── */
 document.getElementById('form-request').addEventListener('submit', async function (e) {
     e.preventDefault();
-    const btn = document.getElementById('btn-submit-request');
+
+    /* Capture signature before sending */
+    const dataIn = document.getElementById('sig-data-peminjaman');
+    if (_sigPad) {
+        if (_sigPad.isEmpty()) {
+            Swal.fire({ icon: 'warning', title: 'Tanda Tangan Kosong', text: 'Mohon berikan tanda tangan Anda sebelum mengirim.', confirmButtonColor: '#002a7a' });
+            return;
+        }
+        dataIn.value = _sigPad.toDataURL('image/png');
+    }
+
+    const btn  = document.getElementById('btn-submit-request');
     const orig = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<span style="display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle"></span> Mengirim...';
 
     try {
-        const res = await fetch('{{ route("peminjaman.store") }}', {
+        const res  = await fetch('{{ route("peminjaman.store") }}', {
             method: 'POST',
             body: new FormData(this),
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
@@ -653,14 +773,20 @@ document.getElementById('form-request').addEventListener('submit', async functio
                 icon: 'success',
                 title: 'Permohonan Terkirim!',
                 html: `
-                       <div style="padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:.8rem;color:#92400e;text-align:left">
-                           <strong>ℹ️ Catatan:</strong> Permohonan sedang menunggu <strong>persetujuan Manager</strong>. Anda akan dihubungi oleh Administrator lebih lanjut.
-                       </div>`,
+                    <div style="padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:.8rem;color:#92400e;text-align:left">
+                        <strong>ℹ️ Catatan:</strong> Permohonan sedang menunggu <strong>persetujuan Manager</strong>. Anda akan dihubungi oleh Administrator lebih lanjut.
+                    </div>`,
                 confirmButtonText: 'OK, Mengerti',
                 confirmButtonColor: '#002a7a',
             });
             this.reset();
             document.getElementById('jenis_kendaraan').value = '';
+            if (_sigPad) {
+                _sigPad.clear();
+                const hint = document.getElementById('sig-hint-peminjaman');
+                if (hint) hint.classList.remove('hidden');
+                dataIn.value = '';
+            }
         } else if (res.status === 422 && data.errors) {
             Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', html: Object.values(data.errors).flat().join('<br>'), confirmButtonColor: '#002a7a' });
         } else {
