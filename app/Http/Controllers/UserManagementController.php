@@ -15,7 +15,7 @@ class UserManagementController extends Controller
 
     public function portal(Request $request)
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         // --- Kendaraan ---
         $kQuery = Kendaraan::orderBy('nomor_kendaraan');
@@ -55,7 +55,7 @@ class UserManagementController extends Controller
     /* ── API: AJAX list kendaraan ─────────────────────────────────────── */
     public function apiKendaraan(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $q = Kendaraan::orderBy('nomor_kendaraan');
         if ($s = $request->input('search')) {
@@ -79,7 +79,7 @@ class UserManagementController extends Controller
     /* ── API: AJAX list users ─────────────────────────────────────────── */
     public function apiUsers(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $q = User::whereIn('role', self::MANAGED_ROLES)->orderBy('name');
         if ($s = $request->input('search')) {
@@ -106,7 +106,7 @@ class UserManagementController extends Controller
     /* ── Create user ──────────────────────────────────────────────────── */
     public function storeUser(Request $request)
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $request->validate([
             'name'     => 'required|string|max:255',
@@ -138,7 +138,7 @@ class UserManagementController extends Controller
     /* ── Update user ──────────────────────────────────────────────────── */
     public function updateUser(Request $request, User $user)
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
         abort_unless(in_array($user->role, self::MANAGED_ROLES), 403);
 
         $request->validate([
@@ -175,7 +175,7 @@ class UserManagementController extends Controller
     /* ── Delete user ──────────────────────────────────────────────────── */
     public function destroyUser(User $user, Request $request)
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
         abort_unless(in_array($user->role, self::MANAGED_ROLES), 403);
 
         $name = $user->name;

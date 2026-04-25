@@ -11,7 +11,7 @@ class PernyataanController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $rows = Pernyataan::query()->orderBy('urutan')->orderBy('id')->get();
 
@@ -20,7 +20,7 @@ class PernyataanController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $data = $request->validate([
             'isi_pernyataan' => 'required|string|max:5000',
@@ -42,7 +42,7 @@ class PernyataanController extends Controller
 
     public function update(Request $request, Pernyataan $pernyataan): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $data = $request->validate([
             'isi_pernyataan' => 'required|string|max:5000',
@@ -60,7 +60,7 @@ class PernyataanController extends Controller
 
     public function destroy(Pernyataan $pernyataan): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $pernyataan->delete();
 

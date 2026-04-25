@@ -13,7 +13,7 @@ class BidangController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $tree = Bidang::query()
             ->whereNull('parent_id')
@@ -28,7 +28,7 @@ class BidangController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $data = $request->validate([
             'nama' => 'required|string|max:200',
@@ -58,7 +58,7 @@ class BidangController extends Controller
 
     public function update(Request $request, Bidang $bidang): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $data = $request->validate([
             'nama' => 'required|string|max:200',
@@ -102,7 +102,7 @@ class BidangController extends Controller
 
     public function destroy(Bidang $bidang): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         if ($bidang->children()->exists()) {
             return response()->json([

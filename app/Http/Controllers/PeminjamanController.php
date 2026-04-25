@@ -173,7 +173,7 @@ class PeminjamanController extends Controller
      */
     public function downloadPdf(PeminjamanRequest $peminjaman)
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
         abort_unless($peminjaman->isApproved(), 422);
 
         $peminjaman->load(['approver', 'bidang.parent']);
@@ -198,7 +198,7 @@ class PeminjamanController extends Controller
 
     public function adminIndex(Request $request)
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $query = $this->adminPeminjamanRequestsQuery($request);
         $requests = $query->paginate(15)->withQueryString();

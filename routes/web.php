@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\BidangController;
 use App\Http\Controllers\Admin\PernyataanController;
 use App\Http\Controllers\ChecklistController;
-use App\Http\Controllers\DriverController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
@@ -40,18 +39,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/kendaraan/last-km', [ChecklistController::class, 'lastKm'])->name('api.kendaraan.last-km');
     Route::get('/api/kendaraan/list', [KendaraanController::class, 'apiList'])->name('api.kendaraan.list');
 
-    // Admin routes
-    Route::get('/admin/database-sheet', [ChecklistController::class, 'databaseSheet'])->name('admin.database-sheet');
-
-    Route::get('/admin/database-sheet/export', function () {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+    Route::get('/admin/portal-pemeriksaan/export', function () {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         return app(ChecklistController::class)->exportExcel();
-    })->name('admin.database-sheet.export');
-
-    Route::get('/admin/log-foto-fisik', [ChecklistController::class, 'logFotoFisik'])->name('admin.log-foto-fisik');
-
-    Route::get('/admin/arsip-pdf', [ChecklistController::class, 'arsipPdf'])->name('admin.arsip-pdf');
+    })->name('admin.portal-pemeriksaan.export');
 
     // Combined Portal Pemeriksaan Kendaraan
     Route::get('/admin/portal-pemeriksaan', [ChecklistController::class, 'portalPemeriksaan'])->name('admin.portal-pemeriksaan');
@@ -62,20 +54,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/admin/portal/arsip-pdf', [ChecklistController::class, 'apiPortalArsipPdf'])->name('api.admin.portal.arsip-pdf');
     Route::get('/api/admin/portal/charts', [ChecklistController::class, 'apiPortalCharts'])->name('api.admin.portal.charts');
 
-    // Master Armada CRUD
-    Route::get('/admin/master-armada', [KendaraanController::class, 'index'])->name('admin.master-armada');
-    Route::post('/admin/master-armada', [KendaraanController::class, 'store'])->name('admin.master-armada.store');
-    Route::put('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'update'])->name('admin.master-armada.update');
-    Route::delete('/admin/master-armada/{kendaraan}', [KendaraanController::class, 'destroy'])->name('admin.master-armada.destroy');
-
-    // Admin: Driver CRUD
-    Route::get('/admin/drivers', [DriverController::class, 'index'])->name('admin.drivers');
-    Route::post('/admin/drivers', [DriverController::class, 'store'])->name('admin.drivers.store');
-    Route::put('/admin/drivers/{user}', [DriverController::class, 'update'])->name('admin.drivers.update');
-    Route::delete('/admin/drivers/{user}', [DriverController::class, 'destroy'])->name('admin.drivers.destroy');
-
     // Combined Portal Manajemen Administrasi (Master Armada + Manajemen User)
     Route::get('/admin/portal-manajemen-administrasi', [UserManagementController::class, 'portal'])->name('admin.portal-manajemen');
+    Route::post('/admin/portal-manajemen-administrasi/kendaraan', [KendaraanController::class, 'store'])->name('admin.portal-manajemen.kendaraan.store');
+    Route::put('/admin/portal-manajemen-administrasi/kendaraan/{kendaraan}', [KendaraanController::class, 'update'])->name('admin.portal-manajemen.kendaraan.update');
+    Route::delete('/admin/portal-manajemen-administrasi/kendaraan/{kendaraan}', [KendaraanController::class, 'destroy'])->name('admin.portal-manajemen.kendaraan.destroy');
     Route::post('/admin/users', [UserManagementController::class, 'storeUser'])->name('admin.users.store');
     Route::put('/admin/users/{user}', [UserManagementController::class, 'updateUser'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [UserManagementController::class, 'destroyUser'])->name('admin.users.destroy');

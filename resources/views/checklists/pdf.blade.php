@@ -216,20 +216,22 @@
                             PM UNIT SURALAYA
                         </div>
                         @php
-                            $tahun = \Carbon\Carbon::parse($checklist->tanggal)->format('y');
-                
+                            $now = \Carbon\Carbon::now();
+
+                            $tahun = $now->format('y');
+
                             $bulanRomawi = [
                                 1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
                                 5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII',
                                 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
                             ];
-                
-                            $bulan = $bulanRomawi[\Carbon\Carbon::parse($checklist->tanggal)->month];
-                
+
+                            $bulan = $bulanRomawi[$now->month];
+
                             $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
                         @endphp
                         <div class="header-number">
-                            No. ADC-{{ $tahun }}{{ $bulan }}DRV{{ $id }} | {{ $checklist->tanggal->format('d F Y') }}
+                            No. ADC-{{ $tahun }}{{ $bulan }}DRV{{ $id }} | {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
                         </div>
                     </td>
                 </tr>
@@ -246,7 +248,7 @@
                 {{-- Kolom 3: Tetap 22% --}}
                 <td class="label" style="width: 22%;">Tanggal | Shift</td>
                 {{-- Kolom 4: Lebar dikurangi ke 20% --}}
-                <td class="value" style="width: 20%;">{{ $checklist->tanggal->format('d F Y') }} | {{ $checklist->shift }}</td>
+                <td class="value" style="width: 20%;">{{ $checklist->tanggal->translatedFormat('d F Y') }} | {{ $checklist->shift }}</td>
             </tr>
             <tr>
                 <td class="label" style="width: 26%;">Jenis Kendaraan</td>
@@ -285,7 +287,7 @@
                 <td class="status-label">Pengisian Terakhir</td>
                 <td class="status-value" style="font-weight: 700;">
                     @if($checklist->bbm_terakhir)
-                        {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->format('d F Y | H:i') }} WIB
+                        {{ \Carbon\Carbon::parse($checklist->bbm_terakhir)->translatedFormat('d F Y | H:i') }} WIB
                     @else
                         -
                     @endif

@@ -23,6 +23,16 @@ use Illuminate\Support\Facades\Storage;
 
 class ChecklistController extends Controller
 {
+    private function isSuperAdmin(): bool
+    {
+        return auth()->user()?->role === 'superadmin';
+    }
+
+    private function canAccessInspectionPortal(): bool
+    {
+        return in_array(auth()->user()?->role, ['superadmin', 'admin'], true);
+    }
+
     /**
      * Store checklist and generate PDF.
      */
@@ -252,82 +262,12 @@ class ChecklistController extends Controller
     }
 
     /**
-     * Database Sheet admin page with pagination, search, filter.
-     */
-    public function databaseSheet(Request $request)
-    {
-        abort_unless(auth()->user()?->role === 'admin', 403);
-
-        // Stats (unfiltered)
-        $allChecklists = Checklist::all();
-        $stats = [
-            'total' => $allChecklists->count(),
-            'kendaraan_unik' => $allChecklists->unique('nomor_kendaraan')->count(),
-            'driver_aktif' => $allChecklists->unique('driver_serah')->count(),
-            'bulan_ini' => $allChecklists->where('tanggal', '>=', now()->startOfMonth())->count(),
-        ];
-
-        // Nopol options for filter dropdown
-        $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
-
-        // Filtered + paginated query
-        $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan', 'user'])
-            ->orderByDesc('created_at');
-        $this->applyChecklistFilters($request, $query);
-        $checklists = $query->paginate(10)->withQueryString();
-
-        return view('admin.database-sheet', compact('checklists', 'stats', 'nopolList'));
-    }
-
-    /**
-     * Log Foto Fisik admin page with pagination, search, filter.
-     */
-    public function logFotoFisik(Request $request)
-    {
-        abort_unless(auth()->user()?->role === 'admin', 403);
-
-        $query = Checklist::with(['exterior', 'interior', 'mesin'])
-            ->orderByDesc('created_at');
-        $this->applyChecklistFilters($request, $query);
-        $checklists = $query->paginate(10)->withQueryString();
-
-        // Nopol options
-        $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
-
-        return view('admin.log-foto-fisik', compact('checklists', 'nopolList'));
-    }
-
-    /**
-     * Arsip PDF admin page with pagination, search, filter.
-     */
-    public function arsipPdf(Request $request)
-    {
-        abort_unless(auth()->user()?->role === 'admin', 403);
-
-        // Stats (unfiltered)
-        $allPdf = Checklist::whereNotNull('pdf_path');
-        $stats = [
-            'total' => (clone $allPdf)->count(),
-            'bulan_ini' => (clone $allPdf)->whereDate('tanggal', '>=', now()->startOfMonth())->count(),
-        ];
-
-        // Nopol options
-        $nopolList = Checklist::whereNotNull('pdf_path')
-            ->select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
-
-        $query = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
-        $this->applyChecklistFilters($request, $query);
-        $checklists = $query->paginate(10)->withQueryString();
-
-        return view('admin.arsip-pdf', compact('checklists', 'stats', 'nopolList'));
-    }
-
-    /**
      * Combined Portal Pemeriksaan Kendaraan page.
      */
     public function portalPemeriksaan(Request $request)
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless($this->canAccessInspectionPortal(), 403);
+        $canAccessDatabase = $this->isSuperAdmin();
 
         $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
 
@@ -350,27 +290,33 @@ class ChecklistController extends Controller
         // Chart data
         $chartData = $this->buildChartData();
 
-        // Initial paginated data (no filters)
-        $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
-        $this->applyChecklistFilters($request, $dbQuery);
-        $dbChecklists = $dbQuery->paginate(10, ['*'], 'db_page')->withQueryString();
+        // Initial paginated data (superadmin only).
+        if ($canAccessDatabase) {
+            $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
+            $this->applyChecklistFilters($request, $dbQuery);
+            $dbChecklists = $dbQuery->paginate(10, ['*'], 'db_page')->withQueryString();
 
-        $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at');
-        $this->applyChecklistFilters($request, $fotoQuery);
-        $fotoChecklists = $fotoQuery->paginate(10, ['*'], 'foto_page')->withQueryString();
+            $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at');
+            $this->applyChecklistFilters($request, $fotoQuery);
+            $fotoChecklists = $fotoQuery->paginate(10, ['*'], 'foto_page')->withQueryString();
 
-        $pdfQuery = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
-        $this->applyChecklistFilters($request, $pdfQuery);
-        $pdfChecklists = $pdfQuery->paginate(10, ['*'], 'pdf_page')->withQueryString();
+            $pdfQuery = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
+            $this->applyChecklistFilters($request, $pdfQuery);
+            $pdfChecklists = $pdfQuery->paginate(10, ['*'], 'pdf_page')->withQueryString();
+        } else {
+            $dbChecklists = collect();
+            $fotoChecklists = collect();
+            $pdfChecklists = collect();
+        }
 
-        $dbMeta   = ['current_page' => $dbChecklists->currentPage(),   'last_page' => $dbChecklists->lastPage(),   'total' => $dbChecklists->total(),   'per_page' => $dbChecklists->perPage()];
-        $fotoMeta = ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()];
-        $pdfMeta  = ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()];
+        $dbMeta   = $canAccessDatabase ? ['current_page' => $dbChecklists->currentPage(),   'last_page' => $dbChecklists->lastPage(),   'total' => $dbChecklists->total(),   'per_page' => $dbChecklists->perPage()] : null;
+        $fotoMeta = $canAccessDatabase ? ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()] : null;
+        $pdfMeta  = $canAccessDatabase ? ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()] : null;
 
         return view('admin.portal-pemeriksaan', compact(
             'nopolList', 'dbStats', 'pdfStats', 'chartData',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
-            'dbMeta', 'fotoMeta', 'pdfMeta'
+            'dbMeta', 'fotoMeta', 'pdfMeta', 'canAccessDatabase'
         ));
     }
 
@@ -379,7 +325,7 @@ class ChecklistController extends Controller
      */
     public function apiPortalDatabaseSheet(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless($this->isSuperAdmin(), 403);
 
         $perPage = min((int) $request->input('per_page', 10), 100);
         $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
@@ -440,7 +386,7 @@ class ChecklistController extends Controller
      */
     public function apiPortalLogFoto(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless($this->isSuperAdmin(), 403);
 
         $perPage = min((int) $request->input('per_page', 10), 100);
         $baseUrl = url('/');
@@ -493,7 +439,7 @@ class ChecklistController extends Controller
      */
     public function apiPortalArsipPdf(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless($this->isSuperAdmin(), 403);
 
         $perPage = min((int) $request->input('per_page', 10), 100);
         $baseUrl = url('/');
@@ -533,7 +479,7 @@ class ChecklistController extends Controller
      */
     public function apiPortalCharts(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403);
+        abort_unless($this->canAccessInspectionPortal(), 403);
         return response()->json($this->buildChartData());
     }
 
@@ -605,19 +551,26 @@ class ChecklistController extends Controller
      */
     public function exportExcel()
     {
+        abort_unless($this->isSuperAdmin(), 403);
+        $expectsJson = request()->expectsJson() || request()->ajax();
         $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
-        $credentialsJson = config('services.google_sheets.credentials_json');
+        $credentialsConfig = $this->resolveGoogleCredentialsConfig();
 
-        if (!$spreadsheetId || !$credentialsJson) {
-            return redirect()->route('admin.database-sheet')->with(
-                'error',
-                'Konfigurasi Google Sheets belum lengkap. Isi GOOGLE_SHEETS_SPREADSHEET_ID dan GOOGLE_SHEETS_CREDENTIALS_JSON di .env.'
-            );
+        if (!$spreadsheetId || !$credentialsConfig) {
+            $message = 'Konfigurasi Google Sheets belum lengkap. Isi GOOGLE_SHEETS_SPREADSHEET_ID dan GOOGLE_SHEETS_CREDENTIALS_JSON di .env.';
+            if ($expectsJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                ], 422);
+            }
+
+            return redirect()->route('admin.portal-pemeriksaan')->with('error', $message);
         }
 
         // if (!file_exists($credentialsJson)) {
-        //     return redirect()->route('admin.database-sheet')->with(
+        //     return redirect()->route('admin.portal-pemeriksaan')->with(
         //         'error',
         //         "File service account tidak ditemukan: {$credentialsJson}"
         //     );
@@ -629,7 +582,7 @@ class ChecklistController extends Controller
                 ->get();
 
             $client = new GoogleClient();
-            $client->setAuthConfig(json_decode($credentialsJson, true));
+            $client->setAuthConfig($credentialsConfig);
             $client->setScopes([Sheets::SPREADSHEETS]);
 
             $sheets = new Sheets($client);
@@ -680,19 +633,37 @@ class ChecklistController extends Controller
 
             $sheetUrl = "https://docs.google.com/spreadsheets/d/{$spreadsheetId}/edit";
             $updatedRows = $result->getUpdatedRows() ?? count($values);
+            $message = "Sinkronisasi Google Spreadsheet berhasil ({$updatedRows} baris).";
+
+            if ($expectsJson) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'sheet_url' => $sheetUrl,
+                    'updated_rows' => $updatedRows,
+                ]);
+            }
 
             return redirect()
-                ->route('admin.database-sheet')
-                ->with('success', "Sinkronisasi Google Spreadsheet berhasil ({$updatedRows} baris).")
+                ->route('admin.portal-pemeriksaan')
+                ->with('success', $message)
                 ->with('sheet_url', $sheetUrl);
         } catch (\Throwable $e) {
             Log::error('Google Sheets sync failed', [
                 'message' => $e->getMessage(),
             ]);
+            $message = 'Gagal sinkronisasi ke Google Spreadsheet: ' . $e->getMessage();
+
+            if ($expectsJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                ], 500);
+            }
 
             return redirect()
-                ->route('admin.database-sheet')
-                ->with('error', 'Gagal sinkronisasi ke Google Spreadsheet: ' . $e->getMessage());
+                ->route('admin.portal-pemeriksaan')
+                ->with('error', $message);
         }
     }
 
@@ -775,9 +746,9 @@ class ChecklistController extends Controller
     {
         $spreadsheetId = (string) config('services.google_sheets.spreadsheet_id');
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
-        $credentialsJson = config('services.google_sheets.credentials_json');
+        $credentialsConfig = $this->resolveGoogleCredentialsConfig();
 
-        if (!$spreadsheetId || !$credentialsJson) {
+        if (!$spreadsheetId || !$credentialsConfig) {
             return;
         }   
 
@@ -795,7 +766,7 @@ class ChecklistController extends Controller
         }, array_values($row));
 
         $client = new GoogleClient();
-        $client->setAuthConfig(json_decode($credentialsJson, true));
+        $client->setAuthConfig($credentialsConfig);
         $client->setScopes([Sheets::SPREADSHEETS]);
 
         $sheets = new Sheets($client);
@@ -812,5 +783,48 @@ class ChecklistController extends Controller
             $valueRange,
             ['valueInputOption' => 'RAW', 'insertDataOption' => 'INSERT_ROWS']
         );
+    }
+
+    /**
+     * Resolve credentials from env as JSON string or file path.
+     */
+    private function resolveGoogleCredentialsConfig(): ?array
+    {
+        $raw = trim((string) config('services.google_sheets.credentials_json', ''));
+        $candidatePaths = [];
+
+        if ($raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded) && isset($decoded['client_email'], $decoded['private_key'])) {
+                return $decoded;
+            }
+
+            $normalized = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $raw);
+            if (!str_starts_with($normalized, DIRECTORY_SEPARATOR)
+                && !preg_match('/^[A-Za-z]:\\\\/', $normalized)) {
+                $normalized = base_path($normalized);
+            }
+            $candidatePaths[] = $normalized;
+        }
+
+        $candidatePaths[] = storage_path('app/google-service-account.json');
+
+        foreach ($candidatePaths as $path) {
+            if (!is_string($path) || $path === '' || !is_file($path)) {
+                continue;
+            }
+
+            $content = @file_get_contents($path);
+            if ($content === false) {
+                continue;
+            }
+
+            $decoded = json_decode($content, true);
+            if (is_array($decoded) && isset($decoded['client_email'], $decoded['private_key'])) {
+                return $decoded;
+            }
+        }
+
+        return null;
     }
 }

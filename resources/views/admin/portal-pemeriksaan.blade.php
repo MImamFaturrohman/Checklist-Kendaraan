@@ -64,6 +64,7 @@
     </nav>
 
 <div class="admin-shell" style="position:relative;z-index:1">
+    @php $canAccessDatabase = $canAccessDatabase ?? false; @endphp
 
     <div class="portal-wrapper">
 
@@ -149,6 +150,7 @@
             </div>
         </div>
 
+        @if($canAccessDatabase)
         {{-- ============================================================
              GLOBAL SEARCH & FILTER
         ============================================================ --}}
@@ -209,11 +211,18 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
                     Database Sheet
                 </div>
-                <a href="{{ route('admin.database-sheet.export') }}" class="btn-export" style="font-size:0.8rem;padding:7px 14px">
+                <button
+                    type="button"
+                    id="db-sync-btn"
+                    data-export-url="{{ route('admin.portal-pemeriksaan.export') }}"
+                    class="btn-export"
+                    style="font-size:0.8rem;padding:7px 14px"
+                >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/></svg>
                     Sinkronkan
-                </a>
+                </button>
             </div>
+            <div id="db-sync-alert" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:10px;font-size:.82rem;line-height:1.45"></div>
 
             {{-- Local filters --}}
             <div class="portal-local-filters">
@@ -613,6 +622,13 @@
             </div>
             <div id="pdf-pagination" class="portal-pagination-wrap"></div>
         </div>
+        @else
+        <div class="portal-section">
+            <div class="portal-empty" style="padding: 20px 24px;">
+                Akses data detail database, foto fisik, dan arsip PDF hanya tersedia untuk Superadmin.
+            </div>
+        </div>
+        @endif
 
     </div>{{-- end portal-wrapper --}}
 </div>{{-- end admin-shell --}}
@@ -626,11 +642,14 @@
     ================================================================ */
     const BASE_URL   = '{{ url("/") }}';
     const CHART_DATA = @json($chartData);
-    const INIT_META  = {
-        db:   @json($dbMeta),
-        foto: @json($fotoMeta),
-        pdf:  @json($pdfMeta),
-    };
+    const CAN_ACCESS_DATABASE = @json($canAccessDatabase);
+    const INIT_META  = CAN_ACCESS_DATABASE
+        ? {
+            db:   @json($dbMeta),
+            foto: @json($fotoMeta),
+            pdf:  @json($pdfMeta),
+        }
+        : null;
 
     let dbPage   = 1, dbPerPage   = 10;
     let fotoPage = 1, fotoPerPage = 10;
@@ -769,6 +788,7 @@
     }
 
     _buildCharts();
+    if (!CAN_ACCESS_DATABASE) return;
 
     /* ================================================================
        SECTION TABS
@@ -1161,6 +1181,62 @@
         dbPage=1; fotoPage=1; pdfPage=1;
         fetchDb(); fetchFoto(); fetchPdf();
     });
+
+    /* ================================================================
+       DATABASE SYNC (without page refresh)
+    ================================================================ */
+    const syncBtn = document.getElementById('db-sync-btn');
+    const syncAlert = document.getElementById('db-sync-alert');
+
+    function showSyncAlert(type, message, sheetUrl = null) {
+        if (!syncAlert) return;
+        const ok = type === 'success';
+        syncAlert.style.display = '';
+        syncAlert.style.background = ok ? '#dcfce7' : '#fee2e2';
+        syncAlert.style.color = ok ? '#166534' : '#991b1b';
+        syncAlert.style.border = ok ? '1px solid #86efac' : '1px solid #fca5a5';
+        syncAlert.innerHTML = ok && sheetUrl
+            ? `${message} <a href="${sheetUrl}" target="_blank" rel="noopener" style="font-weight:700;color:inherit;text-decoration:underline">Buka Spreadsheet</a>`
+            : message;
+    }
+
+    if (syncBtn) {
+        const defaultBtnHtml = syncBtn.innerHTML;
+        syncBtn.addEventListener('click', async () => {
+            const exportUrl = syncBtn.dataset.exportUrl;
+            if (!exportUrl) return;
+
+            syncBtn.disabled = true;
+            syncBtn.innerHTML = 'Menyinkronkan...';
+            showSyncAlert('success', 'Proses sinkronisasi sedang berjalan...');
+
+            try {
+                const res = await fetch(exportUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                let data = null;
+                try { data = await res.json(); } catch (_) {}
+
+                if (!res.ok || !data?.success) {
+                    const errMsg = data?.message || `Sinkronisasi gagal (HTTP ${res.status}).`;
+                    showSyncAlert('error', errMsg);
+                    return;
+                }
+
+                showSyncAlert('success', data.message || 'Sinkronisasi berhasil.', data.sheet_url || null);
+            } catch (error) {
+                showSyncAlert('error', `Sinkronisasi gagal: ${error.message}`);
+            } finally {
+                syncBtn.disabled = false;
+                syncBtn.innerHTML = defaultBtnHtml;
+            }
+        });
+    }
 
     /* ================================================================
        INITIAL PAGINATION RENDER (from server-provided meta)

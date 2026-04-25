@@ -126,10 +126,8 @@
         @php
             $userRole      = $user->role ?? 'driver';
             $isDriver      = $userRole === 'driver';
-            $isAdminRole   = $userRole === 'admin';
-            $isManagerRole = $userRole === 'manager';
-            $isPicRole     = $userRole === 'pic_kendaraan';
-            $userRoleLabel = $isAdminRole ? 'ADMIN' : ($isManagerRole ? 'MANAGER' : ($isPicRole ? 'PIC KENDARAAN' : 'DRIVER'));
+            $isSuperAdminRole   = $userRole === 'superadmin';
+            $userRoleLabel = $isSuperAdminRole ? 'SUPERADMIN' : 'DRIVER';
             $userName      = $user->name ?? $user->username ?? 'User';
         @endphp
 
@@ -182,11 +180,9 @@
                     </button>
 
                     {{-- Role chip --}}
-                    <span class="dash-chip {{ $isAdminRole ? 'dash-chip-admin' : ($isManagerRole ? 'dash-chip-manager' : 'dash-chip-driver') }}">
-                        @if ($isAdminRole)
+                    <span class="dash-chip {{ $isSuperAdminRole ? 'dash-chip-admin' : 'dash-chip-driver' }}">
+                        @if ($isSuperAdminRole)
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-                        @elseif ($isManagerRole)
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         @else
                             <i class="bi bi-person-check-fill"></i>
                         @endif

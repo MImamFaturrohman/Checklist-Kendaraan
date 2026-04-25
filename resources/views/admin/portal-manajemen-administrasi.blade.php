@@ -270,7 +270,7 @@
                                     <input class="edit-mode mgmt-input" type="number" value="{{ $k->set_km ?? 0 }}" name="set_km" min="0" form="kedit-{{ $k->id }}" style="display:none;width:100px">
                                 </td>
                                 <td class="text-center">
-                                    <form id="kedit-{{ $k->id }}" action="{{ route('admin.master-armada.update', $k) }}" method="POST" style="display:none" onsubmit="event.preventDefault(); submitKendaraanEdit({{ $k->id }})">
+                                    <form id="kedit-{{ $k->id }}" action="{{ route('admin.portal-manajemen.kendaraan.update', $k) }}" method="POST" style="display:none" onsubmit="event.preventDefault(); submitKendaraanEdit({{ $k->id }})">
                                         @csrf @method('PUT')
                                     </form>
                                     <div class="mgmt-actions view-mode">
@@ -278,7 +278,7 @@
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             Edit
                                         </button>
-                                        <form id="kdel-{{ $k->id }}" action="{{ route('admin.master-armada.destroy', $k) }}" method="POST" style="display:inline" onsubmit="event.preventDefault(); deleteKendaraan({{ $k->id }}, '{{ addslashes($k->nomor_kendaraan) }}')">
+                                        <form id="kdel-{{ $k->id }}" action="{{ route('admin.portal-manajemen.kendaraan.destroy', $k) }}" method="POST" style="display:inline" onsubmit="event.preventDefault(); deleteKendaraan({{ $k->id }}, '{{ addslashes($k->nomor_kendaraan) }}')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="mgmt-act-btn mgmt-act-del" title="Hapus">
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
@@ -666,7 +666,7 @@ function renderArmadaTable(rows, page, perPage) {
                 <input class="edit-mode mgmt-input" type="number" value="${k.set_km ?? 0}" name="set_km" min="0" form="kedit-${k.id}" style="display:none;width:100px">
             </td>
             <td class="text-center">
-                <form id="kedit-${k.id}" action="/admin/master-armada/${k.id}" method="POST" style="display:none" onsubmit="event.preventDefault();submitKendaraanEdit(${k.id})">
+                <form id="kedit-${k.id}" action="/admin/portal-manajemen-administrasi/kendaraan/${k.id}" method="POST" style="display:none" onsubmit="event.preventDefault();submitKendaraanEdit(${k.id})">
                     <input type="hidden" name="_token" value="${CSRF}"><input type="hidden" name="_method" value="PUT">
                 </form>
                 <div class="mgmt-actions view-mode">
@@ -674,7 +674,7 @@ function renderArmadaTable(rows, page, perPage) {
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Edit
                     </button>
-                    <form id="kdel-${k.id}" action="/admin/master-armada/${k.id}" method="POST" style="display:inline" onsubmit="event.preventDefault();deleteKendaraan(${k.id},'${escJs(k.nomor_kendaraan)}')">
+                    <form id="kdel-${k.id}" action="/admin/portal-manajemen-administrasi/kendaraan/${k.id}" method="POST" style="display:inline" onsubmit="event.preventDefault();deleteKendaraan(${k.id},'${escJs(k.nomor_kendaraan)}')">
                         <input type="hidden" name="_token" value="${CSRF}"><input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="mgmt-act-btn mgmt-act-del">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -752,7 +752,7 @@ document.getElementById('form-add-armada').addEventListener('submit', async func
     const btn = document.getElementById('btn-add-armada');
     btn.disabled = true; btn.textContent = 'Menyimpan...';
     try {
-        const res  = await fetch('{{ route("admin.master-armada.store") }}',{method:'POST',body:new FormData(this),headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
+        const res  = await fetch('{{ route("admin.portal-manajemen.kendaraan.store") }}',{method:'POST',body:new FormData(this),headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
         const data = await res.json();
         if (res.ok && data.success) {
             Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1600,showConfirmButton:false});

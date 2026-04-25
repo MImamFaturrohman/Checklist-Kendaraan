@@ -74,21 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ================================================================
-       ADMIN TABS
-       ================================================================ */
-    document.querySelectorAll('[data-tab-btn]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const group = btn.closest('[data-tab-group]');
-            if (!group) return;
-            group.querySelectorAll('[data-tab-btn]').forEach(b => b.classList.remove('active'));
-            group.querySelectorAll('[data-tab-panel]').forEach(p => p.style.display = 'none');
-            btn.classList.add('active');
-            const target = group.querySelector(`[data-tab-panel="${btn.dataset.tabBtn}"]`);
-            if (target) target.style.display = 'block';
-        });
-    });
-
-    /* ================================================================
        CHECKLIST WIZARD
        ================================================================ */
     const wizardRoot = document.querySelector('[data-checklist-wizard]');
@@ -800,13 +785,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    /* ================================================================
-       BBM SLIDER
-       ================================================================ */
-    const bbmRange = document.getElementById('bbm-range');
-    const bbmDisplay = document.getElementById('bbm-value-display');
-    if (bbmRange && bbmDisplay) bbmRange.addEventListener('input', () => bbmDisplay.innerHTML = `${bbmRange.value}<small>%</small>`);
 
     /* ================================================================
        KM VALIDATION

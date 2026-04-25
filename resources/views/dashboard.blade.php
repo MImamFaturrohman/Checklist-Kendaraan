@@ -37,15 +37,16 @@
 
         @php
             $user          = auth()->user();
+            $isSuperAdmin  = $user?->role === 'superadmin';
             $isAdmin       = $user?->role === 'admin';
             $isManager     = $user?->role === 'manager';
             $isPic         = $user?->role === 'pic_kendaraan';
             $isDriver      = $user?->role === 'driver' || $isPic;
-            $userRoleLabel = $isAdmin ? 'ADMIN' : ($isManager ? 'MANAGER' : ($isPic ? 'PIC KENDARAAN' : 'DRIVER'));
+            $userRoleLabel = $isSuperAdmin ? 'SUPERADMIN' : ($isAdmin ? 'ADMIN' : ($isManager ? 'MANAGER' : ($isPic ? 'PIC KENDARAAN' : 'DRIVER')));
             $userName      = $user?->name ?? $user?->username ?? 'User';
 
             $pendingCount = 0;
-            if ($isManager || $isAdmin) {
+            if ($isManager || $isAdmin || $isSuperAdmin) {
                 $pendingCount = \App\Models\PeminjamanRequest::where('status', 'pending')->count();
             }
         @endphp
@@ -73,8 +74,8 @@
                     </button>
 
                     {{-- Role chip --}}
-                    <span class="dash-chip {{ $isAdmin ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
-                        @if ($isAdmin)
+                    <span class="dash-chip {{ ($isAdmin || $isSuperAdmin) ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
+                        @if ($isAdmin || $isSuperAdmin)
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
                         @elseif ($isManager)
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -117,12 +118,18 @@
             <div class="dash-hero-inner">
 
                 <div class="dash-hero-left">
-                    @if($isAdmin)
+                    @if($isSuperAdmin)
                         <p class="dash-hero-kicker">
                             <span class="dash-hero-kicker-dot"></span>
-                            AKSES ADMINISTRATOR
+                            AKSES SUPERADMIN
                         </p>
                         <h2 class="dash-hero-name">Pusat Kontrol Fleet</h2>
+                    @elseif($isAdmin)
+                        <p class="dash-hero-kicker">
+                            <span class="dash-hero-kicker-dot"></span>
+                            AKSES ADMIN
+                        </p>
+                        <h2 class="dash-hero-name">Portal Pemeriksaan</h2>
                     @elseif($isManager)
                         <p class="dash-hero-kicker">
                             <span class="dash-hero-kicker-dot"></span>
@@ -146,7 +153,7 @@
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="5"/></svg>
                             Status: Aktif
                         </span>
-                        @if(($isAdmin || $isManager) && $pendingCount > 0)
+                        @if(($isSuperAdmin || $isManager) && $pendingCount > 0)
                             <span class="dash-tag" style="background:rgba(239,68,68,0.18);color:#fca5a5;border:1px solid rgba(239,68,68,0.35)">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                 {{ $pendingCount }} Request Menunggu
@@ -172,7 +179,7 @@
 
         <div class="dash-shell">
             <main class="dash-content">
-                <div class="dash-desktop-grid">
+                <div class="dash-desktop-grid {{ ($isAdmin || $isSuperAdmin) ? 'dash-desktop-grid--single' : '' }}">
 
                     {{-- MAIN COLUMN --}}
                     <div class="dash-main-column">
@@ -202,70 +209,89 @@
                                 </a>
                             </section>
 
-                        @elseif($isAdmin)
-                            {{-- Admin: Portal Pemeriksaan, Portal Manajemen, Ceklist --}}
+                        @elseif($isSuperAdmin)
+                            {{-- Superadmin: akses penuh fitur admin --}}
                             <section>
                                 <h3 class="dash-section-title">TUGAS UTAMA</h3>
+                                <div class="dash-main-grid-admin">
+                                    {{-- Portal Pemeriksaan Kendaraan --}}
+                                    <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-main-card dash-pressable">
+                                        <div>
+                                            <p class="dash-main-title">Portal Pemeriksaan Kendaraan</p>
+                                            <p class="dash-main-sub">Database, foto fisik &amp; arsip PDF</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/>
+                                            </svg>
+                                        </span>
+                                    </a>
 
-                                {{-- Portal Pemeriksaan Kendaraan --}}
+                                    {{-- Peminjaman Kendaraan --}}
+                                    <a href="{{ route('admin.peminjaman') }}" class="dash-main-card dash-pressable" style="position:relative">
+                                        <div>
+                                            <p class="dash-main-title">Peminjaman Kendaraan</p>
+                                            <p class="dash-main-sub">Daftar permohonan &amp; unduh PDF</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+                                        @if($pendingCount > 0)
+                                            <span class="dash-pending-dot" style="top:18px;right:18px"></span>
+                                        @endif
+                                    </a>
+
+                                    {{-- Portal Manajemen Administrasi --}}
+                                    <a href="{{ route('admin.portal-manajemen') }}" class="dash-main-card dash-pressable">
+                                        <div>
+                                            <p class="dash-main-title">Portal Manajemen Administrasi</p>
+                                            <p class="dash-main-sub">Master armada &amp; Manajemen user</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+                                    </a>
+
+                                    {{-- Buat Ceklist --}}
+                                    <a href="{{ route('checklists.create') }}" class="dash-main-card dash-pressable">
+                                        <div>
+                                            <p class="dash-main-title">Buat Ceklist Baru</p>
+                                            <p class="dash-main-sub">Mulai inspeksi unit hari ini</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M9 2H15V6H9V2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                                <path d="M9 12L11.2 14.2L15 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                </div>
+                            </section>
+                        @elseif($isAdmin)
+                            {{-- Admin: hanya portal pemeriksaan --}}
+                            <section>
+                                <h3 class="dash-section-title">TUGAS UTAMA</h3>
                                 <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-main-card dash-pressable">
                                     <div>
                                         <p class="dash-main-title">Portal Pemeriksaan Kendaraan</p>
-                                        <p class="dash-main-sub">Database, foto fisik &amp; arsip PDF</p>
+                                        <p class="dash-main-sub">Lihat info ringkas dan chart pemeriksaan</p>
                                     </div>
                                     <span class="dash-main-icon" aria-hidden="true">
                                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                                             <ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/>
                                             <path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/>
                                             <path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/>
-                                        </svg>
-                                    </span>
-                                </a>
-
-                                {{-- Peminjaman Kendaraan --}}
-                                <a href="{{ route('admin.peminjaman') }}" class="dash-main-card dash-pressable" style="position:relative">
-                                    <div>
-                                        <p class="dash-main-title">Peminjaman Kendaraan</p>
-                                        <p class="dash-main-sub">Daftar permohonan &amp; unduh PDF</p>
-                                    </div>
-                                    <span class="dash-main-icon" aria-hidden="true">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
-                                            <path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-                                    </span>
-                                    @if($pendingCount > 0)
-                                        <span class="dash-pending-dot" style="top:18px;right:18px"></span>
-                                    @endif
-                                </a>
-
-                                {{-- Portal Manajemen Administrasi --}}
-                                <a href="{{ route('admin.portal-manajemen') }}" class="dash-main-card dash-pressable">
-                                    <div>
-                                        <p class="dash-main-title">Portal Manajemen Administrasi</p>
-                                        <p class="dash-main-sub">Master armada &amp; Manajemen user</p>
-                                    </div>
-                                    <span class="dash-main-icon" aria-hidden="true">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                            <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-                                    </span>
-                                </a>
-
-                                {{-- Buat Ceklist --}}
-                                <a href="{{ route('checklists.create') }}" class="dash-main-card dash-pressable">
-                                    <div>
-                                        <p class="dash-main-title">Buat Ceklist Baru</p>
-                                        <p class="dash-main-sub">Mulai inspeksi unit hari ini</p>
-                                    </div>
-                                    <span class="dash-main-icon" aria-hidden="true">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                                            <rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
-                                            <path d="M9 2H15V6H9V2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                                            <path d="M9 12L11.2 14.2L15 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
                                     </span>
                                 </a>
@@ -293,51 +319,6 @@
 
                     </div>
 
-                    {{-- ADMIN SIDE PANEL --}}
-                    @if ($isAdmin)
-                        <aside class="dash-side-column">
-                            <section>
-                                <h3 class="dash-section-title">PANEL MANAJEMEN (ADMIN)</h3>
-                                <div class="dash-admin-grid">
-                                    <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-admin-card dash-pressable">
-                                        <span class="dash-admin-icon" aria-hidden="true">
-                                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                                <ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/>
-                                            </svg>
-                                        </span>
-                                        PORTAL PEMERIKSAAN
-                                    </a>
-
-                                    <a href="{{ route('admin.peminjaman') }}" class="dash-admin-card dash-pressable" style="position:relative">
-                                        <span class="dash-admin-icon dash-admin-peminjaman" aria-hidden="true">
-                                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                        </span>
-                                        PEMINJAMAN KENDARAAN
-                                        @if($pendingCount > 0)
-                                            <span class="dash-admin-pending-badge">{{ $pendingCount }}</span>
-                                        @endif
-                                    </a>
-
-                                    <a href="{{ route('admin.portal-manajemen') }}" class="dash-admin-card dash-pressable">
-                                        <span class="dash-admin-icon dash-admin-armada" aria-hidden="true">
-                                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                                <path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                        </span>
-                                        PORTAL MANAJEMEN
-                                    </a>
-                                </div>
-                            </section>
-                        </aside>
-                    @endif
-
                 </div>
             </main>
         </div>
@@ -360,8 +341,8 @@
                     <span class="profile-drawer-avatar-badge" aria-hidden="true"></span>
                 </div>
                 <p class="profile-drawer-name" id="profile-display-name">{{ $userName }} <span class="profile-drawer-username">{{ '#'.$user?->username }}</span></p>
-                <span class="dash-chip {{ $isAdmin ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
-                    @if ($isAdmin)
+                <span class="dash-chip {{ ($isAdmin || $isSuperAdmin) ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
+                    @if ($isAdmin || $isSuperAdmin)
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
                     @elseif ($isManager)
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>

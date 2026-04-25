@@ -7,23 +7,10 @@ use Illuminate\Http\Request;
 
 class KendaraanController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Kendaraan::orderBy('nomor_kendaraan');
-
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nomor_kendaraan', 'like', "%{$search}%")
-                    ->orWhere('jenis_kendaraan', 'like', "%{$search}%");
-            });
-        }
-
-        $kendaraans = $query->paginate(10)->withQueryString();
-        return view('admin.master-armada', compact('kendaraans'));
-    }
-
     public function store(Request $request)
     {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
         $request->validate([
             'nomor_kendaraan' => 'required|string|max:20|unique:kendaraans,nomor_kendaraan',
             'jenis_kendaraan' => 'required|string|max:100',
@@ -41,11 +28,13 @@ class KendaraanController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.master-armada')->with('success', 'Kendaraan berhasil ditambahkan.');
+        return redirect()->route('admin.portal-manajemen')->with('success', 'Kendaraan berhasil ditambahkan.');
     }
 
     public function update(Request $request, Kendaraan $kendaraan)
     {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
         $request->validate([
             'nomor_kendaraan' => 'required|string|max:20|unique:kendaraans,nomor_kendaraan,' . $kendaraan->id,
             'jenis_kendaraan' => 'required|string|max:100',
@@ -63,11 +52,13 @@ class KendaraanController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.master-armada')->with('success', 'Data kendaraan diperbarui.');
+        return redirect()->route('admin.portal-manajemen')->with('success', 'Data kendaraan diperbarui.');
     }
 
     public function destroy(Kendaraan $kendaraan, Request $request)
     {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
         $kendaraan->delete();
 
         if ($request->expectsJson()) {
@@ -77,7 +68,7 @@ class KendaraanController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.master-armada')->with('success', 'Kendaraan berhasil dihapus.');
+        return redirect()->route('admin.portal-manajemen')->with('success', 'Kendaraan berhasil dihapus.');
     }
 
     /**
