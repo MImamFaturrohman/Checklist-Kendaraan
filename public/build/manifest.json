@@ -1,4 +1,8 @@
 {
+  "_signature_pad-BeGKmxpL.js": {
+    "file": "assets/signature_pad-BeGKmxpL.js",
+    "name": "signature_pad"
+  },
   "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
     "file": "assets/bootstrap-icons-BeopsB42.woff",
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
@@ -8,7 +12,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CtUHhqQq.css",
+    "file": "assets/app-vl7ENVyP.css",
     "name": "app",
     "names": [
       "app.css"
@@ -30,16 +34,28 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CYJD2f4N.js",
+    "file": "assets/app-1wVgoHFy.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "imports": [
+      "_signature_pad-BeGKmxpL.js"
+    ],
     "css": [
       "assets/app-Cb8XXgyA.css"
     ],
     "assets": [
       "assets/bootstrap-icons-mSm7cUeB.woff2",
       "assets/bootstrap-icons-BeopsB42.woff"
+    ]
+  },
+  "resources/js/sppd-form.js": {
+    "file": "assets/sppd-form-DK1mI5iK.js",
+    "name": "sppd-form",
+    "src": "resources/js/sppd-form.js",
+    "isEntry": true,
+    "imports": [
+      "_signature_pad-BeGKmxpL.js"
     ]
   }
 }

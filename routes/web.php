@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\Admin\BidangController;
 use App\Http\Controllers\Admin\PernyataanController;
+use App\Http\Controllers\Admin\SppdAdminController;
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\ManagerSppdController;
+use App\Http\Controllers\SppdController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
@@ -33,6 +36,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('checklists.create');
 
     Route::post('/checklists', [ChecklistController::class, 'store'])->name('checklists.store');
+
+    // Rekap SPPD (driver / PIC)
+    Route::get('/sppd', [SppdController::class, 'index'])->name('sppd.index');
+    Route::get('/sppd/create', [SppdController::class, 'create'])->name('sppd.create');
+    Route::post('/sppd', [SppdController::class, 'store'])->name('sppd.store');
+    Route::get('/sppd/{sppd}/edit', [SppdController::class, 'edit'])->name('sppd.edit');
+    Route::put('/sppd/{sppd}', [SppdController::class, 'update'])->name('sppd.update');
+    Route::delete('/sppd/{sppd}', [SppdController::class, 'destroy'])->name('sppd.destroy');
+    Route::get('/sppd/{sppd}/json', [SppdController::class, 'showJson'])->name('sppd.json');
+    Route::get('/sppd/{sppd}/pdf', [SppdController::class, 'downloadPdf'])->name('sppd.pdf');
+    Route::post('/sppd/{sppd}/selesai', [SppdController::class, 'markCompleted'])->name('sppd.complete');
 
     // API endpoints for checklist form
     Route::get('/api/kendaraan/lookup', [ChecklistController::class, 'lookupKendaraan'])->name('api.kendaraan.lookup');
@@ -75,10 +89,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'adminIndex'])->name('admin.peminjaman');
     Route::get('/admin/peminjaman/{peminjaman}/pdf', [PeminjamanController::class, 'downloadPdf'])->name('admin.peminjaman.pdf');
 
+    // Admin: Rekap SPPD
+    Route::get('/admin/rekap-sppd', [SppdAdminController::class, 'index'])->name('admin.sppd.index');
+    Route::get('/admin/rekap-sppd/{sppd}', [SppdAdminController::class, 'show'])->name('admin.sppd.show');
+    Route::post('/admin/rekap-sppd/{sppd}/verify-approve', [SppdAdminController::class, 'verifyApprove'])->name('admin.sppd.verify-approve');
+    Route::post('/admin/rekap-sppd/{sppd}/verify-reject', [SppdAdminController::class, 'verifyReject'])->name('admin.sppd.verify-reject');
+
     // Manager: approval page
     Route::get('/manager/peminjaman', [PeminjamanController::class, 'managerIndex'])->name('manager.peminjaman');
     Route::post('/manager/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('manager.peminjaman.approve');
     Route::post('/manager/peminjaman/{peminjaman}/reject', [PeminjamanController::class, 'reject'])->name('manager.peminjaman.reject');
+
+    // Manager: Rekap SPPD
+    Route::get('/manager/rekap-sppd', [ManagerSppdController::class, 'index'])->name('manager.sppd.index');
+    Route::get('/manager/rekap-sppd/{sppd}', [ManagerSppdController::class, 'show'])->name('manager.sppd.show');
+    Route::post('/manager/rekap-sppd/{sppd}/approve', [ManagerSppdController::class, 'approve'])->name('manager.sppd.approve');
+    Route::post('/manager/rekap-sppd/{sppd}/reject', [ManagerSppdController::class, 'reject'])->name('manager.sppd.reject');
 });
 
 Route::middleware('auth')->group(function () {

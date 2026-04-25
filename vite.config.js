@@ -8,6 +8,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/auth.css',
                 'resources/js/app.js',
+                'resources/js/sppd-form.js',
             ],
             refresh: true,
         }),
