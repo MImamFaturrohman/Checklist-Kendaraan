@@ -1,14 +1,16 @@
 <?php
 
+use App\Http\Controllers\Admin\BbmOperationalPortalController;
 use App\Http\Controllers\Admin\BidangController;
 use App\Http\Controllers\Admin\PernyataanController;
 use App\Http\Controllers\Admin\SppdAdminController;
+use App\Http\Controllers\BbmReportController;
 use App\Http\Controllers\ChecklistController;
-use App\Http\Controllers\ManagerSppdController;
-use App\Http\Controllers\SppdController;
 use App\Http\Controllers\KendaraanController;
+use App\Http\Controllers\ManagerSppdController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SppdController;
 use App\Http\Controllers\UserManagementController;
 use App\Models\Checklist;
 use App\Models\Kendaraan;
@@ -48,6 +50,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/sppd/{sppd}/pdf', [SppdController::class, 'downloadPdf'])->name('sppd.pdf');
     Route::post('/sppd/{sppd}/selesai', [SppdController::class, 'markCompleted'])->name('sppd.complete');
 
+    // Laporan pengisian BBM (driver only — enforced di controller)
+    Route::get('/laporan-bbm/buat', [BbmReportController::class, 'create'])->name('bbm-reports.create');
+    Route::post('/laporan-bbm', [BbmReportController::class, 'store'])->name('bbm-reports.store');
+
     // API endpoints for checklist form
     Route::get('/api/kendaraan/lookup', [ChecklistController::class, 'lookupKendaraan'])->name('api.kendaraan.lookup');
     Route::get('/api/kendaraan/last-km', [ChecklistController::class, 'lastKm'])->name('api.kendaraan.last-km');
@@ -61,6 +67,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Combined Portal Pemeriksaan Kendaraan
     Route::get('/admin/portal-pemeriksaan', [ChecklistController::class, 'portalPemeriksaan'])->name('admin.portal-pemeriksaan');
+
+    // Portal BBM Operasional (superadmin — akses dicek di controller)
+    Route::get('/admin/portal-bbm-operasional/{bbmReport}/json', [BbmOperationalPortalController::class, 'showJson'])->name('admin.portal-bbm-operasional.json');
+    Route::get('/admin/portal-bbm-operasional', [BbmOperationalPortalController::class, 'index'])->name('admin.portal-bbm-operasional');
 
     // AJAX API endpoints for real-time portal search
     Route::get('/api/admin/portal/database-sheet', [ChecklistController::class, 'apiPortalDatabaseSheet'])->name('api.admin.portal.database-sheet');

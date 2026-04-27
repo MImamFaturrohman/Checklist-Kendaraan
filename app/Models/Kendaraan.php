@@ -18,4 +18,9 @@ class Kendaraan extends Model
     {
         return $this->hasMany(Checklist::class, 'nomor_kendaraan', 'nomor_kendaraan');
     }
+
+    public function bbmReports(): HasMany
+    {
+        return $this->hasMany(BbmReport::class);
+    }
 }

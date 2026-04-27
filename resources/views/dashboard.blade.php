@@ -290,6 +290,19 @@
                                         </span>
                                     </a>
 
+                                    <a href="{{ route('admin.portal-bbm-operasional') }}" class="dash-main-card dash-pressable">
+                                        <div>
+                                            <p class="dash-main-title">Portal BBM Operasional</p>
+                                            <p class="dash-main-sub">Insight liter, biaya &amp; laporan pengisian BBM</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                <path d="M9 14h.01M15 14h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+                                    </a>
+
                                     {{-- Buat Ceklist --}}
                                     <a href="{{ route('checklists.create') }}" class="dash-main-card dash-pressable">
                                         <div>
@@ -385,6 +398,20 @@
                                             </svg>
                                         </span>
                                     </a>
+                                    @if ($user?->role === 'driver')
+                                        <a href="{{ route('bbm-reports.create') }}" class="dash-main-card dash-pressable">
+                                            <div>
+                                                <p class="dash-main-title">Form Pengisian BBM</p>
+                                                <p class="dash-main-sub">Laporan liter, struk &amp; foto odometer</p>
+                                            </div>
+                                            <span class="dash-main-icon" aria-hidden="true">
+                                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                    <path d="M9 14h.01M15 14h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                                </svg>
+                                            </span>
+                                        </a>
+                                    @endif
                                 </div>
                             </section>
                         @endif

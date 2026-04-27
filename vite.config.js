@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/auth.css',
                 'resources/js/app.js',
                 'resources/js/sppd-form.js',
+                'resources/js/bbm-form.js',
             ],
             refresh: true,
         }),
