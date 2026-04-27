@@ -33,10 +33,7 @@ class BidangController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:200',
             'parent_id' => 'nullable|exists:bidangs,id',
-            'sort_order' => 'nullable|integer|min:0|max:65535',
         ]);
-
-        $data['sort_order'] = $data['sort_order'] ?? 0;
 
         if (! empty($data['parent_id'])) {
             $parent = Bidang::query()->find($data['parent_id']);
@@ -46,6 +43,12 @@ class BidangController extends Controller
                 ]);
             }
         }
+
+        $parentId = $data['parent_id'] ?? null;
+        $maxSort = $parentId
+            ? (int) Bidang::query()->where('parent_id', $parentId)->max('sort_order')
+            : (int) Bidang::query()->whereNull('parent_id')->max('sort_order');
+        $data['sort_order'] = $maxSort + 1;
 
         $bidang = Bidang::create($data);
 
@@ -63,10 +66,7 @@ class BidangController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:200',
             'parent_id' => 'nullable|exists:bidangs,id',
-            'sort_order' => 'nullable|integer|min:0|max:65535',
         ]);
-
-        $data['sort_order'] = $data['sort_order'] ?? $bidang->sort_order;
 
         if ($bidang->children()->exists()) {
             $data['parent_id'] = null;
@@ -89,6 +89,16 @@ class BidangController extends Controller
                     'parent_id' => 'Bidang yang memiliki sub tidak dapat dijadikan sub.',
                 ]);
             }
+        }
+
+        $oldParentId = $bidang->parent_id;
+        $newParentId = array_key_exists('parent_id', $data) ? $data['parent_id'] : $oldParentId;
+        $parentChanged = (int) ($oldParentId ?? 0) !== (int) ($newParentId ?? 0);
+        if ($parentChanged) {
+            $maxSort = $newParentId
+                ? (int) Bidang::query()->where('parent_id', $newParentId)->max('sort_order')
+                : (int) Bidang::query()->whereNull('parent_id')->max('sort_order');
+            $data['sort_order'] = $maxSort + 1;
         }
 
         $bidang->update($data);

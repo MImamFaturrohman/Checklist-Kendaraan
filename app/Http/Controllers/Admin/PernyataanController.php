@@ -24,12 +24,9 @@ class PernyataanController extends Controller
 
         $data = $request->validate([
             'isi_pernyataan' => 'required|string|max:5000',
-            'urutan' => 'nullable|integer|min:0|max:65535',
         ]);
 
-        if (! isset($data['urutan'])) {
-            $data['urutan'] = (int) (Pernyataan::query()->max('urutan') ?? 0) + 1;
-        }
+        $data['urutan'] = (int) (Pernyataan::query()->max('urutan') ?? 0) + 1;
 
         $row = Pernyataan::create($data);
 
@@ -46,7 +43,6 @@ class PernyataanController extends Controller
 
         $data = $request->validate([
             'isi_pernyataan' => 'required|string|max:5000',
-            'urutan' => 'required|integer|min:0|max:65535',
         ]);
 
         $pernyataan->update($data);

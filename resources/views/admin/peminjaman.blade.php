@@ -244,7 +244,7 @@
                         <table class="admin-table">
                             <thead>
                                 <tr>
-                                    <th>No. Urut</th>
+                                    <th>No.</th>
                                     <th>Isi Pernyataan</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -334,10 +334,6 @@
                         <option value="">— Bidang utama —</option>
                     </select>
                 </div>
-                <div class="ppm-field">
-                    <label for="ppm-bidang-sort">Urutan</label>
-                    <input type="number" id="ppm-bidang-sort" class="admin-filter-input" value="0" min="0" max="65535">
-                </div>
                 <div class="ppm-modal-actions">
                     <button type="button" class="portal-local-reset" id="ppm-bidang-cancel" data-close="bidang">Batal</button>
                     <button type="submit" class="admin-filter-btn">Simpan</button>
@@ -356,10 +352,6 @@
                 <div class="ppm-field">
                     <label for="ppm-pernyataan-isi">Isi pernyataan</label>
                     <textarea id="ppm-pernyataan-isi" class="admin-filter-input" rows="4" required maxlength="5000"></textarea>
-                </div>
-                <div class="ppm-field">
-                    <label for="ppm-pernyataan-urut">No. urut</label>
-                    <input type="number" id="ppm-pernyataan-urut" class="admin-filter-input" value="1" min="0" max="65535" required>
                 </div>
                 <div class="ppm-modal-actions">
                     <button type="button" class="portal-local-reset" id="ppm-pernyataan-cancel" data-close="pernyataan">Batal</button>
@@ -451,7 +443,6 @@ window.ppmSwitchTab = function (tab) {
         return `<li>
             <div class="ppm-tree-row">
                 <strong>${escapeHtml(node.nama)}</strong>
-                <span class="peminj-meta">Urut ${node.sort_order}</span>
                 ${actions}
             </div>${subs}
         </li>`;
@@ -466,7 +457,6 @@ window.ppmSwitchTab = function (tab) {
         return `<li>
             <div class="ppm-tree-row">
                 <span>${escapeHtml(node.nama)}</span>
-                <span class="peminj-meta">Urut ${node.sort_order}</span>
                 ${actions}
             </div>
         </li>`;
@@ -507,11 +497,10 @@ window.ppmSwitchTab = function (tab) {
     }
 
     function openBidangModal(opts) {
-        const { id, nama, parent_id, sort_order, lockParent } = opts;
+        const { id, nama, parent_id, lockParent } = opts;
         document.getElementById('ppm-modal-bidang-title').textContent = id ? 'Ubah bidang' : (lockParent ? 'Tambah sub-bidang' : 'Tambah bidang utama');
         document.getElementById('ppm-bidang-id').value = id || '';
         document.getElementById('ppm-bidang-nama').value = nama || '';
-        document.getElementById('ppm-bidang-sort').value = sort_order != null ? sort_order : 0;
         populateBidangParents();
         const sel = document.getElementById('ppm-bidang-parent');
         if (lockParent) {
@@ -538,7 +527,7 @@ window.ppmSwitchTab = function (tab) {
         const id = btn.getAttribute('data-id');
         const parent = btn.getAttribute('data-parent');
         if (act === 'add-sub') {
-            openBidangModal({ lockParent: parent, parent_id: parent, sort_order: 0 });
+            openBidangModal({ lockParent: parent, parent_id: parent });
             return;
         }
         if (act === 'edit-bidang') {
@@ -549,7 +538,6 @@ window.ppmSwitchTab = function (tab) {
                 id: node.id,
                 nama: node.nama,
                 parent_id: node.parent_id,
-                sort_order: node.sort_order,
             });
             return;
         }
@@ -576,7 +564,7 @@ window.ppmSwitchTab = function (tab) {
 
     function flattenBidang(nodes, acc = []) {
         nodes.forEach(n => {
-            acc.push({ id: n.id, nama: n.nama, parent_id: n.parent_id ?? null, sort_order: n.sort_order });
+            acc.push({ id: n.id, nama: n.nama, parent_id: n.parent_id ?? null });
             if (n.children && n.children.length) flattenBidang(n.children, acc);
         });
         return acc;
@@ -587,7 +575,6 @@ window.ppmSwitchTab = function (tab) {
         const id = document.getElementById('ppm-bidang-id').value;
         const payload = {
             nama: document.getElementById('ppm-bidang-nama').value.trim(),
-            sort_order: parseInt(document.getElementById('ppm-bidang-sort').value, 10) || 0,
         };
         const psel = document.getElementById('ppm-bidang-parent');
         const pv = psel.value;
@@ -611,20 +598,9 @@ window.ppmSwitchTab = function (tab) {
     function openPernyataanModal(opts = {}) {
         const id = opts.id != null && opts.id !== '' ? String(opts.id) : '';
         const isi = opts.isi_pernyataan != null ? opts.isi_pernyataan : '';
-        let urut = opts.urutan;
-        if (!id && (urut == null || urut === '')) {
-            urut = 1;
-            if (pernyataanRowsCache.length) {
-                urut = Math.max(...pernyataanRowsCache.map(p => Number(p.urutan) || 0)) + 1;
-            }
-        }
-        if (id && (urut == null || urut === '')) {
-            urut = 1;
-        }
         document.getElementById('ppm-modal-pernyataan-title').textContent = id ? 'Ubah pernyataan' : 'Tambah pernyataan';
         document.getElementById('ppm-pernyataan-id').value = id;
         document.getElementById('ppm-pernyataan-isi').value = isi;
-        document.getElementById('ppm-pernyataan-urut').value = String(urut);
         document.getElementById('ppm-modal-pernyataan').hidden = false;
     }
 
@@ -646,11 +622,11 @@ window.ppmSwitchTab = function (tab) {
             return;
         }
         if (tcP) tcP.textContent = String(rows.length);
-        tb.innerHTML = rows.map(p => {
+        tb.innerHTML = rows.map((p, i) => {
             const isiEsc = escapeHtml(p.isi_pernyataan || '');
             const titleAttr = escapeAttr(p.isi_pernyataan || '');
             return `<tr data-id="${p.id}">
-                <td class="ppm-pernyataan-no">${p.urutan}</td>
+                <td class="ppm-pernyataan-no">${i + 1}</td>
                 <td class="ppm-pernyataan-isi-cell" title="${titleAttr}">${isiEsc}</td>
                 <td class="ppm-pernyataan-aksi">
                     <button type="button" class="ppm-btn-ghost ppm-edit-p" data-id="${p.id}">Edit</button>
@@ -671,7 +647,6 @@ window.ppmSwitchTab = function (tab) {
         const id = document.getElementById('ppm-pernyataan-id').value;
         const payload = {
             isi_pernyataan: document.getElementById('ppm-pernyataan-isi').value.trim(),
-            urutan: parseInt(document.getElementById('ppm-pernyataan-urut').value, 10) || 0,
         };
         const url = id ? (PPM_API.pernyataans + '/' + id) : PPM_API.pernyataans;
         const method = id ? 'PUT' : 'POST';
@@ -692,7 +667,6 @@ window.ppmSwitchTab = function (tab) {
             openPernyataanModal({
                 id: p.id,
                 isi_pernyataan: p.isi_pernyataan,
-                urutan: p.urutan,
             });
             return;
         }
