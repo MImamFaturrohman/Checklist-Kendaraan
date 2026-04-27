@@ -8,6 +8,7 @@ use App\Models\ChecklistInterior;
 use App\Models\ChecklistMesin;
 use App\Models\ChecklistPerlengkapan;
 use App\Models\Kendaraan;
+use App\Support\SuperAdminNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Google\Client as GoogleClient;
 use Google\Service\Sheets;
@@ -17,7 +18,6 @@ use Google\Service\Sheets\Request as SheetsRequest;
 use Google\Service\Sheets\ValueRange;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Support\SuperAdminNotifier;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -27,6 +27,12 @@ class ChecklistController extends Controller
     private function isSuperAdmin(): bool
     {
         return auth()->user()?->role === 'superadmin';
+    }
+
+    /** Database sheet, foto log, arsip PDF — superadmin & admin. */
+    private function canAccessFullPortalDatabase(): bool
+    {
+        return in_array(auth()->user()?->role, ['superadmin', 'admin'], true);
     }
 
     private function canAccessInspectionPortal(): bool
@@ -273,7 +279,7 @@ class ChecklistController extends Controller
     public function portalPemeriksaan(Request $request)
     {
         abort_unless($this->canAccessInspectionPortal(), 403);
-        $canAccessDatabase = $this->isSuperAdmin();
+        $canAccessDatabase = $this->canAccessFullPortalDatabase();
         $pemeriksaanInsightOnlyManager = auth()->user()?->role === 'manager';
 
         $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
@@ -297,7 +303,7 @@ class ChecklistController extends Controller
         // Chart data
         $chartData = $this->buildChartData();
 
-        // Initial paginated data (superadmin only).
+        // Initial paginated data (superadmin & admin).
         if ($canAccessDatabase) {
             $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
             $this->applyChecklistFilters($request, $dbQuery);
@@ -333,7 +339,7 @@ class ChecklistController extends Controller
      */
     public function apiPortalDatabaseSheet(Request $request): JsonResponse
     {
-        abort_unless($this->isSuperAdmin(), 403);
+        abort_unless($this->canAccessFullPortalDatabase(), 403);
 
         $perPage = min((int) $request->input('per_page', 10), 100);
         $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
@@ -390,11 +396,92 @@ class ChecklistController extends Controller
     }
 
     /**
+     * AJAX: satu ceklist — ringkasan + exterior / interior / mesin beserta keterangan (modal portal).
+     */
+    public function apiPortalChecklistDetail(Checklist $checklist): JsonResponse
+    {
+        abort_unless($this->canAccessFullPortalDatabase(), 403);
+
+        return response()->json($this->checklistPortalDetailPayload($checklist));
+    }
+
+    /**
+     * @return array{meta: array<string, mixed>, exterior: list<array{label: string, status: mixed, keterangan: string|null}>, interior: list<array{label: string, status: mixed, keterangan: string|null}>, mesin: list<array{label: string, status: mixed, keterangan: string|null}>}
+     */
+    private function checklistPortalDetailPayload(Checklist $checklist): array
+    {
+        $checklist->loadMissing(['exterior', 'interior', 'mesin']);
+
+        $meta = [
+            'id' => $checklist->id,
+            'tanggal' => $checklist->tanggal?->format('d/m/Y'),
+            'shift' => $checklist->shift,
+            'nomor_kendaraan' => $checklist->nomor_kendaraan,
+            'jenis_kendaraan' => $checklist->jenis_kendaraan,
+            'driver_serah' => $checklist->driver_serah,
+            'driver_terima' => $checklist->driver_terima,
+            'level_bbm' => $checklist->level_bbm,
+            'km_awal' => $checklist->km_awal,
+            'km_akhir' => $checklist->km_akhir,
+            'jam_serah_terima' => $checklist->jam_serah_terima,
+            'catatan_khusus' => $checklist->catatan_khusus,
+        ];
+
+        $sectionRows = function (?object $model, array $items): array {
+            if (! $model) {
+                return [];
+            }
+            $out = [];
+            foreach ($items as $key => $label) {
+                $ket = $model->{$key.'_keterangan'} ?? null;
+                $out[] = [
+                    'label' => $label,
+                    'status' => $model->{$key} ?? null,
+                    'keterangan' => ($ket !== null && $ket !== '') ? (string) $ket : null,
+                ];
+            }
+
+            return $out;
+        };
+
+        return [
+            'meta' => $meta,
+            'exterior' => $sectionRows($checklist->exterior, [
+                'body_kendaraan' => 'Body kendaraan',
+                'kaca' => 'Kaca',
+                'spion' => 'Kaca spion',
+                'lampu_utama' => 'Lampu utama',
+                'lampu_sein' => 'Lampu sein',
+                'ban' => 'Ban',
+                'velg' => 'Velg',
+                'wiper' => 'Wiper',
+            ]),
+            'interior' => $sectionRows($checklist->interior, [
+                'jok' => 'Jok / kursi',
+                'dashboard' => 'Dashboard',
+                'ac' => 'AC',
+                'sabuk_pengaman' => 'Sabuk pengaman',
+                'audio' => 'Audio / head unit',
+                'kebersihan' => 'Kebersihan interior',
+            ]),
+            'mesin' => $sectionRows($checklist->mesin, [
+                'mesin' => 'Mesin (suara normal)',
+                'oli' => 'Oli mesin',
+                'radiator' => 'Air radiator',
+                'rem' => 'Rem',
+                'kopling' => 'Kopling',
+                'transmisi' => 'Transmisi',
+                'indikator' => 'Indikator panel',
+            ]),
+        ];
+    }
+
+    /**
      * AJAX: Log Foto Fisik filtered data (JSON).
      */
     public function apiPortalLogFoto(Request $request): JsonResponse
     {
-        abort_unless($this->isSuperAdmin(), 403);
+        abort_unless($this->canAccessFullPortalDatabase(), 403);
 
         $perPage = min((int) $request->input('per_page', 10), 100);
         $baseUrl = url('/');
@@ -456,7 +543,7 @@ class ChecklistController extends Controller
      */
     public function apiPortalArsipPdf(Request $request): JsonResponse
     {
-        abort_unless($this->isSuperAdmin(), 403);
+        abort_unless($this->canAccessFullPortalDatabase(), 403);
 
         $perPage = min((int) $request->input('per_page', 10), 100);
         $baseUrl = url('/');
@@ -618,9 +705,13 @@ class ChecklistController extends Controller
             $values = [[
                 'No', 'Tanggal', 'Shift', 'Jam', 'Nomor Kendaraan', 'Jenis Kendaraan',
                 'Driver Serah', 'Driver Terima', 'BBM (%)', 'BBM Terakhir', 'KM Awal', 'KM Akhir',
-                'Ext-Body', 'Ext-Kaca', 'Ext-Spion', 'Ext-Lampu Utama', 'Ext-Lampu Sein', 'Ext-Ban', 'Ext-Velg', 'Ext-Wiper',
-                'Int-Jok', 'Int-Dashboard', 'Int-AC', 'Int-Sabuk', 'Int-Audio', 'Int-Kebersihan',
-                'Mesin', 'Oli', 'Radiator', 'Rem', 'Kopling', 'Transmisi', 'Indikator',
+                'Ext-Body', 'Ext-Body Ket', 'Ext-Kaca', 'Ext-Kaca Ket', 'Ext-Spion', 'Ext-Spion Ket',
+                'Ext-Lampu Utama', 'Ext-Lampu Utama Ket', 'Ext-Lampu Sein', 'Ext-Lampu Sein Ket',
+                'Ext-Ban', 'Ext-Ban Ket', 'Ext-Velg', 'Ext-Velg Ket', 'Ext-Wiper', 'Ext-Wiper Ket',
+                'Int-Jok', 'Int-Jok Ket', 'Int-Dashboard', 'Int-Dashboard Ket', 'Int-AC', 'Int-AC Ket',
+                'Int-Sabuk', 'Int-Sabuk Ket', 'Int-Audio', 'Int-Audio Ket', 'Int-Kebersihan', 'Int-Kebersihan Ket',
+                'Mesin', 'Mesin Ket', 'Oli', 'Oli Ket', 'Radiator', 'Radiator Ket', 'Rem', 'Rem Ket',
+                'Kopling', 'Kopling Ket', 'Transmisi', 'Transmisi Ket', 'Indikator', 'Indikator Ket',
                 'STNK', 'KIR & QR BBM', 'Dongkrak', 'Toolkit', 'Segitiga', 'APAR', 'Ban Cadangan',
                 'Catatan',
             ]];
@@ -645,7 +736,7 @@ class ChecklistController extends Controller
                 }, array_values((array) $row));
             }, array_values($values));
 
-            $sheetRangeAll = "{$sheetName}!A:AZ";
+            $sheetRangeAll = "{$sheetName}!A:ZZ";
             $sheetRangeStart = "{$sheetName}!A1";
 
             $sheets->spreadsheets_values->clear($spreadsheetId, $sheetRangeAll, new ClearValuesRequest);
@@ -711,26 +802,47 @@ class ChecklistController extends Controller
             $c->km_awal,
             $c->km_akhir,
             strtoupper($c->exterior?->body_kendaraan ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->body_kendaraan_keterangan),
             strtoupper($c->exterior?->kaca ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->kaca_keterangan),
             strtoupper($c->exterior?->spion ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->spion_keterangan),
             strtoupper($c->exterior?->lampu_utama ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->lampu_utama_keterangan),
             strtoupper($c->exterior?->lampu_sein ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->lampu_sein_keterangan),
             strtoupper($c->exterior?->ban ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->ban_keterangan),
             strtoupper($c->exterior?->velg ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->velg_keterangan),
             strtoupper($c->exterior?->wiper ?? '-'),
+            $this->spreadsheetPartKeterangan($c->exterior?->wiper_keterangan),
             strtoupper($c->interior?->jok ?? '-'),
+            $this->spreadsheetPartKeterangan($c->interior?->jok_keterangan),
             strtoupper($c->interior?->dashboard ?? '-'),
+            $this->spreadsheetPartKeterangan($c->interior?->dashboard_keterangan),
             strtoupper($c->interior?->ac ?? '-'),
+            $this->spreadsheetPartKeterangan($c->interior?->ac_keterangan),
             strtoupper($c->interior?->sabuk_pengaman ?? '-'),
+            $this->spreadsheetPartKeterangan($c->interior?->sabuk_pengaman_keterangan),
             strtoupper($c->interior?->audio ?? '-'),
+            $this->spreadsheetPartKeterangan($c->interior?->audio_keterangan),
             strtoupper($c->interior?->kebersihan ?? '-'),
+            $this->spreadsheetPartKeterangan($c->interior?->kebersihan_keterangan),
             strtoupper($c->mesin?->mesin ?? '-'),
+            $this->spreadsheetPartKeterangan($c->mesin?->mesin_keterangan),
             strtoupper($c->mesin?->oli ?? '-'),
+            $this->spreadsheetPartKeterangan($c->mesin?->oli_keterangan),
             strtoupper($c->mesin?->radiator ?? '-'),
+            $this->spreadsheetPartKeterangan($c->mesin?->radiator_keterangan),
             strtoupper($c->mesin?->rem ?? '-'),
+            $this->spreadsheetPartKeterangan($c->mesin?->rem_keterangan),
             strtoupper($c->mesin?->kopling ?? '-'),
+            $this->spreadsheetPartKeterangan($c->mesin?->kopling_keterangan),
             strtoupper($c->mesin?->transmisi ?? '-'),
+            $this->spreadsheetPartKeterangan($c->mesin?->transmisi_keterangan),
             strtoupper($c->mesin?->indikator ?? '-'),
+            $this->spreadsheetPartKeterangan($c->mesin?->indikator_keterangan),
             strtoupper($c->perlengkapan?->stnk ?? '-'),
             strtoupper($c->perlengkapan?->kir ?? '-'),
             strtoupper($c->perlengkapan?->dongkrak ?? '-'),
@@ -740,6 +852,14 @@ class ChecklistController extends Controller
             strtoupper($c->perlengkapan?->ban_cadangan ?? '-'),
             $c->catatan_khusus ?? '-',
         ];
+    }
+
+    /** Teks keterangan per bagian untuk Google Sheet (kosong → "-"). */
+    private function spreadsheetPartKeterangan(?string $value): string
+    {
+        $t = trim((string) ($value ?? ''));
+
+        return $t === '' ? '-' : $t;
     }
 
     private function ensureSheetExists(Sheets $sheets, string $spreadsheetId, string $sheetName): void

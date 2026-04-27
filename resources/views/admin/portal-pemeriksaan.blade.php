@@ -211,6 +211,7 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
                     Database Sheet
                 </div>
+                @if(auth()->user()?->role === 'superadmin')
                 <button
                     type="button"
                     id="db-sync-btn"
@@ -221,6 +222,7 @@
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/></svg>
                     Sinkronkan
                 </button>
+                @endif
             </div>
             <div id="db-sync-alert" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:10px;font-size:.82rem;line-height:1.45"></div>
 
@@ -297,7 +299,7 @@
             <div class="db-tab-panel" data-db-panel="exterior" style="display:none">
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead><tr><th>Nopol</th><th>Tanggal</th><th>Body</th><th>Kaca</th><th>Spion</th><th>L.Utama</th><th>L.Sein</th><th>Ban</th><th>Velg</th><th>Wiper</th></tr></thead>
+                        <thead><tr><th>Nopol</th><th>Tanggal</th><th>Body</th><th>Kaca</th><th>Spion</th><th>L.Utama</th><th>L.Sein</th><th>Ban</th><th>Velg</th><th>Wiper</th><th class="portal-db-aksi">Aksi</th></tr></thead>
                         <tbody id="db-tbody-exterior">
                             @foreach($dbChecklists as $c)
                             @if($c->exterior)
@@ -306,6 +308,9 @@
                                 @foreach(['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'] as $k)
                                 <td style="font-weight:700;font-size:0.75rem;{{ $statusStyle($c->exterior->$k) }}">{{ $statusLabel($c->exterior->$k) }}</td>
                                 @endforeach
+                                <td class="portal-db-aksi">
+                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button>
+                                </td>
                             </tr>
                             @endif
                             @endforeach
@@ -318,7 +323,7 @@
             <div class="db-tab-panel" data-db-panel="interior" style="display:none">
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead><tr><th>Nopol</th><th>Tanggal</th><th>Jok</th><th>Dashboard</th><th>AC</th><th>Sabuk</th><th>Audio</th><th>Kebersihan</th></tr></thead>
+                        <thead><tr><th>Nopol</th><th>Tanggal</th><th>Jok</th><th>Dashboard</th><th>AC</th><th>Sabuk</th><th>Audio</th><th>Kebersihan</th><th class="portal-db-aksi">Aksi</th></tr></thead>
                         <tbody id="db-tbody-interior">
                             @foreach($dbChecklists as $c)
                             @if($c->interior)
@@ -327,6 +332,9 @@
                                 @foreach(['jok','dashboard','ac','sabuk_pengaman','audio','kebersihan'] as $k)
                                 <td style="font-weight:700;font-size:0.75rem;{{ $statusStyle($c->interior->$k) }}">{{ $statusLabel($c->interior->$k) }}</td>
                                 @endforeach
+                                <td class="portal-db-aksi">
+                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button>
+                                </td>
                             </tr>
                             @endif
                             @endforeach
@@ -339,7 +347,7 @@
             <div class="db-tab-panel" data-db-panel="mesin" style="display:none">
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead><tr><th>Nopol</th><th>Tanggal</th><th>Mesin</th><th>Oli</th><th>Radiator</th><th>Rem</th><th>Kopling</th><th>Transmisi</th><th>Indikator</th></tr></thead>
+                        <thead><tr><th>Nopol</th><th>Tanggal</th><th>Mesin</th><th>Oli</th><th>Radiator</th><th>Rem</th><th>Kopling</th><th>Transmisi</th><th>Indikator</th><th class="portal-db-aksi">Aksi</th></tr></thead>
                         <tbody id="db-tbody-mesin">
                             @foreach($dbChecklists as $c)
                             @if($c->mesin)
@@ -348,6 +356,9 @@
                                 @foreach(['mesin','oli','radiator','rem','kopling','transmisi','indikator'] as $k)
                                 <td style="font-weight:700;font-size:0.75rem;{{ $statusStyle($c->mesin->$k) }}">{{ $statusLabel($c->mesin->$k) }}</td>
                                 @endforeach
+                                <td class="portal-db-aksi">
+                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button>
+                                </td>
                             </tr>
                             @endif
                             @endforeach
@@ -626,7 +637,7 @@
             @unless($pemeriksaanInsightOnlyManager ?? false)
             <div class="portal-section">
                 <div class="portal-empty" style="padding: 20px 24px;">
-                    Akses data detail database, foto fisik, dan arsip PDF hanya tersedia untuk Superadmin.
+                    Akses data detail database, foto fisik, dan arsip PDF hanya untuk Superadmin dan Admin.
                 </div>
             </div>
             @endunless
@@ -634,6 +645,18 @@
 
     </div>{{-- end portal-wrapper --}}
 </div>{{-- end admin-shell --}}
+
+@if($canAccessDatabase ?? false)
+<div id="portal-checklist-modal" class="modal-overlay" style="display:none" aria-hidden="true">
+    <div class="modal-box profile-card portal-checklist-modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-checklist-modal-title">
+        <h3 id="portal-checklist-modal-title">Detail pemeriksaan</h3>
+        <div id="portal-checklist-modal-body"></div>
+        <div class="portal-checklist-modal-actions">
+            <button type="button" class="portal-local-reset" id="portal-checklist-modal-close">Tutup</button>
+        </div>
+    </div>
+</div>
+@endif
 
 <script>
 (function () {
@@ -863,6 +886,78 @@
         return (v ?? '-').toUpperCase();
     }
 
+    function escHtml(s) {
+        if (s == null || s === '') return '';
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    function renderChecklistDetailModal(d) {
+        const m = d.meta || {};
+        const row = (label, v) => `<dt>${escHtml(label)}</dt><dd>${escHtml(v != null && v !== '' ? String(v) : '—')}</dd>`;
+        let html = '<dl class="portal-detail-dl">';
+        html += row('Nopol', m.nomor_kendaraan);
+        html += row('Tanggal', m.tanggal);
+        html += row('Shift', m.shift);
+        html += row('Jenis kendaraan', m.jenis_kendaraan);
+        html += row('Driver serah', m.driver_serah);
+        html += row('Driver terima', m.driver_terima);
+        html += row('Jam serah terima', m.jam_serah_terima);
+        html += row('Level BBM', m.level_bbm != null && m.level_bbm !== '' ? String(m.level_bbm) + '%' : null);
+        html += row('KM awal', m.km_awal != null && m.km_awal !== '' ? String(m.km_awal) : null);
+        html += row('KM akhir', m.km_akhir != null && m.km_akhir !== '' ? String(m.km_akhir) : null);
+        html += '</dl>';
+
+        const section = (key, title) => {
+            const list = d[key];
+            html += `<h4 class="portal-detail-section-title">${escHtml(title)}</h4>`;
+            if (!list || !list.length) {
+                html += '<p class="portal-empty" style="padding:8px 0">Tidak ada data.</p>';
+                return;
+            }
+            html += '<div class="admin-table-wrap"><table class="admin-table portal-detail-table"><thead><tr><th>Bagian</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
+            list.forEach(r => {
+                const col = statusColor(r.status);
+                const lab = statusLabel(r.status);
+                const ket = (r.keterangan != null && r.keterangan !== '') ? r.keterangan : '—';
+                html += `<tr><td>${escHtml(r.label)}</td><td style="font-weight:700;color:${col}">${escHtml(lab)}</td><td>${escHtml(ket)}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+        };
+        section('exterior', 'Exterior');
+        section('interior', 'Interior');
+        section('mesin', 'Mesin & operasional');
+        if (m.catatan_khusus) {
+            html += `<div class="portal-detail-catatan"><strong>Catatan khusus</strong><br>${escHtml(m.catatan_khusus)}</div>`;
+        }
+        return html;
+    }
+
+    async function openPortalChecklistDetail(id) {
+        const modal = document.getElementById('portal-checklist-modal');
+        const body = document.getElementById('portal-checklist-modal-body');
+        if (!modal || !body) return;
+        body.innerHTML = '<p style="padding:12px">Memuat…</p>';
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        try {
+            const r = await fetch(`${BASE_URL}/api/admin/portal/checklist/${encodeURIComponent(id)}`);
+            if (!r.ok) throw new Error('fail');
+            const data = await r.json();
+            body.innerHTML = renderChecklistDetailModal(data);
+        } catch {
+            body.innerHTML = '<p class="portal-empty">Gagal memuat detail.</p>';
+        }
+    }
+
+    function closePortalChecklistModal() {
+        const modal = document.getElementById('portal-checklist-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
     function debounce(fn, ms = 380) {
         let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
     }
@@ -961,8 +1056,9 @@
         tbody.innerHTML = rows.length
             ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
                 ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.exterior[k])}">${statusLabel(c.exterior[k])}</td>`).join('')}
+                <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
             </tr>`).join('')
-            : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
+            : '<tr><td colspan="11" class="portal-empty">Tidak ada data.</td></tr>';
     }
 
     function renderDbInterior(json) {
@@ -973,8 +1069,9 @@
         tbody.innerHTML = rows.length
             ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
                 ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.interior[k])}">${statusLabel(c.interior[k])}</td>`).join('')}
+                <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
             </tr>`).join('')
-            : '<tr><td colspan="8" class="portal-empty">Tidak ada data.</td></tr>';
+            : '<tr><td colspan="9" class="portal-empty">Tidak ada data.</td></tr>';
     }
 
     function renderDbMesin(json) {
@@ -985,8 +1082,9 @@
         tbody.innerHTML = rows.length
             ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
                 ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.mesin[k])}">${statusLabel(c.mesin[k])}</td>`).join('')}
+                <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
             </tr>`).join('')
-            : '<tr><td colspan="9" class="portal-empty">Tidak ada data.</td></tr>';
+            : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
     }
 
     /* ================================================================
@@ -1243,21 +1341,40 @@
     /* ================================================================
        INITIAL PAGINATION RENDER (from server-provided meta)
     ================================================================ */
-    buildPagination(
-        document.getElementById('db-pagination'),
-        INIT_META.db,
-        p => { dbPage = p; fetchDb(true); }
-    );
-    buildPagination(
-        document.getElementById('foto-pagination'),
-        INIT_META.foto,
-        p => { fotoPage = p; fetchFoto(true); }
-    );
-    buildPagination(
-        document.getElementById('pdf-pagination'),
-        INIT_META.pdf,
-        p => { pdfPage = p; fetchPdf(true); }
-    );
+    if (INIT_META) {
+        buildPagination(
+            document.getElementById('db-pagination'),
+            INIT_META.db,
+            p => { dbPage = p; fetchDb(true); }
+        );
+        buildPagination(
+            document.getElementById('foto-pagination'),
+            INIT_META.foto,
+            p => { fotoPage = p; fetchFoto(true); }
+        );
+        buildPagination(
+            document.getElementById('pdf-pagination'),
+            INIT_META.pdf,
+            p => { pdfPage = p; fetchPdf(true); }
+        );
+    }
+
+    if (CAN_ACCESS_DATABASE) {
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.portal-db-detail-btn');
+            if (btn && btn.dataset.checklistId) {
+                e.preventDefault();
+                openPortalChecklistDetail(btn.dataset.checklistId);
+            }
+        });
+        document.getElementById('portal-checklist-modal-close')?.addEventListener('click', closePortalChecklistModal);
+        document.getElementById('portal-checklist-modal')?.addEventListener('click', function (e) {
+            if (e.target.id === 'portal-checklist-modal') closePortalChecklistModal();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closePortalChecklistModal();
+        });
+    }
 
 })();
 </script>

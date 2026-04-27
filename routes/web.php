@@ -6,9 +6,9 @@ use App\Http\Controllers\Admin\PernyataanController;
 use App\Http\Controllers\Admin\SppdAdminController;
 use App\Http\Controllers\BbmReportController;
 use App\Http\Controllers\ChecklistController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ManagerSppdController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SppdController;
@@ -89,6 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // AJAX API endpoints for real-time portal search
     Route::get('/api/admin/portal/database-sheet', [ChecklistController::class, 'apiPortalDatabaseSheet'])->name('api.admin.portal.database-sheet');
+    Route::get('/api/admin/portal/checklist/{checklist}', [ChecklistController::class, 'apiPortalChecklistDetail'])->name('api.admin.portal.checklist-detail');
     Route::get('/api/admin/portal/log-foto', [ChecklistController::class, 'apiPortalLogFoto'])->name('api.admin.portal.log-foto');
     Route::get('/api/admin/portal/arsip-pdf', [ChecklistController::class, 'apiPortalArsipPdf'])->name('api.admin.portal.arsip-pdf');
     Route::get('/api/admin/portal/charts', [ChecklistController::class, 'apiPortalCharts'])->name('api.admin.portal.charts');

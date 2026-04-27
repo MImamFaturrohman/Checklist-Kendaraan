@@ -3635,6 +3635,164 @@ select.admin-filter-input {
 }
 .portal-local-reset:hover { border-color: #002a7a; color: #002a7a; }
 
+/* ---- Database sheet: detail & modal ---- */
+.portal-db-aksi {
+    width: 56px;
+    text-align: center;
+    white-space: nowrap;
+}
+.portal-db-detail-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 42, 122, 0.25);
+    background: linear-gradient(135deg, #1248a4 0%, #0a2f75 100%);
+    color: #fff !important;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.portal-db-detail-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(10, 47, 117, 0.28);
+}
+.dash-body.dark .portal-db-detail-btn {
+    border-color: rgba(212, 175, 55, 0.35);
+}
+/* Detail ceklist: scroll di body (profile-card di bawah ini memakai overflow:visible — perlu #id agar menang) */
+#portal-checklist-modal .portal-checklist-modal-box.modal-box {
+    max-width: min(720px, 100%);
+    width: 100%;
+    max-height: min(88vh, calc(100dvh - 32px));
+    text-align: left;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+#portal-checklist-modal .portal-checklist-modal-box > h3 {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 18px 20px 12px;
+    font-size: 1.05rem;
+    color: #002a7a;
+}
+.dash-body.dark #portal-checklist-modal .portal-checklist-modal-box > h3 {
+    color: rgba(200, 218, 255, 0.94);
+}
+#portal-checklist-modal #portal-checklist-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 20px;
+    -webkit-overflow-scrolling: touch;
+}
+.portal-detail-dl {
+    display: grid;
+    grid-template-columns: minmax(100px, 130px) 1fr;
+    gap: 6px 12px;
+    font-size: 0.82rem;
+    margin-bottom: 16px;
+}
+.portal-detail-dl dt {
+    font-weight: 700;
+    color: #64748b;
+}
+.dash-body.dark .portal-detail-dl dt {
+    color: rgba(200, 218, 255, 0.55);
+}
+.portal-detail-section-title {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #002a7a;
+    margin: 16px 0 8px;
+    padding-left: 8px;
+    border-left: 3px solid #ffd300;
+}
+.dash-body.dark .portal-detail-section-title {
+    color: rgba(200, 218, 255, 0.92);
+}
+.portal-detail-table {
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+}
+.portal-detail-table th {
+    background: #f1f5f9;
+    font-size: 0.72rem;
+}
+.dash-body.dark .portal-detail-table th {
+    background: rgba(30, 58, 95, 0.6);
+    color: rgba(200, 218, 255, 0.85);
+}
+
+/* Modal detail: kolom Bagian | Status | Keterangan sejajar */
+#portal-checklist-modal .admin-table-wrap {
+    overflow-x: visible;
+    margin-bottom: 4px;
+}
+#portal-checklist-modal .portal-detail-table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+}
+#portal-checklist-modal .portal-detail-table th,
+#portal-checklist-modal .portal-detail-table td {
+    padding: 8px 10px;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+#portal-checklist-modal .portal-detail-table th:nth-child(1),
+#portal-checklist-modal .portal-detail-table td:nth-child(1) {
+    width: 36%;
+    text-align: left;
+}
+#portal-checklist-modal .portal-detail-table th:nth-child(2),
+#portal-checklist-modal .portal-detail-table td:nth-child(2) {
+    width: 14%;
+    text-align: center;
+}
+#portal-checklist-modal .portal-detail-table td:nth-child(2) {
+    white-space: nowrap;
+}
+#portal-checklist-modal .portal-detail-table th:nth-child(3),
+#portal-checklist-modal .portal-detail-table td:nth-child(3) {
+    width: 50%;
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+.dash-body.dark #portal-checklist-modal .portal-detail-table td {
+    border-bottom-color: rgba(148, 163, 184, 0.2);
+}
+#portal-checklist-modal .portal-checklist-modal-actions {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 0;
+    padding: 12px 20px 16px;
+    border-top: 1px solid #e2e8f0;
+}
+.dash-body.dark #portal-checklist-modal .portal-checklist-modal-actions {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+.portal-detail-catatan {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.82rem;
+}
+.dash-body.dark .portal-detail-catatan {
+    background: rgba(15, 30, 58, 0.65);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
 /* ---- Loading dots ---- */
 .portal-loading {
     display: flex;
