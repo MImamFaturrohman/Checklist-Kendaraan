@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\BbmReport;
 use App\Models\Kendaraan;
+use App\Support\SuperAdminNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -83,7 +85,7 @@ class BbmReportController extends Controller
         $strukPath = $request->file('foto_struk')->store('bbm-reports/struk', 'public');
 
         try {
-            BbmReport::create([
+            $report = BbmReport::create([
                 'user_id' => auth()->id(),
                 'kendaraan_id' => $kendaraan->id,
                 'nomor_kendaraan' => $kendaraan->nomor_kendaraan,
@@ -98,6 +100,9 @@ class BbmReportController extends Controller
                 'odometer_photo_path' => $odometerPath,
                 'struk_photo_path' => $strukPath,
             ]);
+            DB::afterCommit(function () use ($report): void {
+                SuperAdminNotifier::bbmReportSubmitted($report);
+            });
         } catch (\Throwable $e) {
             report($e);
             Storage::disk('public')->delete([$odometerPath, $strukPath]);

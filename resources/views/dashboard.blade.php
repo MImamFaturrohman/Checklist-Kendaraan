@@ -37,6 +37,8 @@
 
         @php
             $user          = auth()->user();
+            $superadminNotifications = $superadminNotifications ?? collect();
+            $superadminUnreadCount = $superadminUnreadCount ?? 0;
             $isSuperAdmin  = $user?->role === 'superadmin';
             $isAdmin       = $user?->role === 'admin';
             $isManager     = $user?->role === 'manager';
@@ -76,6 +78,34 @@
                         <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
                         <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
                     </button>
+
+                    @if($isSuperAdmin)
+                    <div class="dash-notif-wrap" id="dash-notif-wrap">
+                        <button type="button" class="dash-notif-btn" id="dash-notif-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="dash-notif-panel" title="Notifikasi" aria-label="Notifikasi">
+                            <i class="bi bi-bell-fill" aria-hidden="true"></i>
+                            @if($superadminUnreadCount > 0)
+                                <span class="dash-notif-badge">{{ $superadminUnreadCount > 99 ? '99+' : $superadminUnreadCount }}</span>
+                            @endif
+                        </button>
+                        <div class="dash-notif-panel" id="dash-notif-panel" role="menu" hidden>
+                            <div class="dash-notif-panel-head">Notifikasi</div>
+                            <ul class="dash-notif-list">
+                                @forelse($superadminNotifications as $n)
+                                    @php $d = $n->data; @endphp
+                                    <li class="dash-notif-item{{ $n->read_at ? '' : ' is-unread' }}">
+                                        <a href="{{ $d['url'] ?? '#' }}" class="dash-notif-link" data-notification-id="{{ $n->id }}" role="menuitem">
+                                            <strong class="dash-notif-title">{{ $d['title'] ?? 'Notifikasi' }}</strong>
+                                            <span class="dash-notif-body">{{ $d['body'] ?? '' }}</span>
+                                            <time class="dash-notif-time" datetime="{{ $n->created_at?->toIso8601String() }}">{{ $n->created_at?->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</time>
+                                        </a>
+                                    </li>
+                                @empty
+                                    <li class="dash-notif-empty">Belum ada notifikasi.</li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </div>
+                    @endif
 
                     {{-- Role chip --}}
                     <span class="dash-chip {{ ($isAdmin || $isSuperAdmin) ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
@@ -630,6 +660,51 @@
                 if (e.key === 'Escape') closeMenu();
             });
         })();
+
+        @if($isSuperAdmin)
+        (function () {
+            const wrap = document.getElementById('dash-notif-wrap');
+            const btn = document.getElementById('dash-notif-toggle');
+            const panel = document.getElementById('dash-notif-panel');
+            if (!wrap || !btn || !panel) return;
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+            function closePanel() {
+                panel.hidden = true;
+                btn.setAttribute('aria-expanded', 'false');
+            }
+            function togglePanel() {
+                const open = panel.hidden;
+                panel.hidden = !open;
+                btn.setAttribute('aria-expanded', String(open));
+            }
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                togglePanel();
+            });
+            document.addEventListener('click', function (e) {
+                if (!wrap.contains(e.target)) closePanel();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closePanel();
+            });
+            panel.querySelectorAll('.dash-notif-link[data-notification-id]').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    const id = a.getAttribute('data-notification-id');
+                    if (!id || !csrf) return;
+                    fetch('{{ url('/notifications') }}/' + encodeURIComponent(id) + '/read', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrf,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    }).catch(function () {});
+                    a.closest('.dash-notif-item')?.classList.remove('is-unread');
+                });
+            });
+        })();
+        @endif
 
         /* ── Profile drawer ─────────────────────────────────────────── */
         function openProfileDrawer() {

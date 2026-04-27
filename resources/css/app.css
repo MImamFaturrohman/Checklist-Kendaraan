@@ -299,6 +299,21 @@
         font-size: 0.82rem;
     }
 
+    .dash-nav-actions .dash-notif-wrap {
+        width: 100%;
+    }
+    .dash-nav-actions .dash-notif-btn {
+        width: 100%;
+        justify-content: flex-start;
+        border-radius: 10px;
+        padding: 11px 16px;
+    }
+    .dash-nav-actions .dash-notif-panel {
+        left: 0;
+        right: 0;
+        width: auto;
+    }
+
     /* Show labels inside dropdown */
     .dash-nav-actions .dash-nav-btn-label  { display: inline; }
     .dash-nav-actions .dash-nav-chip-label { display: inline; }
@@ -4841,6 +4856,146 @@ select.admin-filter-input {
 .dash-theme-btn:hover {
     background: rgba(255, 255, 255, 0.18);
     border-color: rgba(212, 175, 55, 0.4);
+}
+
+/* ── Superadmin notification bell ── */
+.dash-notif-wrap {
+    position: relative;
+}
+.dash-notif-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.09);
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.dash-notif-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(212, 175, 55, 0.4);
+}
+.dash-notif-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 16px;
+    text-align: center;
+}
+.dash-notif-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(340px, calc(100vw - 24px));
+    max-height: min(380px, 70vh);
+    overflow: auto;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    z-index: 200;
+}
+.dash-notif-panel-head {
+    position: sticky;
+    top: 0;
+    padding: 12px 14px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+    background: linear-gradient(180deg, #f8fafc 90%, transparent);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+.dash-notif-list {
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+}
+.dash-notif-item {
+    border-radius: 10px;
+    margin-bottom: 4px;
+}
+.dash-notif-item.is-unread {
+    background: rgba(59, 130, 246, 0.08);
+}
+.dash-notif-link {
+    display: block;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: #0f172a;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+}
+.dash-notif-link:hover {
+    background: rgba(15, 23, 42, 0.06);
+}
+.dash-notif-title {
+    display: block;
+    font-size: 0.82rem;
+    margin-bottom: 4px;
+}
+.dash-notif-body {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 500;
+    color: #475569;
+    line-height: 1.35;
+}
+.dash-notif-time {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.68rem;
+    color: #94a3b8;
+}
+.dash-notif-empty {
+    padding: 20px 14px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.dash-body.dark .dash-notif-panel {
+    background: rgba(15, 30, 58, 0.96);
+    border-color: rgba(212, 175, 55, 0.2);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+.dash-body.dark .dash-notif-panel-head {
+    color: rgba(200, 218, 255, 0.55);
+    background: linear-gradient(180deg, rgba(15, 30, 58, 0.98) 85%, transparent);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.dash-body.dark .dash-notif-link {
+    color: rgba(241, 245, 249, 0.95);
+}
+.dash-body.dark .dash-notif-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+.dash-body.dark .dash-notif-item.is-unread {
+    background: rgba(59, 130, 246, 0.15);
+}
+.dash-body.dark .dash-notif-body {
+    color: rgba(200, 218, 255, 0.72);
+}
+.dash-body.dark .dash-notif-time {
+    color: rgba(148, 163, 184, 0.75);
+}
+.dash-body.dark .dash-notif-empty {
+    color: rgba(148, 163, 184, 0.65);
 }
 
 /* ── DARK MODE — body ── */

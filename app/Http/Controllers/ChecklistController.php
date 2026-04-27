@@ -17,6 +17,7 @@ use Google\Service\Sheets\Request as SheetsRequest;
 use Google\Service\Sheets\ValueRange;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Support\SuperAdminNotifier;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -167,6 +168,10 @@ class ChecklistController extends Controller
             } catch (\Throwable $e) {
                 Log::warning('Auto-sync to Google Sheets failed', ['message' => $e->getMessage()]);
             }
+
+            DB::afterCommit(function () use ($checklist): void {
+                SuperAdminNotifier::checklistSubmitted($checklist);
+            });
 
             return response()->json([
                 'success' => true,

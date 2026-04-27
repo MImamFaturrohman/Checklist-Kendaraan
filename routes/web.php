@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\PernyataanController;
 use App\Http\Controllers\Admin\SppdAdminController;
 use App\Http\Controllers\BbmReportController;
 use App\Http\Controllers\ChecklistController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ManagerSppdController;
 use App\Http\Controllers\PeminjamanController;
@@ -26,8 +27,22 @@ Route::get('/api/kendaraan/public-list', [KendaraanController::class, 'apiList']
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $user = auth()->user();
+        $superadminNotifications = collect();
+        $superadminUnreadCount = 0;
+        if ($user?->role === 'superadmin') {
+            $superadminNotifications = $user->notifications()->latest()->limit(20)->get();
+            $superadminUnreadCount = $user->unreadNotifications()->count();
+        }
+
+        return view('dashboard', [
+            'superadminNotifications' => $superadminNotifications,
+            'superadminUnreadCount' => $superadminUnreadCount,
+        ]);
     })->name('dashboard');
+
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])
+        ->name('notifications.read');
 
     Route::get('/checklists/create', function () {
         $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
