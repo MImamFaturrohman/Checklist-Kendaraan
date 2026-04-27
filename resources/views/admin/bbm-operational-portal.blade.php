@@ -356,31 +356,39 @@
 
             const elD = document.getElementById('bbmChartDriverFreq');
             if (elD && TOP_DRIVERS_MONTH.length) {
+                const pieFill = dark ? 0.88 : 0.92;
+                const drvLabels = TOP_DRIVERS_MONTH.map((d) => d.name || d.username || 'Driver');
+                const drvData = TOP_DRIVERS_MONTH.map((d) => Number(d.cnt));
                 chartDrvFreq = new Chart(elD, {
-                    type: 'bar',
+                    type: 'pie',
                     data: {
-                        labels: TOP_DRIVERS_MONTH.map((d) => d.name || d.username || 'Driver'),
+                        labels: drvLabels,
                         datasets: [{
-                            data: TOP_DRIVERS_MONTH.map((d) => Number(d.cnt)),
-                            backgroundColor: TOP_DRIVERS_MONTH.map((_, i) => palette[i % palette.length]),
-                            borderRadius: 6,
+                            data: drvData,
+                            backgroundColor: TOP_DRIVERS_MONTH.map((_, i) => barFill(palette[i % palette.length], pieFill)),
+                            borderColor: bdr,
+                            borderWidth: 2,
+                            hoverOffset: 6,
                         }],
                     },
                     options: {
                         ...common,
                         plugins: {
-                            legend: { display: false },
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels: { color: tick, boxWidth: 12, padding: 10, font: { size: 11 } },
+                            },
                             tooltip: {
                                 callbacks: {
                                     label(ctx) {
-                                        return ' ' + ctx.parsed.y + ' kali isi BBM';
+                                        const v = Number(ctx.raw) || 0;
+                                        const total = drvData.reduce((a, b) => a + Number(b), 0);
+                                        const pct = total ? ((v / total) * 100).toFixed(1) : '0';
+                                        return ' ' + v + ' kali isi BBM (' + pct + '%)';
                                     },
                                 },
                             },
-                        },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, title: { display: true, text: 'Jumlah laporan', color: tick }, grid: { color: grid } },
-                            x: { ticks: { maxRotation: 40, font: { size: 10 }, color: tick }, grid: { color: grid } },
                         },
                     },
                 });

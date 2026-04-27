@@ -167,45 +167,10 @@
                     <p class="mgmt-ph-title">Master Armada</p>
                     <p class="mgmt-ph-sub">Kelola data kendaraan operasional</p>
                 </div>
-                <button class="mgmt-ph-add-btn" id="btn-toggle-armada-form" onclick="toggleAddForm('armada')">
+                <button type="button" class="mgmt-ph-add-btn" id="btn-open-armada-modal" onclick="openArmadaAddModal()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
                     Tambah Kendaraan
                 </button>
-            </div>
-
-            {{-- Collapsible add form --}}
-            <div id="armada-add-panel" class="mgmt-add-panel">
-                <div class="mgmt-add-inner">
-                    <p class="mgmt-add-heading">Data Kendaraan Baru</p>
-                    <form id="form-add-armada">
-                        @csrf
-                        <div class="mgmt-form-grid5">
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Nomor Kendaraan</label>
-                                <input type="text" name="nomor_kendaraan" class="mgmt-input" placeholder="B 1234 ABC" required>
-                            </div>
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Jenis Kendaraan</label>
-                                <input type="text" name="jenis_kendaraan" class="mgmt-input" placeholder="MITSUBISHI XPANDER" required>
-                            </div>
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Bidang</label>
-                                <input type="text" name="bidang" class="mgmt-input" placeholder="Operasional">
-                            </div>
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Set KM</label>
-                                <input type="number" name="set_km" class="mgmt-input" placeholder="50000" min="0">
-                            </div>
-                            <div class="mgmt-field-action">
-                                <button type="submit" class="mgmt-submit-btn" id="btn-add-armada">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                                    Simpan
-                                </button>
-                                <button type="button" class="mgmt-cancel-btn" onclick="toggleAddForm('armada')">Batal</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
             </div>
 
             {{-- Filter bar --}}
@@ -253,28 +218,13 @@
                         @forelse($kendaraans as $k)
                             <tr id="krow-{{ $k->id }}">
                                 <td class="text-muted">{{ ($kendaraans->currentPage()-1)*$kendaraans->perPage()+$loop->iteration }}</td>
-                                <td>
-                                    <span class="view-mode mgmt-nopol">{{ $k->nomor_kendaraan }}</span>
-                                    <input class="edit-mode mgmt-input" type="text" value="{{ $k->nomor_kendaraan }}" name="nomor_kendaraan" form="kedit-{{ $k->id }}" style="display:none">
-                                </td>
-                                <td>
-                                    <span class="view-mode">{{ $k->jenis_kendaraan }}</span>
-                                    <input class="edit-mode mgmt-input" type="text" value="{{ $k->jenis_kendaraan }}" name="jenis_kendaraan" form="kedit-{{ $k->id }}" style="display:none">
-                                </td>
-                                <td>
-                                    <span class="view-mode text-muted">{{ $k->bidang ?: '—' }}</span>
-                                    <input class="edit-mode mgmt-input" type="text" value="{{ $k->bidang }}" name="bidang" form="kedit-{{ $k->id }}" style="display:none" placeholder="Bidang...">
-                                </td>
-                                <td>
-                                    <span class="view-mode">{{ number_format($k->set_km ?? 0,0,',','.') }} km</span>
-                                    <input class="edit-mode mgmt-input" type="number" value="{{ $k->set_km ?? 0 }}" name="set_km" min="0" form="kedit-{{ $k->id }}" style="display:none;width:100px">
-                                </td>
+                                <td><span class="mgmt-nopol">{{ $k->nomor_kendaraan }}</span></td>
+                                <td>{{ $k->jenis_kendaraan }}</td>
+                                <td class="text-muted">{{ $k->bidang ?: '—' }}</td>
+                                <td>{{ number_format($k->set_km ?? 0,0,',','.') }} km</td>
                                 <td class="text-center">
-                                    <form id="kedit-{{ $k->id }}" action="{{ route('admin.portal-manajemen.kendaraan.update', $k) }}" method="POST" style="display:none" onsubmit="event.preventDefault(); submitKendaraanEdit({{ $k->id }})">
-                                        @csrf @method('PUT')
-                                    </form>
-                                    <div class="mgmt-actions view-mode">
-                                        <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="toggleKEdit({{ $k->id }})" title="Edit">
+                                    <div class="mgmt-actions">
+                                        <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="{{ $k->id }}" data-nopol="{{ e($k->nomor_kendaraan) }}" data-jenis="{{ e($k->jenis_kendaraan) }}" data-bidang="{{ e($k->bidang ?? '') }}" data-set-km="{{ (int) ($k->set_km ?? 0) }}" title="Edit">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             Edit
                                         </button>
@@ -285,13 +235,6 @@
                                                 Hapus
                                             </button>
                                         </form>
-                                    </div>
-                                    <div class="mgmt-actions edit-mode" style="display:none">
-                                        <button type="button" class="mgmt-act-btn mgmt-act-save" onclick="submitKendaraanEdit({{ $k->id }})">
-                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                            Simpan
-                                        </button>
-                                        <button type="button" class="mgmt-act-btn mgmt-act-cancel" onclick="toggleKEdit({{ $k->id }})">Batal</button>
                                     </div>
                                 </td>
                             </tr>
@@ -476,9 +419,60 @@
 </div>{{-- /.armada-shell --}}
 
 {{-- ══════════════════════════════════════════════════════════════════════ --}}
+{{-- TAMBAH / UBAH KENDARAAN (MASTER ARMADA)                                --}}
+{{-- ══════════════════════════════════════════════════════════════════════ --}}
+<div id="armada-form-modal" class="mgmt-modal-overlay" hidden onclick="if(event.target===this)closeArmadaModal()">
+    <div class="mgmt-modal-box" onclick="event.stopPropagation()">
+        <div class="mgmt-modal-header">
+            <div class="mgmt-modal-avatar" id="armada-modal-avatar" style="background:rgba(15,118,110,.15);color:#0f766e;font-size:0.75rem;font-weight:800;border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;padding:0">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/><path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+            </div>
+            <div>
+                <h2 class="mgmt-modal-title" id="armada-modal-title">Kendaraan</h2>
+                <p class="mgmt-modal-sub" id="armada-modal-sub">Isi data kendaraan operasional</p>
+            </div>
+            <button type="button" class="mgmt-modal-close" onclick="closeArmadaModal()" aria-label="Tutup">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+        <form id="form-armada-modal" onsubmit="event.preventDefault(); submitArmadaModal()">
+            <input type="hidden" id="armada-modal-id" value="">
+            <div class="mgmt-modal-body">
+                <p class="mgmt-modal-section-label">DATA KENDARAAN</p>
+                <div class="mgmt-modal-grid">
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="armada-modal-nopol">Nomor Kendaraan</label>
+                        <input type="text" id="armada-modal-nopol" class="mgmt-input" placeholder="B 1234 ABC" required maxlength="20" autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="armada-modal-jenis">Jenis Kendaraan</label>
+                        <input type="text" id="armada-modal-jenis" class="mgmt-input" placeholder="MITSUBISHI XPANDER" required maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="armada-modal-bidang">Bidang</label>
+                        <input type="text" id="armada-modal-bidang" class="mgmt-input" placeholder="Operasional" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="armada-modal-setkm">Set KM</label>
+                        <input type="number" id="armada-modal-setkm" class="mgmt-input" placeholder="0" min="0" step="1" value="0">
+                    </div>
+                </div>
+            </div>
+            <div class="mgmt-modal-footer">
+                <button type="button" class="mgmt-cancel-btn" onclick="closeArmadaModal()">Batal</button>
+                <button type="submit" class="mgmt-submit-btn" id="btn-save-armada">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════════════════ --}}
 {{-- EDIT USER MODAL                                                        --}}
 {{-- ══════════════════════════════════════════════════════════════════════ --}}
-<div id="user-edit-modal" class="mgmt-modal-overlay" style="display:none" onclick="if(event.target===this)closeUserModal()">
+<div id="user-edit-modal" class="mgmt-modal-overlay" hidden onclick="if(event.target===this)closeUserModal()">
     <div class="mgmt-modal-box">
         <div class="mgmt-modal-header">
             <div class="mgmt-modal-avatar" id="modal-avatar">U</div>
@@ -551,6 +545,8 @@
 
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 const BASE = window.location.origin;
+const ARMADA_STORE_URL = @json(route('admin.portal-manajemen.kendaraan.store'));
+const ARMADA_UPDATE_URL_TMPL = @json(url('/admin/portal-manajemen-administrasi/kendaraan/__ID__'));
 
 /* ─── Helpers ──────────────────────────────────────────────────────────── */
 function escHtml(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -649,28 +645,13 @@ function renderArmadaTable(rows, page, perPage) {
     tbody.innerHTML = rows.map((k, i) => `
         <tr id="krow-${k.id}">
             <td class="text-muted">${offset + i + 1}</td>
-            <td>
-                <span class="view-mode mgmt-nopol">${escHtml(k.nomor_kendaraan)}</span>
-                <input class="edit-mode mgmt-input" type="text" value="${escHtml(k.nomor_kendaraan)}" name="nomor_kendaraan" form="kedit-${k.id}" style="display:none">
-            </td>
-            <td>
-                <span class="view-mode">${escHtml(k.jenis_kendaraan)}</span>
-                <input class="edit-mode mgmt-input" type="text" value="${escHtml(k.jenis_kendaraan)}" name="jenis_kendaraan" form="kedit-${k.id}" style="display:none">
-            </td>
-            <td>
-                <span class="view-mode text-muted">${k.bidang ? escHtml(k.bidang) : '—'}</span>
-                <input class="edit-mode mgmt-input" type="text" value="${k.bidang ? escHtml(k.bidang) : ''}" name="bidang" form="kedit-${k.id}" style="display:none" placeholder="Bidang...">
-            </td>
-            <td>
-                <span class="view-mode">${numFmt(k.set_km ?? 0)} km</span>
-                <input class="edit-mode mgmt-input" type="number" value="${k.set_km ?? 0}" name="set_km" min="0" form="kedit-${k.id}" style="display:none;width:100px">
-            </td>
+            <td><span class="mgmt-nopol">${escHtml(k.nomor_kendaraan)}</span></td>
+            <td>${escHtml(k.jenis_kendaraan)}</td>
+            <td class="text-muted">${k.bidang ? escHtml(k.bidang) : '—'}</td>
+            <td>${numFmt(k.set_km ?? 0)} km</td>
             <td class="text-center">
-                <form id="kedit-${k.id}" action="/admin/portal-manajemen-administrasi/kendaraan/${k.id}" method="POST" style="display:none" onsubmit="event.preventDefault();submitKendaraanEdit(${k.id})">
-                    <input type="hidden" name="_token" value="${CSRF}"><input type="hidden" name="_method" value="PUT">
-                </form>
-                <div class="mgmt-actions view-mode">
-                    <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="toggleKEdit(${k.id})">
+                <div class="mgmt-actions">
+                    <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="${k.id}" data-nopol="${escHtml(k.nomor_kendaraan ?? '')}" data-jenis="${escHtml(k.jenis_kendaraan ?? '')}" data-bidang="${escHtml(k.bidang ?? '')}" data-set-km="${Number(k.set_km) || 0}">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Edit
                     </button>
@@ -682,41 +663,85 @@ function renderArmadaTable(rows, page, perPage) {
                         </button>
                     </form>
                 </div>
-                <div class="mgmt-actions edit-mode" style="display:none">
-                    <button type="button" class="mgmt-act-btn mgmt-act-save" onclick="submitKendaraanEdit(${k.id})">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Simpan
-                    </button>
-                    <button type="button" class="mgmt-act-btn mgmt-act-cancel" onclick="toggleKEdit(${k.id})">Batal</button>
-                </div>
             </td>
         </tr>`).join('');
 }
 
-window.toggleKEdit = function(id) {
-    const row = document.getElementById('krow-' + id);
-    if (!row) return;
-    const inEdit = row.querySelector('.edit-mode')?.style.display !== 'none';
-    row.querySelectorAll('.view-mode').forEach(el => el.style.display = inEdit ? '' : 'none');
-    row.querySelectorAll('.edit-mode').forEach(el => el.style.display = inEdit ? 'none' : (el.tagName==='DIV'?'flex':'inline-block'));
-    row.querySelectorAll('input.edit-mode').forEach(el => { if (!inEdit) el.style.display = 'block'; });
+function armadaUpdateUrl(id) {
+    return ARMADA_UPDATE_URL_TMPL.replace('__ID__', String(id));
+}
+
+window.openArmadaAddModal = function() {
+    document.getElementById('armada-modal-id').value = '';
+    document.getElementById('armada-modal-title').textContent = 'Tambah Kendaraan';
+    document.getElementById('armada-modal-sub').textContent = 'Lengkapi data kendaraan operasional';
+    document.getElementById('armada-modal-nopol').value = '';
+    document.getElementById('armada-modal-jenis').value = '';
+    document.getElementById('armada-modal-bidang').value = '';
+    document.getElementById('armada-modal-setkm').value = '0';
+    const modal = document.getElementById('armada-form-modal');
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('armada-modal-nopol').focus(), 80);
 };
 
-window.submitKendaraanEdit = async function(id) {
-    const form = document.getElementById('kedit-' + id);
-    const row  = document.getElementById('krow-' + id);
-    const fd   = new FormData(form);
-    fd.set('nomor_kendaraan', row.querySelector('input[name="nomor_kendaraan"]').value);
-    fd.set('jenis_kendaraan', row.querySelector('input[name="jenis_kendaraan"]').value);
-    fd.set('bidang',          row.querySelector('input[name="bidang"]').value);
-    fd.set('set_km',          row.querySelector('input[name="set_km"]').value);
+window.openArmadaEditModal = function(id, nopol, jenis, bidang, setKm) {
+    document.getElementById('armada-modal-id').value = String(id);
+    document.getElementById('armada-modal-title').textContent = 'Ubah Kendaraan';
+    document.getElementById('armada-modal-sub').textContent = nopol || '—';
+    document.getElementById('armada-modal-nopol').value = nopol ?? '';
+    document.getElementById('armada-modal-jenis').value = jenis ?? '';
+    document.getElementById('armada-modal-bidang').value = bidang ?? '';
+    document.getElementById('armada-modal-setkm').value = String(setKm != null ? setKm : 0);
+    document.getElementById('armada-form-modal').hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('armada-modal-nopol').focus(), 80);
+};
+
+window.closeArmadaModal = function() {
+    document.getElementById('armada-form-modal').hidden = true;
+    const userModal = document.getElementById('user-edit-modal');
+    document.body.style.overflow = userModal.hidden ? '' : 'hidden';
+};
+
+window.submitArmadaModal = async function() {
+    const id = document.getElementById('armada-modal-id').value.trim();
+    const btn = document.getElementById('btn-save-armada');
+    const nopol = document.getElementById('armada-modal-nopol').value.trim();
+    const jenis = document.getElementById('armada-modal-jenis').value.trim();
+    const bidang = document.getElementById('armada-modal-bidang').value.trim();
+    const setKm = document.getElementById('armada-modal-setkm').value;
+    const fd = new FormData();
+    fd.append('_token', CSRF);
+    fd.append('nomor_kendaraan', nopol);
+    fd.append('jenis_kendaraan', jenis);
+    fd.append('bidang', bidang);
+    fd.append('set_km', setKm === '' ? '0' : setKm);
+    let url = ARMADA_STORE_URL;
+    if (id) {
+        fd.append('_method', 'PUT');
+        url = armadaUpdateUrl(id);
+    }
+    btn.disabled = true;
+    const prevHtml = btn.innerHTML;
+    btn.textContent = 'Menyimpan...';
     try {
-        const res  = await fetch(form.action, {method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
-        const data = await res.json();
+        const res = await fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });
+        const data = await res.json().catch(() => ({}));
         if (res.ok && data.success) {
-            Swal.fire({icon:'success',title:'Diperbarui!',text:data.message,timer:1500,showConfirmButton:false,toast:true,position:'top-end'});
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 1600, showConfirmButton: false });
+            closeArmadaModal();
             fetchArmada();
-        } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'}); }
-    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+        } else {
+            const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message || 'Terjadi kesalahan.');
+            Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+        }
+    } catch {
+        Swal.fire({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Periksa koneksi internet.' });
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHtml;
+    }
 };
 
 window.deleteKendaraan = function(id, nopol) {
@@ -746,27 +771,6 @@ window.resetArmadaFilters = function() {
     armadaPerPage = 10; armadaPage = 1;
     fetchArmada();
 };
-
-document.getElementById('form-add-armada').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btn-add-armada');
-    btn.disabled = true; btn.textContent = 'Menyimpan...';
-    try {
-        const res  = await fetch('{{ route("admin.portal-manajemen.kendaraan.store") }}',{method:'POST',body:new FormData(this),headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
-        const data = await res.json();
-        if (res.ok && data.success) {
-            Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1600,showConfirmButton:false});
-            this.reset(); toggleAddForm('armada'); fetchArmada();
-        } else {
-            const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message||'Gagal.');
-            Swal.fire({icon:'error',title:'Gagal',text:msg});
-        }
-    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
-    finally {
-        btn.disabled = false;
-        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:5px"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Simpan';
-    }
-});
 
 document.getElementById('armada-search').addEventListener('input', debounce(() => { armadaPage = 1; fetchArmada(); }, 350));
 document.getElementById('armada-perpage').addEventListener('change', e => { armadaPerPage = parseInt(e.target.value); armadaPage = 1; fetchArmada(); });
@@ -887,14 +891,14 @@ window.openUserEdit = function(id, name, username, role) {
     av.style.background = isPic ? 'linear-gradient(135deg,#7c3aed,#a78bfa)' : 'linear-gradient(135deg,#2563eb,#60a5fa)';
     document.getElementById('modal-sub-text').textContent = isPic ? 'PIC Kendaraan · @' + username : 'Driver · @' + username;
 
-    document.getElementById('user-edit-modal').style.display = 'flex';
+    document.getElementById('user-edit-modal').hidden = false;
     document.body.style.overflow = 'hidden';
     setTimeout(() => document.getElementById('edit-name').focus(), 100);
 };
 
 window.closeUserModal = function() {
-    document.getElementById('user-edit-modal').style.display = 'none';
-    document.body.style.overflow = '';
+    document.getElementById('user-edit-modal').hidden = true;
+    document.body.style.overflow = document.getElementById('armada-form-modal').hidden ? '' : 'hidden';
 };
 
 window.submitUserEdit = async function() {
@@ -959,7 +963,28 @@ buildPagination(document.getElementById('user-pagination'),
     { current_page:{{ $users->currentPage() }}, last_page:{{ $users->lastPage() }}, total:{{ $users->total() }}, per_page:{{ $users->perPage() }} },
     p => { userPage = p; fetchUsers(true); });
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeUserModal(); });
+document.getElementById('armada-tbody').addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.js-armada-edit');
+    if (!btn) return;
+    openArmadaEditModal(
+        parseInt(btn.getAttribute('data-id'), 10),
+        btn.getAttribute('data-nopol') || '',
+        btn.getAttribute('data-jenis') || '',
+        btn.getAttribute('data-bidang') || '',
+        parseInt(btn.getAttribute('data-set-km') || '0', 10) || 0
+    );
+});
+
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const armadaM = document.getElementById('armada-form-modal');
+    const userM = document.getElementById('user-edit-modal');
+    if (!armadaM.hidden) {
+        closeArmadaModal();
+        return;
+    }
+    if (!userM.hidden) closeUserModal();
+});
 
 })();
 </script>

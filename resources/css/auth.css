@@ -520,16 +520,14 @@
     text-decoration: none;
     padding: 7px 14px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.06);
-    transition: all 0.22s ease;
+    border: none;
+    background: transparent;
+    transition: color 0.22s ease, transform 0.22s ease;
     letter-spacing: 0.3px;
 }
 
 .auth-back-link:hover {
     color: #ffffff;
-    border-color: #6e92d8;
-    background: #4e70bf;
     transform: translateX(-2px);
 }
 
@@ -539,8 +537,7 @@
 .auth-footer {
     margin-top: 1rem;
     text-align: center;
-    padding-top: 0.9rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 0;
 }
 
 .auth-footer p {
@@ -837,19 +834,12 @@
    ================================================================ */
 .light-mode .auth-back-link {
     color: #4a6080;
-    border-color: rgba(100, 140, 210, 0.30);
-    background: rgba(255, 255, 255, 0.45);
+    background: transparent;
 }
 
 .light-mode .auth-back-link:hover {
     color: #0a1628;
-    border-color: rgba(59, 95, 192, 0.45);
-    background: rgba(255, 255, 255, 0.82);
     transform: translateX(-2px);
-}
-
-.light-mode .auth-footer {
-    border-top-color: rgba(100, 140, 210, 0.18);
 }
 
 .light-mode .auth-footer p {

@@ -4514,6 +4514,11 @@ select.admin-filter-input {
     padding: 16px;
     backdrop-filter: blur(3px);
 }
+/* Pastikan overlay tertutup tidak menangkap klik (display:flex di atas bisa mengalahkan atribut hidden) */
+.mgmt-modal-overlay[hidden] {
+    display: none !important;
+    pointer-events: none !important;
+}
 .mgmt-modal-box {
     background: #fff;
     border-radius: 18px;
