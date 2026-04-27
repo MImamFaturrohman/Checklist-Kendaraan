@@ -40,7 +40,7 @@
                 <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo">
                 <div>
                     <div class="dash-nav-title">Portal Pemeriksaan Kendaraan</div>
-                    <span class="dash-nav-sub">PT ARTHA DAYA COALINDO</span>
+                    <span class="dash-nav-sub">{{ ($pemeriksaanInsightOnlyManager ?? false) ? 'Insight kartu & grafik pemeriksaan' : 'PT ARTHA DAYA COALINDO' }}</span>
                 </div>
             </div>
             <div class="dash-nav-actions" id="dash-nav-actions">
@@ -48,9 +48,9 @@
                     <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
                     <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
                 </button>
-                <span class="dash-chip dash-chip-admin">
+                <span class="dash-chip {{ ($pemeriksaanInsightOnlyManager ?? false) ? 'dash-chip-manager' : 'dash-chip-admin' }}">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-                    <span class="dash-nav-chip-label">ADMIN</span>
+                    <span class="dash-nav-chip-label">{{ ($pemeriksaanInsightOnlyManager ?? false) ? 'MANAGER' : 'ADMIN' }}</span>
                 </span>
                 <a href="{{ route('dashboard') }}" class="dash-nav-btn-glass" aria-label="Dashboard">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -623,11 +623,13 @@
             <div id="pdf-pagination" class="portal-pagination-wrap"></div>
         </div>
         @else
-        <div class="portal-section">
-            <div class="portal-empty" style="padding: 20px 24px;">
-                Akses data detail database, foto fisik, dan arsip PDF hanya tersedia untuk Superadmin.
+            @unless($pemeriksaanInsightOnlyManager ?? false)
+            <div class="portal-section">
+                <div class="portal-empty" style="padding: 20px 24px;">
+                    Akses data detail database, foto fisik, dan arsip PDF hanya tersedia untuk Superadmin.
+                </div>
             </div>
-        </div>
+            @endunless
         @endif
 
     </div>{{-- end portal-wrapper --}}

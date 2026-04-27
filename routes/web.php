@@ -68,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Combined Portal Pemeriksaan Kendaraan
     Route::get('/admin/portal-pemeriksaan', [ChecklistController::class, 'portalPemeriksaan'])->name('admin.portal-pemeriksaan');
 
-    // Portal BBM Operasional (superadmin — akses dicek di controller)
+    // Portal BBM Operasional (superadmin: penuh; manager: kartu & grafik — dicek di controller)
     Route::get('/admin/portal-bbm-operasional/{bbmReport}/json', [BbmOperationalPortalController::class, 'showJson'])->name('admin.portal-bbm-operasional.json');
     Route::get('/admin/portal-bbm-operasional', [BbmOperationalPortalController::class, 'index'])->name('admin.portal-bbm-operasional');
 

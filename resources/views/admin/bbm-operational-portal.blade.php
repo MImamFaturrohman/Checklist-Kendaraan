@@ -1,7 +1,7 @@
 @php
     $fmtRp = fn ($n) => 'Rp '.number_format((float) $n, 0, ',', '.');
     $fmtLiter = fn ($n) => number_format((float) $n, 3, ',', '.');
-    $fmtKm = fn ($n) => number_format((float) $n, 2, ',', '.');
+    $fmtKm = fn ($n) => number_format((int) round((float) $n), 0, ',', '.');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -38,7 +38,11 @@
 
     @include('admin.partials.dash-admin-nav', [
         'pageTitle' => 'Portal BBM Operasional',
-        'pageSubtitle' => 'Insight laporan pengisian BBM dari driver',
+        'pageSubtitle' => ($bbmPortalChartsOnly ?? false)
+            ? 'Ringkasan & grafik pengisian BBM (akses terbatas)'
+            : 'Insight laporan pengisian BBM dari driver',
+        'navChipLabel' => ($bbmPortalChartsOnly ?? false) ? 'MANAGER' : 'ADMIN',
+        'navChipClass' => ($bbmPortalChartsOnly ?? false) ? 'dash-chip-manager' : 'dash-chip-admin',
     ])
 
     <div class="admin-shell" style="position:relative;z-index:1">
@@ -100,7 +104,7 @@
                         <div class="portal-chart-title">Pengeluaran BBM per bulan (perbandingan tahun)</div>
                         <div class="bbm-year-toggles" id="bbm-year-toggles" aria-label="Pilih tahun untuk grafik"></div>
                     </div>
-                    <p class="bbm-chart-hint" style="margin:0 0 8px;font-size:0.78rem;color:#64748b">Centang satu atau lebih tahun untuk membandingkan kurva nominal (Jan–Des).</p>
+                    <p class="bbm-chart-hint" style="margin:0 0 8px;font-size:0.78rem;color:#64748b">Centang satu atau lebih tahun untuk membandingkan batang nominal (Jan–Des).</p>
                     <div class="portal-chart-container" style="height:260px"><canvas id="bbmChartRupiahYear"></canvas></div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--wide">
@@ -113,6 +117,7 @@
                 </div>
             </div>
 
+            @unless($bbmPortalChartsOnly ?? false)
             <div class="portal-section" id="section-bbm-table">
                 <div class="portal-section-header">
                     <div class="portal-section-title"><i class="bi bi-table"></i> Data laporan BBM</div>
@@ -166,9 +171,11 @@
                 </div>
                 <div class="admin-pagination mt-4">{{ $reports->links() }}</div>
             </div>
+            @endunless
         </div>
     </div>
 
+    @unless($bbmPortalChartsOnly ?? false)
     {{-- Detail modal (pola mirip sppd/index) --}}
     <div id="bbm-modal-detail" class="modal-overlay" style="display:none">
         <div class="modal-box profile-card sppd-modal-box" style="max-width:min(720px,100%);text-align:left;max-height:86vh;overflow:auto">
@@ -179,6 +186,7 @@
             </div>
         </div>
     </div>
+    @endunless
 
     <style>
         .portal-chart-title-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
@@ -191,6 +199,7 @@
 
     <script>
     (function () {
+        const BBM_PORTAL_CHARTS_ONLY = @json($bbmPortalChartsOnly ?? false);
         const MONTHLY_RUPIAH_BY_YEAR = @json($monthlyRupiahByYear);
         const YEARS_AVAILABLE = @json($yearsAvailable);
         const LITER_VEH_LABELS = @json($literPerVehicleLabels);
@@ -239,6 +248,12 @@
 
         const palette = ['#002a7a', '#16a34a', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#ca8a04', '#64748b'];
 
+        function barFill(hex, alpha) {
+            const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (!m) return hex;
+            return 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + alpha + ')';
+        }
+
         function buildCharts() {
             [chartRupiah, chartLiterVeh, chartDrvFreq].forEach((c) => { try { c?.destroy(); } catch (e) {} });
             chartRupiah = chartLiterVeh = chartDrvFreq = null;
@@ -252,27 +267,27 @@
             const years = selectedYears();
             const elR = document.getElementById('bbmChartRupiahYear');
             if (elR && MONTHLY_RUPIAH_BY_YEAR && years.length) {
+                const fillA = dark ? 0.62 : 0.78;
                 const datasets = years.map((y, i) => {
                     const arr = MONTHLY_RUPIAH_BY_YEAR[String(y)] || MONTHLY_RUPIAH_BY_YEAR[y] || [];
                     const col = palette[i % palette.length];
                     return {
                         label: String(y),
                         data: arr.map((v) => Math.round(Number(v) / 1000)),
+                        backgroundColor: barFill(col, fillA),
                         borderColor: col,
-                        backgroundColor: 'transparent',
-                        borderWidth: 2,
-                        tension: 0.25,
-                        fill: false,
-                        pointRadius: 3,
-                        pointBackgroundColor: col,
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderSkipped: false,
                     };
                 });
                 chartRupiah = new Chart(elR, {
-                    type: 'line',
+                    type: 'bar',
                     data: { labels: MONTH_LABELS, datasets },
                     options: {
                         ...common,
                         interaction: { mode: 'index', intersect: false },
+                        datasets: { bar: { maxBarThickness: 28 } },
                         plugins: {
                             legend: { display: true, position: 'top', labels: { color: tick, boxWidth: 12 } },
                             tooltip: {
@@ -301,25 +316,26 @@
             const elV = document.getElementById('bbmChartLiterVehicle');
             if (elV && LITER_VEH_LABELS.length && Object.keys(LITER_VEH_SERIES).length) {
                 const nopolList = Object.keys(LITER_VEH_SERIES);
+                const fillLit = dark ? 0.62 : 0.78;
                 const datasets = nopolList.map((nopol, i) => {
                     const col = palette[i % palette.length];
                     return {
                         label: nopol,
                         data: (LITER_VEH_SERIES[nopol] || []).map((v) => Number(v)),
+                        backgroundColor: barFill(col, fillLit),
                         borderColor: col,
-                        backgroundColor: dark ? 'rgba(96,165,250,0.06)' : 'rgba(0,42,122,0.04)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: false,
-                        pointRadius: 2,
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderSkipped: false,
                     };
                 });
                 chartLiterVeh = new Chart(elV, {
-                    type: 'line',
+                    type: 'bar',
                     data: { labels: LITER_VEH_LABELS, datasets },
                     options: {
                         ...common,
                         interaction: { mode: 'index', intersect: false },
+                        datasets: { bar: { maxBarThickness: 22 } },
                         plugins: {
                             legend: { display: true, position: 'bottom', labels: { color: tick, font: { size: 10 }, boxWidth: 10 } },
                             tooltip: {
@@ -410,30 +426,32 @@
             `;
         }
 
-        document.querySelectorAll('.bbm-btn-detail').forEach((btn) => {
-            btn.addEventListener('click', async () => {
-                const url = btn.getAttribute('data-json-url');
-                const modal = document.getElementById('bbm-modal-detail');
-                const body = document.getElementById('bbm-detail-body');
-                body.innerHTML = '<p>Memuat…</p>';
-                modal.style.display = 'flex';
-                try {
-                    const res = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const j = await res.json();
-                    if (!j.report) throw new Error('Invalid payload');
-                    body.innerHTML = renderBbmDetail(j.report);
-                } catch (e) {
-                    body.innerHTML = '<p>Gagal memuat data.</p>';
-                }
+        if (!BBM_PORTAL_CHARTS_ONLY) {
+            document.querySelectorAll('.bbm-btn-detail').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    const url = btn.getAttribute('data-json-url');
+                    const modal = document.getElementById('bbm-modal-detail');
+                    const body = document.getElementById('bbm-detail-body');
+                    body.innerHTML = '<p>Memuat…</p>';
+                    modal.style.display = 'flex';
+                    try {
+                        const res = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const j = await res.json();
+                        if (!j.report) throw new Error('Invalid payload');
+                        body.innerHTML = renderBbmDetail(j.report);
+                    } catch (e) {
+                        body.innerHTML = '<p>Gagal memuat data.</p>';
+                    }
+                });
             });
-        });
-        document.querySelectorAll('[data-close-bbm-modal]').forEach((el) => {
-            el.addEventListener('click', () => { document.getElementById('bbm-modal-detail').style.display = 'none'; });
-        });
-        document.getElementById('bbm-modal-detail')?.addEventListener('click', (e) => {
-            if (e.target.id === 'bbm-modal-detail') e.currentTarget.style.display = 'none';
-        });
+            document.querySelectorAll('[data-close-bbm-modal]').forEach((el) => {
+                el.addEventListener('click', () => { document.getElementById('bbm-modal-detail').style.display = 'none'; });
+            });
+            document.getElementById('bbm-modal-detail')?.addEventListener('click', (e) => {
+                if (e.target.id === 'bbm-modal-detail') e.currentTarget.style.display = 'none';
+            });
+        }
 
         const body = document.body;
         const themeBtn = document.getElementById('dash-theme-toggle');

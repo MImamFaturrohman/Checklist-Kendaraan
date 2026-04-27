@@ -38,7 +38,10 @@ class BbmOperationalPortalController extends Controller
 
     public function index(): View
     {
-        abort_unless(auth()->user()?->role === 'superadmin', 403);
+        $role = auth()->user()?->role;
+        abort_unless(in_array($role, ['superadmin', 'manager'], true), 403);
+
+        $chartsOnly = $role === 'manager';
 
         $monthStart = now()->startOfMonth()->toDateString();
         $monthEnd = now()->endOfMonth()->toDateString();
@@ -118,13 +121,15 @@ class BbmOperationalPortalController extends Controller
             ->limit(12)
             ->get();
 
-        $reports = BbmReport::query()
-            ->with(['user:id,name,username'])
-            ->orderByDesc('tanggal')
-            ->orderByDesc('waktu')
-            ->orderByDesc('id')
-            ->paginate(25)
-            ->withQueryString();
+        $reports = $chartsOnly
+            ? BbmReport::query()->whereRaw('0 = 1')->paginate(25)->withQueryString()
+            : BbmReport::query()
+                ->with(['user:id,name,username'])
+                ->orderByDesc('tanggal')
+                ->orderByDesc('waktu')
+                ->orderByDesc('id')
+                ->paginate(25)
+                ->withQueryString();
 
         return view('admin.bbm-operational-portal', [
             'stats' => [
@@ -142,6 +147,7 @@ class BbmOperationalPortalController extends Controller
             'literPerVehicleSeries' => $literPerVehicleSeries,
             'topDriversMonth' => $topDriversMonth,
             'reports' => $reports,
+            'bbmPortalChartsOnly' => $chartsOnly,
         ]);
     }
 
@@ -163,8 +169,8 @@ class BbmOperationalPortalController extends Controller
                 'jenis_kendaraan' => $bbmReport->jenis_kendaraan,
                 'tanggal' => $bbmReport->tanggal->format('d/m/Y'),
                 'waktu' => $waktuStr,
-                'odometer_sebelum' => (string) $bbmReport->odometer_sebelum,
-                'odometer_sesudah' => (string) $bbmReport->odometer_sesudah,
+                'odometer_sebelum' => (string) (int) $bbmReport->odometer_sebelum,
+                'odometer_sesudah' => (string) (int) $bbmReport->odometer_sesudah,
                 'liter' => (float) $bbmReport->liter,
                 'harga_per_liter' => (float) $bbmReport->harga_per_liter,
                 'total_harga' => (float) $bbmReport->total_harga,

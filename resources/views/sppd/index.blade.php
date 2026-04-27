@@ -189,9 +189,14 @@
             <div class="ppm-modal-actions">
                 <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" data-close-sppd-modal title="Tutup" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
                 <a href="#" id="sppd-detail-edit" class="btn btn-sm sppd-icon-btn sppd-btn-success" style="display:none" title="Edit Laporan" aria-label="Edit Laporan"><i class="bi bi-pencil-fill"></i></a>
-                <form id="sppd-form-selesai" method="post" style="display:none">
+                <form id="sppd-form-selesai" method="post" class="sppd-inline-form" style="display:none">
                     @csrf
-                    <button type="submit" class="btn-export">Tandai Selesai</button>
+                    <button
+                        type="submit"
+                        class="btn btn-sm sppd-icon-btn sppd-btn-success"
+                        title="Tandai Selesai"
+                        aria-label="Tandai Selesai"
+                    ><i class="bi bi-check-circle-fill"></i></button>
                 </form>
             </div>
         </div>
@@ -363,7 +368,7 @@
                     }
                     if (d.status === 'approved') {
                         formSelesai.action = BASE + '/sppd/' + id + '/selesai';
-                        formSelesai.style.display = 'block';
+                        formSelesai.style.display = 'inline-flex';
                     }
                 } catch (e) {
                     body.innerHTML = '<p>Gagal memuat data.</p>';

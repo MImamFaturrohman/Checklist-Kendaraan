@@ -30,7 +30,7 @@ class ChecklistController extends Controller
 
     private function canAccessInspectionPortal(): bool
     {
-        return in_array(auth()->user()?->role, ['superadmin', 'admin'], true);
+        return in_array(auth()->user()?->role, ['superadmin', 'admin', 'manager'], true);
     }
 
     /**
@@ -153,8 +153,8 @@ class ChecklistController extends Controller
             // Generate PDF
             $checklist->load(['exterior', 'interior', 'mesin', 'perlengkapan']);
             $pdf = Pdf::loadView('checklists.pdf', ['checklist' => $checklist]);
-            $pdfFileName = 'checklist_' . $checklist->id . '_' . now()->format('Ymd_His') . '.pdf';
-            $pdfPath = 'checklists/pdf/' . $pdfFileName;
+            $pdfFileName = 'checklist_'.$checklist->id.'_'.now()->format('Ymd_His').'.pdf';
+            $pdfPath = 'checklists/pdf/'.$pdfFileName;
             Storage::disk('public')->put($pdfPath, $pdf->output());
 
             $checklist->update(['pdf_path' => $pdfPath]);
@@ -225,9 +225,10 @@ class ChecklistController extends Controller
     {
         $image = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
         $image = base64_decode($image);
-        $fileName = $prefix . '_' . now()->format('Ymd_His') . '_' . uniqid() . '.png';
-        $path = 'checklists/signatures/' . $fileName;
+        $fileName = $prefix.'_'.now()->format('Ymd_His').'_'.uniqid().'.png';
+        $path = 'checklists/signatures/'.$fileName;
         Storage::disk('public')->put($path, $image);
+
         return $path;
     }
 
@@ -268,22 +269,23 @@ class ChecklistController extends Controller
     {
         abort_unless($this->canAccessInspectionPortal(), 403);
         $canAccessDatabase = $this->isSuperAdmin();
+        $pemeriksaanInsightOnlyManager = auth()->user()?->role === 'manager';
 
         $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
 
         // Database Sheet stats (unfiltered)
         $allChecklists = Checklist::all();
         $dbStats = [
-            'total'           => $allChecklists->count(),
-            'kendaraan_unik'  => $allChecklists->unique('nomor_kendaraan')->count(),
-            'driver_aktif'    => $allChecklists->unique('driver_serah')->count(),
-            'bulan_ini'       => $allChecklists->where('tanggal', '>=', now()->startOfMonth())->count(),
+            'total' => $allChecklists->count(),
+            'kendaraan_unik' => $allChecklists->unique('nomor_kendaraan')->count(),
+            'driver_aktif' => $allChecklists->unique('driver_serah')->count(),
+            'bulan_ini' => $allChecklists->where('tanggal', '>=', now()->startOfMonth())->count(),
         ];
 
         // Arsip PDF stats (unfiltered)
-        $allPdf   = Checklist::whereNotNull('pdf_path');
+        $allPdf = Checklist::whereNotNull('pdf_path');
         $pdfStats = [
-            'total'     => (clone $allPdf)->count(),
+            'total' => (clone $allPdf)->count(),
             'bulan_ini' => (clone $allPdf)->whereDate('tanggal', '>=', now()->startOfMonth())->count(),
         ];
 
@@ -309,14 +311,15 @@ class ChecklistController extends Controller
             $pdfChecklists = collect();
         }
 
-        $dbMeta   = $canAccessDatabase ? ['current_page' => $dbChecklists->currentPage(),   'last_page' => $dbChecklists->lastPage(),   'total' => $dbChecklists->total(),   'per_page' => $dbChecklists->perPage()] : null;
+        $dbMeta = $canAccessDatabase ? ['current_page' => $dbChecklists->currentPage(),   'last_page' => $dbChecklists->lastPage(),   'total' => $dbChecklists->total(),   'per_page' => $dbChecklists->perPage()] : null;
         $fotoMeta = $canAccessDatabase ? ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()] : null;
-        $pdfMeta  = $canAccessDatabase ? ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()] : null;
+        $pdfMeta = $canAccessDatabase ? ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()] : null;
 
         return view('admin.portal-pemeriksaan', compact(
             'nopolList', 'dbStats', 'pdfStats', 'chartData',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
-            'dbMeta', 'fotoMeta', 'pdfMeta', 'canAccessDatabase'
+            'dbMeta', 'fotoMeta', 'pdfMeta', 'canAccessDatabase',
+            'pemeriksaanInsightOnlyManager'
         ));
     }
 
@@ -332,52 +335,52 @@ class ChecklistController extends Controller
         $this->applyChecklistFilters($request, $query);
         $rows = $query->paginate($perPage)->withQueryString();
 
-        $data = $rows->map(fn($c) => [
-            'id'              => $c->id,
-            'tanggal'         => $c->tanggal?->format('d/m/Y'),
-            'shift'           => $c->shift,
+        $data = $rows->map(fn ($c) => [
+            'id' => $c->id,
+            'tanggal' => $c->tanggal?->format('d/m/Y'),
+            'shift' => $c->shift,
             'nomor_kendaraan' => $c->nomor_kendaraan,
             'jenis_kendaraan' => $c->jenis_kendaraan,
-            'driver_serah'    => $c->driver_serah,
-            'driver_terima'   => $c->driver_terima,
-            'level_bbm'       => $c->level_bbm,
-            'km_awal'         => number_format($c->km_awal),
-            'km_akhir'        => number_format($c->km_akhir ?? 0),
-            'exterior'        => $c->exterior ? [
+            'driver_serah' => $c->driver_serah,
+            'driver_terima' => $c->driver_terima,
+            'level_bbm' => $c->level_bbm,
+            'km_awal' => number_format($c->km_awal),
+            'km_akhir' => number_format($c->km_akhir ?? 0),
+            'exterior' => $c->exterior ? [
                 'body_kendaraan' => $c->exterior->body_kendaraan,
-                'kaca'           => $c->exterior->kaca,
-                'spion'          => $c->exterior->spion,
-                'lampu_utama'    => $c->exterior->lampu_utama,
-                'lampu_sein'     => $c->exterior->lampu_sein,
-                'ban'            => $c->exterior->ban,
-                'velg'           => $c->exterior->velg,
-                'wiper'          => $c->exterior->wiper,
+                'kaca' => $c->exterior->kaca,
+                'spion' => $c->exterior->spion,
+                'lampu_utama' => $c->exterior->lampu_utama,
+                'lampu_sein' => $c->exterior->lampu_sein,
+                'ban' => $c->exterior->ban,
+                'velg' => $c->exterior->velg,
+                'wiper' => $c->exterior->wiper,
             ] : null,
-            'interior'        => $c->interior ? [
-                'jok'           => $c->interior->jok,
-                'dashboard'     => $c->interior->dashboard,
-                'ac'            => $c->interior->ac,
-                'sabuk_pengaman'=> $c->interior->sabuk_pengaman,
-                'audio'         => $c->interior->audio,
-                'kebersihan'    => $c->interior->kebersihan,
+            'interior' => $c->interior ? [
+                'jok' => $c->interior->jok,
+                'dashboard' => $c->interior->dashboard,
+                'ac' => $c->interior->ac,
+                'sabuk_pengaman' => $c->interior->sabuk_pengaman,
+                'audio' => $c->interior->audio,
+                'kebersihan' => $c->interior->kebersihan,
             ] : null,
-            'mesin'           => $c->mesin ? [
-                'mesin'      => $c->mesin->mesin,
-                'oli'        => $c->mesin->oli,
-                'radiator'   => $c->mesin->radiator,
-                'rem'        => $c->mesin->rem,
-                'kopling'    => $c->mesin->kopling,
-                'transmisi'  => $c->mesin->transmisi,
-                'indikator'  => $c->mesin->indikator,
+            'mesin' => $c->mesin ? [
+                'mesin' => $c->mesin->mesin,
+                'oli' => $c->mesin->oli,
+                'radiator' => $c->mesin->radiator,
+                'rem' => $c->mesin->rem,
+                'kopling' => $c->mesin->kopling,
+                'transmisi' => $c->mesin->transmisi,
+                'indikator' => $c->mesin->indikator,
             ] : null,
         ]);
 
         return response()->json([
-            'data'         => $data,
+            'data' => $data,
             'current_page' => $rows->currentPage(),
-            'last_page'    => $rows->lastPage(),
-            'total'        => $rows->total(),
-            'per_page'     => $rows->perPage(),
+            'last_page' => $rows->lastPage(),
+            'total' => $rows->total(),
+            'per_page' => $rows->perPage(),
         ]);
     }
 
@@ -391,34 +394,43 @@ class ChecklistController extends Controller
         $perPage = min((int) $request->input('per_page', 10), 100);
         $baseUrl = url('/');
         $resolveUrl = function (?string $path) use ($baseUrl) {
-            if (!$path) return null;
-            if (str_starts_with($path, 'http')) return $path;
-            if (str_starts_with($path, '/storage/')) return $baseUrl . $path;
-            if (str_starts_with($path, 'storage/')) return $baseUrl . '/' . $path;
-            return $baseUrl . '/storage/' . ltrim($path, '/');
+            if (! $path) {
+                return null;
+            }
+            if (str_starts_with($path, 'http')) {
+                return $path;
+            }
+            if (str_starts_with($path, '/storage/')) {
+                return $baseUrl.$path;
+            }
+            if (str_starts_with($path, 'storage/')) {
+                return $baseUrl.'/'.$path;
+            }
+
+            return $baseUrl.'/storage/'.ltrim($path, '/');
         };
 
         $query = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at');
         $this->applyChecklistFilters($request, $query);
         $rows = $query->paginate($perPage)->withQueryString();
 
-        $data = $rows->map(fn($c) => [
-            'id'              => $c->id,
-            'waktu'           => ($c->tanggal?->format('d/m/Y') ?? '') . ' ' . ($c->jam_serah_terima ?? ''),
+        $data = $rows->map(fn ($c) => [
+            'id' => $c->id,
+            'waktu' => ($c->tanggal?->format('d/m/Y') ?? '').' '.($c->jam_serah_terima ?? ''),
             'nomor_kendaraan' => $c->nomor_kendaraan,
-            'foto_bbm'        => $resolveUrl($c->foto_bbm_dashboard),
-            'exterior'        => $c->exterior ? [
-                'foto_depan'    => $resolveUrl($c->exterior->foto_depan),
-                'foto_kanan'    => $resolveUrl($c->exterior->foto_kanan),
-                'foto_kiri'     => $resolveUrl($c->exterior->foto_kiri),
+            'foto_bbm' => $resolveUrl($c->foto_bbm_dashboard),
+            'exterior' => $c->exterior ? [
+                'foto_depan' => $resolveUrl($c->exterior->foto_depan),
+                'foto_kanan' => $resolveUrl($c->exterior->foto_kanan),
+                'foto_kiri' => $resolveUrl($c->exterior->foto_kiri),
                 'foto_belakang' => $resolveUrl($c->exterior->foto_belakang),
             ] : null,
-            'interior'        => $c->interior ? [
+            'interior' => $c->interior ? [
                 'foto_1' => $resolveUrl($c->interior->foto_1),
                 'foto_2' => $resolveUrl($c->interior->foto_2),
                 'foto_3' => $resolveUrl($c->interior->foto_3),
             ] : null,
-            'mesin'           => $c->mesin ? [
+            'mesin' => $c->mesin ? [
                 'foto_1' => $resolveUrl($c->mesin->foto_1),
                 'foto_2' => $resolveUrl($c->mesin->foto_2),
                 'foto_3' => $resolveUrl($c->mesin->foto_3),
@@ -426,11 +438,11 @@ class ChecklistController extends Controller
         ]);
 
         return response()->json([
-            'data'         => $data,
+            'data' => $data,
             'current_page' => $rows->currentPage(),
-            'last_page'    => $rows->lastPage(),
-            'total'        => $rows->total(),
-            'per_page'     => $rows->perPage(),
+            'last_page' => $rows->lastPage(),
+            'total' => $rows->total(),
+            'per_page' => $rows->perPage(),
         ]);
     }
 
@@ -444,33 +456,42 @@ class ChecklistController extends Controller
         $perPage = min((int) $request->input('per_page', 10), 100);
         $baseUrl = url('/');
         $resolveUrl = function (?string $path) use ($baseUrl) {
-            if (!$path) return null;
-            if (str_starts_with($path, 'http')) return $path;
-            if (str_starts_with($path, '/storage/')) return $baseUrl . $path;
-            if (str_starts_with($path, 'storage/')) return $baseUrl . '/' . $path;
-            return $baseUrl . '/storage/' . ltrim($path, '/');
+            if (! $path) {
+                return null;
+            }
+            if (str_starts_with($path, 'http')) {
+                return $path;
+            }
+            if (str_starts_with($path, '/storage/')) {
+                return $baseUrl.$path;
+            }
+            if (str_starts_with($path, 'storage/')) {
+                return $baseUrl.'/'.$path;
+            }
+
+            return $baseUrl.'/storage/'.ltrim($path, '/');
         };
 
         $query = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
         $this->applyChecklistFilters($request, $query);
         $rows = $query->paginate($perPage)->withQueryString();
 
-        $data = $rows->map(fn($c) => [
-            'id'              => $c->id,
-            'tanggal'         => $c->tanggal?->format('d/m/Y'),
+        $data = $rows->map(fn ($c) => [
+            'id' => $c->id,
+            'tanggal' => $c->tanggal?->format('d/m/Y'),
             'nomor_kendaraan' => $c->nomor_kendaraan,
-            'driver_serah'    => $c->driver_serah,
-            'driver_terima'   => $c->driver_terima,
-            'shift'           => $c->shift,
-            'pdf_url'         => $resolveUrl($c->pdf_path),
+            'driver_serah' => $c->driver_serah,
+            'driver_terima' => $c->driver_terima,
+            'shift' => $c->shift,
+            'pdf_url' => $resolveUrl($c->pdf_path),
         ]);
 
         return response()->json([
-            'data'         => $data,
+            'data' => $data,
             'current_page' => $rows->currentPage(),
-            'last_page'    => $rows->lastPage(),
-            'total'        => $rows->total(),
-            'per_page'     => $rows->perPage(),
+            'last_page' => $rows->lastPage(),
+            'total' => $rows->total(),
+            'per_page' => $rows->perPage(),
         ]);
     }
 
@@ -480,6 +501,7 @@ class ChecklistController extends Controller
     public function apiPortalCharts(Request $request): JsonResponse
     {
         abort_unless($this->canAccessInspectionPortal(), 403);
+
         return response()->json($this->buildChartData());
     }
 
@@ -489,34 +511,34 @@ class ChecklistController extends Controller
     private function buildChartData(): array
     {
         // Ceklist per kendaraan (top 10)
-        $perKendaraan = Checklist::select('nomor_kendaraan', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+        $perKendaraan = Checklist::select('nomor_kendaraan', DB::raw('count(*) as total'))
             ->groupBy('nomor_kendaraan')
             ->orderByDesc('total')
             ->limit(10)
             ->get();
 
         // Ceklist per shift
-        $perShift = Checklist::select('shift', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+        $perShift = Checklist::select('shift', DB::raw('count(*) as total'))
             ->groupBy('shift')
             ->orderByDesc('total')
             ->get();
 
         // Ceklist per bulan (12 bulan terakhir)
         $perBulan = Checklist::select(
-                \Illuminate\Support\Facades\DB::raw("DATE_FORMAT(tanggal, '%Y-%m') as bulan"),
-                \Illuminate\Support\Facades\DB::raw('count(*) as total')
-            )
+            DB::raw("DATE_FORMAT(tanggal, '%Y-%m') as bulan"),
+            DB::raw('count(*) as total')
+        )
             ->where('tanggal', '>=', now()->subMonths(11)->startOfMonth())
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();
 
         // Kondisi kendaraan: ok vs tidak_ok (exterior body_kendaraan)
-        $exteriorOk  = \App\Models\ChecklistExterior::where('body_kendaraan', 'ok')->count();
-        $exteriorNok = \App\Models\ChecklistExterior::whereIn('body_kendaraan', ['no', 'tidak_ok'])->count();
+        $exteriorOk = ChecklistExterior::where('body_kendaraan', 'ok')->count();
+        $exteriorNok = ChecklistExterior::whereIn('body_kendaraan', ['no', 'tidak_ok'])->count();
 
         // Rata-rata BBM level per kendaraan
-        $bbmPerKendaraan = Checklist::select('nomor_kendaraan', \Illuminate\Support\Facades\DB::raw('avg(level_bbm) as avg_bbm'))
+        $bbmPerKendaraan = Checklist::select('nomor_kendaraan', DB::raw('avg(level_bbm) as avg_bbm'))
             ->groupBy('nomor_kendaraan')
             ->orderByDesc('avg_bbm')
             ->limit(8)
@@ -525,23 +547,23 @@ class ChecklistController extends Controller
         return [
             'perKendaraan' => [
                 'labels' => $perKendaraan->pluck('nomor_kendaraan')->toArray(),
-                'data'   => $perKendaraan->pluck('total')->toArray(),
+                'data' => $perKendaraan->pluck('total')->toArray(),
             ],
             'perShift' => [
                 'labels' => $perShift->pluck('shift')->toArray(),
-                'data'   => $perShift->pluck('total')->toArray(),
+                'data' => $perShift->pluck('total')->toArray(),
             ],
             'perBulan' => [
                 'labels' => $perBulan->pluck('bulan')->toArray(),
-                'data'   => $perBulan->pluck('total')->toArray(),
+                'data' => $perBulan->pluck('total')->toArray(),
             ],
             'kondisi' => [
-                'ok'  => $exteriorOk,
+                'ok' => $exteriorOk,
                 'nok' => $exteriorNok,
             ],
             'bbmPerKendaraan' => [
                 'labels' => $bbmPerKendaraan->pluck('nomor_kendaraan')->toArray(),
-                'data'   => $bbmPerKendaraan->pluck('avg_bbm')->map(fn($v) => round($v, 1))->toArray(),
+                'data' => $bbmPerKendaraan->pluck('avg_bbm')->map(fn ($v) => round($v, 1))->toArray(),
             ],
         ];
     }
@@ -557,7 +579,7 @@ class ChecklistController extends Controller
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
         $credentialsConfig = $this->resolveGoogleCredentialsConfig();
 
-        if (!$spreadsheetId || !$credentialsConfig) {
+        if (! $spreadsheetId || ! $credentialsConfig) {
             $message = 'Konfigurasi Google Sheets belum lengkap. Isi GOOGLE_SHEETS_SPREADSHEET_ID dan GOOGLE_SHEETS_CREDENTIALS_JSON di .env.';
             if ($expectsJson) {
                 return response()->json([
@@ -581,7 +603,7 @@ class ChecklistController extends Controller
                 ->orderBy('created_at')
                 ->get();
 
-            $client = new GoogleClient();
+            $client = new GoogleClient;
             $client->setAuthConfig($credentialsConfig);
             $client->setScopes([Sheets::SPREADSHEETS]);
 
@@ -613,6 +635,7 @@ class ChecklistController extends Controller
                     if ($cell instanceof \DateTimeInterface) {
                         return $cell->format('Y-m-d H:i:s');
                     }
+
                     return (string) $cell;
                 }, array_values((array) $row));
             }, array_values($values));
@@ -620,8 +643,8 @@ class ChecklistController extends Controller
             $sheetRangeAll = "{$sheetName}!A:AZ";
             $sheetRangeStart = "{$sheetName}!A1";
 
-            $sheets->spreadsheets_values->clear($spreadsheetId, $sheetRangeAll, new ClearValuesRequest());
-            $valueRange = new ValueRange();
+            $sheets->spreadsheets_values->clear($spreadsheetId, $sheetRangeAll, new ClearValuesRequest);
+            $valueRange = new ValueRange;
             $valueRange->setMajorDimension('ROWS');
             $valueRange->setValues($normalizedValues);
             $result = $sheets->spreadsheets_values->update(
@@ -652,7 +675,7 @@ class ChecklistController extends Controller
             Log::error('Google Sheets sync failed', [
                 'message' => $e->getMessage(),
             ]);
-            $message = 'Gagal sinkronisasi ke Google Spreadsheet: ' . $e->getMessage();
+            $message = 'Gagal sinkronisasi ke Google Spreadsheet: '.$e->getMessage();
 
             if ($expectsJson) {
                 return response()->json([
@@ -718,7 +741,7 @@ class ChecklistController extends Controller
     {
         $spreadsheet = $sheets->spreadsheets->get($spreadsheetId);
         $titles = collect($spreadsheet->getSheets())
-            ->map(fn($sheet) => $sheet->getProperties()?->getTitle())
+            ->map(fn ($sheet) => $sheet->getProperties()?->getTitle())
             ->filter()
             ->all();
 
@@ -748,9 +771,9 @@ class ChecklistController extends Controller
         $sheetName = (string) config('services.google_sheets.sheet_name', 'Database Sheet');
         $credentialsConfig = $this->resolveGoogleCredentialsConfig();
 
-        if (!$spreadsheetId || !$credentialsConfig) {
+        if (! $spreadsheetId || ! $credentialsConfig) {
             return;
-        }   
+        }
 
         $checklist->loadMissing(['exterior', 'interior', 'mesin', 'perlengkapan']);
 
@@ -759,13 +782,20 @@ class ChecklistController extends Controller
         $row = $this->checklistToSpreadsheetRow($checklist, $rowNumber);
 
         $normalizedRow = array_map(function ($cell) {
-            if ($cell === null) return '';
-            if (is_scalar($cell)) return $cell;
-            if ($cell instanceof \DateTimeInterface) return $cell->format('Y-m-d H:i:s');
+            if ($cell === null) {
+                return '';
+            }
+            if (is_scalar($cell)) {
+                return $cell;
+            }
+            if ($cell instanceof \DateTimeInterface) {
+                return $cell->format('Y-m-d H:i:s');
+            }
+
             return (string) $cell;
         }, array_values($row));
 
-        $client = new GoogleClient();
+        $client = new GoogleClient;
         $client->setAuthConfig($credentialsConfig);
         $client->setScopes([Sheets::SPREADSHEETS]);
 
@@ -773,7 +803,7 @@ class ChecklistController extends Controller
         $this->ensureSheetExists($sheets, $spreadsheetId, $sheetName);
 
         $range = "{$sheetName}!A1";
-        $valueRange = new ValueRange();
+        $valueRange = new ValueRange;
         $valueRange->setMajorDimension('ROWS');
         $valueRange->setValues([$normalizedRow]);
 
@@ -800,8 +830,8 @@ class ChecklistController extends Controller
             }
 
             $normalized = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $raw);
-            if (!str_starts_with($normalized, DIRECTORY_SEPARATOR)
-                && !preg_match('/^[A-Za-z]:\\\\/', $normalized)) {
+            if (! str_starts_with($normalized, DIRECTORY_SEPARATOR)
+                && ! preg_match('/^[A-Za-z]:\\\\/', $normalized)) {
                 $normalized = base_path($normalized);
             }
             $candidatePaths[] = $normalized;
@@ -810,7 +840,7 @@ class ChecklistController extends Controller
         $candidatePaths[] = storage_path('app/google-service-account.json');
 
         foreach ($candidatePaths as $path) {
-            if (!is_string($path) || $path === '' || !is_file($path)) {
+            if (! is_string($path) || $path === '' || ! is_file($path)) {
                 continue;
             }
 

@@ -40,7 +40,7 @@
                 <div class="portal-stat-card" style="--accent:#002a7a"><div class="portal-stat-icon" style="background:rgba(0,42,122,.1);color:#002a7a"><i class="bi bi-files"></i></div><div><div class="portal-stat-value">{{ $counts['all'] }}</div><div class="portal-stat-label">Total</div></div></div>
                 <div class="portal-stat-card" style="--accent:#d97706"><div class="portal-stat-icon" style="background:rgba(217,119,6,.1);color:#d97706"><i class="bi bi-hourglass-split"></i></div><div><div class="portal-stat-value">{{ $counts['pending'] }}</div><div class="portal-stat-label">Menunggu Verifikasi</div></div></div>
                 <div class="portal-stat-card" style="--accent:#7c3aed"><div class="portal-stat-icon" style="background:rgba(124,58,237,.1);color:#7c3aed"><i class="bi bi-pencil-square"></i></div><div><div class="portal-stat-value">{{ $counts['revision'] }}</div><div class="portal-stat-label">Revisi</div></div></div>
-                <div class="portal-stat-card" style="--accent:#0891b2"><div class="portal-stat-icon" style="background:rgba(8,145,178,.1);color:#0891b2"><i class="bi bi-person-check"></i></div><div><div class="portal-stat-value">{{ $counts['pending_manager'] }}</div><div class="portal-stat-label">Ke Manager</div></div></div>
+                <div class="portal-stat-card" style="--accent:#0891b2"><div class="portal-stat-icon" style="background:rgba(8,145,178,.1);color:#0891b2"><i class="bi bi-person-check"></i></div><div><div class="portal-stat-value">{{ $counts['pending_manager'] }}</div><div class="portal-stat-label">Menunggu Disetujui</div></div></div>
             </div>
 
             <div class="portal-section" id="section-sppd-admin">

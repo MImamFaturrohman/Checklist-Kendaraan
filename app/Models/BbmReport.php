@@ -27,8 +27,8 @@ class BbmReport extends Model
     {
         return [
             'tanggal' => 'date',
-            'odometer_sebelum' => 'decimal:2',
-            'odometer_sesudah' => 'decimal:2',
+            'odometer_sebelum' => 'integer',
+            'odometer_sesudah' => 'integer',
             'liter' => 'decimal:3',
             'harga_per_liter' => 'decimal:2',
             'total_harga' => 'decimal:2',

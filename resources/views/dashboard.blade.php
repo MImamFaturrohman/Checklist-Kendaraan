@@ -157,6 +157,9 @@
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="5"/></svg>
                             Status: Aktif
                         </span>
+                        @if($isDriver)
+                            <span class="dash-hero-shift dash-clock-shift" id="dash-hero-shift">—</span>
+                        @endif
                         @if(($isSuperAdmin || $isManager) && $pendingCount > 0)
                             <span class="dash-tag" style="background:rgba(239,68,68,0.18);color:#fca5a5;border:1px solid rgba(239,68,68,0.35)">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -171,9 +174,7 @@
                 <div class="dash-clock-widget" id="dash-clock-widget">
                     <div class="dash-clock-date" id="dash-clock-date">—</div>
                     <div class="dash-clock-time-row">
-                        <span class="dash-clock-time" id="dash-clock-time">00:00:00</span>
-                        <span class="dash-clock-divider">|</span>
-                        <span class="dash-clock-shift" id="dash-clock-shift">—</span>
+                        <span class="dash-clock-time" id="dash-clock-time">00:00:00 WIB</span>
                     </div>
                 </div>
                 @endif
@@ -232,6 +233,31 @@
                                             @if($sppdPendingManager > 0)
                                                 <span class="dash-pending-dot"></span>
                                             @endif
+                                        </span>
+                                    </a>
+                                    <a href="{{ route('admin.portal-bbm-operasional') }}" class="dash-main-card dash-pressable">
+                                        <div>
+                                            <p class="dash-main-title">Insight BBM Operasional</p>
+                                            <p class="dash-main-sub">Ringkasan kartu &amp; grafik liter / biaya pengisian</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                <path d="M9 14h.01M15 14h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                    <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-main-card dash-pressable">
+                                        <div>
+                                            <p class="dash-main-title">Insight Pemeriksaan Kendaraan</p>
+                                            <p class="dash-main-sub">Ringkasan ceklist, unit, shift &amp; grafik BBM</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/>
+                                                <path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/>
+                                            </svg>
                                         </span>
                                     </a>
                                 </div>
@@ -388,7 +414,7 @@
                                     <a href="{{ route('sppd.index') }}" class="dash-main-card dash-pressable">
                                         <div>
                                             <p class="dash-main-title">Rekap SPPD</p>
-                                            <p class="dash-main-sub">Laporan tol, BBM &amp; tanda tangan</p>
+                                            <p class="dash-main-sub">Laporan tol, dan BBM</p>
                                         </div>
                                         <span class="dash-main-icon" aria-hidden="true">
                                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -743,11 +769,13 @@
 
                 document.getElementById('dash-clock-date').textContent =
                     `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-                document.getElementById('dash-clock-time').textContent = `${hh}:${mm}:${ss}`;
+                document.getElementById('dash-clock-time').textContent = `${hh}:${mm}:${ss} WIB`;
 
-                const shiftEl = document.getElementById('dash-clock-shift');
-                shiftEl.textContent = shift.label;
-                shiftEl.className   = 'dash-clock-shift ' + shift.cls;
+                const heroShift = document.getElementById('dash-hero-shift');
+                if (heroShift) {
+                    heroShift.textContent = shift.label;
+                    heroShift.className   = 'dash-hero-shift dash-clock-shift ' + shift.cls;
+                }
             }
 
             tick();

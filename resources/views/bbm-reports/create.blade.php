@@ -198,13 +198,13 @@
                         <label class="checklist-field">
                             <span>Sebelum</span>
                             <div class="checklist-control-wrap">
-                                <input type="number" name="odometer_sebelum" required min="0" value="{{ old('odometer_sebelum') }}" placeholder="0">
+                                <input type="number" name="odometer_sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="0">
                             </div>
                         </label>
                         <label class="checklist-field">
                             <span>Sesudah</span>
                             <div class="checklist-control-wrap">
-                                <input type="number" name="odometer_sesudah" required min="0" value="{{ old('odometer_sesudah') }}" placeholder="0">
+                                <input type="number" name="odometer_sesudah" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sesudah') }}" placeholder="0">
                             </div>
                         </label>
                     </div>
