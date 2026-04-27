@@ -1,3 +1,4 @@
+@php use App\Support\SppdStatus; @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -6,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Rekap SPPD — {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="dash-body">
     <div class="dash-bg-cubes" aria-hidden="true"></div>
@@ -29,8 +31,6 @@
             </defs>
         </svg>
     </div>
-
-    @php $user = auth()->user(); $userName = $user->name ?? $user->username ?? 'User'; @endphp
 
     <nav class="dash-nav" id="dash-nav">
         <div class="dash-nav-inner">
@@ -63,10 +63,6 @@
 
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
-            @if(session('ok'))
-                <div class="sppd-flash-ok">{{ session('ok') }}</div>
-            @endif
-
             <div class="portal-section" id="section-sppd-list">
                 <div class="portal-section-header">
                     <div class="portal-section-title">
@@ -79,9 +75,23 @@
                     </a>
                 </div>
 
-                <div class="portal-local-filters" style="margin-bottom:12px">
-                    <p class="sppd-intro">Halo <strong>{{ $userName }}</strong>. Hanya laporan yang Anda buat yang tampil di sini.</p>
+                @if($sppds->count() > 0)
+                <div class="portal-local-filters sppd-live-filter-bar" id="sppd-live-filter-bar">
+                    <div class="admin-search-wrap portal-search-full">
+                        <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <input type="search" id="sppd-live-search" class="admin-search-input" placeholder="Cari keperluan, kendaraan, tanggal…" autocomplete="off" aria-label="Cari daftar SPPD">
+                    </div>
+                    <div class="ppm-status-wrap">
+                        <label class="sr-only" for="sppd-live-status">Filter status</label>
+                        <select id="sppd-live-status" class="admin-filter-input" aria-label="Filter status">
+                            <option value="">Semua status</option>
+                            @foreach(SppdStatus::adminFilterOptions() as $st)
+                                <option value="{{ $st }}">{{ SppdStatus::label($st) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
+                @endif
 
                 <div class="admin-table-wrap sppd-table-wrap">
                     <table class="admin-table">
@@ -93,9 +103,16 @@
                                 <th class="sppd-th-aksi">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="sppd-table-body">
                             @forelse($sppds as $s)
-                                <tr>
+                                @php
+                                    $haystack = strtolower($s->keperluan_dinas.' '.$s->no_kendaraan.' '.$s->jenis_kendaraan.' '.$s->tanggal_dinas->format('d/m/Y').' '.SppdStatus::label($s->status));
+                                @endphp
+                                <tr
+                                    data-sppd-row
+                                    data-sppd-status="{{ $s->status }}"
+                                    data-sppd-haystack="{{ e($haystack) }}"
+                                >
                                     <td data-label="Ringkasan"><span class="sppd-cell-title">{{ \Illuminate\Support\Str::limit($s->keperluan_dinas, 48) }}</span><br><span class="sppd-cell-muted">{{ $s->tanggal_dinas->format('d/m/Y') }}</span></td>
                                     <td data-label="Kendaraan"><strong>{{ $s->no_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $s->jenis_kendaraan }}</span></td>
                                     <td data-label="Status"><x-sppd-status-badge :status="$s->status" /></td>
@@ -124,18 +141,25 @@
                                                     title="Edit Laporan"
                                                     aria-label="Edit Laporan"
                                                 ><i class="bi bi-pencil-fill"></i></a>
-                                                <form action="{{ route('sppd.destroy', $s) }}" method="post" class="sppd-inline-form" onsubmit="return confirm('Hapus laporan ini?');">
+                                                <form action="{{ route('sppd.destroy', $s) }}" method="post" class="sppd-inline-form sppd-delete-form">
                                                     @csrf @method('DELETE')
                                                     <button
                                                         type="submit"
-                                                        class="btn btn-sm sppd-icon-btn sppd-btn-danger"
+                                                        class="btn btn-sm sppd-icon-btn sppd-btn-danger sppd-delete-submit"
                                                         title="Hapus Laporan"
                                                         aria-label="Hapus Laporan"
                                                     ><i class="bi bi-trash-fill"></i></button>
                                                 </form>
                                             @endif
                                             @if(in_array($s->status, [\App\Models\Sppd::STATUS_APPROVED, \App\Models\Sppd::STATUS_COMPLETED], true) && $s->pdf_path)
-                                                <a href="{{ route('sppd.pdf', $s) }}" class="ppm-btn-ghost sppd-btn-pdf" target="_blank">Cetak PDF</a>
+                                                <a
+                                                    href="{{ route('sppd.pdf', $s) }}"
+                                                    class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite"
+                                                    target="_blank"
+                                                    rel="noopener"
+                                                    title="Cetak PDF"
+                                                    aria-label="Cetak PDF"
+                                                ><i class="bi bi-file-earmark-pdf-fill"></i></a>
                                             @endif
                                         </div>
                                     </td>
@@ -143,6 +167,11 @@
                             @empty
                                 <tr><td colspan="4" class="portal-empty">Belum ada rekap. Klik <strong>Buat Rekap SPPD</strong> untuk mulai.</td></tr>
                             @endforelse
+                            @if($sppds->count() > 0)
+                                <tr id="sppd-filter-no-match" class="sppd-filter-no-match" style="display:none">
+                                    <td colspan="4" class="portal-empty">Tidak ada baris yang cocok dengan pencarian atau filter.</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -185,6 +214,74 @@
     (function () {
         const BASE = @json(url('/'));
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        const flashOk = @json(session('ok'));
+        if (flashOk && typeof Swal !== 'undefined') {
+            queueMicrotask(() => Swal.fire({ icon: 'success', title: 'Berhasil', text: flashOk }));
+        }
+
+        document.querySelectorAll('.sppd-delete-form').forEach((form) => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const c = await Swal.fire({
+                    title: 'Hapus laporan ini?',
+                    text: 'Data tidak dapat dikembalikan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                });
+                if (!c.isConfirmed) return;
+                const btn = form.querySelector('.sppd-delete-submit');
+                if (btn) btn.disabled = true;
+                try {
+                    const r = await fetch(form.action, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrf,
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+                    const ct = r.headers.get('content-type') || '';
+                    if (r.ok && ct.includes('application/json')) {
+                        const j = await r.json();
+                        if (j.success) {
+                            await Swal.fire({ icon: 'success', title: 'Berhasil', text: j.message || 'Rekap dihapus.' });
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                    await Swal.fire({ icon: 'error', title: 'Gagal', text: 'Tidak dapat menghapus laporan.' });
+                } catch (err) {
+                    await Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan.' });
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            });
+        });
+
+        const sppdSearchEl = document.getElementById('sppd-live-search');
+        const sppdStatusEl = document.getElementById('sppd-live-status');
+        const sppdNoMatchRow = document.getElementById('sppd-filter-no-match');
+        function applySppdLiveFilter() {
+            if (!sppdSearchEl && !sppdStatusEl) return;
+            const q = (sppdSearchEl?.value || '').trim().toLowerCase();
+            const st = sppdStatusEl?.value || '';
+            let visible = 0;
+            document.querySelectorAll('#sppd-table-body tr[data-sppd-row]').forEach((tr) => {
+                const hay = tr.getAttribute('data-sppd-haystack') || '';
+                const rowSt = tr.getAttribute('data-sppd-status') || '';
+                const okQ = !q || hay.includes(q);
+                const okS = !st || rowSt === st;
+                const show = okQ && okS;
+                tr.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            if (sppdNoMatchRow) sppdNoMatchRow.style.display = visible === 0 ? '' : 'none';
+        }
+        sppdSearchEl?.addEventListener('input', applySppdLiveFilter);
+        sppdStatusEl?.addEventListener('change', applySppdLiveFilter);
 
         function esc(s) {
             const d = document.createElement('div');

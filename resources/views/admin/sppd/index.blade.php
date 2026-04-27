@@ -252,6 +252,46 @@
                 else Swal.fire('Gagal', j.message || 'Error', 'error');
             });
         });
+
+        const body = document.body;
+        const themeBtn = document.getElementById('dash-theme-toggle');
+        const themeIcon = document.getElementById('dash-theme-icon');
+        const themeLabel = document.getElementById('dash-theme-label');
+        const navActions = document.getElementById('dash-nav-actions');
+        const menuBtn = document.getElementById('dash-mobile-menu-btn');
+        const menuIcon = document.getElementById('dash-mobile-menu-icon');
+
+        const applyTheme = (isDark) => {
+            body.classList.toggle('dark', isDark);
+            if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        };
+        const savedTheme = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+        applyTheme(savedTheme === 'dark');
+        themeBtn?.addEventListener('click', () => {
+            const next = !body.classList.contains('dark');
+            applyTheme(next);
+            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
+            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+        });
+
+        const closeMobileMenu = () => {
+            navActions?.classList.remove('mobile-open');
+            if (menuIcon) menuIcon.className = 'bi bi-list';
+            menuBtn?.setAttribute('aria-expanded', 'false');
+        };
+        menuBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const opened = navActions?.classList.toggle('mobile-open');
+            if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
+            menuBtn?.setAttribute('aria-expanded', String(!!opened));
+        });
+        document.addEventListener('click', (e) => {
+            if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
+        });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 992) closeMobileMenu();
+        });
     })();
     </script>
 </body>

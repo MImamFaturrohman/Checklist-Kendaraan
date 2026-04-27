@@ -120,6 +120,10 @@ class SppdController extends Controller
             $sppd->delete();
         });
 
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Rekap SPPD dihapus.']);
+        }
+
         return redirect()->route('sppd.index')->with('ok', 'Rekap SPPD dihapus.');
     }
 

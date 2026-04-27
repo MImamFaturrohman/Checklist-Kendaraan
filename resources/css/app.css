@@ -5950,7 +5950,7 @@ select.admin-filter-input {
 
 .sppd-toll-line {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 8px;
     margin-bottom: 12px;
     padding-bottom: 12px;
