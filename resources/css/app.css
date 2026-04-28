@@ -2599,7 +2599,16 @@ select.admin-filter-input {
     height: 38px;
     width: auto;
     border-radius: 8px;
-    object-fit: contain;
+    object-fit: contain;    
+    filter: brightness(0) invert(1);
+}
+
+.logo-desktop {
+    display: block;
+}
+
+.logo-mobile {
+    display: none;
 }
 
 .landing-nav-title {
@@ -2607,14 +2616,6 @@ select.admin-filter-input {
     font-weight: 800;
     color: #fff;
     line-height: 1.15;
-}
-
-.landing-nav-sub {
-    font-size: 0.62rem;
-    color: rgba(255, 255, 255, 0.68);
-    letter-spacing: 1.5px;
-    display: block;
-    margin-top: 1px;
 }
 
 .landing-nav-actions {
@@ -2867,12 +2868,16 @@ select.admin-filter-input {
         font-size: 0.92rem;
     }
 
-    .landing-nav-sub {
+    .landing-nav-logo {
+        height: 42px;
+    }
+
+    .logo-desktop {
         display: none;
     }
 
-    .landing-nav-logo {
-        height: 32px;
+    .logo-mobile {
+        display: block;
     }
 
     .landing-nav-login-btn {

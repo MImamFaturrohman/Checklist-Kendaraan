@@ -262,10 +262,17 @@
 <nav class="landing-nav">
     <div class="landing-container landing-nav-inner">
         <a href="{{ route('landing') }}" class="landing-nav-brand">
-            <img src="{{ asset('images/ADC PM Logo NEW.png') }}" alt="Logo" class="landing-nav-logo">
+            <!-- Desktop -->
+            <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" 
+                alt="Logo"
+                class="landing-nav-logo logo-desktop">
+
+            <!-- Mobile -->
+            <img src="{{ asset('images/ADC PM Logo NEW.png') }}" 
+                alt="Logo"
+                class="landing-nav-logo logo-mobile">
             <div>
                 <div class="landing-nav-title">Vechicle Management System</div>
-                <div class="landing-nav-sub">PT ARTHA DAYA COALINDO</div>
             </div>
         </a>
 
