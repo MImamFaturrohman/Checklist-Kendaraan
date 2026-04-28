@@ -51,7 +51,7 @@
         .section-heading { font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: 700; color: #002a7a; padding: 5px 0; border-left: 3px solid #ffd300; padding-left: 8px; margin: 14px 0 8px; }
         .info-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; font-size: 9; }
         .info-table td { border: 1px solid #d1d5db; padding: 6px 8px; vertical-align: middle; font-size: 9pt; }
-        .info-table .label { font-weight: 700; background: #f3f4f6; color: #111827; width: 28%; }
+        .info-table .label { font-weight: 700; background: #f3f4f6; color: #111827; width: 20%; }
         .data-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8.5pt; page-break-inside: auto; table-layout: fixed; word-wrap: break-word; }
         .data-table th, .data-table td { border: 1px solid #d1d5db; padding: 5px 8px; text-align: left; vertical-align: middle; }
         .data-table th { background: #f1f5f9; font-weight: 700; color: #374151; font-size: 8pt; }
@@ -64,29 +64,48 @@
         }
         .sppd-foto-cell {
             width: 55%; 
-            padding: 5px !important;
             text-align: center;
             vertical-align: middle !important;
             overflow: hidden;
+            background-color: #f9fafb;
+            padding: 0;
+            margin: 0;
         }
+
         .sppd-foto-pair {
-            display: block;
+            display: table;
             width: 100%;
-            vertical-align: middle;
+            height: 80px;
+            padding: 0;
+            margin: 0;
         }
 
         .sppd-foto-pair img {
             display: inline-block;
-            width: 100px;   /* Ukuran dikurangi sedikit agar aman dalam cell */
-            height: 75px;   
-            object-fit: contain; /* Gunakan contain agar foto tidak terpotong */
-            border: 1px solid #d1d5db;
-            margin: 2px;
+            width: 120px;
+            height: 90px;   
+            padding: 0;
+            margin: 0;
+            object-fit: cover; 
+            border: none;
+            vertical-align: middle;
         }
 
-        .totals { width: 100%; max-width: 280px; margin-left: auto; margin-top: 8px; border-collapse: collapse; font-size: 9pt; }
+        .totals { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 9pt; }
         .totals td { padding: 4px 8px; border: 1px solid #d1d5db; }
-        .totals .label { background: #f3f4f6; font-weight: 700; }
+        .totals .label { background: #f3f4f6; font-weight: 700; width: 45%; }
+        .totals td:last-child  { width: 55%; text-align: left; }
+
+        .approval-text {
+            font-size: 9.5pt;
+            color: #374151;
+            line-height: 1.6;
+            margin-top: 5px;
+            padding: 10px;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+        }
 
         .signature-area { width: 100%; margin-top: 20px; page-break-inside: avoid; }
         .signature-area td { width: 50%; text-align: center; padding: 8px 4px; vertical-align: top; }
@@ -177,12 +196,24 @@
 
     <div class="section-heading">Data Dinas</div>
     <table class="info-table">
-        <tr><td class="label">Nama Driver</td><td>{{ $sppd->nama_driver }}</td></tr>
-        <tr><td class="label">Keperluan Dinas</td><td>{{ $sppd->keperluan_dinas }}</td></tr>
-        <tr><td class="label">Nomor Kendaraan</td><td>{{ $sppd->no_kendaraan }}</td></tr>
-        <tr><td class="label">Jenis Kendaraan</td><td>{{ $sppd->jenis_kendaraan }}</td></tr>
-        <tr><td class="label">Tanggal Dinas</td><td>{{ $tgl }}</td></tr>
-        <tr><td class="label">Tujuan</td><td>{{ $sppd->tujuan }}</td></tr>
+        <tr>
+            <td class="label">Nama Driver</td>
+            <td>{{ $sppd->nama_driver }}</td>
+            <td class="label">Jenis Kendaraan</td>
+            <td>{{ $sppd->jenis_kendaraan }}</td>
+        </tr>
+        <tr>
+            <td class="label">Keperluan Dinas</td>
+            <td>{{ $sppd->keperluan_dinas }}</td>
+            <td class="label">Tanggal Dinas</td>
+            <td>{{ $tgl }}</td>
+        </tr>
+        <tr>
+            <td class="label">Nomor Kendaraan</td>
+            <td>{{ $sppd->no_kendaraan }}</td>
+            <td class="label">Tujuan</td>
+            <td>{{ $sppd->tujuan }}</td>
+        </tr>
     </table>
 
     @if($sppd->tolls->isNotEmpty())
@@ -230,17 +261,24 @@
     </table>
 
     <table class="totals">
-        <tr><td class="label">Total Tol</td><td>Rp {{ number_format((float) $sppd->total_tol, 0, ',', '.') }}</td></tr>
-        <tr><td class="label">Total BBM</td><td>Rp {{ number_format((float) $sppd->total_bbm, 0, ',', '.') }}</td></tr>
-        <tr><td class="label">Grand Total</td><td><strong>Rp {{ number_format((float) $sppd->grand_total, 0, ',', '.') }}</strong></td></tr>
+        <tr>
+            <td class="label">Total Tol</td>
+            <td>Rp {{ number_format((float) $sppd->total_tol, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Total BBM</td>
+            <td>Rp {{ number_format((float) $sppd->total_bbm, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td class="label">Grand Total</td>
+            <td><strong>Rp {{ number_format((float) $sppd->grand_total, 0, ',', '.') }}</strong></td>
+        </tr>
     </table>
 
     <div class="section-heading">Persetujuan</div>
-    <table class="info-table">
-        <tr><td class="label">Status</td><td>Disetujui Manager</td></tr>
-        <tr><td class="label">Tanggal Persetujuan</td><td>{{ $sppd->approved_at?->timezone(config('app.timezone'))->format('d/m/Y H:i') ?? '-' }}</td></tr>
-        <tr><td class="label">Disetujui Oleh</td><td>{{ $sppd->approver?->name ?? '-' }}</td></tr>
-    </table>
+    <div class="approval-text">
+        Laporan ini telah <strong>Disetujui Manager</strong>. Proses persetujuan dilakukan oleh <strong>{{ $sppd->approver?->name ?? '-' }}</strong> pada tanggal <strong>{{ $sppd->approved_at?->timezone(config('app.timezone'))->translatedFormat('d F Y') ?? '-' }}</strong> pukul <strong>{{ $sppd->approved_at?->timezone(config('app.timezone'))->format('H.i') ?? '-' }} WIB</strong>.
+    </div>
 
     @php $sig = $pdfImg($sppd->signature_path); @endphp
     @if($sig || $managerTtdPath)

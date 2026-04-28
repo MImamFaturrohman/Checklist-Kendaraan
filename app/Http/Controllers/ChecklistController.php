@@ -29,10 +29,10 @@ class ChecklistController extends Controller
         return auth()->user()?->role === 'superadmin';
     }
 
-    /** Database sheet, foto log, arsip PDF — superadmin & admin. */
+    /** Database sheet, foto log, arsip PDF — superadmin */
     private function canAccessFullPortalDatabase(): bool
     {
-        return in_array(auth()->user()?->role, ['superadmin', 'admin'], true);
+        return in_array(auth()->user()?->role, ['superadmin'], true);
     }
 
     private function canAccessInspectionPortal(): bool

@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
         );
 
         User::firstOrCreate(
-            ['username' => 'admin'], // 🔑 kondisi unik
+            ['username' => 'admin'],
             [
                 'name' => 'Admin Pusat',
                 'email' => 'admin@arthadaya.com',

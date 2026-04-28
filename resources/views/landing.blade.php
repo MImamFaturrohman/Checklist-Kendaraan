@@ -278,7 +278,7 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px">
                     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                Request Peminjaman
+                Ajukan Peminjaman
             </a>
         </div>
 
@@ -327,7 +327,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"">
                             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        Request Peminjaman
+                        Ajukan Peminjaman
                     </a>
                 </div>
             </div>
