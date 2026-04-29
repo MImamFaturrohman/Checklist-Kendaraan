@@ -1,8 +1,4 @@
 {
-  "_signature_pad-Brt-nE-r.js": {
-    "file": "assets/signature_pad-Brt-nE-r.js",
-    "name": "signature_pad"
-  },
   "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
     "file": "assets/bootstrap-icons-BeopsB42.woff",
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
@@ -12,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-C3oAveJt.css",
+    "file": "assets/app-DPZovS2p.css",
     "name": "app",
     "names": [
       "app.css"
@@ -21,7 +17,7 @@
     "isEntry": true
   },
   "resources/css/auth.css": {
-    "file": "assets/auth-D8znoFAM.css",
+    "file": "assets/auth-CQ2kChhU.css",
     "name": "auth",
     "names": [
       "auth.css"
@@ -34,13 +30,10 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-w9iQKaw6.js",
+    "file": "assets/app-DOa79Dh1.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
-    "imports": [
-      "_signature_pad-Brt-nE-r.js"
-    ],
     "css": [
       "assets/app-Cb8XXgyA.css"
     ],
@@ -50,18 +43,15 @@
     ]
   },
   "resources/js/bbm-form.js": {
-    "file": "assets/bbm-form-BHu7zog1.js",
+    "file": "assets/bbm-form-ChrvMSVc.js",
     "name": "bbm-form",
     "src": "resources/js/bbm-form.js",
     "isEntry": true
   },
   "resources/js/sppd-form.js": {
-    "file": "assets/sppd-form-CbsAtyot.js",
+    "file": "assets/sppd-form-DuM-wIae.js",
     "name": "sppd-form",
     "src": "resources/js/sppd-form.js",
-    "isEntry": true,
-    "imports": [
-      "_signature_pad-Brt-nE-r.js"
-    ]
+    "isEntry": true
   }
 }

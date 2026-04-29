@@ -204,7 +204,7 @@
 }
 
 .auth-title {
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 900;
     color: #ffffff;
     letter-spacing: 3px;
@@ -236,7 +236,7 @@
 }
 
 .auth-subtitle {
-    font-size: 0.62rem;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--auth-gold);
     letter-spacing: 2.8px;
@@ -519,10 +519,7 @@
     font-weight: 600;
     text-decoration: none;
     padding: 7px 14px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    transition: color 0.22s ease, transform 0.22s ease;
+    transition: all 0.22s ease;
     letter-spacing: 0.3px;
 }
 
@@ -537,7 +534,8 @@
 .auth-footer {
     margin-top: 1rem;
     text-align: center;
-    padding-top: 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .auth-footer p {
@@ -576,12 +574,12 @@
     }
 
     .auth-title {
-        font-size: 1.1rem;
+        font-size: 19px;
         letter-spacing: 1.5px;
     }
 
     .auth-subtitle {
-        font-size: 0.6rem;
+        font-size: 13px;
         letter-spacing: 2px;
     }
 
@@ -834,12 +832,15 @@
    ================================================================ */
 .light-mode .auth-back-link {
     color: #4a6080;
-    background: transparent;
 }
 
 .light-mode .auth-back-link:hover {
     color: #0a1628;
     transform: translateX(-2px);
+}
+
+.light-mode .auth-footer {
+    border-top-color: rgba(100, 140, 210, 0.18);
 }
 
 .light-mode .auth-footer p {

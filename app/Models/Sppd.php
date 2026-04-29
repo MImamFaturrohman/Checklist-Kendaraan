@@ -41,7 +41,8 @@ class Sppd extends Model
         'rejected_by',
         'approved_by',
         'approved_at',
-        'signature_path',
+        'admin_verified_by',
+        'admin_verified_at',
         'pdf_path',
     ];
 
@@ -55,6 +56,7 @@ class Sppd extends Model
             'revision_at' => 'datetime',
             'rejected_at' => 'datetime',
             'approved_at' => 'datetime',
+            'admin_verified_at' => 'datetime',
         ];
     }
 
@@ -68,6 +70,11 @@ class Sppd extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function adminVerifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'admin_verified_by');
+    }
+
     public function rejector(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by');
@@ -75,7 +82,9 @@ class Sppd extends Model
 
     public function tolls(): HasMany
     {
-        return $this->hasMany(SppdToll::class)->orderBy('sort_order');
+        return $this->hasMany(SppdToll::class)
+            ->orderByRaw("CASE WHEN leg = 'kembali' THEN 1 ELSE 0 END")
+            ->orderBy('sort_order');
     }
 
     public function fuels(): HasMany
@@ -130,10 +139,13 @@ class Sppd extends Model
             'rejected_at' => $this->rejected_at?->toIso8601String(),
             'approved_at' => $this->approved_at?->toIso8601String(),
             'approver_name' => $this->approver?->name,
+            'admin_verifier_name' => $this->adminVerifier?->name,
+            'admin_verified_at' => $this->admin_verified_at?->toIso8601String(),
             'driver_username' => $this->user?->username,
-            'signature_url' => $disk($this->signature_path),
             'pdf_url' => $this->pdf_path ? $disk($this->pdf_path) : null,
             'tolls' => $this->tolls->map(fn ($t) => [
+                'leg' => $t->leg ?? 'berangkat',
+                'leg_label' => ($t->leg ?? 'berangkat') === 'kembali' ? 'Kembali' : 'Berangkat',
                 'dari_tol' => $t->dari_tol,
                 'ke_tol' => $t->ke_tol,
                 'harga' => (string) $t->harga,
@@ -142,8 +154,6 @@ class Sppd extends Model
                 'liter' => (string) $f->liter,
                 'harga_per_liter' => (string) $f->harga_per_liter,
                 'total' => (string) $f->total,
-                'odometer_url' => $disk($f->odometer_path),
-                'struk_url' => $disk($f->struk_path),
             ]),
         ];
     }

@@ -173,25 +173,63 @@
                         <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 17h16M6 13l3-8h6l3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         <span>Biaya Tol</span>
                     </div>
-                    <div id="sppd-tolls-wrap" class="sppd-dynamic-wrap">
-                        @php
-                            $tolls = old('tolls', $sppd?->tolls?->map(fn($t) => ['dari_tol' => $t->dari_tol, 'ke_tol' => $t->ke_tol, 'harga' => $t->harga])->toArray() ?? [['dari_tol' => '', 'ke_tol' => '', 'harga' => '']]);
-                            if (empty($tolls)) $tolls = [['dari_tol' => '', 'ke_tol' => '', 'harga' => '']];
-                        @endphp
-                        @foreach($tolls as $ti => $tr)
-                        <div class="sppd-toll-line" data-toll-row>
-                            <div class="sppd-row sppd-toll-inputs">
-                                <label class="checklist-field"><span>Dari Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls[{{ $ti }}][dari_tol]" value="{{ $tr['dari_tol'] ?? '' }}" @if($ti === 0) required @endif></div></label>
-                                <label class="checklist-field"><span>Ke Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls[{{ $ti }}][ke_tol]" value="{{ $tr['ke_tol'] ?? '' }}" @if($ti === 0) required @endif></div></label>
-                                <label class="checklist-field"><span>Harga</span><div class="checklist-control-wrap"><input type="number" name="tolls[{{ $ti }}][harga]" class="sppd-toll-harga" min="0" step="1" value="{{ $tr['harga'] ?? '' }}" @if($ti === 0) required @endif></div></label>
+                    @php
+                        $tollEmpty = ['dari_tol' => '', 'ke_tol' => '', 'harga' => ''];
+                        $tollsBer = old('tolls_berangkat', null);
+                        if ($tollsBer === null) {
+                            $tollsBer = $sppd?->tolls
+                                ? $sppd->tolls->where('leg', 'berangkat')->values()->map(fn ($t) => ['dari_tol' => $t->dari_tol, 'ke_tol' => $t->ke_tol, 'harga' => $t->harga])->all()
+                                : [$tollEmpty];
+                        }
+                        if (! is_array($tollsBer) || $tollsBer === []) {
+                            $tollsBer = [$tollEmpty];
+                        }
+                        $tollsKem = old('tolls_kembali', null);
+                        if ($tollsKem === null) {
+                            $tollsKem = $sppd?->tolls
+                                ? $sppd->tolls->where('leg', 'kembali')->values()->map(fn ($t) => ['dari_tol' => $t->dari_tol, 'ke_tol' => $t->ke_tol, 'harga' => $t->harga])->all()
+                                : [$tollEmpty];
+                        }
+                        if (! is_array($tollsKem) || $tollsKem === []) {
+                            $tollsKem = [$tollEmpty];
+                        }
+                    @endphp
+                    <div class="sppd-toll-leg-block">
+                        <h3 class="sppd-toll-leg-title">Biaya tol berangkat</h3>
+                        <div id="sppd-tolls-berangkat-wrap" class="sppd-dynamic-wrap" data-tolls-leg="berangkat">
+                            @foreach($tollsBer as $ti => $tr)
+                            <div class="sppd-toll-line" data-toll-row>
+                                <div class="sppd-row sppd-toll-inputs">
+                                    <label class="checklist-field"><span>Dari Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_berangkat[{{ $ti }}][dari_tol]" value="{{ $tr['dari_tol'] ?? '' }}" @if($ti === 0) required @endif></div></label>
+                                    <label class="checklist-field"><span>Ke Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_berangkat[{{ $ti }}][ke_tol]" value="{{ $tr['ke_tol'] ?? '' }}" @if($ti === 0) required @endif></div></label>
+                                    <label class="checklist-field"><span>Harga</span><div class="checklist-control-wrap"><input type="number" name="tolls_berangkat[{{ $ti }}][harga]" class="sppd-toll-harga" min="0" step="1" value="{{ $tr['harga'] ?? '' }}" @if($ti === 0) required @endif></div></label>
+                                </div>
+                                @if($ti > 0)
+                                    <button type="button" class="sppd-line-remove" data-remove-toll title="Hapus baris tol" aria-label="Hapus baris tol"><i class="bi bi-dash-lg"></i></button>
+                                @endif
                             </div>
-                            @if($ti > 0)
-                                <button type="button" class="sppd-line-remove" data-remove-toll title="Hapus baris tol" aria-label="Hapus baris tol"><i class="bi bi-dash-lg"></i></button>
-                            @endif
+                            @endforeach
                         </div>
-                        @endforeach
+                        <button type="button" class="sppd-add-row" id="sppd-add-toll-berangkat">+ Tambah baris tol berangkat</button>
                     </div>
-                    <button type="button" class="sppd-add-row" id="sppd-add-toll">+ Tambah baris tol</button>
+                    <div class="sppd-toll-leg-block">
+                        <h3 class="sppd-toll-leg-title">Biaya tol kembali</h3>
+                        <div id="sppd-tolls-kembali-wrap" class="sppd-dynamic-wrap" data-tolls-leg="kembali">
+                            @foreach($tollsKem as $ti => $tr)
+                            <div class="sppd-toll-line" data-toll-row>
+                                <div class="sppd-row sppd-toll-inputs">
+                                    <label class="checklist-field"><span>Dari Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_kembali[{{ $ti }}][dari_tol]" value="{{ $tr['dari_tol'] ?? '' }}" @if($ti === 0) required @endif></div></label>
+                                    <label class="checklist-field"><span>Ke Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_kembali[{{ $ti }}][ke_tol]" value="{{ $tr['ke_tol'] ?? '' }}" @if($ti === 0) required @endif></div></label>
+                                    <label class="checklist-field"><span>Harga</span><div class="checklist-control-wrap"><input type="number" name="tolls_kembali[{{ $ti }}][harga]" class="sppd-toll-harga" min="0" step="1" value="{{ $tr['harga'] ?? '' }}" @if($ti === 0) required @endif></div></label>
+                                </div>
+                                @if($ti > 0)
+                                    <button type="button" class="sppd-line-remove" data-remove-toll title="Hapus baris tol" aria-label="Hapus baris tol"><i class="bi bi-dash-lg"></i></button>
+                                @endif
+                            </div>
+                            @endforeach
+                        </div>
+                        <button type="button" class="sppd-add-row" id="sppd-add-toll-kembali">+ Tambah baris tol kembali</button>
+                    </div>
                 </section>
 
                 <section class="wizard-step" data-sppd-step="3">
@@ -203,36 +241,14 @@
                         @php
                             $fuels = old('fuels', $sppd?->fuels?->map(fn($f) => ['liter' => $f->liter, 'harga_per_liter' => $f->harga_per_liter])->toArray() ?? [['liter' => '', 'harga_per_liter' => '']]);
                             if (empty($fuels)) $fuels = [['liter' => '', 'harga_per_liter' => '']];
-                            $fuelModels = $sppd?->fuels ?? collect();
                         @endphp
                         @foreach($fuels as $fi => $fr)
-                        @php $fm = $fuelModels->get($fi); @endphp
                         <div class="sppd-fuel-line" data-fuel-line>
                         <div class="sppd-fuel-block" data-fuel-row>
                             <div class="sppd-row">
                                 <label class="checklist-field"><span>Liter</span><div class="checklist-control-wrap"><input type="number" name="fuels[{{ $fi }}][liter]" class="sppd-fuel-liter" min="0" step="0.01" @if($fi === 0) required @endif value="{{ $fr['liter'] ?? '' }}"></div></label>
                                 <label class="checklist-field"><span>Harga / Liter</span><div class="checklist-control-wrap"><input type="number" name="fuels[{{ $fi }}][harga_per_liter]" class="sppd-fuel-hpl" min="0" step="1" @if($fi === 0) required @endif value="{{ $fr['harga_per_liter'] ?? '' }}"></div></label>
                                 <label class="checklist-field"><span>Total</span><div class="checklist-control-wrap"><input type="text" class="sppd-fuel-total-display" readonly value="0"></div></label>
-                            </div>
-                            <div class="sppd-photo-pair">
-                                <label class="checklist-photo-slot" data-photo-preview-slot>
-                                    <input type="file" name="fuels[{{ $fi }}][odometer]" accept="image/*" data-photo-single @if($fi === 0 && (!$isEdit || !$fm?->odometer_path)) required @endif>
-                                    @if($fm?->odometer_path)
-                                        <input type="hidden" name="fuels[{{ $fi }}][odometer_existing]" value="{{ $fm->odometer_path }}">
-                                    @endif
-                                    <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-camera"></i></span><strong>Foto Odometer</strong></div>
-                                    <img class="photo-slot-preview" alt="" style="{{ $fm?->odometer_path ? 'display:block' : 'display:none' }}" src="{{ $fm?->odometer_path ? \Illuminate\Support\Facades\Storage::url($fm->odometer_path) : '' }}">
-                                    <button type="button" class="photo-slot-remove" style="{{ $fm?->odometer_path ? 'display:flex' : 'display:none' }}" aria-label="Hapus">×</button>
-                                </label>
-                                <label class="checklist-photo-slot" data-photo-preview-slot>
-                                    <input type="file" name="fuels[{{ $fi }}][struk]" accept="image/*" data-photo-single @if($fi === 0 && (!$isEdit || !$fm?->struk_path)) required @endif>
-                                    @if($fm?->struk_path)
-                                        <input type="hidden" name="fuels[{{ $fi }}][struk_existing]" value="{{ $fm->struk_path }}">
-                                    @endif
-                                    <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-receipt"></i></span><strong>Foto Struk</strong></div>
-                                    <img class="photo-slot-preview" alt="" style="{{ $fm?->struk_path ? 'display:block' : 'display:none' }}" src="{{ $fm?->struk_path ? \Illuminate\Support\Facades\Storage::url($fm->struk_path) : '' }}">
-                                    <button type="button" class="photo-slot-remove" style="{{ $fm?->struk_path ? 'display:flex' : 'display:none' }}" aria-label="Hapus">×</button>
-                                </label>
                             </div>
                         </div>
                         @if($fi > 0)
@@ -246,27 +262,16 @@
 
                 <section class="wizard-step" data-sppd-step="4">
                     <div class="section-banner">
-                        <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 000 7H14a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        <span>Ringkasan & Tanda Tangan</span>
+                        <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <span>Ringkasan</span>
                     </div>
-                    <div class="sppd-summary-grid">
+                    <p class="sppd-step4-lead">Periksa kembali seluruh data berikut. Jika sudah benar, kirim rekap SPPD.</p>
+                    <div id="sppd-step4-summary" class="sppd-step4-summary" aria-live="polite"></div>
+                    <div class="sppd-summary-grid sppd-summary-grid--step4">
                         <div><span class="sppd-sum-label">Total Tol</span><strong id="sppd-sum-tol">Rp 0</strong></div>
                         <div><span class="sppd-sum-label">Total BBM</span><strong id="sppd-sum-bbm">Rp 0</strong></div>
                         <div class="sppd-sum-grand"><span class="sppd-sum-label">Grand Total</span><strong id="sppd-sum-grand">Rp 0</strong></div>
                     </div>
-                    <p class="sppd-preview-label">Preview input</p>
-                    <div id="sppd-live-preview" class="sppd-live-preview"></div>
-                    <div class="signature-row">
-                        <div class="signature-block">
-                            <span class="signature-label">TTD DRIVER</span>
-                            <div class="signature-pad-wrap">
-                                <canvas id="sppd-sig-pad" class="signature-canvas"></canvas>
-                                <div class="signature-pad-hint" data-sppd-sig-hint><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg><span>TAP TO SIGN</span></div>
-                            </div>
-                            <button type="button" class="signature-clear-btn" id="sppd-sig-clear">Hapus TTD</button>
-                        </div>
-                    </div>
-                    <input type="hidden" name="tanda_tangan" id="sppd-sig-data" value="">
                 </section>
 
                 <div class="checklist-nav-row sppd-form-footer">

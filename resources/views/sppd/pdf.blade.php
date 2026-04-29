@@ -18,9 +18,9 @@
         }
         @page { margin: 30px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; margin: 10px; padding: 10px; }
+        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; margin: 10px; padding: 10px; position: relative; }
 
-        .page { padding: 10px; }
+        .page { padding: 10px; padding-bottom: 52px; }
 
         .header { width: 100%; margin-bottom: 16px; border-bottom: 3px solid #002a7a; padding-bottom: 12px; }
         .header-table { width: 100%; border-collapse: collapse; }
@@ -53,48 +53,55 @@
         .info-table td { border: 1px solid #d1d5db; padding: 6px 8px; vertical-align: middle; font-size: 9pt; }
         .info-table .label { font-weight: 700; background: #f3f4f6; color: #111827; width: 20%; }
         .data-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8.5pt; page-break-inside: auto; table-layout: fixed; word-wrap: break-word; }
-        .data-table th, .data-table td { border: 1px solid #d1d5db; padding: 5px 8px; text-align: left; vertical-align: middle; }
+        .data-table th, .data-table td { border: 1px solidhsl(216, 12.20%, 83.90%); padding: 5px 8px; text-align: left; vertical-align: middle; }
         .data-table th { background: #f1f5f9; font-weight: 700; color: #374151; font-size: 8pt; }
         .data-table tr { page-break-inside: avoid; }
 
-        /* BBM foto: ukuran eksplisit agar baris tabel tidak “jebol” di DomPDF */
-        .col-bbm-data {
-            width: 15%;     
-            white-space: nowrap;
-        }
-        .sppd-foto-cell {
-            width: 55%; 
-            text-align: center;
-            vertical-align: middle !important;
-            overflow: hidden;
-            background-color: #f9fafb;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sppd-foto-pair {
-            display: table;
+        .merge-total-table {
             width: 100%;
-            height: 80px;
-            padding: 0;
-            margin: 0;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            font-size: 8.5pt;
+            table-layout: fixed;
+            page-break-inside: avoid;
         }
-
-        .sppd-foto-pair img {
-            display: inline-block;
-            width: 120px;
-            height: 90px;   
-            padding: 0;
-            margin: 0;
-            object-fit: cover; 
-            border: none;
+        .merge-total-table th, .merge-total-table td {
+            border: 1px solid #d1d5db;
+            padding: 5px 8px;
+            text-align: center;
             vertical-align: middle;
         }
-
-        .totals { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 9pt; }
-        .totals td { padding: 4px 8px; border: 1px solid #d1d5db; }
-        .totals .label { background: #f3f4f6; font-weight: 700; width: 45%; }
-        .totals td:last-child  { width: 55%; text-align: left; }
+        .merge-total-table th { background: #f1f5f9; font-weight: 700; color: #374151; font-size: 8pt; }
+        /* Nilai total di kolom kanan: sel data putih, vertikal tengah */
+        .merge-total-table td.merge-total-col {
+            width: 30%;
+            vertical-align: middle;
+            color: #111827;
+            font-size: 8.5pt;
+            padding: 8px;
+            background: #fff;
+        }
+        .merge-total-table .merge-rute-col, .merge-total-table .merge-liter-col { width: 35%; }
+        .merge-total-table .merge-biaya-col { width: 35%; }
+        .merge-total-table td.merge-rute-col, .merge-total-table td.merge-liter-col {
+            text-align: center;
+        }
+        .merge-total-table .merge-subhead-row th {
+            border-top-width: 1px;
+        }
+        .merge-total-table .merge-grand-row td {
+            font-weight: 700;
+            color: #111827;
+            font-size: 9pt;
+        }
+        .merge-total-table .merge-grand-row td:first-child {
+            background: #f1f5f9;
+            text-align: center;
+        }
+        .merge-total-table .merge-grand-row td:last-child {
+            background: #fff;
+            text-align: center;
+        }
 
         .approval-text {
             font-size: 9.5pt;
@@ -107,39 +114,106 @@
             border-radius: 4px;
         }
 
-        .signature-area { width: 100%; margin-top: 20px; page-break-inside: avoid; }
-        .signature-area td { width: 50%; text-align: center; padding: 8px 4px; vertical-align: top; }
-        .sig-label { font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
-        .sig-box { height: 70px; margin: 6px auto; width: 160px; position: relative; }
-        .sig-box img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
-        .sig-name { font-weight: 700; font-size: 9.5pt; margin-top: 3px; }
-
-        .signature-footer-line {
-            margin-top: 16px;
-            border-top: 1px solid #9ca3af;
+        /* Validasi: border blok — QR mengikuti skala tipografi sig-meta (em dari font yang sama) */
+        .signature-block-table {
+            width: 100%;
+            margin-top: 8px;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 8.5pt;
+            page-break-inside: avoid;
+            border: 1px solid #d1d5db;
         }
+        .signature-block-table td {
+            vertical-align: middle;
+            border-bottom: none;
+            padding: 8px 10px;
+            background: #fff;
+            width: 50%;
+        }
+        .signature-block-table td:first-child {
+            border-right: 1px solid #d1d5db;
+        }
+
+        /* QR | teks sejajar horizontal — pakai table-cell (DomPDF tidak andal untuk flexbox) */
+        .sig-pair-wrap {
+            display: table;
+            width: 100%;
+            table-layout: auto;
+            font-size: 8.5pt;
+            line-height: 1.28;
+        }
+        .sig-qr-wrap {
+            display: table-cell;
+            vertical-align: middle;
+            width: 5.15em;
+            padding-right: 8px;
+            box-sizing: border-box;
+        }
+        .signature-qr-img {
+            /* Satuan em mengikuti font-size .sig-pair-wrap (sama dengan .sig-meta); ≈ 4 baris × line-height */
+            width: 5.15em;
+            height: 5.15em;
+            max-width: 100%;
+            display: block;
+            margin: 0;
+            border: none;
+            padding: 0;
+            box-sizing: border-box;
+            object-fit: contain;
+        }
+        .sig-meta {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: left;
+            line-height: 1.28;
+            color: #111827;
+        }
+        .sig-line-title {
+            font-weight: 700;
+            margin-bottom: 1px;
+        }
+        .sig-line-role {
+            font-weight: 700;
+            color:#001e56;
+            margin-bottom: 2px;
+            letter-spacing: 0.02em;
+        }
+        .sig-line-name {
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .sig-line-when {
+            font-size: 7.5pt;
+            color: #6b7280;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        /* Footer halaman: garis + catatan di dasar lembar PDF */
+        .pdf-page-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 6px 10px 10px;
+            background: #fff;
+            text-align: center;
+        }
+
         .note {
             text-align: center;
             font-size: 8pt;
             color: #6b7280;
             margin-top: 6px;
+            margin-bottom: 0;
             font-style: italic;
         }
     </style>
 </head>
 <body>
 @php
-    use Illuminate\Support\Facades\Storage;
-    $pdfImg = function (?string $rel): string {
-        if (! $rel || ! Storage::disk('public')->exists($rel)) {
-            return '';
-        }
-        $path = Storage::disk('public')->path($rel);
-        $mime = @mime_content_type($path) ?: 'image/jpeg';
-        $b64 = base64_encode((string) file_get_contents($path));
-
-        return 'data:'.$mime.';base64,'.$b64;
-    };
     $tgl = $sppd->tanggal_dinas?->format('d F Y');
     $headerDate = $sppd->tanggal_dinas ?? \Carbon\Carbon::now();
     $tahun = $headerDate->format('y');
@@ -150,25 +224,7 @@
     ];
     $bulan = $bulanRomawi[(int) $headerDate->format('n')];
     $sppdNo = str_pad((string) $sppd->id, 4, '0', STR_PAD_LEFT);
-    $managerTtdPath = null;
-    foreach ([
-        public_path('images/TTD Driver/TTD Manager.png'),
-        public_path('images/TTD Driver/manager.png'),
-        public_path('images/TTD Manager.png'),
-        public_path('images/TTD Driver.png'),
-    ] as $candidate) {
-        if (is_file($candidate)) {
-            $managerTtdPath = $candidate;
-            break;
-        }
-    }
-    if (! $managerTtdPath) {
-        $ttdDriverDir = public_path('images/TTD Driver');
-        if (is_dir($ttdDriverDir)) {
-            $first = glob($ttdDriverDir . DIRECTORY_SEPARATOR . '*.{png,jpg,jpeg,webp}', GLOB_BRACE) ?: [];
-            $managerTtdPath = $first[0] ?? null;
-        }
-    }
+    $noSurat = 'ADC-'.$tahun.$bulan.'KEU'.$sppdNo;
 @endphp
 
 <div class="page">
@@ -181,13 +237,13 @@
                 </td>
                 <td class="header-right">
                     <div class="header-title-main">
-                        REKAP LAPORAN SPPD
+                        REKAPITULASI BIAYA PERJALANAN DINAS
                     </div>
                     <div class="header-pm">
                         PM UNIT SURALAYA
                     </div>
                     <div class="header-number">
-                        No. ADC-{{ $tahun }}{{ $bulan }}KEU{{ $sppdNo }} | {{ $headerDate->translatedFormat('d F Y') }}
+                        No. {{ $noSurat }} | {{ $headerDate->translatedFormat('d F Y') }}
                     </div>
                 </td>
             </tr>
@@ -199,18 +255,18 @@
         <tr>
             <td class="label">Nama Driver</td>
             <td>{{ $sppd->nama_driver }}</td>
-            <td class="label">Jenis Kendaraan</td>
-            <td>{{ $sppd->jenis_kendaraan }}</td>
-        </tr>
-        <tr>
             <td class="label">Keperluan Dinas</td>
             <td>{{ $sppd->keperluan_dinas }}</td>
-            <td class="label">Tanggal Dinas</td>
-            <td>{{ $tgl }}</td>
         </tr>
         <tr>
             <td class="label">Nomor Kendaraan</td>
             <td>{{ $sppd->no_kendaraan }}</td>
+            <td class="label">Tanggal Dinas</td>
+            <td>{{ $tgl }}</td>
+        </tr>
+        <tr>
+            <td class="label">Jenis Kendaraan</td>
+            <td>{{ $sppd->jenis_kendaraan }}</td>
             <td class="label">Tujuan</td>
             <td>{{ $sppd->tujuan }}</td>
         </tr>
@@ -218,95 +274,172 @@
 
     @if($sppd->tolls->isNotEmpty())
     <div class="section-heading">Biaya Tol</div>
-    <table class="data-table">
-        <thead><tr><th>Dari Tol</th><th>Ke Tol</th><th>Harga (Rp)</th></tr></thead>
-        <tbody>
-            @foreach($sppd->tolls as $t)
-            <tr>
-                <td>{{ $t->dari_tol }}</td>
-                <td>{{ $t->ke_tol }}</td>
-                <td>{{ number_format((float) $t->harga, 0, ',', '.') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
+    @php
+        $tolBerPdf = $sppd->tolls->where('leg', 'berangkat')->values();
+        $tolKemPdf = $sppd->tolls->where('leg', 'kembali')->values();
+    @endphp
+    @if($tolBerPdf->isNotEmpty() || $tolKemPdf->isNotEmpty())
+    <table class="merge-total-table">
+        @if($tolBerPdf->isNotEmpty())
+        @php
+            $rowspanBer = $tolBerPdf->count();
+            $sumBer = (float) $tolBerPdf->sum(fn ($t) => (float) $t->harga);
+        @endphp
+        <tr>
+            <th class="merge-rute-col">Rute Tol</th>
+            <th class="merge-biaya-col">Biaya</th>
+            <th class="merge-total-header-col">Total Tol Berangkat</th>
+        </tr>
+        @foreach($tolBerPdf as $t)
+        <tr>
+            <td class="merge-rute-col">{{ $t->dari_tol }} – {{ $t->ke_tol }}</td>
+            <td class="merge-biaya-col">Rp{{ number_format((float) $t->harga, 2, ',', '.') }}</td>
+            @if($loop->first)
+            <td class="merge-total-col" rowspan="{{ $rowspanBer }}">Rp{{ number_format($sumBer, 2, ',', '.') }}</td>
+            @endif
+        </tr>
+        @endforeach
+        @endif
+        @if($tolKemPdf->isNotEmpty())
+        @php
+            $rowspanKem = $tolKemPdf->count();
+            $sumKem = (float) $tolKemPdf->sum(fn ($t) => (float) $t->harga);
+        @endphp
+        <tr class="merge-subhead-row">
+            <th class="merge-rute-col">Rute Tol</th>
+            <th class="merge-biaya-col">Biaya</th>
+            <th class="merge-total-header-col">Total Tol Kembali</th>
+        </tr>
+        @foreach($tolKemPdf as $t)
+        <tr>
+            <td class="merge-rute-col">{{ $t->dari_tol }} – {{ $t->ke_tol }}</td>
+            <td class="merge-biaya-col">Rp{{ number_format((float) $t->harga, 2, ',', '.') }}</td>
+            @if($loop->first)
+            <td class="merge-total-col" rowspan="{{ $rowspanKem }}">Rp{{ number_format($sumKem, 2, ',', '.') }}</td>
+            @endif
+        </tr>
+        @endforeach
+        @endif
     </table>
+    @endif
     @endif
 
     <div class="section-heading">BBM</div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="col-bbm-data">Liter</th>
-                <th class="col-bbm-data">Harga/L</th>
-                <th class="col-bbm-data">Total</th>
-                <th>Foto Bukti</th> </tr>
-        </thead>
-        <tbody>
-            @foreach($sppd->fuels as $f)
-            @php $iu = $pdfImg($f->odometer_path); $su = $pdfImg($f->struk_path); @endphp
-            <tr>
-                <td class="col-bbm-data">{{ number_format((float) $f->liter, 2, ',', '.') }}</td>
-                <td class="col-bbm-data">Rp {{ number_format((float) $f->harga_per_liter, 0, ',', '.') }}</td>
-                <td class="col-bbm-data">Rp {{ number_format((float) $f->total, 0, ',', '.') }}</td>
-                <td class="sppd-foto-cell">
-                    <span class="sppd-foto-pair">
-                        @if($iu)<img src="{{ $iu }}" alt="Odometer">@endif
-                        @if($su)<img src="{{ $su }}" alt="Struk">@endif
-                        @if(! $iu && ! $su)<span style="font-size:9pt;">—</span>@endif
-                    </span>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    @php
+        $fuelRows = $sppd->fuels;
+        $fuelCount = $fuelRows->count();
+        $bbmBodyRows = max(1, $fuelCount);
+        $rowspanBbm = $bbmBodyRows;
+    @endphp
+    <table class="merge-total-table">
+        <tr>
+            <th class="merge-liter-col">Liter</th>
+            <th class="merge-biaya-col">Biaya</th>
+            <th class="merge-total-header-col">Total BBM</th>
+        </tr>
+        @forelse($fuelRows as $f)
+        <tr>
+            <td class="merge-rute-col">{{ number_format((float) $f->liter, 2, ',', '.') }}</td>
+            <td class="merge-biaya-col">Rp{{ number_format((float) $f->total, 2, ',', '.') }}</td>
+            @if($loop->first)
+            <td class="merge-total-col" rowspan="{{ $rowspanBbm }}">Rp{{ number_format((float) $sppd->total_bbm, 2, ',', '.') }}</td>
+            @endif
+        </tr>
+        @empty
+        <tr>
+            <td class="merge-rute-col">—</td>
+            <td class="merge-biaya-col">—</td>
+            <td class="merge-total-col">Rp{{ number_format((float) $sppd->total_bbm, 2, ',', '.') }}</td>
+        </tr>
+        @endforelse
 
-    <table class="totals">
-        <tr>
-            <td class="label">Total Tol</td>
-            <td>Rp {{ number_format((float) $sppd->total_tol, 0, ',', '.') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Total BBM</td>
-            <td>Rp {{ number_format((float) $sppd->total_bbm, 0, ',', '.') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Grand Total</td>
-            <td><strong>Rp {{ number_format((float) $sppd->grand_total, 0, ',', '.') }}</strong></td>
+        {{-- Baris Grand Total --}}
+        <tr class="merge-grand-row">
+            <td class="merge-rute-col" style="border: none; background: transparent;"></td> 
+            <td class="merge-biaya-col" style="background: #f3f4f6; font-weight: bold; text-align: center;">Grand Total</td> 
+            <td style="background: #f3f4f6; font-weight: bold; text-align: center; border: 1px solid #d1d5db;">
+                Rp{{ number_format((float) $sppd->grand_total, 2, ',', '.') }}
+            </td>
         </tr>
     </table>
 
-    <div class="section-heading">Persetujuan</div>
+    <div class="section-heading">Validasi</div>
     <div class="approval-text">
-        Laporan ini telah <strong>Disetujui Manager</strong>. Proses persetujuan dilakukan oleh <strong>{{ $sppd->approver?->name ?? '-' }}</strong> pada tanggal <strong>{{ $sppd->approved_at?->timezone(config('app.timezone'))->translatedFormat('d F Y') ?? '-' }}</strong> pukul <strong>{{ $sppd->approved_at?->timezone(config('app.timezone'))->format('H.i') ?? '-' }} WIB</strong>.
+        Laporan ini telah <strong>diverifikasi</strong> dan <strong>disetujui</strong> oleh:
     </div>
 
-    @php $sig = $pdfImg($sppd->signature_path); @endphp
-    @if($sig || $managerTtdPath)
-    <table class="signature-area">
+    @php
+        use App\Support\SppdPdfQr;
+        $tz = config('app.timezone');
+        $pmName = $sppd->approver?->name ?? '—';
+        $admName = $sppd->adminVerifier?->name ?? '—';
+        $pmWhenCaption = $sppd->approved_at
+            ? $sppd->approved_at
+                ->timezone($tz)
+                ->translatedFormat('d F Y')
+                . ', '
+                . $sppd->approved_at->timezone($tz)->format('H.i')
+                . ' WIB'
+            : '—';
+
+        $admWhenCaption = $sppd->admin_verified_at
+            ? $sppd->admin_verified_at
+                ->timezone($tz)
+                ->translatedFormat('d F Y')
+                . ', '
+                . $sppd->admin_verified_at->timezone($tz)->format('H.i')
+                . ' WIB'
+            : '—';
+        $pmWhen = $sppd->approved_at
+            ? $sppd->approved_at
+                ->timezone($tz)
+                ->translatedFormat('d F Y, H.i'). ' WIB'
+            : '—';
+        $admWhen = $sppd->admin_verified_at
+            ? $sppd->admin_verified_at
+                ->timezone($tz)
+                ->translatedFormat('d F Y, H.i'). ' WIB'
+            : '—';
+        $qrPmPayload = "MENYETUJUI PORT MANAGER\nNo Surat: {$noSurat}\nNama: {$pmName}\nWaktu: {$pmWhen}";
+        $qrAdmPayload = "DIVERIFIKASI KEUANGAN & ADMINISTRASI\nNo Surat: {$noSurat}\nNama: {$admName}\nWaktu: {$admWhen}";
+        $qrPm = SppdPdfQr::pngDataUri($qrPmPayload);
+        $qrAdm = SppdPdfQr::pngDataUri($qrAdmPayload);
+    @endphp
+
+    <table class="signature-block-table">
         <tr>
             <td>
-                <div class="sig-label">Manager</div>
-                <div class="sig-box">
-                    @if($managerTtdPath)
-                        <img src="{{ $managerTtdPath }}" alt="Tanda tangan Manager">
-                    @endif
+                <div class="sig-pair-wrap">
+                    <div class="sig-qr-wrap">
+                        <img class="signature-qr-img" src="{{ $qrPm }}" alt="QR Port Manager">
+                    </div>
+                    <div class="sig-meta">
+                        <div class="sig-line-title">Menyetujui,</div>
+                        <div class="sig-line-role">PORT MANAGER</div>
+                        <div class="sig-line-name">{{ mb_strtoupper((string) $pmName, 'UTF-8') }}</div>
+                        <div class="sig-line-when">{{ $pmWhenCaption }}</div>
+                    </div>
                 </div>
-                <div class="sig-name">{{ $sppd->approver?->name ?? 'Manager' }}</div>
             </td>
             <td>
-                <div class="sig-label">Driver</div>
-                <div class="sig-box">
-                    @if($sig)
-                        <img src="{{ $sig }}" alt="Tanda tangan Driver">
-                    @endif
+                <div class="sig-pair-wrap">
+                    <div class="sig-qr-wrap">
+                        <img class="signature-qr-img" src="{{ $qrAdm }}" alt="QR Admin">
+                    </div>
+                    <div class="sig-meta">
+                        <div class="sig-line-title">Diverifikasi,</div>
+                        <div class="sig-line-role">KEUANGAN &amp; ADMINISTRASI</div>
+                        <div class="sig-line-name">{{ mb_strtoupper((string) $admName, 'UTF-8') }}</div>
+                        <div class="sig-line-when">{{ $admWhenCaption }}</div>
+                    </div>
                 </div>
-                <div class="sig-name">{{ $sppd->nama_driver }}</div>
             </td>
         </tr>
     </table>
-    @endif
 
-    <div class="signature-footer-line"></div>
+</div>
+
+<div class="pdf-page-footer">
     <div class="note">
         Dokumen ini dihasilkan secara otomatis oleh Vehicle Management System ADC Port Management.
     </div>

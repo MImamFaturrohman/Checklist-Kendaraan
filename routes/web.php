@@ -131,6 +131,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/manager/rekap-sppd/{sppd}', [ManagerSppdController::class, 'show'])->name('manager.sppd.show');
     Route::post('/manager/rekap-sppd/{sppd}/approve', [ManagerSppdController::class, 'approve'])->name('manager.sppd.approve');
     Route::post('/manager/rekap-sppd/{sppd}/reject', [ManagerSppdController::class, 'reject'])->name('manager.sppd.reject');
+    Route::post('/manager/rekap-sppd/{sppd}/regenerate-pdf', [ManagerSppdController::class, 'regeneratePdf'])->name('manager.sppd.regenerate-pdf');
 });
 
 Route::middleware('auth')->group(function () {

@@ -235,7 +235,7 @@
                             </div>
                         </label>
                     </div>
-                    <div class="sppd-photo-pair bbm-photo-pair">
+                    <div class="bbm-photo-pair">
                         <label class="checklist-photo-slot" data-photo-preview-slot>
                             <input type="file" name="foto_odometer" accept="image/*" data-photo-single required>
                             <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-camera"></i></span><strong>Foto Odometer</strong></div>

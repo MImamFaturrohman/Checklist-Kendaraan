@@ -75,8 +75,8 @@
                     </a>
                 </div>
 
-                @if($sppds->count() > 0)
                 <div class="portal-local-filters sppd-live-filter-bar" id="sppd-live-filter-bar">
+                    @if($sppds->total() > 0)
                     <div class="admin-search-wrap portal-search-full">
                         <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         <input type="search" id="sppd-live-search" class="admin-search-input" placeholder="Cari keperluan, kendaraan, tanggal…" autocomplete="off" aria-label="Cari daftar SPPD">
@@ -90,8 +90,17 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
+                    <div class="portal-perpage-wrap sppd-per-page-wrap">
+                        <span class="portal-perpage-label" id="sppd-per-page-label">Per halaman</span>
+                        <label class="sr-only" for="sppd-per-page">Jumlah data per halaman</label>
+                        <select id="sppd-per-page" class="admin-filter-input sppd-per-page-select" aria-labelledby="sppd-per-page-label">
+                            @foreach([5, 10, 25, 50, 100] as $n)
+                                <option value="{{ $n }}" @selected($sppds->perPage() === $n)>{{ $n }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-                @endif
 
                 <div class="admin-table-wrap sppd-table-wrap">
                     <table class="admin-table">
@@ -176,7 +185,7 @@
                     </table>
                 </div>
 
-                <div class="admin-pagination mt-4 portal-pagination-wrap">{{ $sppds->links() }}</div>
+                <div class="admin-pagination mt-4 portal-pagination-wrap sppd-pagination--unified">{{ $sppds->links() }}</div>
             </div>
         </div>
     </div>
@@ -288,6 +297,15 @@
         sppdSearchEl?.addEventListener('input', applySppdLiveFilter);
         sppdStatusEl?.addEventListener('change', applySppdLiveFilter);
 
+        document.getElementById('sppd-per-page')?.addEventListener('change', (e) => {
+            const sel = e.target;
+            if (!sel || sel.tagName !== 'SELECT') return;
+            const u = new URL(window.location.href);
+            u.searchParams.set('per_page', sel.value);
+            u.searchParams.set('page', '1');
+            window.location.href = u.toString();
+        });
+
         function esc(s) {
             const d = document.createElement('div');
             d.textContent = s ?? '';
@@ -309,22 +327,10 @@
         }
 
         function renderDetail(d) {
-            let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
-            if (!tollRows) tollRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
+            let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
+            if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
             let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
             if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
-            const fuelPhotos = (d.fuels || []).map((f, i) => {
-                const odoUrl = normalizeUrl(f.odometer_url);
-                const strukUrl = normalizeUrl(f.struk_url);
-                const odo = f.odometer_url
-                    ? `<a href="${String(odoUrl).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(odoUrl).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Odometer ${i + 1}"></a>`
-                    : '';
-                const struk = f.struk_url
-                    ? `<a href="${String(strukUrl).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(strukUrl).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Struk ${i + 1}"></a>`
-                    : '';
-                if (!odo && !struk) return '';
-                return `<div class="sppd-photo-group"><p class="sppd-photo-group-title">Baris BBM ${i + 1}</p><div class="sppd-photo-grid">${odo}${struk}</div></div>`;
-            }).join('');
             return `
                 <table class="info-table sppd-mini-table">
                     <tr><td class="label">Driver</td><td>${esc(d.nama_driver)}</td></tr>
@@ -335,12 +341,10 @@
                     <tr><td class="label">Status</td><td>${esc(d.status_label)}</td></tr>
                 </table>
                 <p class="sppd-detail-sub">Biaya Tol</p>
-                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
+                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
                 <p class="sppd-detail-sub">BBM</p>
                 <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
-                ${fuelPhotos ? `<p class="sppd-detail-sub">Foto Odometer & Struk</p>${fuelPhotos}` : ''}
                 <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
-                ${d.signature_url ? `<p class="sppd-detail-sub">Tanda tangan</p><img src="${String(normalizeUrl(d.signature_url)).replace(/"/g,'&quot;')}" alt="TTD" class="sppd-sig-preview">` : ''}
                 ${d.revision_note ? `<p class="sppd-detail-sub sppd-detail-sub--spaced">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
                 ${d.rejection_note ? `<p class="sppd-detail-sub sppd-detail-sub--spaced">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
             `;

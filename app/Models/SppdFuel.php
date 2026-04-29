@@ -12,8 +12,6 @@ class SppdFuel extends Model
         'liter',
         'harga_per_liter',
         'total',
-        'odometer_path',
-        'struk_path',
         'sort_order',
     ];
 

@@ -160,22 +160,10 @@
         }
 
         function renderDetail(d) {
-            let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
-            if (!tollRows) tollRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
+            let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
+            if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
             let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
             if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
-            const fuelPhotos = (d.fuels || []).map((f, i) => {
-                const odoUrl = normalizeUrl(f.odometer_url);
-                const strukUrl = normalizeUrl(f.struk_url);
-                const odo = f.odometer_url
-                    ? `<a href="${String(odoUrl).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(odoUrl).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Odometer ${i + 1}"></a>`
-                    : '';
-                const struk = f.struk_url
-                    ? `<a href="${String(strukUrl).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(strukUrl).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Struk ${i + 1}"></a>`
-                    : '';
-                if (!odo && !struk) return '';
-                return `<div class="sppd-photo-group"><p class="sppd-photo-group-title">Baris BBM ${i + 1}</p><div class="sppd-photo-grid">${odo}${struk}</div></div>`;
-            }).join('');
             return `
                 <table class="info-table sppd-mini-table">
                     <tr><td class="label">Driver</td><td>${esc(d.nama_driver)} (${esc(d.driver_username || '-')})</td></tr>
@@ -186,12 +174,10 @@
                     <tr><td class="label">Status</td><td>${esc(d.status_label)}</td></tr>
                 </table>
                 <p class="sppd-detail-sub">Biaya Tol</p>
-                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
+                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
                 <p class="sppd-detail-sub">BBM</p>
                 <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
-                ${fuelPhotos ? `<p class="sppd-detail-sub">Foto Odometer & Struk</p>${fuelPhotos}` : ''}
                 <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
-                ${d.signature_url ? `<p class="sppd-detail-sub">Tanda tangan</p><img src="${String(normalizeUrl(d.signature_url)).replace(/"/g,'&quot;')}" alt="TTD" class="sppd-sig-preview">` : ''}
                 ${d.revision_note ? `<p class="sppd-detail-sub">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
                 ${d.rejection_note ? `<p class="sppd-detail-sub">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
             `;

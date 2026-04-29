@@ -64,7 +64,7 @@ class SppdAdminController extends Controller
     {
         $this->authorizeAdmin();
 
-        $sppd->load(['user:id,name,username', 'tolls', 'fuels', 'approver:id,name']);
+        $sppd->load(['user:id,name,username', 'tolls', 'fuels', 'approver:id,name', 'adminVerifier:id,name']);
 
         return response()->json([
             'sppd' => $sppd->toDetailArray(),
@@ -78,6 +78,8 @@ class SppdAdminController extends Controller
 
         $sppd->update([
             'status' => Sppd::STATUS_PENDING_MANAGER,
+            'admin_verified_by' => auth()->id(),
+            'admin_verified_at' => now(),
         ]);
 
         return response()->json([

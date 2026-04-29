@@ -91,17 +91,28 @@
             </div>
             <div class="admin-table-wrap">
                 <table class="admin-table">
-                    <thead><tr><th>Driver</th><th>Ringkasan</th><th>Status</th><th>Tanggal</th></tr></thead>
+                    <thead><tr><th>Driver</th><th>Ringkasan</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
                     <tbody>
                         @forelse($history as $s)
+                            @php
+                                $sppdNeedsPdf = in_array($s->status, [Sppd::STATUS_APPROVED, Sppd::STATUS_COMPLETED], true)
+                                    && ! ($s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path));
+                            @endphp
                             <tr>
                                 <td>{{ $s->nama_driver }}</td>
                                 <td>{{ \Illuminate\Support\Str::limit($s->keperluan_dinas, 36) }}</td>
                                 <td><x-sppd-status-badge :status="$s->status" /></td>
                                 <td class="sppd-cell-muted">{{ $s->approved_at?->format('d/m/Y H:i') ?? $s->rejected_at?->format('d/m/Y H:i') ?? $s->updated_at->format('d/m/Y') }}</td>
+                                <td>
+                                    @if($sppdNeedsPdf)
+                                        <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-regen-pdf" data-id="{{ $s->id }}" title="Buat PDF (belum tersedia)" aria-label="Buat PDF"><i class="bi bi-file-earmark-pdf"></i></button>
+                                    @else
+                                        <span class="sppd-cell-muted">—</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="portal-empty">Belum ada riwayat.</td></tr>
+                            <tr><td colspan="5" class="portal-empty">Belum ada riwayat.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -127,6 +138,7 @@
         const detail = (id) => BASE + '/manager/rekap-sppd/' + id;
         const approve = (id) => BASE + '/manager/rekap-sppd/' + id + '/approve';
         const reject = (id) => BASE + '/manager/rekap-sppd/' + id + '/reject';
+        const regenPdf = (id) => BASE + '/manager/rekap-sppd/' + id + '/regenerate-pdf';
 
         function formatRp(n) { return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID'); }
         function esc(s) {
@@ -143,22 +155,10 @@
             return BASE + '/' + raw.replace(/^\/+/, '');
         }
         function renderDetail(d) {
-            let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
-            if (!tollRows) tollRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
+            let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
+            if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
             let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
             if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
-            const fuelPhotos = (d.fuels || []).map((f, i) => {
-                const odoUrl = normalizeUrl(f.odometer_url);
-                const strukUrl = normalizeUrl(f.struk_url);
-                const odo = f.odometer_url
-                    ? `<a href="${String(odoUrl).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(odoUrl).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Odometer ${i + 1}"></a>`
-                    : '';
-                const struk = f.struk_url
-                    ? `<a href="${String(strukUrl).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(strukUrl).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Struk ${i + 1}"></a>`
-                    : '';
-                if (!odo && !struk) return '';
-                return `<div class="sppd-photo-group"><p class="sppd-photo-group-title">Baris BBM ${i + 1}</p><div class="sppd-photo-grid">${odo}${struk}</div></div>`;
-            }).join('');
             return `
                 <table class="info-table sppd-mini-table">
                     <tr><td class="label">Driver</td><td>${esc(d.nama_driver)}</td></tr>
@@ -169,12 +169,10 @@
                     <tr><td class="label">Status</td><td>${esc(d.status_label)}</td></tr>
                 </table>
                 <p class="sppd-detail-sub">Biaya Tol</p>
-                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
+                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
                 <p class="sppd-detail-sub">BBM</p>
                 <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
-                ${fuelPhotos ? `<p class="sppd-detail-sub">Foto Odometer & Struk</p>${fuelPhotos}` : ''}
                 <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
-                ${d.signature_url ? `<p class="sppd-detail-sub">Tanda tangan</p><img src="${String(normalizeUrl(d.signature_url)).replace(/"/g,'&quot;')}" alt="TTD" class="sppd-sig-preview">` : ''}
                 ${d.revision_note ? `<p class="sppd-detail-sub">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
                 ${d.rejection_note ? `<p class="sppd-detail-sub">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
             `;
@@ -205,6 +203,22 @@
                 const j = await r.json();
                 if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
                 else Swal.fire('Gagal', j.message || '', 'error');
+            });
+        });
+        document.querySelectorAll('.mgr-sppd-regen-pdf').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const c = await Swal.fire({
+                    title: 'Buat file PDF?',
+                    text: 'Diperlukan jika persetujuan sebelumnya gagal menyimpan PDF (misalnya gd belum aktif).',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Buat PDF',
+                });
+                if (!c.isConfirmed) return;
+                const r = await fetch(regenPdf(btn.dataset.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
+                const j = await r.json().catch(() => ({}));
+                if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
+                else Swal.fire('Gagal', j.message || 'Tidak dapat membuat PDF', 'error');
             });
         });
         document.querySelectorAll('.mgr-sppd-reject').forEach(btn => {

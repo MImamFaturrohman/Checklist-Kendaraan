@@ -9,6 +9,7 @@ class SppdToll extends Model
 {
     protected $fillable = [
         'sppd_id',
+        'leg',
         'dari_tol',
         'ke_tol',
         'harga',

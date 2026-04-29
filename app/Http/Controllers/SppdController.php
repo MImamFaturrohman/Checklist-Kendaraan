@@ -9,12 +9,16 @@ use App\Models\SppdToll;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SppdController extends Controller
 {
+    /** @var list<int> */
+    private const SPPD_PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
+
     private function isDriverRole(): bool
     {
         $r = auth()->user()?->role;
@@ -22,15 +26,24 @@ class SppdController extends Controller
         return in_array($r, ['driver', 'pic_kendaraan'], true);
     }
 
+    private function resolveSppdPerPage(Request $request): int
+    {
+        $n = (int) $request->query('per_page', 10);
+
+        return in_array($n, self::SPPD_PER_PAGE_OPTIONS, true) ? $n : 10;
+    }
+
     public function index(Request $request): View
     {
         abort_unless($this->isDriverRole(), 403);
+
+        $perPage = $this->resolveSppdPerPage($request);
 
         $sppds = Sppd::query()
             ->where('user_id', auth()->id())
             ->with(['tolls', 'fuels'])
             ->orderByDesc('created_at')
-            ->paginate(12)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('sppd.index', [
@@ -43,7 +56,7 @@ class SppdController extends Controller
         abort_unless($this->isDriverRole(), 403);
         abort_unless($sppd->isOwnedBy(auth()->id()), 403);
 
-        $sppd->load(['tolls', 'fuels', 'approver:id,name']);
+        $sppd->load(['tolls', 'fuels', 'approver:id,name', 'adminVerifier:id,name']);
 
         return response()->json(['sppd' => $sppd->toDetailArray()]);
     }
@@ -103,17 +116,6 @@ class SppdController extends Controller
         abort_unless($sppd->canDriverDelete(), 403);
 
         DB::transaction(function () use ($sppd) {
-            foreach ($sppd->fuels as $f) {
-                if ($f->odometer_path) {
-                    Storage::disk('public')->delete($f->odometer_path);
-                }
-                if ($f->struk_path) {
-                    Storage::disk('public')->delete($f->struk_path);
-                }
-            }
-            if ($sppd->signature_path) {
-                Storage::disk('public')->delete($sppd->signature_path);
-            }
             if ($sppd->pdf_path) {
                 Storage::disk('public')->delete($sppd->pdf_path);
             }
@@ -154,19 +156,86 @@ class SppdController extends Controller
     /**
      * Baris BBM yang benar-benar kosong (tanpa isian & tanpa unggah) diabaikan.
      */
-    private function isFuelRowCompletelyEmpty(Request $request, int $idx, array $row): bool
+    private function isFuelRowCompletelyEmpty(array $row): bool
     {
-        if (filled($row['liter'] ?? null) || filled($row['harga_per_liter'] ?? null)) {
-            return false;
+        return ! filled($row['liter'] ?? null) && ! filled($row['harga_per_liter'] ?? null);
+    }
+
+    private function normalizeSppdTollGroups(Request $request): void
+    {
+        foreach (['tolls_berangkat', 'tolls_kembali'] as $key) {
+            $rows = $request->input($key, []);
+            if (! is_array($rows)) {
+                continue;
+            }
+            foreach ($rows as $i => $row) {
+                if (! is_array($row)) {
+                    continue;
+                }
+                foreach (['dari_tol', 'ke_tol', 'harga'] as $k) {
+                    if (array_key_exists($k, $row) && $row[$k] === '') {
+                        $rows[$i][$k] = null;
+                    }
+                }
+            }
+            $request->merge([$key => $rows]);
         }
-        if ($request->hasFile("fuels.{$idx}.odometer") || $request->hasFile("fuels.{$idx}.struk")) {
-            return false;
+    }
+
+    /**
+     * @param  array<int, mixed>  $rows
+     */
+    private function filterNonEmptyTollRows(array $rows): Collection
+    {
+        return collect($rows)->filter(function ($row) {
+            if (! is_array($row)) {
+                return false;
+            }
+
+            return filled($row['dari_tol'] ?? null)
+                || filled($row['ke_tol'] ?? null)
+                || (float) ($row['harga'] ?? 0) > 0;
+        })->values();
+    }
+
+    private function validateTollGroupOrFail(Collection $rows, string $label): ?JsonResponse
+    {
+        if ($rows->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => "Minimal isi satu baris biaya tol {$label} (Dari tol, Ke tol, dan Harga).",
+            ], 422);
         }
-        if (filled($row['odometer_existing'] ?? null) || filled($row['struk_existing'] ?? null)) {
-            return false;
+        $first = $rows->first();
+        $h0 = $first['harga'] ?? null;
+        if (! filled($first['dari_tol'] ?? null) || ! filled($first['ke_tol'] ?? null)
+            || $h0 === null || $h0 === '') {
+            return response()->json([
+                'success' => false,
+                'message' => "Baris pertama biaya tol {$label} wajib diisi lengkap: Dari tol, Ke tol, dan Harga (Rp).",
+            ], 422);
+        }
+        foreach ($rows as $idx => $row) {
+            if ((int) $idx === 0) {
+                continue;
+            }
+            $any = filled($row['dari_tol'] ?? null)
+                || filled($row['ke_tol'] ?? null)
+                || (float) ($row['harga'] ?? 0) > 0;
+            if (! $any) {
+                continue;
+            }
+            $h = $row['harga'] ?? null;
+            if (! filled($row['dari_tol'] ?? null) || ! filled($row['ke_tol'] ?? null)
+                || $h === null || $h === '') {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Baris biaya tol {$label} ke-".($idx + 1).': jika diisi, lengkapi Dari tol, Ke tol, dan Harga.',
+                ], 422);
+            }
         }
 
-        return true;
+        return null;
     }
 
     private function persistSppd(Request $request, ?Sppd $existing): JsonResponse
@@ -186,34 +255,41 @@ class SppdController extends Controller
             $request->merge(['fuels' => $fuels]);
         }
 
+        $this->normalizeSppdTollGroups($request);
+
         $validated = $request->validate([
             'keperluan_dinas' => 'required|string|max:500',
             'no_kendaraan' => 'required|string|max:50',
             'jenis_kendaraan' => 'required|string|max:120',
             'tanggal_dinas' => 'required|date',
             'tujuan' => 'required|string|max:2000',
-            'tanda_tangan' => 'required|string',
-            'tolls' => 'nullable|array',
-            'tolls.*.dari_tol' => 'nullable|string|max:255',
-            'tolls.*.ke_tol' => 'nullable|string|max:255',
-            'tolls.*.harga' => 'nullable|numeric|min:0',
+            'tolls_berangkat' => 'nullable|array',
+            'tolls_berangkat.*.dari_tol' => 'nullable|string|max:255',
+            'tolls_berangkat.*.ke_tol' => 'nullable|string|max:255',
+            'tolls_berangkat.*.harga' => 'nullable|numeric|min:0',
+            'tolls_kembali' => 'nullable|array',
+            'tolls_kembali.*.dari_tol' => 'nullable|string|max:255',
+            'tolls_kembali.*.ke_tol' => 'nullable|string|max:255',
+            'tolls_kembali.*.harga' => 'nullable|numeric|min:0',
             'fuels' => 'required|array|min:1',
             'fuels.*.liter' => 'nullable|numeric|min:0',
             'fuels.*.harga_per_liter' => 'nullable|numeric|min:0',
-            'fuels.*.odometer' => 'nullable|file|image|max:10240',
-            'fuels.*.struk' => 'nullable|file|image|max:10240',
-            'fuels.*.odometer_existing' => 'nullable|string|max:500',
-            'fuels.*.struk_existing' => 'nullable|string|max:500',
         ]);
 
         $user = auth()->user();
         $namaDriver = $user->name ?? $user->username ?? 'Driver';
 
-        $tollsIn = collect($validated['tolls'] ?? [])->filter(function ($row) {
-            return filled($row['dari_tol'] ?? null)
-                || filled($row['ke_tol'] ?? null)
-                || (float) ($row['harga'] ?? 0) > 0;
-        })->values();
+        $tollsBer = $this->filterNonEmptyTollRows($validated['tolls_berangkat'] ?? []);
+        $tollsKem = $this->filterNonEmptyTollRows($validated['tolls_kembali'] ?? []);
+        if ($err = $this->validateTollGroupOrFail($tollsBer, 'berangkat')) {
+            return $err;
+        }
+        if ($err = $this->validateTollGroupOrFail($tollsKem, 'kembali')) {
+            return $err;
+        }
+
+        $tollsIn = $tollsBer->map(fn (array $t) => array_merge($t, ['leg' => 'berangkat']))
+            ->concat($tollsKem->map(fn (array $t) => array_merge($t, ['leg' => 'kembali'])));
 
         $nonEmptyFuels = [];
         foreach ($validated['fuels'] as $idx => $row) {
@@ -221,7 +297,7 @@ class SppdController extends Controller
                 continue;
             }
             $i = (int) $idx;
-            if ($this->isFuelRowCompletelyEmpty($request, $i, $row)) {
+            if ($this->isFuelRowCompletelyEmpty($row)) {
                 continue;
             }
             $nonEmptyFuels[] = ['idx' => $i, 'row' => $row];
@@ -230,27 +306,16 @@ class SppdController extends Controller
         if (count($nonEmptyFuels) === 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Minimal isi satu baris BBM (Liter, harga, foto odometer & struk).',
+                'message' => 'Minimal isi satu baris BBM (Liter dan harga per liter).',
             ], 422);
         }
 
         foreach ($nonEmptyFuels as $item) {
-            $idx = $item['idx'];
             $row = $item['row'];
             if (! filled($row['liter'] ?? null) || ! filled($row['harga_per_liter'] ?? null)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Lengkapi Liter dan harga per liter pada setiap baris BBM yang diisi.',
-                ], 422);
-            }
-            $hasOdo = $request->hasFile("fuels.{$idx}.odometer")
-                || filled($row['odometer_existing'] ?? null);
-            $hasStruk = $request->hasFile("fuels.{$idx}.struk")
-                || filled($row['struk_existing'] ?? null);
-            if (! $hasOdo || ! $hasStruk) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Setiap baris BBM yang diisi wajib memiliki foto odometer dan foto struk.',
                 ], 422);
             }
         }
@@ -261,39 +326,16 @@ class SppdController extends Controller
             $totalBbm += round((float) $r['liter'] * (float) $r['harga_per_liter'], 2);
         }
 
-        $totalTol = $tollsIn->sum(fn ($t) => (float) ($t['harga'] ?? 0));
+        $totalTol = $tollsIn->sum(fn (array $t) => (float) ($t['harga'] ?? 0));
         $grandTotal = $totalTol + $totalBbm;
-
-        if (! str_starts_with($request->input('tanda_tangan'), 'data:image')) {
-            return response()->json(['success' => false, 'message' => 'Tanda tangan tidak valid.'], 422);
-        }
-
-        $allowedExistingMedia = collect();
-        if ($existing) {
-            $existing->load('fuels');
-            foreach ($existing->fuels as $f) {
-                if ($f->odometer_path) {
-                    $allowedExistingMedia->push($f->odometer_path);
-                }
-                if ($f->struk_path) {
-                    $allowedExistingMedia->push($f->struk_path);
-                }
-            }
-        }
 
         $savedSppdId = null;
 
         try {
-            DB::transaction(function () use ($request, $existing, $validated, $user, $namaDriver, $tollsIn, $nonEmptyFuels, $totalTol, $totalBbm, $grandTotal, $allowedExistingMedia, &$savedSppdId) {
-                $signaturePath = $this->saveBase64Image($request->input('tanda_tangan'), 'sppd_sig');
-
+            DB::transaction(function () use ($request, $existing, $validated, $user, $namaDriver, $tollsIn, $nonEmptyFuels, $totalTol, $totalBbm, $grandTotal, &$savedSppdId) {
                 if ($existing) {
                     $oldPdfPath = $existing->pdf_path;
-                    $oldFuelPaths = $allowedExistingMedia->all();
 
-                    if ($existing->signature_path) {
-                        Storage::disk('public')->delete($existing->signature_path);
-                    }
                     $existing->tolls()->delete();
                     $existing->fuels()->delete();
                     $sppd = $existing;
@@ -315,7 +357,8 @@ class SppdController extends Controller
                         'rejected_by' => null,
                         'approved_by' => null,
                         'approved_at' => null,
-                        'signature_path' => $signaturePath,
+                        'admin_verified_by' => null,
+                        'admin_verified_at' => null,
                         'pdf_path' => null,
                     ]);
                     if ($oldPdfPath) {
@@ -334,7 +377,6 @@ class SppdController extends Controller
                         'total_bbm' => $totalBbm,
                         'grand_total' => $grandTotal,
                         'status' => Sppd::STATUS_PENDING,
-                        'signature_path' => $signaturePath,
                     ]);
                 }
 
@@ -342,6 +384,7 @@ class SppdController extends Controller
                 foreach ($tollsIn as $t) {
                     SppdToll::create([
                         'sppd_id' => $sppd->id,
+                        'leg' => (string) ($t['leg'] ?? 'berangkat'),
                         'dari_tol' => (string) ($t['dari_tol'] ?? ''),
                         'ke_tol' => (string) ($t['ke_tol'] ?? ''),
                         'harga' => (float) ($t['harga'] ?? 0),
@@ -349,68 +392,24 @@ class SppdController extends Controller
                     ]);
                 }
 
-                $fuelRows = $request->input('fuels', []);
-                $newFuelPaths = [];
                 $sortOrder = 0;
 
                 foreach ($nonEmptyFuels as $item) {
-                    $idx = $item['idx'];
                     $fuelData = $item['row'];
                     $liter = (float) $fuelData['liter'];
                     $hpl = (float) $fuelData['harga_per_liter'];
                     $rowTotal = round($liter * $hpl, 2);
-
-                    $odoPath = null;
-                    $strukPath = null;
-
-                    $fileOdo = $request->file("fuels.{$idx}.odometer");
-                    $fileStruk = $request->file("fuels.{$idx}.struk");
-
-                    if ($fileOdo) {
-                        $odoPath = $fileOdo->store('sppd/fuels/odometer', 'public');
-                    } else {
-                        $exOdo = $fuelRows[$idx]['odometer_existing'] ?? null;
-                        if ($exOdo && $allowedExistingMedia->contains($exOdo)) {
-                            $odoPath = $exOdo;
-                        }
-                    }
-
-                    if ($fileStruk) {
-                        $strukPath = $fileStruk->store('sppd/fuels/struk', 'public');
-                    } else {
-                        $exStruk = $fuelRows[$idx]['struk_existing'] ?? null;
-                        if ($exStruk && $allowedExistingMedia->contains($exStruk)) {
-                            $strukPath = $exStruk;
-                        }
-                    }
-
-                    if ($odoPath) {
-                        $newFuelPaths[] = $odoPath;
-                    }
-                    if ($strukPath) {
-                        $newFuelPaths[] = $strukPath;
-                    }
 
                     SppdFuel::create([
                         'sppd_id' => $sppd->id,
                         'liter' => $liter,
                         'harga_per_liter' => $hpl,
                         'total' => $rowTotal,
-                        'odometer_path' => $odoPath,
-                        'struk_path' => $strukPath,
                         'sort_order' => $sortOrder++,
                     ]);
                 }
 
                 $savedSppdId = $sppd->id;
-
-                if ($existing && isset($oldFuelPaths)) {
-                    foreach (array_diff($oldFuelPaths, $newFuelPaths) as $orphan) {
-                        if ($orphan) {
-                            Storage::disk('public')->delete($orphan);
-                        }
-                    }
-                }
             });
         } catch (\Throwable $e) {
             report($e);
@@ -427,16 +426,5 @@ class SppdController extends Controller
             'redirect' => route('sppd.index'),
             'id' => $savedSppdId,
         ]);
-    }
-
-    private function saveBase64Image(string $base64, string $prefix): string
-    {
-        $image = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
-        $image = base64_decode($image ?: '');
-        $fileName = $prefix.'_'.now()->format('Ymd_His').'_'.uniqid().'.png';
-        $path = 'sppd/signatures/'.$fileName;
-        Storage::disk('public')->put($path, $image);
-
-        return $path;
     }
 }

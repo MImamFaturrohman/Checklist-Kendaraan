@@ -28,7 +28,8 @@ return new class extends Migration
             $table->foreignId('rejected_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();
-            $table->string('signature_path')->nullable();
+            $table->foreignId('admin_verified_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('admin_verified_at')->nullable();
             $table->string('pdf_path')->nullable();
             $table->timestamps();
 
@@ -39,6 +40,7 @@ return new class extends Migration
         Schema::create('sppd_tolls', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sppd_id')->constrained('sppds')->cascadeOnDelete();
+            $table->string('leg', 16)->default('berangkat');
             $table->string('dari_tol');
             $table->string('ke_tol');
             $table->decimal('harga', 12, 2)->default(0);
@@ -52,8 +54,6 @@ return new class extends Migration
             $table->decimal('liter', 10, 2)->default(0);
             $table->decimal('harga_per_liter', 12, 2)->default(0);
             $table->decimal('total', 14, 2)->default(0);
-            $table->string('odometer_path')->nullable();
-            $table->string('struk_path')->nullable();
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->timestamps();
         });
