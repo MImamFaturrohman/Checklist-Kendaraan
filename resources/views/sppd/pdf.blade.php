@@ -151,13 +151,13 @@
         }
 
         .sig-qr-wrap-pm {
-            width: 5.75em;
-            height: 5.75em;
+            width: 5.7em;
+            height: 5.7em;
         }
 
         .sig-qr-wrap-adm {
-            width: 5.6em;
-            height: 5.6em;
+            width: 5.35em;
+            height: 5.35em;
         }
 
         .signature-qr-img {
@@ -170,12 +170,12 @@
             object-fit: contain;
         }
         .signature-qr-img-pm {
-            width: 5.75em;
+            width: 5.7em;
             height: 5.7em;
         }
         .signature-qr-img-adm {
-            width: 5.6em;
-            height: 5.6em;
+            width: 5.35em;
+            height: 5.35em;
         }
         .sig-meta {
             display: table-cell;
@@ -415,10 +415,8 @@
                 ->timezone($tz)
                 ->translatedFormat('d F Y, H.i'). ' WIB'
             : '—';
-
-        $webUrl = config('app.url');
-        $qrPmPayload = "MENYETUJUI PORT MANAGER\nNama: {$pmName}\nNo Surat: {$noSurat}\n{$pmWhen}\nDokumen ini diproduksi oleh\n{$webUrl}";
-        $qrAdmPayload = "DIVERIFIKASI KEUANGAN & ADMINISTRASI\nNama: {$admName}\nNo Surat: {$noSurat}\n{$admWhen}\nDokumen ini diproduksi oleh\n{$webUrl}";
+        $qrPmPayload = "MENYETUJUI PORT MANAGER\nNama: {$pmName}\nNo Surat: {$noSurat}\n{$pmWhen}\nDokumen ini diproduksi oleh Vehicle Management System";
+        $qrAdmPayload = "DIVERIFIKASI KEUANGAN & ADMINISTRASI\nNama: {$admName}\nNo Surat: {$noSurat}\n{$admWhen}\nDokumen ini diproduksi oleh Vehicle Management System";
         $qrPm = SppdPdfQr::pngDataUri($qrPmPayload);
         $qrAdm = SppdPdfQr::pngDataUri($qrAdmPayload);
     @endphp
