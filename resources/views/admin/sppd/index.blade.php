@@ -64,7 +64,7 @@
                     <button type="submit" class="portal-local-reset ppm-filter-reset">Terapkan</button>
                 </form>
 
-                <div class="admin-table-wrap sppd-table-wrap">
+                <div class="admin-table-wrap">
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -118,7 +118,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="admin-pagination mt-4">{{ $sppds->links() }}</div>
+                <div class="admin-pagination mt-4 portal-pagination-wrap sppd-pagination--unified">{{ $sppds->links() }}</div>
             </div>
         </div>
     </div>

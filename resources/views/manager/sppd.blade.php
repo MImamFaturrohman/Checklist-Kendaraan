@@ -85,7 +85,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="admin-pagination mt-4">{{ $pending->links() }}</div>
+            <div class="admin-pagination mt-4 portal-pagination-wrap sppd-pagination--unified">{{ $pending->links() }}</div>
 
             <div class="portal-section-header" style="margin:28px 0 12px">
                 <div class="portal-section-title">Riwayat</div>
@@ -118,7 +118,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="admin-pagination mt-4">{{ $history->links() }}</div>
+            <div class="admin-pagination mt-4 portal-pagination-wrap sppd-pagination--unified">{{ $history->links() }}</div>
         </div>
     </div>
 
