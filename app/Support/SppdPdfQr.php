@@ -31,7 +31,7 @@ final class SppdPdfQr
             return $writer->write($qr)->getDataUri();
         }
 
-        $logoWidth = max(36, (int) round($size * 0.22));
+        $logoWidth = max(36, (int) round($size * 0.32));
 
         $tmpCircular = self::buildCircularLogoFile($logoPath, $logoWidth);
 
