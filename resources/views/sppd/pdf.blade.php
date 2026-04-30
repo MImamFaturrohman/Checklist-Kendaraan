@@ -146,14 +146,21 @@
         .sig-qr-wrap {
             display: table-cell;
             vertical-align: middle;
-            width: 5.15em;
             padding-right: 8px;
             box-sizing: border-box;
         }
+
+        .sig-qr-wrap-pm {
+            width: 5.75em;
+            height: 5.75em;
+        }
+
+        .sig-qr-wrap-adm {
+            width: 5.6em;
+            height: 5.6em;
+        }
+
         .signature-qr-img {
-            /* Satuan em mengikuti font-size .sig-pair-wrap (sama dengan .sig-meta); ≈ 4 baris × line-height */
-            width: 5.15em;
-            height: 5.15em;
             max-width: 100%;
             display: block;
             margin: 0;
@@ -161,6 +168,14 @@
             padding: 0;
             box-sizing: border-box;
             object-fit: contain;
+        }
+        .signature-qr-img-pm {
+            width: 5.75em;
+            height: 5.7em;
+        }
+        .signature-qr-img-adm {
+            width: 5.6em;
+            height: 5.6em;
         }
         .sig-meta {
             display: table-cell;
@@ -185,7 +200,7 @@
         }
         .sig-line-when {
             font-size: 7.5pt;
-            color: #6b7280;
+            color: #565c68;
             font-weight: 600;
             font-style: italic;
         }
@@ -400,8 +415,10 @@
                 ->timezone($tz)
                 ->translatedFormat('d F Y, H.i'). ' WIB'
             : '—';
-        $qrPmPayload = "MENYETUJUI PORT MANAGER\nNo Surat: {$noSurat}\nNama: {$pmName}\nWaktu: {$pmWhen}";
-        $qrAdmPayload = "DIVERIFIKASI KEUANGAN & ADMINISTRASI\nNo Surat: {$noSurat}\nNama: {$admName}\nWaktu: {$admWhen}";
+
+        $webUrl = config('app.url');
+        $qrPmPayload = "MENYETUJUI PORT MANAGER\nNama: {$pmName}\nNo Surat: {$noSurat}\n{$pmWhen}\nDokumen ini diproduksi oleh\n{$webUrl}";
+        $qrAdmPayload = "DIVERIFIKASI KEUANGAN & ADMINISTRASI\nNama: {$admName}\nNo Surat: {$noSurat}\n{$admWhen}\nDokumen ini diproduksi oleh\n{$webUrl}";
         $qrPm = SppdPdfQr::pngDataUri($qrPmPayload);
         $qrAdm = SppdPdfQr::pngDataUri($qrAdmPayload);
     @endphp
@@ -410,8 +427,8 @@
         <tr>
             <td>
                 <div class="sig-pair-wrap">
-                    <div class="sig-qr-wrap">
-                        <img class="signature-qr-img" src="{{ $qrPm }}" alt="QR Port Manager">
+                    <div class="sig-qr-wrap sig-qr-wrap-pm">
+                        <img class="signature-qr-img sig-qr-pm" src="{{ $qrPm }}" alt="QR Port Manager">
                     </div>
                     <div class="sig-meta">
                         <div class="sig-line-title">Menyetujui,</div>
@@ -423,8 +440,8 @@
             </td>
             <td>
                 <div class="sig-pair-wrap">
-                    <div class="sig-qr-wrap">
-                        <img class="signature-qr-img" src="{{ $qrAdm }}" alt="QR Admin">
+                    <div class="sig-qr-wrap sig-qr-wrap-adm">
+                        <img class="signature-qr-img sig-qr-adm" src="{{ $qrAdm }}" alt="QR Admin">
                     </div>
                     <div class="sig-meta">
                         <div class="sig-line-title">Diverifikasi,</div>
