@@ -152,13 +152,13 @@
         }
 
         .sig-qr-wrap-pm {
-            width: 6em;
-            height: 6em;
+            width: 24mm;
+            height: 24mm;
         }
 
         .sig-qr-wrap-adm {
-            width: 6em;
-            height: 6em;
+            width: 24mm;
+            height: 24mm;
         }
 
         .signature-qr-img {
@@ -171,12 +171,12 @@
             object-fit: contain;
         }
         .signature-qr-img-pm {
-            width: 6em;
-            height: 6em;
+            width: 24mm;
+            height: 24mm;
         }
         .signature-qr-img-adm {
-            width: 6em;
-            height: 6em;
+            width: 24mm;
+            height: 24mm;
         }
         .sig-meta {
             display: table-cell;
