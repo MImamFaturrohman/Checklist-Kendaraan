@@ -147,18 +147,18 @@
         .sig-qr-wrap {
             display: table-cell;
             vertical-align: middle;
-            padding-right: 8px;
+            padding-right: 4px;
             box-sizing: border-box;
         }
 
         .sig-qr-wrap-pm {
-            width: 24mm;
-            height: 24mm;
+            width: 21mm;
+            height: 21mm;
         }
 
         .sig-qr-wrap-adm {
-            width: 24mm;
-            height: 24mm;
+            width: 21mm;
+            height: 21mm;
         }
 
         .signature-qr-img {
@@ -171,12 +171,12 @@
             object-fit: contain;
         }
         .signature-qr-img-pm {
-            width: 24mm;
-            height: 24mm;
+            width: 21mm;
+            height: 21mm;
         }
         .signature-qr-img-adm {
-            width: 24mm;
-            height: 24mm;
+            width: 21mm;
+            height: 21mm;
         }
         .sig-meta {
             display: table-cell;
