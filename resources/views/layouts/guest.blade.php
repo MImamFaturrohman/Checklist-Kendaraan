@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
+        @include('partials.favicon')
 
         @vite(['resources/css/auth.css', 'resources/js/app.js'])
     </head>

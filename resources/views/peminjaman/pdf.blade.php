@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
+    @include('partials.favicon')
     <title>PERNYATAAN PEMINJAMAN KENDARAAN DINAS</title>
     <style>
         @font-face {

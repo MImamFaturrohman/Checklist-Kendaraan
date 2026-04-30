@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="description" content="Login - VMS Vehicle Management System Portal Kendaraan Operasional">
         <title>Login - {{ config('app.name', 'VMS') }}</title>
+        @include('partials.favicon')
         @vite(['resources/css/auth.css', 'resources/js/app.js'])
         
         <style>

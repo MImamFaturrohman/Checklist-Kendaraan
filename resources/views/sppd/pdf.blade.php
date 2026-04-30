@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
+    @include('partials.favicon')
     <title>Rekap SPPD — {{ $sppd->nama_driver }}</title>
     <style>
         @font-face {
