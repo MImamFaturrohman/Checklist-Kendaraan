@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const passwordToggle = loginForm.querySelector('[data-password-toggle]');
         const passwordIcon = loginForm.querySelector('[data-password-icon]');
         const submitButton = loginForm.querySelector('[data-login-submit]');
-        const submitLabel = submitButton ? submitButton.innerHTML : '';
         if (passwordInput && passwordToggle && passwordIcon) {
             passwordToggle.addEventListener('click', () => {
                 const show = passwordInput.type === 'password';
@@ -32,8 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loginForm.addEventListener('submit', () => {
                 submitButton.classList.add('is-loading');
                 submitButton.disabled = true;
-                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
-                setTimeout(() => { submitButton.classList.remove('is-loading'); submitButton.disabled = false; submitButton.innerHTML = submitLabel; }, 6000);
+                submitButton.setAttribute('aria-busy', 'true');
+                loginForm.classList.add('auth-form--loading');
+                submitButton.innerHTML =
+                    '<span class="auth-login-spinner" role="status" aria-label="Memuat"></span>'
+                    + '<span class="auth-btn-text">Memvalidasi…</span>';
             });
         }
     }

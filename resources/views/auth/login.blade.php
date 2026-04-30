@@ -118,9 +118,9 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="auth-btn-submit" id="login-submit">
+                    <button type="submit" class="auth-btn-submit" id="login-submit" data-login-submit aria-busy="false">
                         <span class="auth-btn-text">Sign in</span>
-                        <i class="bi bi-box-arrow-in-right"></i>
+                        <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
                     </button>
                 </form>
 

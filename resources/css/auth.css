@@ -502,6 +502,37 @@
     transform: translateX(4px);
 }
 
+.auth-btn-submit.is-loading {
+    pointer-events: none;
+    opacity: 0.92;
+    cursor: wait;
+}
+
+.auth-btn-submit.is-loading .auth-login-spinner {
+    flex-shrink: 0;
+}
+
+.auth-login-spinner {
+    width: 1.05rem;
+    height: 1.05rem;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: authLoginSpin 0.7s linear infinite;
+}
+
+@keyframes authLoginSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.auth-form.auth-form--loading .auth-input,
+.auth-form.auth-form--loading .auth-password-toggle {
+    pointer-events: none;
+    opacity: 0.72;
+}
+
 /* ================================================================
    BACK LINK
    ================================================================ */

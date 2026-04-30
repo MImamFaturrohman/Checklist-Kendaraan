@@ -416,8 +416,9 @@
                 ->timezone($tz)
                 ->translatedFormat('d F Y, H.i'). ' WIB'
             : '—';
-        $qrPmPayload = "MENYETUJUI PORT MANAGER\nNama: {$pmName}\nNo Surat: {$noSurat}\n{$pmWhen}\nDokumen ini diproduksi oleh Vehicle Management System";
-        $qrAdmPayload = "DIVERIFIKASI KEUANGAN & ADMINISTRASI\nNama: {$admName}\nNo Surat: {$noSurat}\n{$admWhen}\nDokumen ini diproduksi oleh Vehicle Management System";
+        $webUrl = config('app.url');
+        $qrPmPayload = "MENYETUJUI PORT MANAGER\nNama: {$pmName}\nNo Surat: {$noSurat}\n{$pmWhen}\nDokumen ini diproduksi oleh {$webUrl}";
+        $qrAdmPayload = "DIVERIFIKASI KEUANGAN & ADMINISTRASI\nNama: {$admName}\nNo Surat: {$noSurat}\n{$admWhen}\nDokumen ini diproduksi oleh {$webUrl}";
         $qrPm = SppdPdfQr::pngDataUri($qrPmPayload);
         $qrAdm = SppdPdfQr::pngDataUri($qrAdmPayload);
     @endphp

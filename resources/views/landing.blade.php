@@ -4,6 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Vehicle Management System">
+    <meta property="og:description" content="Sistem manajemen kendaraan PT Artha Daya Coalindo">
+    <meta property="og:image" content="{{ asset('image/ADC.png') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vehicle Management System">
+    <meta name="twitter:description" content="Vehicle Management System - PT Artha Daya Coalindo">
+    <meta name="twitter:image" content="{{ asset('image/ADC.png') }}">
+
     <title>Vechicle Management System - PT ARTHA DAYA COALINDO</title>
     @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
