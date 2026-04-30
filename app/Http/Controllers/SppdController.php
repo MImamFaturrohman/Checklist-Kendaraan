@@ -6,9 +6,11 @@ use App\Models\Kendaraan;
 use App\Models\Sppd;
 use App\Models\SppdFuel;
 use App\Models\SppdToll;
+use App\Support\SppdStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -33,22 +35,48 @@ class SppdController extends Controller
         return in_array($n, self::SPPD_PER_PAGE_OPTIONS, true) ? $n : 10;
     }
 
-    public function index(Request $request): View
+    public function index(Request $request): View|Response
     {
         abort_unless($this->isDriverRole(), 403);
 
         $perPage = $this->resolveSppdPerPage($request);
 
-        $sppds = Sppd::query()
+        $q = trim((string) $request->query('q', ''));
+        $status = $request->query('status');
+
+        $query = Sppd::query()
             ->where('user_id', auth()->id())
             ->with(['tolls', 'fuels'])
-            ->orderByDesc('created_at')
+            ->orderByDesc('created_at');
+
+        if ($q !== '') {
+            $like = '%'.$q.'%';
+            $query->where(function ($w) use ($like) {
+                $w->where('keperluan_dinas', 'like', $like)
+                    ->orWhere('no_kendaraan', 'like', $like)
+                    ->orWhere('jenis_kendaraan', 'like', $like)
+                    ->orWhere('tujuan', 'like', $like);
+            });
+        }
+
+        if ($status && in_array($status, SppdStatus::adminFilterOptions(), true)) {
+            $query->where('status', $status);
+        }
+
+        $sppds = $query
             ->paginate($perPage)
+            ->onEachSide(0)
             ->withQueryString();
 
-        return view('sppd.index', [
+        $view = view('sppd.index', [
             'sppds' => $sppds,
         ]);
+
+        if ($request->header('X-VMS-SPPD-Fragment') === '1') {
+            return response($view->fragment('sppd-driver-body'));
+        }
+
+        return $view;
     }
 
     public function showJson(Sppd $sppd): JsonResponse

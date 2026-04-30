@@ -74,6 +74,94 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ================================================================
+       SPPD rekap lists — fetch Blade fragments (driver / admin / manager)
+       ================================================================ */
+    document.querySelectorAll('[data-vms-sppd-live]').forEach((root) => {
+        const DEBOUNCE_MS = 380;
+        const HEADER = 'X-VMS-SPPD-Fragment';
+        let timer = null;
+
+        const collectParamsFromForms = () => {
+            const params = new URLSearchParams();
+            root.querySelectorAll('form').forEach((form) => {
+                const fd = new FormData(form);
+                fd.forEach((v, k) => {
+                    if (typeof v === 'string') params.set(k, v);
+                });
+            });
+            return params;
+        };
+
+        const resetPagingKeys = (url) => {
+            url.searchParams.set('page', '1');
+            url.searchParams.delete('pending_page');
+            url.searchParams.delete('history_page');
+        };
+
+        async function fetchFragment(fullUrl) {
+            try {
+                const res = await fetch(fullUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        [HEADER]: '1',
+                        Accept: 'text/html',
+                    },
+                    credentials: 'same-origin',
+                });
+                if (!res.ok) return;
+                const html = await res.text();
+                root.innerHTML = html;
+                history.replaceState({}, '', fullUrl);
+            } catch (_) {
+                window.location.href = fullUrl;
+            }
+        }
+
+        root.addEventListener('click', (e) => {
+            const a = e.target.closest('.admin-pagination a[href]');
+            if (!a || !root.contains(a)) return;
+            e.preventDefault();
+            fetchFragment(a.href);
+        });
+
+        root.addEventListener('submit', (e) => {
+            const form = e.target.closest('form');
+            if (!form || !root.contains(form)) return;
+            const method = (form.getAttribute('method') || 'get').toLowerCase();
+            if (method !== 'get') return;
+            e.preventDefault();
+            const url = new URL(form.action || window.location.pathname, window.location.origin);
+            const fd = new FormData(form);
+            fd.forEach((v, k) => {
+                if (typeof v === 'string') url.searchParams.set(k, v);
+            });
+            resetPagingKeys(url);
+            fetchFragment(url.toString());
+        });
+
+        root.addEventListener('change', (e) => {
+            const sel = e.target.closest('select[name]');
+            if (!sel || !root.contains(sel)) return;
+            const url = new URL(window.location.pathname, window.location.origin);
+            collectParamsFromForms().forEach((v, k) => url.searchParams.set(k, v));
+            resetPagingKeys(url);
+            fetchFragment(url.toString());
+        });
+
+        root.addEventListener('input', (e) => {
+            const inp = e.target.closest('input[type="search"][name="q"], input[type="text"][name="q"]');
+            if (!inp || !root.contains(inp)) return;
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                const url = new URL(window.location.pathname, window.location.origin);
+                collectParamsFromForms().forEach((v, k) => url.searchParams.set(k, v));
+                resetPagingKeys(url);
+                fetchFragment(url.toString());
+            }, DEBOUNCE_MS);
+        });
+    });
+
+    /* ================================================================
        CHECKLIST WIZARD
        ================================================================ */
     const wizardRoot = document.querySelector('[data-checklist-wizard]');

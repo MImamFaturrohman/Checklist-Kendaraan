@@ -48,20 +48,30 @@
                 <div class="portal-section-header">
                     <div class="portal-section-title"><i class="bi bi-table"></i> Daftar Rekap SPPD</div>
                 </div>
-                <form method="get" action="{{ route('admin.sppd.index') }}" class="portal-local-filters ppm-daftar-filters">
+                <div id="sppd-admin-live-root" data-vms-sppd-live>
+                @fragment('sppd-admin-body')
+                <form method="get" action="{{ route('admin.sppd.index') }}" class="portal-local-filters ppm-daftar-filters" id="admin-sppd-filter-form">
                     <div class="admin-search-wrap portal-search-full">
                         <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        <input type="text" name="q" value="{{ $search }}" placeholder="Cari driver, keperluan, nopol…" class="admin-search-input">
+                        <input type="text" name="q" value="{{ $search }}" placeholder="Cari driver, keperluan, nopol…" class="admin-search-input" autocomplete="off">
                     </div>
                     <div class="ppm-status-wrap">
-                        <select name="status" class="admin-filter-input" onchange="this.form.submit()">
+                        <select name="status" class="admin-filter-input">
                             <option value="">Semua status</option>
                             @foreach(\App\Support\SppdStatus::adminFilterOptions() as $st)
                                 <option value="{{ $st }}" @selected($currentStatus === $st)>{{ \App\Support\SppdStatus::label($st) }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="portal-local-reset ppm-filter-reset">Terapkan</button>
+                    <div class="portal-perpage-wrap sppd-per-page-wrap">
+                        <span class="portal-perpage-label" id="admin-sppd-per-page-label">Per halaman</span>
+                        <label class="sr-only" for="admin-sppd-per-page">Jumlah data per halaman</label>
+                        <select name="per_page" id="admin-sppd-per-page" class="admin-filter-input sppd-per-page-select" aria-labelledby="admin-sppd-per-page-label">
+                            @foreach([5, 10, 25, 50, 100] as $n)
+                                <option value="{{ $n }}" @selected($sppds->perPage() === $n)>{{ $n }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </form>
 
                 <div class="admin-table-wrap">
@@ -118,7 +128,11 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="admin-pagination mt-4 portal-pagination-wrap sppd-pagination--unified">{{ $sppds->links() }}</div>
+                <div class="sppd-pagination-scroll">
+                    <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $sppds->links() }}</div>
+                </div>
+                @endfragment
+                </div>
             </div>
         </div>
     </div>
@@ -194,31 +208,26 @@
             modal.style.display = 'flex';
         }
 
-        document.querySelectorAll('.admin-sppd-detail').forEach(btn => {
-            btn.addEventListener('click', () => showDetail(btn.dataset.id));
-        });
-        document.querySelectorAll('[data-close-admin-sppd-modal]').forEach(el => {
-            el.addEventListener('click', () => { document.getElementById('sppd-modal-detail-admin').style.display = 'none'; });
-        });
-        document.getElementById('sppd-modal-detail-admin')?.addEventListener('click', (e) => {
-            if (e.target.id === 'sppd-modal-detail-admin') e.currentTarget.style.display = 'none';
-        });
-
-        document.querySelectorAll('.admin-sppd-ok').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const id = btn.dataset.id;
+        document.getElementById('section-sppd-admin')?.addEventListener('click', async (e) => {
+            const detailBtn = e.target.closest('.admin-sppd-detail');
+            if (detailBtn) {
+                await showDetail(detailBtn.dataset.id);
+                return;
+            }
+            const okBtn = e.target.closest('.admin-sppd-ok');
+            if (okBtn) {
+                const id = okBtn.dataset.id;
                 const c = await Swal.fire({ title: 'Verifikasi?', text: 'Laporan akan diteruskan ke Manager.', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, setujui' });
                 if (!c.isConfirmed) return;
                 const r = await fetch(approveUrl(id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
                 const j = await r.json();
                 if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
                 else Swal.fire('Gagal', j.message || 'Error', 'error');
-            });
-        });
-
-        document.querySelectorAll('.admin-sppd-reject').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const id = btn.dataset.id;
+                return;
+            }
+            const rejBtn = e.target.closest('.admin-sppd-reject');
+            if (rejBtn) {
+                const id = rejBtn.dataset.id;
                 const { value: note } = await Swal.fire({
                     title: 'Alasan revisi',
                     input: 'textarea',
@@ -237,7 +246,13 @@
                 const j = await r.json();
                 if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
                 else Swal.fire('Gagal', j.message || 'Error', 'error');
-            });
+            }
+        });
+        document.querySelectorAll('[data-close-admin-sppd-modal]').forEach(el => {
+            el.addEventListener('click', () => { document.getElementById('sppd-modal-detail-admin').style.display = 'none'; });
+        });
+        document.getElementById('sppd-modal-detail-admin')?.addEventListener('click', (e) => {
+            if (e.target.id === 'sppd-modal-detail-admin') e.currentTarget.style.display = 'none';
         });
 
         const body = document.body;

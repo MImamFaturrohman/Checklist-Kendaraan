@@ -6,6 +6,7 @@ use App\Models\Sppd;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -15,25 +16,64 @@ class ManagerSppdController extends Controller
 {
     private const PDF_GENERATION_FAILED = '__sppd_pdf_generation_failed__';
 
-    public function index(Request $request): View
+    /** @var list<int> */
+    private const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
+
+    private function resolveManagerSppdPerPage(Request $request): int
+    {
+        $n = (int) $request->query('per_page', 12);
+
+        return in_array($n, self::PER_PAGE_OPTIONS, true) ? $n : 12;
+    }
+
+    public function index(Request $request): View|Response
     {
         abort_unless(auth()->user()?->role === 'manager', 403);
 
-        $pending = Sppd::query()
+        $perPage = $this->resolveManagerSppdPerPage($request);
+        $q = trim((string) $request->query('q', ''));
+
+        $pendingQuery = Sppd::query()
             ->where('status', Sppd::STATUS_PENDING_MANAGER)
             ->with(['user:id,name,username', 'tolls', 'fuels'])
-            ->orderByDesc('created_at')
-            ->paginate(12, ['*'], 'pending_page')
-            ->withQueryString();
+            ->orderByDesc('created_at');
 
-        $history = Sppd::query()
+        $historyQuery = Sppd::query()
             ->whereIn('status', [Sppd::STATUS_APPROVED, Sppd::STATUS_REJECTED, Sppd::STATUS_COMPLETED])
             ->with(['user:id,name,username', 'approver:id,name'])
-            ->orderByDesc('updated_at')
-            ->paginate(12, ['*'], 'history_page')
+            ->orderByDesc('updated_at');
+
+        if ($q !== '') {
+            $like = '%'.$q.'%';
+            $pendingQuery->where(function ($w) use ($like) {
+                $w->where('nama_driver', 'like', $like)
+                    ->orWhere('keperluan_dinas', 'like', $like)
+                    ->orWhere('no_kendaraan', 'like', $like);
+            });
+            $historyQuery->where(function ($w) use ($like) {
+                $w->where('nama_driver', 'like', $like)
+                    ->orWhere('keperluan_dinas', 'like', $like)
+                    ->orWhere('no_kendaraan', 'like', $like);
+            });
+        }
+
+        $pending = $pendingQuery
+            ->paginate($perPage, ['*'], 'pending_page')
+            ->onEachSide(0)
             ->withQueryString();
 
-        return view('manager.sppd', compact('pending', 'history'));
+        $history = $historyQuery
+            ->paginate($perPage, ['*'], 'history_page')
+            ->onEachSide(0)
+            ->withQueryString();
+
+        $view = view('manager.sppd', compact('pending', 'history', 'q', 'perPage'));
+
+        if ($request->header('X-VMS-SPPD-Fragment') === '1') {
+            return response($view->fragment('manager-sppd-body'));
+        }
+
+        return $view;
     }
 
     public function show(Sppd $sppd): JsonResponse

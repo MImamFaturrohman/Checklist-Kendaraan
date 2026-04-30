@@ -7,18 +7,31 @@ use App\Models\Sppd;
 use App\Support\SppdStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class SppdAdminController extends Controller
 {
+    /** @var list<int> */
+    private const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
+
     private function authorizeAdmin(): void
     {
         abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin'], true), 403);
     }
 
-    public function index(Request $request): View
+    private function resolveAdminSppdPerPage(Request $request): int
+    {
+        $n = (int) $request->query('per_page', 15);
+
+        return in_array($n, self::PER_PAGE_OPTIONS, true) ? $n : 15;
+    }
+
+    public function index(Request $request): View|Response
     {
         $this->authorizeAdmin();
+
+        $perPage = $this->resolveAdminSppdPerPage($request);
 
         $status = $request->input('status');
         $search = $request->input('q');
@@ -39,7 +52,7 @@ class SppdAdminController extends Controller
             });
         }
 
-        $sppds = $query->paginate(15)->withQueryString();
+        $sppds = $query->paginate($perPage)->onEachSide(0)->withQueryString();
 
         $counts = [
             'all' => Sppd::count(),
@@ -51,13 +64,21 @@ class SppdAdminController extends Controller
             'completed' => Sppd::where('status', Sppd::STATUS_COMPLETED)->count(),
         ];
 
-        return view('admin.sppd.index', [
+        $payload = [
             'sppds' => $sppds,
             'counts' => $counts,
             'currentStatus' => $status,
             'search' => $search,
             'statusMeta' => fn (?string $s) => SppdStatus::meta($s),
-        ]);
+        ];
+
+        $view = view('admin.sppd.index', $payload);
+
+        if ($request->header('X-VMS-SPPD-Fragment') === '1') {
+            return response($view->fragment('sppd-admin-body'));
+        }
+
+        return $view;
     }
 
     public function show(Sppd $sppd): JsonResponse

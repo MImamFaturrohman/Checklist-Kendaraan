@@ -59,6 +59,24 @@
 
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
+            <div id="mgr-sppd-live-root" data-vms-sppd-live>
+            @fragment('manager-sppd-body')
+            <form method="get" action="{{ route('manager.sppd.index') }}" class="portal-local-filters ppm-daftar-filters" id="mgr-sppd-filter-form">
+                <div class="admin-search-wrap portal-search-full">
+                    <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <input type="text" name="q" value="{{ $q }}" class="admin-search-input" placeholder="Cari driver, keperluan, nopol…" autocomplete="off" aria-label="Cari SPPD">
+                </div>
+                <div class="portal-perpage-wrap sppd-per-page-wrap">
+                    <span class="portal-perpage-label" id="mgr-sppd-per-page-label">Per halaman</span>
+                    <label class="sr-only" for="mgr-sppd-per-page">Jumlah baris per tabel</label>
+                    <select name="per_page" id="mgr-sppd-per-page" class="admin-filter-input sppd-per-page-select" aria-labelledby="mgr-sppd-per-page-label">
+                        @foreach([5, 10, 25, 50, 100] as $n)
+                            <option value="{{ $n }}" @selected((int) $perPage === $n)>{{ $n }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </form>
+
             <div class="portal-section-header" style="margin-bottom:12px">
                 <div class="portal-section-title">Menunggu Persetujuan</div>
             </div>
@@ -85,7 +103,9 @@
                     </tbody>
                 </table>
             </div>
-            <div class="admin-pagination mt-4 portal-pagination-wrap sppd-pagination--unified">{{ $pending->links() }}</div>
+            <div class="sppd-pagination-scroll">
+                <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $pending->links() }}</div>
+            </div>
 
             <div class="portal-section-header" style="margin:28px 0 12px">
                 <div class="portal-section-title">Riwayat</div>
@@ -118,7 +138,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="admin-pagination mt-4 portal-pagination-wrap sppd-pagination--unified">{{ $history->links() }}</div>
+            <div class="sppd-pagination-scroll">
+                <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $history->links() }}</div>
+            </div>
+            @endfragment
+            </div>
         </div>
     </div>
 
@@ -179,35 +203,30 @@
             `;
         }
 
-        document.querySelectorAll('.mgr-sppd-detail').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const r = await fetch(detail(btn.dataset.id), { headers: { Accept: 'application/json' } });
+        document.getElementById('mgr-sppd-live-root')?.addEventListener('click', async (e) => {
+            const detailBtn = e.target.closest('.mgr-sppd-detail');
+            if (detailBtn) {
+                const r = await fetch(detail(detailBtn.dataset.id), { headers: { Accept: 'application/json' } });
                 const j = await r.json();
                 const d = j.sppd;
                 const modal = document.getElementById('sppd-modal-detail-manager');
-                const body = document.getElementById('sppd-manager-detail-body');
-                body.innerHTML = renderDetail(d);
+                const detailBody = document.getElementById('sppd-manager-detail-body');
+                detailBody.innerHTML = renderDetail(d);
                 modal.style.display = 'flex';
-            });
-        });
-        document.querySelectorAll('[data-close-manager-sppd-modal]').forEach(el => {
-            el.addEventListener('click', () => { document.getElementById('sppd-modal-detail-manager').style.display = 'none'; });
-        });
-        document.getElementById('sppd-modal-detail-manager')?.addEventListener('click', (e) => {
-            if (e.target.id === 'sppd-modal-detail-manager') e.currentTarget.style.display = 'none';
-        });
-        document.querySelectorAll('.mgr-sppd-approve').forEach(btn => {
-            btn.addEventListener('click', async () => {
+                return;
+            }
+            const apprBtn = e.target.closest('.mgr-sppd-approve');
+            if (apprBtn) {
                 const c = await Swal.fire({ title: 'Setujui rekap ini?', icon: 'question', showCancelButton: true, confirmButtonText: 'Setujui' });
                 if (!c.isConfirmed) return;
-                const r = await fetch(approve(btn.dataset.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
+                const r = await fetch(approve(apprBtn.dataset.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
                 const j = await r.json();
                 if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
                 else Swal.fire('Gagal', j.message || '', 'error');
-            });
-        });
-        document.querySelectorAll('.mgr-sppd-regen-pdf').forEach(btn => {
-            btn.addEventListener('click', async () => {
+                return;
+            }
+            const regenBtn = e.target.closest('.mgr-sppd-regen-pdf');
+            if (regenBtn) {
                 const c = await Swal.fire({
                     title: 'Buat file PDF?',
                     text: 'Diperlukan jika persetujuan sebelumnya gagal menyimpan PDF (misalnya gd belum aktif).',
@@ -216,14 +235,14 @@
                     confirmButtonText: 'Buat PDF',
                 });
                 if (!c.isConfirmed) return;
-                const r = await fetch(regenPdf(btn.dataset.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
+                const r = await fetch(regenPdf(regenBtn.dataset.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
                 const j = await r.json().catch(() => ({}));
                 if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
                 else Swal.fire('Gagal', j.message || 'Tidak dapat membuat PDF', 'error');
-            });
-        });
-        document.querySelectorAll('.mgr-sppd-reject').forEach(btn => {
-            btn.addEventListener('click', async () => {
+                return;
+            }
+            const rejBtn = e.target.closest('.mgr-sppd-reject');
+            if (rejBtn) {
                 const { value: note } = await Swal.fire({
                     title: 'Alasan penolakan',
                     input: 'textarea',
@@ -232,7 +251,7 @@
                     inputValidator: (v) => !v && 'Wajib diisi',
                 });
                 if (!note) return;
-                const r = await fetch(reject(btn.dataset.id), {
+                const r = await fetch(reject(rejBtn.dataset.id), {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json', 'Content-Type': 'application/json' },
                     body: JSON.stringify({ rejection_note: note }),
@@ -240,7 +259,13 @@
                 const j = await r.json();
                 if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
                 else Swal.fire('Gagal', j.message || '', 'error');
-            });
+            }
+        });
+        document.querySelectorAll('[data-close-manager-sppd-modal]').forEach(el => {
+            el.addEventListener('click', () => { document.getElementById('sppd-modal-detail-manager').style.display = 'none'; });
+        });
+        document.getElementById('sppd-modal-detail-manager')?.addEventListener('click', (e) => {
+            if (e.target.id === 'sppd-modal-detail-manager') e.currentTarget.style.display = 'none';
         });
 
         const body = document.body;
