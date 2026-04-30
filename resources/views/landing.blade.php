@@ -7,8 +7,8 @@
 
     <!-- Open Graph -->
     <meta property="og:title" content="Vehicle Management System">
-    <meta property="og:description" content="Sistem manajemen kendaraan PT Artha Daya Coalindo">
-    <meta property="og:image" content="{{ asset('image/ADC.png') }}">
+    <meta property="og:description" content="Vehicle Management System - PT Artha Daya Coalindo">
+    <meta property="og:image" content="{{ asset('images/ADC.png') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="website">
 
