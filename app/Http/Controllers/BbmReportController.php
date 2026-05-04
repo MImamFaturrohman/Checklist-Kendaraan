@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BbmReport;
 use App\Models\Kendaraan;
+use App\Support\DriverShift;
 use App\Support\SuperAdminNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -25,9 +26,16 @@ class BbmReportController extends Controller
 
         $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
 
+        $driverShiftAtLogin = session('driver_shift_at_login');
+        if (! is_array($driverShiftAtLogin) || empty($driverShiftAtLogin['code'])) {
+            $s = DriverShift::current();
+            $driverShiftAtLogin = ['code' => $s['code'], 'label' => $s['label']];
+        }
+
         return view('bbm-reports.create', [
             'kendaraans' => $kendaraans,
             'user' => auth()->user(),
+            'driverShiftAtLogin' => $driverShiftAtLogin,
         ]);
     }
 
@@ -36,6 +44,14 @@ class BbmReportController extends Controller
         $this->authorizeDriver();
 
         $wantsJson = $request->expectsJson();
+
+        $shiftLogin = session('driver_shift_at_login');
+        if (! is_array($shiftLogin) || empty($shiftLogin['code']) || ! in_array($shiftLogin['code'], DriverShift::CODES, true)) {
+            $s = DriverShift::current();
+            $shiftLogin = ['code' => $s['code'], 'label' => $s['label']];
+            $request->session()->put('driver_shift_at_login', $shiftLogin);
+        }
+        $shiftCode = $shiftLogin['code'];
 
         $validated = $request->validate([
             'nomor_kendaraan' => ['required', 'string', 'exists:kendaraans,nomor_kendaraan'],
@@ -92,6 +108,7 @@ class BbmReportController extends Controller
                 'jenis_kendaraan' => $kendaraan->jenis_kendaraan,
                 'tanggal' => $validated['tanggal'],
                 'waktu' => $validated['waktu'],
+                'shift' => $shiftCode,
                 'odometer_sebelum' => (int) $validated['odometer_sebelum'],
                 'odometer_sesudah' => (int) $validated['odometer_sesudah'],
                 'liter' => $liter,

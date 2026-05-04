@@ -14,6 +14,7 @@ class BbmReport extends Model
         'jenis_kendaraan',
         'tanggal',
         'waktu',
+        'shift',
         'odometer_sebelum',
         'odometer_sesudah',
         'liter',

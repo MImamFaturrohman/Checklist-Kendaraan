@@ -85,6 +85,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Portal BBM Operasional (superadmin: penuh; manager: kartu & grafik — dicek di controller)
     Route::get('/admin/portal-bbm-operasional/{bbmReport}/json', [BbmOperationalPortalController::class, 'showJson'])->name('admin.portal-bbm-operasional.json');
+    Route::get('/admin/portal-bbm-operasional/charts-series', [BbmOperationalPortalController::class, 'chartSeries'])->name('admin.portal-bbm-operasional.charts');
+    Route::get('/admin/portal-bbm-operasional/activity-log', [BbmOperationalPortalController::class, 'activityLog'])->name('admin.portal-bbm-operasional.activity-log');
     Route::get('/admin/portal-bbm-operasional', [BbmOperationalPortalController::class, 'index'])->name('admin.portal-bbm-operasional');
 
     // AJAX API endpoints for real-time portal search

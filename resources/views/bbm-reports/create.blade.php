@@ -101,7 +101,7 @@
             <div class="dash-nav-actions" id="dash-nav-actions">
                 <button class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Toggle Tema">
                     <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
-                    <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
+                     <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
                 </button>
                 <span class="dash-chip dash-chip-driver">
                     <i class="bi bi-person-check-fill"></i>
@@ -165,6 +165,22 @@
                             <span><i class="bi bi-clock bbm-field-icon" aria-hidden="true"></i> Waktu</span>
                             <div class="checklist-control-wrap bbm-input-with-icon">
                                 <input type="time" name="waktu" required value="">
+                            </div>
+                        </label>
+                        @php
+                            $bbmShiftCode = $driverShiftAtLogin['code'] ?? 'luar';
+
+                            $shiftLabel = match($bbmShiftCode) {
+                                'pagi' => 'Pagi',
+                                'siang' => 'Siang',
+                                default => 'Di Luar Shift'
+                            };
+                        @endphp
+
+                        <label class="checklist-field checklist-field-span">
+                            <span><i class="bi bi-brightness-high bbm-field-icon" aria-hidden="true"></i> Shift</span>
+                            <div class="checklist-control-wrap">
+                                <input type="text" value="{{ $shiftLabel }}" readonly>
                             </div>
                         </label>
                     </div>

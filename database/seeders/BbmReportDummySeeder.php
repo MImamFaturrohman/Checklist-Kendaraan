@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\BbmReport;
 use App\Models\Kendaraan;
 use App\Models\User;
+use App\Support\DriverShift;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
@@ -65,6 +66,7 @@ class BbmReportDummySeeder extends Seeder
                 $hour = random_int(5, 20);
                 $minute = random_int(0, 59);
                 $waktu = sprintf('%02d:%02d:00', $hour, $minute);
+                $shiftCode = DriverShift::fromHour($hour)['code'];
 
                 $createdAt = Carbon::parse($tanggal->toDateString().' '.$waktu);
 
@@ -75,6 +77,7 @@ class BbmReportDummySeeder extends Seeder
                     'jenis_kendaraan' => $k->jenis_kendaraan,
                     'tanggal' => $tanggal->toDateString(),
                     'waktu' => $waktu,
+                    'shift' => $shiftCode,
                     'odometer_sebelum' => $kmBefore,
                     'odometer_sesudah' => $kmAfter,
                     'liter' => $liter,

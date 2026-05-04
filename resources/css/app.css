@@ -78,6 +78,62 @@
 .dash-body:not(.dark) .dash-bg-orb-blue { opacity: 0.4; background: rgba(37, 99, 235, 0.12); }
 .dash-body:not(.dark) .dash-bg-wave     { opacity: 0.5; }
 
+/* BBM — badge shift (form laporan + portal operasional) */
+.bbm-shift-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+.bbm-shift-badge--form {
+    padding: 8px 14px;
+    font-size: 0.84rem;
+}
+.bbm-shift-pagi {
+    background: rgba(234, 179, 8, 0.22);
+    color: #a16207;
+    border: 1px solid rgba(180, 83, 9, 0.35);
+}
+.bbm-shift-siang {
+    background: rgba(59, 130, 246, 0.18);
+    color: #1d4ed8;
+    border: 1px solid rgba(37, 99, 235, 0.35);
+}
+.bbm-shift-luar {
+    background: rgba(100, 116, 139, 0.2);
+    color: #475569;
+    border: 1px solid rgba(71, 85, 105, 0.35);
+}
+.dash-body.dark .bbm-shift-pagi {
+    background: rgba(255, 211, 0, 0.14);
+    color: #fde047;
+    border-color: rgba(253, 224, 71, 0.35);
+}
+.dash-body.dark .bbm-shift-siang {
+    background: rgba(96, 165, 250, 0.14);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.4);
+}
+.dash-body.dark .bbm-shift-luar {
+    background: rgba(148, 163, 184, 0.12);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.28);
+}
+.bbm-shift-login-hint {
+    margin: 8px 0 0;
+    font-size: 0.72rem;
+    color: #64748b;
+    line-height: 1.35;
+}
+.dash-body.dark .bbm-shift-login-hint {
+    color: rgba(148, 163, 184, 0.85);
+}
+
 /* ── Light-mode — cards: light blue instead of white ── */
 .dash-body:not(.dark) .dash-main-card {
     background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
@@ -6429,6 +6485,46 @@ select.admin-filter-input {
     }
     .dash-body.dark .sppd-live-filter-bar .sppd-per-page-wrap {
         border-top-color: rgba(255, 255, 255, 0.08);
+    }
+}
+
+.bbm-portal-live-filter-bar .sppd-per-page-wrap {
+    margin-left: auto;
+}
+@media (max-width: 640px) {
+    .bbm-portal-live-filter-bar.portal-local-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .bbm-portal-live-filter-bar .admin-search-wrap.portal-search-full {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    .bbm-portal-live-filter-bar .ppm-status-wrap,
+    .bbm-portal-live-filter-bar .bbm-portal-date-range {
+        width: 100%;
+    }
+    .bbm-portal-live-filter-bar .ppm-status-wrap .admin-filter-input,
+    .bbm-portal-live-filter-bar .bbm-portal-date-range .admin-filter-input {
+        width: 100%;
+        max-width: none;
+    }
+    .bbm-portal-live-filter-bar .sppd-per-page-wrap {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+        padding-top: 2px;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .dash-body.dark .bbm-portal-live-filter-bar .sppd-per-page-wrap {
+        border-top-color: rgba(255, 255, 255, 0.08);
+    }
+    .bbm-portal-live-filter-bar .bbm-portal-filter-actions {
+        width: 100%;
+    }
+    .bbm-portal-live-filter-bar .bbm-portal-filter-actions .btn {
+        width: 100%;
     }
 }
 
