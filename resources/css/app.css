@@ -76,7 +76,7 @@
 .dash-body:not(.dark) .dash-bg-stardust { opacity: 0; }
 .dash-body:not(.dark) .dash-bg-orb-gold { opacity: 0.35; background: rgba(212, 175, 55, 0.1); }
 .dash-body:not(.dark) .dash-bg-orb-blue { opacity: 0.4; background: rgba(37, 99, 235, 0.12); }
-.dash-body:not(.dark) .dash-bg-wave     { opacity: 0.22; }
+.dash-body:not(.dark) .dash-bg-wave     { opacity: 0.5; }
 
 /* ── Light-mode — cards: light blue instead of white ── */
 .dash-body:not(.dark) .dash-main-card {

@@ -790,8 +790,7 @@
 }
 
 .light-mode .auth-bg-wave {
-    opacity: 0.18;
-    filter: hue-rotate(210deg) brightness(0.8) saturate(0.7);
+    opacity: 0.5;
 }
 
 /* ================================================================

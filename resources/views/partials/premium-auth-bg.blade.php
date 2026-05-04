@@ -1,4 +1,4 @@
-{{-- Premium background (PM FuelLog style) — halaman login --}}
+{{-- Premium background — halaman login --}}
 <div class="auth-bg-cubes" aria-hidden="true"></div>
 <div class="auth-bg-sparkle" aria-hidden="true"></div>
 <div class="auth-bg-royal-tint" aria-hidden="true"></div>
