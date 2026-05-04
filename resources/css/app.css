@@ -1,3 +1,5 @@
+@import './premium-bg.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,7 +17,7 @@
    DASHBOARD
    =================================================================== */
 .dash-body {
-    background: linear-gradient(135deg, #c7d9f8 0%, #dbeafe 50%, #e8f0fe 100%);
+    background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 50%, #e2e8f0 100%);
     min-height: 100vh;
     color: #0f172a;
     transition: background 0.5s ease;
@@ -42,12 +44,39 @@
 .dash-body:not(.dark) .dash-clock-date  { color: rgba(191, 219, 254, 0.88); }
 .dash-body:not(.dark) .dash-clock-time  { color: #ffffff; }
 
-/* ── Light-mode — background decoration layers (visible like login) ── */
-.dash-body:not(.dark) .dash-bg-cubes   { opacity: 0.25; }
-.dash-body:not(.dark) .dash-bg-stardust { opacity: 0.1; }
+/* ── Light-mode — background decoration layers (PM FuelLog light stack + bling kubus) ── */
+.dash-body:not(.dark) .dash-bg-cubes   { mix-blend-mode: normal; opacity: 0.7; filter: contrast(1); }
+.dash-body:not(.dark) .dash-bg-sparkle {
+    opacity: 0.75;
+    mix-blend-mode: multiply;
+
+    background: repeating-linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 35%,
+
+        rgba(212, 175, 55, 0.6) 45%,
+        rgba(96, 165, 250, 0.9) 50%,
+        rgba(212, 175, 55, 0.6) 55%,
+
+        transparent 65%,
+        transparent 100%
+    );
+
+    background-size: 200% 100%;
+
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+
+    animation: vms-shine-lines 12s linear infinite;
+
+    filter: brightness(0.95) contrast(1.1);
+}
+.dash-body:not(.dark) .dash-bg-royal-tint { opacity: 1; }
+.dash-body:not(.dark) .dash-bg-stardust { opacity: 0; }
 .dash-body:not(.dark) .dash-bg-orb-gold { opacity: 0.35; background: rgba(212, 175, 55, 0.1); }
 .dash-body:not(.dark) .dash-bg-orb-blue { opacity: 0.4; background: rgba(37, 99, 235, 0.12); }
-.dash-body:not(.dark) .dash-bg-wave     { opacity: 0.2; }
+.dash-body:not(.dark) .dash-bg-wave     { opacity: 0.22; }
 
 /* ── Light-mode — cards: light blue instead of white ── */
 .dash-body:not(.dark) .dash-main-card {
@@ -5033,8 +5062,10 @@ select.admin-filter-input {
    DASHBOARD — BBM PRO DARK MODE SYSTEM
    =================================================================== */
 
-/* ── Background decoration layers (shared with login) ── */
+/* ── Background decoration layers ── */
 .dash-bg-cubes,
+.dash-bg-sparkle,
+.dash-bg-royal-tint,
 .dash-bg-stardust,
 .dash-bg-orb-gold,
 .dash-bg-orb-blue,
@@ -5051,6 +5082,28 @@ select.admin-filter-input {
     background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
     mix-blend-mode: overlay;
     filter: contrast(1.25);
+}
+
+.dash-bg-sparkle {
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 30%,
+        rgba(212, 175, 55, 0.4) 45%,
+        rgba(96, 165, 250, 0.7) 50%,
+        rgba(212, 175, 55, 0.4) 55%,
+        transparent 70%
+    );
+    background-size: 300% 100%;
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    animation: vms-shine-lines 15s infinite linear;
+    mix-blend-mode: color-dodge;
+}
+
+.dash-bg-royal-tint {
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 35, 66, 0.06) 0%, transparent 42%);
 }
 
 .dash-bg-stardust {
@@ -5251,18 +5304,20 @@ select.admin-filter-input {
 
 /* ── DARK MODE — body ── */
 .dash-body.dark {
-    background: linear-gradient(135deg, #0A2342 0%, #0e1f3a 50%, #050B14 100%);
+    background: linear-gradient(135deg, #0A2342 0%, #0f172a 52%, #050B14 100%);
     color: #f1f5f9;
     transition: background 0.4s ease, color 0.4s ease;
     /* Native form controls (date/time picker) follow dark theme where supported */
     color-scheme: dark;
 }
 
-.dash-body.dark .dash-bg-cubes   { opacity: 0.55; }
-.dash-body.dark .dash-bg-stardust { opacity: 0.18; }
-.dash-body.dark .dash-bg-orb-gold { opacity: 1; }
-.dash-body.dark .dash-bg-orb-blue { opacity: 1; }
-.dash-body.dark .dash-bg-wave     { opacity: 0.65; }
+.dash-body.dark .dash-bg-cubes       { opacity: 0.8; }
+.dash-body.dark .dash-bg-sparkle    { opacity: 0.92; mix-blend-mode: color-dodge; }
+.dash-body.dark .dash-bg-royal-tint { opacity: 0; }
+.dash-body.dark .dash-bg-stardust   { opacity: 0.2; }
+.dash-body.dark .dash-bg-orb-gold   { opacity: 1; }
+.dash-body.dark .dash-bg-orb-blue   { opacity: 1; }
+.dash-body.dark .dash-bg-wave       { opacity: 0.68; }
 
 /* ── DARK — Shell (transparent so bg layers show) ── */
 .dash-body.dark .dash-shell { background: transparent; }

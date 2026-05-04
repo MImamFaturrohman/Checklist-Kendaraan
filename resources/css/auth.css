@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+@import './premium-bg.css';
 
 /* ================================================================
    DESIGN TOKENS
@@ -59,9 +60,45 @@
     z-index: 1;
     pointer-events: none;
     background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-    opacity: 0.6;
+    opacity: 0.8;
     mix-blend-mode: overlay;
     filter: contrast(1.25);
+    transition: opacity 0.5s ease;
+}
+
+/* Kilau gradient pada pola kubus (PM FuelLog) */
+.auth-bg-sparkle {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+        135deg,
+        transparent 30%,
+        rgba(212, 175, 55, 0.4) 45%,
+        rgba(96, 165, 250, 0.7) 50%,
+        rgba(212, 175, 55, 0.4) 55%,
+        transparent 70%
+    );
+    background-size: 300% 100%;
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    animation: vms-shine-lines 15s infinite linear;
+    opacity: 0.9;
+    mix-blend-mode: color-dodge;
+    transition:
+        opacity 0.5s ease,
+        mix-blend-mode 0.5s ease;
+}
+
+/* Aksen royal di mode terang (atas halaman) */
+.auth-bg-royal-tint {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(10, 35, 66, 0.06) 0%, transparent 42%);
+    opacity: 0;
     transition: opacity 0.5s ease;
 }
 
@@ -71,7 +108,7 @@
 .auth-bg-stardust {
     position: fixed;
     inset: 0;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
     opacity: 0.2;
@@ -91,7 +128,7 @@
     border-radius: 50%;
     background: rgba(212, 175, 55, 0.15);
     filter: blur(140px);
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     transition: background 0.5s ease;
 }
@@ -105,7 +142,7 @@
     border-radius: 50%;
     background: rgba(59, 130, 246, 0.15);
     filter: blur(160px);
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     transition: background 0.5s ease;
 }
@@ -119,7 +156,7 @@
     left: 0;
     width: 100%;
     height: 55%;
-    z-index: 3;
+    z-index: 4;
     pointer-events: none;
     opacity: 0.7;
     transition: opacity 0.5s ease;
@@ -145,7 +182,7 @@
    ================================================================ */
 .auth-card {
     position: relative;
-    z-index: 1;
+    z-index: 20;
     width: 100%;
     max-width: 420px;
     border-radius: var(--auth-card-radius);
@@ -701,14 +738,45 @@
    LIGHT MODE — premium background layers
    ================================================================ */
 .light-mode .auth-bg-cubes {
-    opacity: 0.15;
+    opacity: 0.8;
+    mix-blend-mode: normal;
+    filter: contrast(1);
+}
+
+.light-mode .auth-bg-sparkle {
+    opacity: 0.75;
     mix-blend-mode: multiply;
-    filter: contrast(1.1);
+
+    background: repeating-linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 35%,
+
+        rgba(212, 175, 55, 0.6) 45%,
+        rgba(96, 165, 250, 0.9) 50%,
+        rgba(212, 175, 55, 0.6) 55%,
+
+        transparent 65%,
+        transparent 100%
+    );
+
+    background-size: 200% 100%;
+
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+
+    animation: vms-shine-lines 12s linear infinite;
+
+    filter: brightness(0.95) contrast(1.1);
+}
+
+.light-mode .auth-bg-royal-tint {
+    opacity: 1;
 }
 
 .light-mode .auth-bg-stardust {
-    opacity: 0.06;
-    mix-blend-mode: multiply;
+    opacity: 0;
+    mix-blend-mode: overlay;
 }
 
 .light-mode .auth-bg-orb-gold {

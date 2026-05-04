@@ -10,31 +10,7 @@
     </head>
     <body class="dash-body">
 
-        {{-- Style background decoration layers (dark mode) --}}
-        <div class="dash-bg-cubes" aria-hidden="true"></div>
-        <div class="dash-bg-stardust" aria-hidden="true"></div>
-        <div class="dash-bg-orb-gold" aria-hidden="true"></div>
-        <div class="dash-bg-orb-blue" aria-hidden="true"></div>
-        <div class="dash-bg-wave" aria-hidden="true">
-            <svg viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%" preserveAspectRatio="none">
-                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50 L 1440 400 L 0 400 Z" fill="url(#dash_fill)"></path>
-                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50" stroke="url(#dash_stroke)" stroke-width="3" stroke-linecap="round"></path>
-                <path d="M0 350 C 400 380, 500 250, 900 300 C 1200 350, 1300 200, 1440 150" stroke="rgba(255,255,255,0.06)" stroke-width="2" stroke-dasharray="8 8"></path>
-                <circle cx="700" cy="200" r="4" fill="#D4AF37"></circle>
-                <circle cx="1000" cy="50" r="4" fill="#D4AF37"></circle>
-                <defs>
-                    <linearGradient id="dash_fill" x1="720" y1="50" x2="720" y2="400" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#D4AF37" stop-opacity="0.12"></stop>
-                        <stop offset="1" stop-color="#0A2342" stop-opacity="0"></stop>
-                    </linearGradient>
-                    <linearGradient id="dash_stroke" x1="0" y1="150" x2="1440" y2="150" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#0A2342"></stop>
-                        <stop offset="0.4" stop-color="#D4AF37"></stop>
-                        <stop offset="1" stop-color="#60A5FA"></stop>
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
+        @include('partials.premium-dash-bg', ['premiumBgId' => 'dashmain'])
 
         @php
             $user          = auth()->user();

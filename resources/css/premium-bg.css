@@ -1,0 +1,97 @@
+/**
+ * Premium background — ekstraksi dari PM FuelLog Premium BG (animasi garis + kilau kubus).
+ * Dipakai oleh auth (login) dan dash-body.
+ */
+
+@keyframes vms-shine-lines {
+    0% {
+        background-position: 300% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+/* Denyut kilau pada pola kubus — dipakai di light mode (dashboard + login) */
+@keyframes vms-cube-bling-light {
+    0%,
+    100% {
+        filter: brightness(1) saturate(1);
+    }
+    20% {
+        filter: brightness(1.12) saturate(1.2);
+    }
+    40% {
+        filter: brightness(1.04) saturate(1.05);
+    }
+    55% {
+        filter: brightness(1.2) saturate(1.35);
+    }
+    72% {
+        filter: brightness(1.08) saturate(1.15);
+    }
+    88% {
+        filter: brightness(1.16) saturate(1.28);
+    }
+}
+
+@keyframes vms-pulse-glow {
+    0%,
+    100% {
+        filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+        opacity: 0.6;
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(96, 165, 250, 0.9));
+        opacity: 1;
+    }
+}
+
+@keyframes vms-flow-dashed {
+    to {
+        stroke-dashoffset: -36;
+    }
+}
+
+@keyframes vms-wave-motion-1 {
+    0%,
+    100% {
+        transform: translateY(0) scaleY(1) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-12px) scaleY(1.05) rotate(0.5deg);
+    }
+    66% {
+        transform: translateY(8px) scaleY(0.95) rotate(-0.5deg);
+    }
+}
+
+@keyframes vms-wave-motion-2 {
+    0%,
+    100% {
+        transform: translateY(0) scaleY(1) rotate(0deg);
+    }
+    33% {
+        transform: translateY(12px) scaleY(0.95) rotate(-0.5deg);
+    }
+    66% {
+        transform: translateY(-8px) scaleY(1.05) rotate(0.5deg);
+    }
+}
+
+.vms-wave-line-solid {
+    animation:
+        vms-pulse-glow 4s infinite ease-in-out,
+        vms-wave-motion-1 8s infinite ease-in-out;
+    transform-origin: center;
+    transform-box: fill-box;
+}
+
+.vms-wave-line-dashed {
+    animation:
+        vms-pulse-glow 3.5s infinite ease-in-out,
+        vms-flow-dashed 1.5s linear infinite,
+        vms-wave-motion-2 7s infinite ease-in-out;
+    transform-origin: center;
+    transform-box: fill-box;
+}

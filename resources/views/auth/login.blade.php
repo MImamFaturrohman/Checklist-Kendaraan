@@ -13,7 +13,7 @@
             /* Gradient tokens — diubah JS saat toggle tema */
             :root {
                 --grad-1: #0A2342;
-                --grad-2: #0e1f3a;
+                --grad-2: #0f172a;
                 --grad-3: #050B14;
             }
 
@@ -37,31 +37,7 @@
     </head>
     <body class="auth-page-body">
 
-        {{-- Premium Background Layers --}}
-        <div class="auth-bg-cubes" aria-hidden="true"></div>
-        <div class="auth-bg-stardust" aria-hidden="true"></div>
-        <div class="auth-bg-orb-gold" aria-hidden="true"></div>
-        <div class="auth-bg-orb-blue" aria-hidden="true"></div>
-        <div class="auth-bg-wave" aria-hidden="true">
-            <svg viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%" preserveAspectRatio="none">
-                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50 L 1440 400 L 0 400 Z" fill="url(#auth_fill)"></path>
-                <path d="M0 300 C 300 250, 400 350, 700 200 C 1000 50, 1200 150, 1440 50" stroke="url(#auth_stroke)" stroke-width="3" stroke-linecap="round"></path>
-                <path d="M0 350 C 400 380, 500 250, 900 300 C 1200 350, 1300 200, 1440 150" stroke="rgba(255,255,255,0.08)" stroke-width="2" stroke-dasharray="8 8"></path>
-                <circle cx="700" cy="200" r="4" fill="#D4AF37"></circle>
-                <circle cx="1000" cy="50" r="4" fill="#D4AF37"></circle>
-                <defs>
-                    <linearGradient id="auth_fill" x1="720" y1="50" x2="720" y2="400" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#D4AF37" stop-opacity="0.12"></stop>
-                        <stop offset="1" stop-color="#0A2342" stop-opacity="0"></stop>
-                    </linearGradient>
-                    <linearGradient id="auth_stroke" x1="0" y1="150" x2="1440" y2="150" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#0A2342"></stop>
-                        <stop offset="0.4" stop-color="#D4AF37"></stop>
-                        <stop offset="1" stop-color="#60A5FA"></stop>
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
+        @include('partials.premium-auth-bg')
 
         {{-- Theme toggle button --}}
         <button class="auth-theme-toggle" id="theme-toggle" title="Ganti Tema" aria-label="Toggle tema">
@@ -145,8 +121,8 @@
             const body = document.body;
             const root = document.documentElement;
 
-            const DARK  = { g1: '#0A2342', g2: '#0e1f3a', g3: '#050B14' };
-            const LIGHT = { g1: '#c7d9f8', g2: '#dbeafe', g3: '#e8f0fe' };
+            const DARK  = { g1: '#0A2342', g2: '#0f172a', g3: '#050B14' };
+            const LIGHT = { g1: '#f1f5f9', g2: '#f8fafc', g3: '#e2e8f0' };
 
             function applyTheme(isLight) {
                 const g = isLight ? LIGHT : DARK;
