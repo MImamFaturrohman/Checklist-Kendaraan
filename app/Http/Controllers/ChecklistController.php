@@ -157,6 +157,9 @@ class ChecklistController extends Controller
                 ['jenis_kendaraan' => $request->jenis_kendaraan]
             );
 
+            Kendaraan::where('nomor_kendaraan', $request->nomor_kendaraan)
+                ->update(['km_current' => (int) $request->km_akhir]);
+
             // Generate PDF
             $checklist->load(['exterior', 'interior', 'mesin', 'perlengkapan']);
             $pdf = Pdf::loadView('checklists.pdf', ['checklist' => $checklist]);
@@ -212,15 +215,11 @@ class ChecklistController extends Controller
     public function lastKm(Request $request): JsonResponse
     {
         $nomor = $request->query('nomor');
-        $lastChecklist = Checklist::where('nomor_kendaraan', $nomor)
-            ->whereNotNull('km_akhir')
-            ->orderByDesc('created_at')
-            ->first();
+        $kendaraan = Kendaraan::where('nomor_kendaraan', $nomor)->first();
 
-        if ($lastChecklist) {
-            $km = $lastChecklist->km_akhir;
+        if ($kendaraan?->km_current !== null) {
+            $km = $kendaraan->km_current;
         } else {
-            $kendaraan = Kendaraan::where('nomor_kendaraan', $nomor)->first();
             $km = $kendaraan?->set_km ?? 0;
         }
 

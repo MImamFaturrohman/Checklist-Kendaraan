@@ -191,7 +191,7 @@
                             <th>Nomor Kendaraan</th>
                             <th>Jenis Kendaraan</th>
                             <th>Bidang</th>
-                            <th>Set KM</th>
+                            <th>KM Saat Ini</th>
                             <th>STNK</th>
                             <th>Pajak STNK</th>
                             <th>KIR</th>
@@ -206,7 +206,7 @@
                                 <td><span class="mgmt-nopol">{{ $k->nomor_kendaraan }}</span></td>
                                 <td>{{ $k->jenis_kendaraan }}</td>
                                 <td class="text-muted">{{ $k->bidang ?: '—' }}</td>
-                                <td>{{ number_format($k->set_km ?? 0,0,',','.') }} km</td>
+                                <td>@if($k->km_current !== null){{ number_format((int) $k->km_current, 0, ',', '.') }} km @else<span class="text-muted">—</span>@endif</td>
                                 @foreach ([$k->tanggal_stnk, $k->tanggal_pajak_stnk, $k->tanggal_kir] as $expDate)
                                     @php
                                         $formatted = \App\Models\Kendaraan::formatArmadaDateId($expDate);
@@ -227,7 +227,7 @@
                                 <td><span class="{{ \App\Models\Kendaraan::statusPillClass($stK) }}">{{ $stK }}</span></td>
                                 <td class="text-center">
                                     <div class="mgmt-actions">
-                                        <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="{{ $k->id }}" data-nopol="{{ e($k->nomor_kendaraan) }}" data-jenis="{{ e($k->jenis_kendaraan) }}" data-bidang="{{ e($k->bidang ?? '') }}" data-set-km="{{ (int) ($k->set_km ?? 0) }}" data-tanggal-stnk="{{ e($k->tanggal_stnk?->format('Y-m-d') ?? '') }}" data-tanggal-pajak-stnk="{{ e($k->tanggal_pajak_stnk?->format('Y-m-d') ?? '') }}" data-tanggal-kir="{{ e($k->tanggal_kir?->format('Y-m-d') ?? '') }}" data-status-kendaraan="{{ e($stK) }}" title="Edit">
+                                        <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="{{ $k->id }}" data-nopol="{{ e($k->nomor_kendaraan) }}" data-jenis="{{ e($k->jenis_kendaraan) }}" data-bidang="{{ e($k->bidang ?? '') }}" data-km-current="{{ $k->km_current !== null ? (int) $k->km_current : '' }}" data-tanggal-stnk="{{ e($k->tanggal_stnk?->format('Y-m-d') ?? '') }}" data-tanggal-pajak-stnk="{{ e($k->tanggal_pajak_stnk?->format('Y-m-d') ?? '') }}" data-tanggal-kir="{{ e($k->tanggal_kir?->format('Y-m-d') ?? '') }}" data-status-kendaraan="{{ e($stK) }}" title="Edit">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                         </button>
                                         <form id="kdel-{{ $k->id }}" action="{{ route('admin.portal-manajemen.kendaraan.destroy', $k) }}" method="POST" style="display:inline" onsubmit="event.preventDefault(); deleteKendaraan({{ $k->id }}, '{{ addslashes($k->nomor_kendaraan) }}')">
@@ -454,8 +454,8 @@
                         <input type="text" id="armada-modal-bidang" class="mgmt-input" placeholder="Operasional" maxlength="100" autocomplete="off">
                     </div>
                     <div class="mgmt-field">
-                        <label class="mgmt-label" for="armada-modal-setkm">Set KM</label>
-                        <input type="number" id="armada-modal-setkm" class="mgmt-input" placeholder="0" min="0" step="1" value="0">
+                        <label class="mgmt-label" for="armada-modal-km" id="armada-modal-km-label">Set KM</label>
+                        <input type="number" id="armada-modal-km" class="mgmt-input" placeholder="0" min="0" step="1" value="0">
                     </div>
                 </div>
                 <p class="mgmt-modal-section-label" style="margin-top:8px">MASA BERLAKU &amp; STATUS</p>
@@ -703,14 +703,14 @@ function renderArmadaTable(rows, page, perPage) {
             <td><span class="mgmt-nopol">${escHtml(k.nomor_kendaraan)}</span></td>
             <td>${escHtml(k.jenis_kendaraan)}</td>
             <td class="text-muted">${k.bidang ? escHtml(k.bidang) : '—'}</td>
-            <td>${numFmt(k.set_km ?? 0)} km</td>
+            <td>${k.km_current != null && k.km_current !== '' ? numFmt(k.km_current) + ' km' : '<span class="text-muted">—</span>'}</td>
             <td class="mgmt-expiry-cell">${armadaExpiryCellInner(k.tanggal_stnk)}</td>
             <td class="mgmt-expiry-cell">${armadaExpiryCellInner(k.tanggal_pajak_stnk)}</td>
             <td class="mgmt-expiry-cell">${armadaExpiryCellInner(k.tanggal_kir)}</td>
             <td>${armadaStatusPillHtml(k.status_kendaraan)}</td>
             <td class="text-center">
                 <div class="mgmt-actions">
-                    <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="${k.id}" data-nopol="${escHtml(k.nomor_kendaraan ?? '')}" data-jenis="${escHtml(k.jenis_kendaraan ?? '')}" data-bidang="${escHtml(k.bidang ?? '')}" data-set-km="${Number(k.set_km) || 0}" data-tanggal-stnk="${escHtml(k.tanggal_stnk != null ? String(k.tanggal_stnk).split('T')[0] : '')}" data-tanggal-pajak-stnk="${escHtml(k.tanggal_pajak_stnk != null ? String(k.tanggal_pajak_stnk).split('T')[0] : '')}" data-tanggal-kir="${escHtml(k.tanggal_kir != null ? String(k.tanggal_kir).split('T')[0] : '')}" data-status-kendaraan="${escHtml(k.status_kendaraan ?? 'Aktif')}">
+                    <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="${k.id}" data-nopol="${escHtml(k.nomor_kendaraan ?? '')}" data-jenis="${escHtml(k.jenis_kendaraan ?? '')}" data-bidang="${escHtml(k.bidang ?? '')}" data-km-current="${k.km_current != null && k.km_current !== '' ? Number(k.km_current) : ''}" data-tanggal-stnk="${escHtml(k.tanggal_stnk != null ? String(k.tanggal_stnk).split('T')[0] : '')}" data-tanggal-pajak-stnk="${escHtml(k.tanggal_pajak_stnk != null ? String(k.tanggal_pajak_stnk).split('T')[0] : '')}" data-tanggal-kir="${escHtml(k.tanggal_kir != null ? String(k.tanggal_kir).split('T')[0] : '')}" data-status-kendaraan="${escHtml(k.status_kendaraan ?? 'Aktif')}">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Edit
                     </button>
@@ -737,7 +737,8 @@ window.openArmadaAddModal = function() {
     document.getElementById('armada-modal-nopol').value = '';
     document.getElementById('armada-modal-jenis').value = '';
     document.getElementById('armada-modal-bidang').value = '';
-    document.getElementById('armada-modal-setkm').value = '0';
+    document.getElementById('armada-modal-km-label').textContent = 'Set KM';
+    document.getElementById('armada-modal-km').value = '0';
     document.getElementById('armada-modal-tanggal-stnk').value = '';
     document.getElementById('armada-modal-tanggal-pajak').value = '';
     document.getElementById('armada-modal-tanggal-kir').value = '';
@@ -748,14 +749,15 @@ window.openArmadaAddModal = function() {
     setTimeout(() => document.getElementById('armada-modal-nopol').focus(), 80);
 };
 
-window.openArmadaEditModal = function(id, nopol, jenis, bidang, setKm, tanggalStnk, tanggalPajak, tanggalKir, statusKendaraan) {
+window.openArmadaEditModal = function(id, nopol, jenis, bidang, kmCurrent, tanggalStnk, tanggalPajak, tanggalKir, statusKendaraan) {
     document.getElementById('armada-modal-id').value = String(id);
     document.getElementById('armada-modal-title').textContent = 'Ubah Kendaraan';
     document.getElementById('armada-modal-sub').textContent = nopol || '—';
     document.getElementById('armada-modal-nopol').value = nopol ?? '';
     document.getElementById('armada-modal-jenis').value = jenis ?? '';
     document.getElementById('armada-modal-bidang').value = bidang ?? '';
-    document.getElementById('armada-modal-setkm').value = String(setKm != null ? setKm : 0);
+    document.getElementById('armada-modal-km-label').textContent = 'KM Saat Ini';
+    document.getElementById('armada-modal-km').value = kmCurrent != null && kmCurrent !== '' ? String(kmCurrent) : '';
     document.getElementById('armada-modal-tanggal-stnk').value = tanggalStnk || '';
     document.getElementById('armada-modal-tanggal-pajak').value = tanggalPajak || '';
     document.getElementById('armada-modal-tanggal-kir').value = tanggalKir || '';
@@ -777,13 +779,17 @@ window.submitArmadaModal = async function() {
     const nopol = document.getElementById('armada-modal-nopol').value.trim();
     const jenis = document.getElementById('armada-modal-jenis').value.trim();
     const bidang = document.getElementById('armada-modal-bidang').value.trim();
-    const setKm = document.getElementById('armada-modal-setkm').value;
+    const kmField = document.getElementById('armada-modal-km').value;
     const fd = new FormData();
     fd.append('_token', CSRF);
     fd.append('nomor_kendaraan', nopol);
     fd.append('jenis_kendaraan', jenis);
     fd.append('bidang', bidang);
-    fd.append('set_km', setKm === '' ? '0' : setKm);
+    if (id) {
+        fd.append('km_current', kmField === '' ? '' : kmField);
+    } else {
+        fd.append('set_km', kmField === '' ? '0' : kmField);
+    }
     fd.append('tanggal_stnk', document.getElementById('armada-modal-tanggal-stnk').value);
     fd.append('tanggal_pajak_stnk', document.getElementById('armada-modal-tanggal-pajak').value);
     fd.append('tanggal_kir', document.getElementById('armada-modal-tanggal-kir').value);
@@ -1037,12 +1043,14 @@ buildPagination(document.getElementById('user-pagination'),
 document.getElementById('armada-tbody').addEventListener('click', function (ev) {
     const btn = ev.target.closest('.js-armada-edit');
     if (!btn) return;
+    const rawKm = btn.getAttribute('data-km-current');
+    const kmCurrent = rawKm !== null && rawKm !== '' && !Number.isNaN(parseInt(rawKm, 10)) ? parseInt(rawKm, 10) : null;
     openArmadaEditModal(
         parseInt(btn.getAttribute('data-id'), 10),
         btn.getAttribute('data-nopol') || '',
         btn.getAttribute('data-jenis') || '',
         btn.getAttribute('data-bidang') || '',
-        parseInt(btn.getAttribute('data-set-km') || '0', 10) || 0,
+        kmCurrent,
         btn.getAttribute('data-tanggal-stnk') || '',
         btn.getAttribute('data-tanggal-pajak-stnk') || '',
         btn.getAttribute('data-tanggal-kir') || '',

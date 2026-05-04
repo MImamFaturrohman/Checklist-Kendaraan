@@ -14,6 +14,7 @@ class Kendaraan extends Model
         'jenis_kendaraan',
         'bidang',
         'set_km',
+        'km_current',
         'tanggal_stnk',
         'tanggal_pajak_stnk',
         'tanggal_kir',
