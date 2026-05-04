@@ -100,36 +100,35 @@
                 <p class="bbm-chart-filters-hint">Membandingkan <strong id="bbm-chart-year-label">{{ $bbmDefaultChartYear }}</strong> dengan tahun sebelumnya (<span id="bbm-chart-prev-year-label">{{ (int) ($bbmDefaultChartYear ?? now()->year) - 1 }}</span>). Data diperbarui otomatis.</p>
             </div>
 
-            <div class="portal-charts-grid">
+            <div class="portal-charts-grid portal-charts-grid--bbm">
                 <div class="portal-chart-card portal-chart-card--wide">
                     <div class="portal-chart-title-row">
                         <div class="portal-chart-title">Pengeluaran BBM per bulan (Jan–Des)</div>
                     </div>
-                    <p class="bbm-chart-hint" style="margin:0 0 8px;font-size:0.78rem;color:#64748b">Total biaya per bulan — batang pertama tahun terpilih, batang kedua tahun sebelumnya.</p>
+                    <p class="bbm-chart-hint">Total biaya per bulan — batang pertama tahun terpilih, batang kedua tahun sebelumnya.</p>
                     <div class="portal-chart-container" style="height:260px"><canvas id="bbmChartRupiahYear"></canvas></div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--wide">
                     <div class="portal-chart-title">Total liter BBM per bulan (Jan–Des)</div>
-                    <p class="bbm-chart-hint" style="margin:0 0 8px;font-size:0.78rem;color:#64748b">Agregat liter (semua unit atau satu kendaraan) — perbandingan tahun yang sama.</p>
+                    <p class="bbm-chart-hint">Agregat liter (semua unit atau satu kendaraan) — perbandingan tahun yang sama.</p>
                     <div class="portal-chart-container" style="height:280px"><canvas id="bbmChartLiterMonthly"></canvas></div>
                 </div>
-                <div class="portal-chart-card portal-chart-card--wide">
+                <div class="portal-chart-card portal-chart-card--bbm-driver-col">
                     <div class="portal-chart-title">Top driver — frekuensi pengisian (bulan berjalan)</div>
-                    <div class="portal-chart-container" style="height:260px"><canvas id="bbmChartDriverFreq"></canvas></div>
+                    <div class="portal-chart-container portal-chart-container--bbm-driver-pie"><canvas id="bbmChartDriverFreq"></canvas></div>
                 </div>
-            </div>
-
-            <div class="bbm-activity-log-card portal-chart-card portal-chart-card--wide" id="bbm-activity-log-card">
-                <div class="bbm-activity-log-head">
-                    <div class="bbm-activity-log-title">Log Pengisian BBM <span class="bbm-activity-live" title="Memperbarui otomatis">· real-time</span></div>
-                    @unless($bbmPortalChartsOnly ?? false)
-                        <a href="#section-bbm-table" class="bbm-activity-log-all">Lihat Semua</a>
-                    @else
-                        <span class="bbm-activity-log-all" style="opacity:0.55;cursor:default" title="Akses tabel penuh pada akun admin">Lihat Semua</span>
-                    @endunless
-                </div>
-                <div class="bbm-activity-log-scroll" id="bbm-activity-log-root" role="list" aria-live="polite" aria-busy="false">
-                    <p class="bbm-activity-placeholder portal-empty">Memuat log…</p>
+                <div class="portal-chart-card portal-chart-card--bbm-log-col bbm-activity-log-card" id="bbm-activity-log-card">
+                    <div class="bbm-activity-log-head">
+                        <div class="bbm-activity-log-title">Log Pengisian BBM <span class="bbm-activity-live" title="Memperbarui otomatis">· real-time</span></div>
+                        @unless($bbmPortalChartsOnly ?? false)
+                            <a href="#section-bbm-table" class="bbm-activity-log-all">Lihat Semua</a>
+                        @else
+                            <span class="bbm-activity-log-all bbm-activity-log-all--disabled" title="Akses tabel penuh pada akun admin">Lihat Semua</span>
+                        @endunless
+                    </div>
+                    <div class="bbm-activity-log-scroll" id="bbm-activity-log-root" role="list" aria-live="polite" aria-busy="false">
+                        <p class="bbm-activity-placeholder">Memuat log…</p>
+                    </div>
                 </div>
             </div>
 
@@ -258,21 +257,11 @@
     @endunless
 
     <style>
-        .bbm-chart-global-filters {
-            flex-wrap: wrap;
+        .bbm-chart-global-filters.portal-local-filters {
             align-items: flex-end;
             gap: 12px 16px;
-            margin: 18px 0 12px;
-            padding: 14px 16px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.65);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
-        }
-        .dash-body.dark .bbm-chart-global-filters {
-            background: rgba(15, 23, 42, 0.48);
-            border-color: rgba(148, 163, 184, 0.18);
-            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+            margin-top: 18px;
+            margin-bottom: 12px;
         }
         .bbm-filter-inline-label {
             display: block;
@@ -293,15 +282,23 @@
             line-height: 1.45;
         }
         .dash-body.dark .bbm-chart-filters-hint { color: rgba(200, 218, 255, 0.55); }
-        .bbm-activity-log-card {
-            margin-top: 8px;
-            margin-bottom: 4px;
-            padding: 18px 20px 16px;
+        .bbm-chart-filters-hint strong { color: #0f172a; font-weight: 700; }
+        .dash-body.dark .bbm-chart-filters-hint strong { color: #e8f0fe; }
+
+        .bbm-chart-hint {
+            margin: 0 0 8px;
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+        .dash-body.dark .bbm-chart-hint { color: rgba(200, 218, 255, 0.55); }
+
+        .bbm-activity-log-card { padding: 16px 16px 12px; }
+        .dash-body.dark .bbm-activity-log-card {
             background: linear-gradient(165deg, #0f172a 0%, #1e293b 55%, #172554 100%);
             border: 1px solid rgba(99, 102, 241, 0.25);
-            color: #e2e8f0;
             box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
         }
+        .dash-body:not(.dark) .bbm-activity-log-card .portal-chart-title { color: #475569; }
         .bbm-activity-log-head {
             display: flex;
             align-items: center;
@@ -313,23 +310,32 @@
             font-weight: 800;
             font-size: 1.05rem;
             letter-spacing: -0.02em;
-            color: #f8fafc;
+            color: #0f172a;
         }
+        .dash-body.dark .bbm-activity-log-title { color: #f8fafc; }
         .bbm-activity-live {
             font-weight: 600;
             font-size: 0.78rem;
-            color: #38bdf8;
+            color: #0284c7;
             text-transform: none;
             letter-spacing: 0;
         }
+        .dash-body.dark .bbm-activity-live { color: #38bdf8; }
         .bbm-activity-log-all {
             font-size: 0.82rem;
             font-weight: 600;
-            color: #7dd3fc;
+            color: #0369a1;
             text-decoration: none;
             white-space: nowrap;
         }
-        .bbm-activity-log-all:hover { text-decoration: underline; color: #bae6fd; }
+        .bbm-activity-log-all:hover { text-decoration: underline; color: #0c4a6e; }
+        .dash-body.dark .bbm-activity-log-all { color: #7dd3fc; }
+        .dash-body.dark .bbm-activity-log-all:hover { color: #bae6fd; }
+        .bbm-activity-log-all--disabled {
+            opacity: 0.55;
+            cursor: default;
+            pointer-events: none;
+        }
         .bbm-activity-log-scroll {
             max-height: 320px;
             overflow-y: auto;
@@ -349,13 +355,21 @@
             padding: 12px 14px;
             margin-bottom: 8px;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(148, 163, 184, 0.22);
             transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .dash-body.dark .bbm-activity-row {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(148, 163, 184, 0.12);
         }
         .bbm-activity-row:last-child { margin-bottom: 0; }
         .bbm-activity-row.is-clickable { cursor: pointer; }
         .bbm-activity-row.is-clickable:hover {
+            background: rgba(2, 132, 199, 0.08);
+            border-color: rgba(2, 132, 199, 0.28);
+        }
+        .dash-body.dark .bbm-activity-row.is-clickable:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(125, 211, 252, 0.35);
         }
@@ -372,38 +386,43 @@
             background: linear-gradient(145deg, #1d4ed8 0%, #2563eb 100%);
             color: #fff;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
         }
-        .bbm-activity-main {
-            flex: 1;
-            min-width: 0;
-        }
+        .bbm-activity-main { flex: 1; min-width: 0; }
         .bbm-activity-nopol {
             font-weight: 800;
             font-size: 0.95rem;
-            color: #f8fafc;
+            color: #0f172a;
             line-height: 1.25;
         }
+        .dash-body.dark .bbm-activity-nopol { color: #f8fafc; }
         .bbm-activity-meta {
             font-size: 0.78rem;
-            color: rgba(226, 232, 240, 0.62);
+            color: #64748b;
             margin-top: 3px;
         }
-        .bbm-activity-side {
-            text-align: right;
-            flex-shrink: 0;
-        }
+        .dash-body.dark .bbm-activity-meta { color: rgba(226, 232, 240, 0.62); }
+        .bbm-activity-side { text-align: right; flex-shrink: 0; }
         .bbm-activity-liter {
             font-weight: 800;
             font-size: 0.95rem;
-            color: #f8fafc;
+            color: #0f172a;
         }
+        .dash-body.dark .bbm-activity-liter { color: #f8fafc; }
         .bbm-activity-rp {
             font-size: 0.78rem;
-            color: rgba(226, 232, 240, 0.62);
+            color: #64748b;
             margin-top: 3px;
         }
-        .bbm-activity-placeholder { margin: 0; padding: 20px 8px; text-align: center; color: rgba(226, 232, 240, 0.55); }
+        .dash-body.dark .bbm-activity-rp { color: rgba(226, 232, 240, 0.62); }
+        .bbm-activity-placeholder {
+            margin: 0;
+            padding: 20px 8px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.88rem;
+        }
+        .dash-body.dark .bbm-activity-placeholder { color: rgba(226, 232, 240, 0.55); }
         .portal-chart-title-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
         .bbm-portal-date-range { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
         .bbm-portal-date-range .admin-filter-input { min-width: 0; flex: 1 1 8rem; }
@@ -617,6 +636,7 @@
             const pieFill = dark ? 0.88 : 0.92;
             const drvLabels = TOP_DRIVERS_MONTH.map((d) => d.name || d.username || 'Driver');
             const drvData = TOP_DRIVERS_MONTH.map((d) => Number(d.cnt));
+            const narrow = typeof window !== 'undefined' && window.innerWidth <= 640;
             chartDrvFreq = new Chart(elD, {
                 type: 'pie',
                 data: {
@@ -631,11 +651,20 @@
                 },
                 options: {
                     ...common,
+                    layout: {
+                        padding: narrow ? { left: 6, right: 6, top: 4, bottom: 4 } : { left: 4, right: 8, top: 4, bottom: 4 },
+                    },
                     plugins: {
                         legend: {
                             display: true,
-                            position: 'right',
-                            labels: { color: tick, boxWidth: 12, padding: 10, font: { size: 11 } },
+                            position: narrow ? 'bottom' : 'right',
+                            align: narrow ? 'center' : 'center',
+                            labels: {
+                                color: tick,
+                                boxWidth: narrow ? 10 : 12,
+                                padding: narrow ? 8 : 10,
+                                font: { size: narrow ? 10 : 11 },
+                            },
                         },
                         tooltip: {
                             callbacks: {
@@ -667,7 +696,7 @@
             if (!root) return;
             root.setAttribute('aria-busy', 'false');
             if (!items || !items.length) {
-                root.innerHTML = '<p class="bbm-activity-placeholder portal-empty">Belum ada pengisian BBM.</p>';
+                root.innerHTML = '<p class="bbm-activity-placeholder">Belum ada pengisian BBM.</p>';
                 return;
             }
             root.innerHTML = items.map((it) => {
@@ -705,7 +734,7 @@
                 const r = document.getElementById('bbm-activity-log-root');
                 if (r) {
                     r.setAttribute('aria-busy', 'false');
-                    r.innerHTML = '<p class="bbm-activity-placeholder portal-empty">Gagal memuat log.</p>';
+                    r.innerHTML = '<p class="bbm-activity-placeholder">Gagal memuat log.</p>';
                 }
             }
         }
@@ -825,6 +854,12 @@
         fetchActivityLog();
         chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
         logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
+
+        let bbmPieResizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(bbmPieResizeTimer);
+            bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(), 200);
+        });
 
         const closeMobileMenu = () => {
             navActions?.classList.remove('mobile-open');
