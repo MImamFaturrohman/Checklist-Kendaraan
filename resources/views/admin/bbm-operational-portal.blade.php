@@ -22,7 +22,7 @@
         'pageSubtitle' => ($bbmPortalChartsOnly ?? false)
             ? 'Ringkasan & grafik pengisian BBM (akses terbatas)'
             : 'Insight laporan pengisian BBM dari driver',
-        'navChipLabel' => ($bbmPortalChartsOnly ?? false) ? 'MANAGER' : 'ADMIN',
+        'navChipLabel' => ($bbmPortalChartsOnly ?? false) ? 'MANAGER' : 'SUPERADMIN',
         'navChipClass' => ($bbmPortalChartsOnly ?? false) ? 'dash-chip-manager' : 'dash-chip-admin',
     ])
 
