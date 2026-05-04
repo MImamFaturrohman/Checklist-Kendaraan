@@ -14,17 +14,30 @@ class KendaraanController extends Controller
         $request->validate([
             'nomor_kendaraan' => 'required|string|max:20|unique:kendaraans,nomor_kendaraan',
             'jenis_kendaraan' => 'required|string|max:100',
-            'bidang'          => 'nullable|string|max:100',
-            'set_km'          => 'nullable|integer|min:0',
+            'bidang' => 'nullable|string|max:100',
+            'set_km' => 'nullable|integer|min:0',
+            'tanggal_stnk' => 'nullable|date',
+            'tanggal_pajak_stnk' => 'nullable|date',
+            'tanggal_kir' => 'nullable|date',
+            'status_kendaraan' => 'required|string|in:Aktif,Maintenance,Non Aktif',
         ]);
 
-        $kendaraan = Kendaraan::create($request->only('nomor_kendaraan', 'jenis_kendaraan', 'bidang', 'set_km'));
+        $kendaraan = Kendaraan::create($request->only(
+            'nomor_kendaraan',
+            'jenis_kendaraan',
+            'bidang',
+            'set_km',
+            'tanggal_stnk',
+            'tanggal_pajak_stnk',
+            'tanggal_kir',
+            'status_kendaraan',
+        ));
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Kendaraan berhasil ditambahkan.',
-                'data' => $kendaraan
+                'data' => $kendaraan,
             ]);
         }
 
@@ -36,19 +49,32 @@ class KendaraanController extends Controller
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $request->validate([
-            'nomor_kendaraan' => 'required|string|max:20|unique:kendaraans,nomor_kendaraan,' . $kendaraan->id,
+            'nomor_kendaraan' => 'required|string|max:20|unique:kendaraans,nomor_kendaraan,'.$kendaraan->id,
             'jenis_kendaraan' => 'required|string|max:100',
-            'bidang'          => 'nullable|string|max:100',
-            'set_km'          => 'nullable|integer|min:0',
+            'bidang' => 'nullable|string|max:100',
+            'set_km' => 'nullable|integer|min:0',
+            'tanggal_stnk' => 'nullable|date',
+            'tanggal_pajak_stnk' => 'nullable|date',
+            'tanggal_kir' => 'nullable|date',
+            'status_kendaraan' => 'required|string|in:Aktif,Maintenance,Non Aktif',
         ]);
 
-        $kendaraan->update($request->only('nomor_kendaraan', 'jenis_kendaraan', 'bidang', 'set_km'));
+        $kendaraan->update($request->only(
+            'nomor_kendaraan',
+            'jenis_kendaraan',
+            'bidang',
+            'set_km',
+            'tanggal_stnk',
+            'tanggal_pajak_stnk',
+            'tanggal_kir',
+            'status_kendaraan',
+        ));
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Data kendaraan diperbarui.',
-                'data' => $kendaraan
+                'data' => $kendaraan,
             ]);
         }
 
@@ -64,7 +90,7 @@ class KendaraanController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Kendaraan berhasil dihapus.'
+                'message' => 'Kendaraan berhasil dihapus.',
             ]);
         }
 
@@ -77,7 +103,17 @@ class KendaraanController extends Controller
     public function apiList()
     {
         return response()->json(
-            Kendaraan::orderBy('nomor_kendaraan')->get(['id', 'nomor_kendaraan', 'jenis_kendaraan', 'bidang', 'set_km'])
+            Kendaraan::orderBy('nomor_kendaraan')->get([
+                'id',
+                'nomor_kendaraan',
+                'jenis_kendaraan',
+                'bidang',
+                'set_km',
+                'tanggal_stnk',
+                'tanggal_pajak_stnk',
+                'tanggal_kir',
+                'status_kendaraan',
+            ])
         );
     }
 }

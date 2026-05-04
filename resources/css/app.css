@@ -4605,6 +4605,33 @@ select.admin-filter-input {
     letter-spacing: 0.5px;
 }
 
+.mgmt-expiry-cell { vertical-align: top; min-width: 118px; }
+.mgmt-expiry-date { font-size: 0.78rem; font-weight: 600; color: #0f172a; line-height: 1.35; margin-bottom: 4px; }
+.mgmt-expiry-badge {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+.mgmt-expiry-aktif { background: #15803d; color: #fff; }
+.mgmt-expiry-expired { background: #991b1b; color: #fff; }
+
+.mgmt-status-pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+.mgmt-status-on { background: rgba(22, 101, 52, 0.15); color: #15803d; border: 1px solid rgba(22, 101, 52, 0.25); }
+.mgmt-status-maint { background: rgba(180, 83, 9, 0.12); color: #b45309; border: 1px solid rgba(180, 83, 9, 0.22); }
+.mgmt-status-off { background: rgba(153, 27, 27, 0.1); color: #b91c1c; border: 1px solid rgba(153, 27, 27, 0.22); }
+
 /* User cell */
 .mgmt-user-cell { display: flex; align-items: center; gap: 10px; }
 .mgmt-user-avatar {
@@ -6155,6 +6182,85 @@ select.admin-filter-input {
 }
 .dash-body.dark .mgmt-input::placeholder { color: rgba(200, 218, 255, 0.35); }
 
+/* Modal manajemen (tambah/edit kendaraan, user, dll.) — dark */
+.dash-body.dark .mgmt-modal-overlay {
+    background: rgba(2, 6, 14, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.dash-body.dark .mgmt-modal-box {
+    background: linear-gradient(165deg, rgba(18, 26, 40, 0.98) 0%, rgba(8, 12, 22, 0.99) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 28px 70px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    color-scheme: dark;
+}
+.dash-body.dark .mgmt-modal-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.dash-body.dark .mgmt-modal-title { color: #e8f0fe; }
+.dash-body.dark .mgmt-modal-sub { color: rgba(200, 218, 255, 0.52); }
+.dash-body.dark .mgmt-modal-body { background: transparent; }
+.dash-body.dark .mgmt-modal-section-label {
+    color: rgba(200, 218, 255, 0.42);
+}
+.dash-body.dark .mgmt-modal-divider { background: rgba(255, 255, 255, 0.08); }
+.dash-body.dark .mgmt-modal-footer {
+    border-top-color: rgba(255, 255, 255, 0.08);
+    background: rgba(5, 11, 20, 0.35);
+}
+.dash-body.dark .mgmt-modal-close {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(200, 218, 255, 0.78);
+}
+.dash-body.dark .mgmt-modal-close:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+.dash-body.dark .mgmt-modal-body .mgmt-input,
+.dash-body.dark .mgmt-modal-body select.mgmt-input {
+    background-color: rgba(5, 11, 20, 0.65);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #e8f0fe;
+    color-scheme: dark;
+}
+.dash-body.dark .mgmt-modal-body .mgmt-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
+}
+.dash-body.dark .mgmt-modal-footer .mgmt-cancel-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(200, 218, 255, 0.88);
+}
+.dash-body.dark .mgmt-modal-footer .mgmt-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.11);
+    color: #e8f0fe;
+}
+.dash-body.dark .mgmt-modal-footer .mgmt-submit-btn {
+    background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
+}
+.dash-body.dark .mgmt-modal-footer .mgmt-submit-btn:hover {
+    background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+}
+.dash-body.dark .mgmt-hint-box {
+    background: rgba(30, 64, 128, 0.35);
+    border-color: rgba(96, 165, 250, 0.28);
+    color: #93c5fd;
+}
+.dash-body.dark .mgmt-hint-box code {
+    background: rgba(15, 23, 42, 0.5);
+    color: #bfdbfe;
+}
+
+.dash-body.dark #armada-form-modal .mgmt-modal-avatar {
+    background: rgba(45, 212, 191, 0.14) !important;
+    color: #5eead4 !important;
+    border: 1px solid rgba(45, 212, 191, 0.28);
+}
+
 .dash-body.dark .mgmt-filter-bar {
     background: rgba(5, 11, 20, 0.35);
     border-color: rgba(255, 255, 255, 0.06);
@@ -6217,6 +6323,12 @@ select.admin-filter-input {
     color: #86efac;
     border-color: rgba(34, 197, 94, 0.3);
 }
+.dash-body.dark .mgmt-expiry-date { color: rgba(232, 240, 254, 0.92); }
+.dash-body.dark .mgmt-expiry-aktif { background: #166534; color: #f0fdf4; }
+.dash-body.dark .mgmt-expiry-expired { background: #7f1d1d; color: #fef2f2; }
+.dash-body.dark .mgmt-status-on { background: rgba(34, 197, 94, 0.18); color: #86efac; border-color: rgba(34, 197, 94, 0.35); }
+.dash-body.dark .mgmt-status-maint { background: rgba(251, 191, 36, 0.12); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
+.dash-body.dark .mgmt-status-off { background: rgba(248, 113, 113, 0.12); color: #fca5a5; border-color: rgba(248, 113, 113, 0.28); }
 .dash-body.dark .mgmt-user-name { color: #e8f0fe; }
 .dash-body.dark .mgmt-username { color: #93c5fd; }
 .dash-body.dark .mgmt-role-driver { background: rgba(30, 64, 128, 0.45); color: #93c5fd; }

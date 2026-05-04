@@ -17,7 +17,7 @@ class PeminjamanController extends Controller
 {
     public function landingPage()
     {
-        $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get(['nomor_kendaraan', 'jenis_kendaraan', 'bidang']);
+        $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get(['nomor_kendaraan', 'jenis_kendaraan', 'bidang', 'status_kendaraan']);
 
         $bidangRoots = Bidang::query()
             ->whereNull('parent_id')

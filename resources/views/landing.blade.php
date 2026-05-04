@@ -216,6 +216,18 @@
         #armada-tbody tr:nth-child(4) { animation-delay:.09s; }
         #armada-tbody tr:nth-child(5) { animation-delay:.12s; }
 
+        .lp-status-pill {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .lp-status-on { background: rgba(22, 101, 52, 0.12); color: #15803d; border: 1px solid rgba(22, 101, 52, 0.2); }
+        .lp-status-maint { background: rgba(180, 83, 9, 0.1); color: #b45309; border: 1px solid rgba(180, 83, 9, 0.2); }
+        .lp-status-off { background: rgba(153, 27, 27, 0.1); color: #b91c1c; border: 1px solid rgba(153, 27, 27, 0.2); }
+
         /* Client-side pagination */
         .lp-pagination { display: flex; justify-content: center; gap: 5px; margin-top: 16px; flex-wrap: wrap; }
         .lp-page-btn {
@@ -415,10 +427,11 @@
                 <table class="admin-table" style="table-layout:fixed">
                     <thead>
                         <tr>
-                            <th style="width:56px">#</th>
-                            <th style="width:38%">Nomor Kendaraan</th>
+                            <th style="width:52px">#</th>
+                            <th style="width:24%">Nomor</th>
                             <th>Jenis Kendaraan</th>
                             <th>Bidang</th>
+                            <th style="width:22%">Status</th>
                         </tr>
                     </thead>
                     <tbody id="armada-tbody">
@@ -606,6 +619,26 @@ const PER_PAGE   = 10;
 let currentPage  = 1;
 let filtered     = [...KENDARAANS];
 
+function lpStatusPillHtml(st) {
+    const raw = st != null && String(st).trim() !== '' ? String(st).trim() : '';
+    if (!raw) {
+        return '<span style="color:#94a3b8">—</span>';
+    }
+    const norm = raw.toLowerCase();
+    let label = raw;
+    let cls = 'lp-status-pill lp-status-on';
+    if (norm === 'maintenance') {
+        label = 'Maintenance';
+        cls = 'lp-status-pill lp-status-maint';
+    } else if (norm === 'non aktif') {
+        label = 'Non Aktif';
+        cls = 'lp-status-pill lp-status-off';
+    } else if (norm === 'aktif') {
+        label = 'Aktif';
+    }
+    return `<span class="${cls}">${escHtml(label)}</span>`;
+}
+
 /* ── RENDER ── */
 function renderTable() {
     const tbody    = document.getElementById('armada-tbody');
@@ -635,6 +668,7 @@ function renderTable() {
             <td><span class="landing-nopol-badge">${escHtml(k.nomor_kendaraan)}</span></td>
             <td>${escHtml(k.jenis_kendaraan)}</td>
             <td>${k.bidang ? escHtml(k.bidang) : '<span style="color:#94a3b8">—</span>'}</td>
+            <td>${lpStatusPillHtml(k.status_kendaraan)}</td>
         </tr>
     `).join('');
 
@@ -695,7 +729,8 @@ document.getElementById('armada-search').addEventListener('input', function () {
         filtered = KENDARAANS.filter(k =>
             k.nomor_kendaraan.toLowerCase().includes(q) ||
             k.jenis_kendaraan.toLowerCase().includes(q) ||
-            (k.bidang && k.bidang.toLowerCase().includes(q))
+            (k.bidang && k.bidang.toLowerCase().includes(q)) ||
+            (k.status_kendaraan && k.status_kendaraan.toLowerCase().includes(q))
         );
         currentPage = 1;
         renderTable();
