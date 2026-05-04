@@ -6,6 +6,7 @@ use App\Support\SppdStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class Sppd extends Model
@@ -143,6 +144,8 @@ class Sppd extends Model
             'admin_verified_at' => $this->admin_verified_at?->toIso8601String(),
             'driver_username' => $this->user?->username,
             'pdf_url' => $this->pdf_path ? $disk($this->pdf_path) : null,
+            'pdf_available' => (bool) ($this->pdf_path && Storage::disk('public')->exists($this->pdf_path)),
+            'pdf_download_url' => $this->resolvePdfDownloadUrl(),
             'tolls' => $this->tolls->map(fn ($t) => [
                 'leg' => $t->leg ?? 'berangkat',
                 'leg_label' => ($t->leg ?? 'berangkat') === 'kembali' ? 'Kembali' : 'Berangkat',
@@ -156,6 +159,34 @@ class Sppd extends Model
                 'total' => (string) $f->total,
             ]),
         ];
+    }
+
+    private function resolvePdfDownloadUrl(): ?string
+    {
+        if (! $this->pdf_path || ! Storage::disk('public')->exists($this->pdf_path)) {
+            return null;
+        }
+
+        $user = Auth::user();
+        $role = $user?->role;
+
+        if (in_array($role, ['driver', 'pic_kendaraan'], true)) {
+            if (! $this->canDriverViewPdf() || ! $this->isOwnedBy((int) $user->id)) {
+                return null;
+            }
+
+            return route('sppd.pdf', $this);
+        }
+
+        if (in_array($role, ['superadmin', 'admin'], true)) {
+            return route('admin.sppd.pdf', $this);
+        }
+
+        if ($role === 'manager') {
+            return route('manager.sppd.pdf', $this);
+        }
+
+        return null;
     }
 
     private function resolveMediaUrl(?string $path): ?string

@@ -61,21 +61,6 @@
         <div class="portal-wrapper">
             <div id="mgr-sppd-live-root" data-vms-sppd-live>
             @fragment('manager-sppd-body')
-            <form method="get" action="{{ route('manager.sppd.index') }}" class="portal-local-filters ppm-daftar-filters" id="mgr-sppd-filter-form">
-                <div class="admin-search-wrap portal-search-full">
-                    <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <input type="text" name="q" value="{{ $q }}" class="admin-search-input" placeholder="Cari driver, keperluan, nopol…" autocomplete="off" aria-label="Cari SPPD">
-                </div>
-                <div class="portal-perpage-wrap sppd-per-page-wrap">
-                    <span class="portal-perpage-label" id="mgr-sppd-per-page-label">Per halaman</span>
-                    <label class="sr-only" for="mgr-sppd-per-page">Jumlah baris per tabel</label>
-                    <select name="per_page" id="mgr-sppd-per-page" class="admin-filter-input sppd-per-page-select" aria-labelledby="mgr-sppd-per-page-label">
-                        @foreach([5, 10, 25, 50, 100] as $n)
-                            <option value="{{ $n }}" @selected((int) $perPage === $n)>{{ $n }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
 
             <div class="portal-section-header" style="margin-bottom:12px">
                 <div class="portal-section-title">Menunggu Persetujuan</div>
@@ -90,8 +75,14 @@
                                 <td>{{ \Illuminate\Support\Str::limit($s->keperluan_dinas, 42) }}<br><span class="sppd-cell-muted">{{ $s->tanggal_dinas->format('d/m/Y') }}</span></td>
                                 <td><strong>{{ $s->no_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $s->jenis_kendaraan }}</span></td>
                                 <td>
+                                    @php
+                                        $mgrPendingPdf = $s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path);
+                                    @endphp
                                     <div class="sppd-aksi-btns">
                                         <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-detail" data-id="{{ $s->id }}" title="Detail Laporan" aria-label="Detail Laporan"><i class="bi bi-eye-fill"></i></button>
+                                        @if($mgrPendingPdf)
+                                            <a href="{{ route('manager.sppd.pdf', $s) }}" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" target="_blank" rel="noopener" title="Unduh PDF" aria-label="Unduh PDF"><i class="bi bi-file-earmark-pdf-fill"></i></a>
+                                        @endif
                                         <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-success mgr-sppd-approve" data-id="{{ $s->id }}" title="Setujui Laporan" aria-label="Setujui Laporan"><i class="bi bi-check-lg"></i></button>
                                         <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-danger mgr-sppd-reject" data-id="{{ $s->id }}" title="Tolak Laporan" aria-label="Tolak Laporan"><i class="bi bi-x-lg"></i></button>
                                     </div>
@@ -118,6 +109,7 @@
                             @php
                                 $sppdNeedsPdf = in_array($s->status, [Sppd::STATUS_APPROVED, Sppd::STATUS_COMPLETED], true)
                                     && ! ($s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path));
+                                $mgrHistoryPdfOk = $s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path);
                             @endphp
                             <tr>
                                 <td>{{ $s->nama_driver }}</td>
@@ -125,11 +117,16 @@
                                 <td><x-sppd-status-badge :status="$s->status" /></td>
                                 <td class="sppd-cell-muted">{{ $s->approved_at?->format('d/m/Y H:i') ?? $s->rejected_at?->format('d/m/Y H:i') ?? $s->updated_at->format('d/m/Y') }}</td>
                                 <td>
-                                    @if($sppdNeedsPdf)
-                                        <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-regen-pdf" data-id="{{ $s->id }}" title="Buat PDF (belum tersedia)" aria-label="Buat PDF"><i class="bi bi-file-earmark-pdf"></i></button>
-                                    @else
-                                        <span class="sppd-cell-muted">—</span>
-                                    @endif
+                                    <div class="sppd-aksi-btns">
+                                        @if($sppdNeedsPdf)
+                                            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-regen-pdf" data-id="{{ $s->id }}" title="Buat PDF (belum tersedia)" aria-label="Buat PDF"><i class="bi bi-file-earmark-pdf"></i></button>
+                                        @endif
+                                        @if($mgrHistoryPdfOk)
+                                            <a href="{{ route('manager.sppd.pdf', $s) }}" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" target="_blank" rel="noopener" title="Unduh PDF" aria-label="Unduh PDF"><i class="bi bi-file-earmark-pdf-fill"></i></a>
+                                        @elseif(!$sppdNeedsPdf)
+                                            <span class="sppd-cell-muted">—</span>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -151,6 +148,7 @@
             <h3>Detail Rekap SPPD</h3>
             <div id="sppd-manager-detail-body" class="sppd-detail-html"></div>
             <div class="ppm-modal-actions">
+                <div id="sppd-manager-detail-pdf-wrap" class="sppd-detail-pdf-wrap" hidden></div>
                 <button type="button" class="ppm-btn-ghost" data-close-manager-sppd-modal>Tutup</button>
             </div>
         </div>
@@ -203,6 +201,17 @@
             `;
         }
 
+        function qaAttr(s) {
+            return String(s ?? '').replace(/"/g, '&quot;');
+        }
+
+        function renderManagerPdfActions(d) {
+            if (d.pdf_download_url && d.pdf_available) {
+                return `<a href="${qaAttr(d.pdf_download_url)}" class="btn btn-sm sppd-btn-modal-pdf" target="_blank" rel="noopener" title="Unduh PDF"><i class="bi bi-file-earmark-arrow-down"></i> Unduh PDF</a>`;
+            }
+            return '';
+        }
+
         document.getElementById('mgr-sppd-live-root')?.addEventListener('click', async (e) => {
             const detailBtn = e.target.closest('.mgr-sppd-detail');
             if (detailBtn) {
@@ -211,7 +220,15 @@
                 const d = j.sppd;
                 const modal = document.getElementById('sppd-modal-detail-manager');
                 const detailBody = document.getElementById('sppd-manager-detail-body');
+                const pdfWrap = document.getElementById('sppd-manager-detail-pdf-wrap');
+                pdfWrap.hidden = true;
+                pdfWrap.innerHTML = '';
                 detailBody.innerHTML = renderDetail(d);
+                const pdfHtml = renderManagerPdfActions(d);
+                if (pdfHtml) {
+                    pdfWrap.innerHTML = pdfHtml;
+                    pdfWrap.hidden = false;
+                }
                 modal.style.display = 'flex';
                 return;
             }

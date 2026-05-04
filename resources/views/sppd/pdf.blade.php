@@ -231,7 +231,7 @@
 <body>
 @php
     $tgl = $sppd->tanggal_dinas?->format('d F Y');
-    $headerDate = $sppd->tanggal_dinas ?? \Carbon\Carbon::now();
+    $headerDate = \Carbon\Carbon::now();
     $tahun = $headerDate->format('y');
     $bulanRomawi = [
         1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',

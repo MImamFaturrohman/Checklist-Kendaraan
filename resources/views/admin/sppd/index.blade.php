@@ -103,6 +103,19 @@
                                                 title="Detail Laporan"
                                                 aria-label="Detail Laporan"
                                             ><i class="bi bi-eye-fill"></i></button>
+                                            @php
+                                                $admPdfOk = $s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path);
+                                            @endphp
+                                            @if($admPdfOk)
+                                                <a
+                                                    href="{{ route('admin.sppd.pdf', $s) }}"
+                                                    class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite"
+                                                    target="_blank"
+                                                    rel="noopener"
+                                                    title="Unduh PDF"
+                                                    aria-label="Unduh PDF"
+                                                ><i class="bi bi-file-earmark-pdf-fill"></i></a>
+                                            @endif
                                             @if($s->status === Sppd::STATUS_PENDING)
                                                 <button
                                                     type="button"
@@ -142,6 +155,7 @@
             <h3>Detail Rekap SPPD</h3>
             <div id="sppd-admin-detail-body" class="sppd-detail-html"></div>
             <div class="ppm-modal-actions">
+                <div id="sppd-admin-detail-pdf-wrap" class="sppd-detail-pdf-wrap" hidden></div>
                 <button type="button" class="ppm-btn-ghost" data-close-admin-sppd-modal>Tutup</button>
             </div>
         </div>
@@ -198,13 +212,32 @@
             `;
         }
 
+        function qaAttr(s) {
+            return String(s ?? '').replace(/"/g, '&quot;');
+        }
+
+        function renderAdminPdfActions(d) {
+            if (d.pdf_download_url && d.pdf_available) {
+                return `<a href="${qaAttr(d.pdf_download_url)}" class="btn btn-sm sppd-btn-modal-pdf" target="_blank" rel="noopener" title="Unduh PDF"><i class="bi bi-file-earmark-arrow-down"></i> Unduh PDF</a>`;
+            }
+            return '';
+        }
+
         async function showDetail(id) {
             const r = await fetch(detailUrl(id), { headers: { Accept: 'application/json' } });
             const j = await r.json();
             const d = j.sppd;
             const modal = document.getElementById('sppd-modal-detail-admin');
             const body = document.getElementById('sppd-admin-detail-body');
+            const pdfWrap = document.getElementById('sppd-admin-detail-pdf-wrap');
+            pdfWrap.hidden = true;
+            pdfWrap.innerHTML = '';
             body.innerHTML = renderDetail(d);
+            const pdfHtml = renderAdminPdfActions(d);
+            if (pdfHtml) {
+                pdfWrap.innerHTML = pdfHtml;
+                pdfWrap.hidden = false;
+            }
             modal.style.display = 'flex';
         }
 

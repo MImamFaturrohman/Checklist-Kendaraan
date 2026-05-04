@@ -117,6 +117,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin: Rekap SPPD
     Route::get('/admin/rekap-sppd', [SppdAdminController::class, 'index'])->name('admin.sppd.index');
+    Route::get('/admin/rekap-sppd/{sppd}/pdf', [SppdAdminController::class, 'downloadPdf'])->name('admin.sppd.pdf');
     Route::get('/admin/rekap-sppd/{sppd}', [SppdAdminController::class, 'show'])->name('admin.sppd.show');
     Route::post('/admin/rekap-sppd/{sppd}/verify-approve', [SppdAdminController::class, 'verifyApprove'])->name('admin.sppd.verify-approve');
     Route::post('/admin/rekap-sppd/{sppd}/verify-reject', [SppdAdminController::class, 'verifyReject'])->name('admin.sppd.verify-reject');
@@ -128,6 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Manager: Rekap SPPD
     Route::get('/manager/rekap-sppd', [ManagerSppdController::class, 'index'])->name('manager.sppd.index');
+    Route::get('/manager/rekap-sppd/{sppd}/pdf', [ManagerSppdController::class, 'downloadPdf'])->name('manager.sppd.pdf');
     Route::get('/manager/rekap-sppd/{sppd}', [ManagerSppdController::class, 'show'])->name('manager.sppd.show');
     Route::post('/manager/rekap-sppd/{sppd}/approve', [ManagerSppdController::class, 'approve'])->name('manager.sppd.approve');
     Route::post('/manager/rekap-sppd/{sppd}/reject', [ManagerSppdController::class, 'reject'])->name('manager.sppd.reject');

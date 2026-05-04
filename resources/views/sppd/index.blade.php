@@ -70,7 +70,7 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         Daftar Rekap SPPD
                     </div>
-                    <a href="{{ route('sppd.create') }}" class="btn-export" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+                    <a href="{{ route('sppd.create') }}" class="btn-export sppd-btn-create-rekap" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         Buat Rekap SPPD
                     </a>
@@ -154,14 +154,17 @@
                                                     ><i class="bi bi-trash-fill"></i></button>
                                                 </form>
                                             @endif
-                                            @if(in_array($s->status, [\App\Models\Sppd::STATUS_APPROVED, \App\Models\Sppd::STATUS_COMPLETED], true) && $s->pdf_path)
+                                            @php
+                                                $sppdPdfOk = $s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path);
+                                            @endphp
+                                            @if($sppdPdfOk && in_array($s->status, [\App\Models\Sppd::STATUS_APPROVED, \App\Models\Sppd::STATUS_COMPLETED], true))
                                                 <a
                                                     href="{{ route('sppd.pdf', $s) }}"
                                                     class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite"
                                                     target="_blank"
                                                     rel="noopener"
-                                                    title="Cetak PDF"
-                                                    aria-label="Cetak PDF"
+                                                    title="Unduh PDF"
+                                                    aria-label="Unduh PDF"
                                                 ><i class="bi bi-file-earmark-pdf-fill"></i></a>
                                             @endif
                                         </div>
@@ -189,6 +192,7 @@
             <h3>Detail Rekap SPPD</h3>
             <div id="sppd-detail-body" class="sppd-detail-html"></div>
             <div class="ppm-modal-actions">
+                <div id="sppd-detail-pdf-wrap" class="sppd-detail-pdf-wrap" hidden></div>
                 <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" data-close-sppd-modal title="Tutup" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
                 <a href="#" id="sppd-detail-edit" class="btn btn-sm sppd-icon-btn sppd-btn-success" style="display:none" title="Edit Laporan" aria-label="Edit Laporan"><i class="bi bi-pencil-fill"></i></a>
                 <form id="sppd-form-selesai" method="post" class="sppd-inline-form" style="display:none">
@@ -221,24 +225,47 @@
     (function () {
         const BASE = @json(url('/'));
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        function swalTheme(extra) {
+            const isDark = document.body.classList.contains('dark');
+            if (!isDark || typeof Swal === 'undefined') return extra || {};
+            return {
+                background: '#0f172a',
+                color: '#e2e8f0',
+                iconColor: '#38bdf8',
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#475569',
+                ...(extra || {}),
+            };
+        }
+
         const flashOk = @json(session('ok'));
         if (flashOk && typeof Swal !== 'undefined') {
-            queueMicrotask(() => Swal.fire({ icon: 'success', title: 'Berhasil', text: flashOk }));
+            queueMicrotask(() =>
+                Swal.fire(
+                    swalTheme({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: flashOk,
+                    })
+                )
+            );
         }
 
         document.addEventListener('submit', async (e) => {
             const form = e.target.closest('.sppd-delete-form');
             if (!form || !document.getElementById('sppd-driver-live-root')?.contains(form)) return;
             e.preventDefault();
-            const c = await Swal.fire({
-                title: 'Hapus laporan ini?',
-                text: 'Data tidak dapat dikembalikan.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, hapus',
-                cancelButtonText: 'Batal',
-                reverseButtons: true,
-            });
+            const c = await Swal.fire(
+                swalTheme({
+                    title: 'Hapus laporan ini?',
+                    text: 'Data tidak dapat dikembalikan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                })
+            );
             if (!c.isConfirmed) return;
             const btn = form.querySelector('.sppd-delete-submit');
             if (btn) btn.disabled = true;
@@ -255,14 +282,20 @@
                 if (r.ok && ct.includes('application/json')) {
                     const j = await r.json();
                     if (j.success) {
-                        await Swal.fire({ icon: 'success', title: 'Berhasil', text: j.message || 'Rekap dihapus.' });
+                        await Swal.fire(
+                            swalTheme({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: j.message || 'Rekap dihapus.',
+                            })
+                        );
                         window.location.reload();
                         return;
                     }
                 }
-                await Swal.fire({ icon: 'error', title: 'Gagal', text: 'Tidak dapat menghapus laporan.' });
+                await Swal.fire(swalTheme({ icon: 'error', title: 'Gagal', text: 'Tidak dapat menghapus laporan.' }));
             } catch (err) {
-                await Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan.' });
+                await Swal.fire(swalTheme({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan.' }));
             } finally {
                 if (btn) btn.disabled = false;
             }
@@ -286,6 +319,17 @@
             if (/^https?:\/\//i.test(raw)) return raw;
             if (raw.startsWith('/')) return BASE + raw;
             return BASE + '/' + raw.replace(/^\/+/, '');
+        }
+
+        function qaAttr(s) {
+            return String(s ?? '').replace(/"/g, '&quot;');
+        }
+
+        function renderPdfActionsHtml(d) {
+            if (d.pdf_download_url && d.pdf_available) {
+                return `<a href="${qaAttr(d.pdf_download_url)}" class="btn btn-sm sppd-btn-modal-pdf" target="_blank" rel="noopener" title="Unduh PDF"><i class="bi bi-file-earmark-arrow-down"></i> Unduh PDF</a>`;
+            }
+            return '';
         }
 
         function renderDetail(d) {
@@ -320,6 +364,9 @@
                 const detailBody = document.getElementById('sppd-detail-body');
                 const formSelesai = document.getElementById('sppd-form-selesai');
                 const editBtn = document.getElementById('sppd-detail-edit');
+                const pdfWrap = document.getElementById('sppd-detail-pdf-wrap');
+                pdfWrap.hidden = true;
+                pdfWrap.innerHTML = '';
                 detailBody.innerHTML = '<p>Memuat…</p>';
                 modal.style.display = 'flex';
                 formSelesai.style.display = 'none';
@@ -329,6 +376,11 @@
                     const j = await r.json();
                     const d = j.sppd;
                     detailBody.innerHTML = renderDetail(d);
+                    const pdfHtml = renderPdfActionsHtml(d);
+                    if (pdfHtml) {
+                        pdfWrap.innerHTML = pdfHtml;
+                        pdfWrap.hidden = false;
+                    }
                     if (d.status === 'revision') {
                         editBtn.href = BASE + '/sppd/' + id + '/edit';
                         editBtn.style.display = 'inline-flex';
@@ -339,6 +391,8 @@
                     }
                 } catch (err) {
                     detailBody.innerHTML = '<p>Gagal memuat data.</p>';
+                    pdfWrap.hidden = true;
+                    pdfWrap.innerHTML = '';
                 }
                 return;
             }

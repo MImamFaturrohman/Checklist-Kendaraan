@@ -31,7 +31,6 @@ class ManagerSppdController extends Controller
         abort_unless(auth()->user()?->role === 'manager', 403);
 
         $perPage = $this->resolveManagerSppdPerPage($request);
-        $q = trim((string) $request->query('q', ''));
 
         $pendingQuery = Sppd::query()
             ->where('status', Sppd::STATUS_PENDING_MANAGER)
@@ -43,20 +42,6 @@ class ManagerSppdController extends Controller
             ->with(['user:id,name,username', 'approver:id,name'])
             ->orderByDesc('updated_at');
 
-        if ($q !== '') {
-            $like = '%'.$q.'%';
-            $pendingQuery->where(function ($w) use ($like) {
-                $w->where('nama_driver', 'like', $like)
-                    ->orWhere('keperluan_dinas', 'like', $like)
-                    ->orWhere('no_kendaraan', 'like', $like);
-            });
-            $historyQuery->where(function ($w) use ($like) {
-                $w->where('nama_driver', 'like', $like)
-                    ->orWhere('keperluan_dinas', 'like', $like)
-                    ->orWhere('no_kendaraan', 'like', $like);
-            });
-        }
-
         $pending = $pendingQuery
             ->paginate($perPage, ['*'], 'pending_page')
             ->onEachSide(0)
@@ -67,7 +52,7 @@ class ManagerSppdController extends Controller
             ->onEachSide(0)
             ->withQueryString();
 
-        $view = view('manager.sppd', compact('pending', 'history', 'q', 'perPage'));
+        $view = view('manager.sppd', compact('pending', 'history', 'perPage'));
 
         if ($request->header('X-VMS-SPPD-Fragment') === '1') {
             return response($view->fragment('manager-sppd-body'));
@@ -85,6 +70,17 @@ class ManagerSppdController extends Controller
         return response()->json([
             'sppd' => $sppd->toDetailArray(),
         ]);
+    }
+
+    public function downloadPdf(Sppd $sppd)
+    {
+        abort_unless(auth()->user()?->role === 'manager', 403);
+        abort_unless($sppd->pdf_path && Storage::disk('public')->exists($sppd->pdf_path), 404);
+
+        return response()->download(
+            Storage::disk('public')->path($sppd->pdf_path),
+            'Rekap_SPPD_'.$sppd->id.'.pdf'
+        );
     }
 
     public function approve(Sppd $sppd): JsonResponse

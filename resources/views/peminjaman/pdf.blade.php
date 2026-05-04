@@ -44,20 +44,33 @@
 
         .body-text { font-size: 10pt; color: #1a1a2e; margin: 14px 0 10px; }
 
-        /* Kolom label diseragamkan mengikuti teks terpanjang: "Hari / Tanggal Peminjaman" */
-        .pdf-kv-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+        /* Kolom label + titik dua dijajarkan: table-layout + colgroup (DomPDF/Chrome PDF) */
+        .pdf-kv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+            table-layout: auto;
+        }
         .pdf-kv-table td { font-size: 10pt; padding: 2px 0; vertical-align: top; }
         .pdf-kv-label {
-            width: 48mm;
-            white-space: nowrap;
             font-weight: normal;
         }
+        .pdf-kv-label span { display: block; padding-left: 12mm; }
 
-        .pdf-kv-colon { width: 3mm; text-align: left; }
-        .pdf-kv-value { padding-bottom: 2px; word-wrap: break-word; }
+        .pdf-kv-colon {
+            padding: 2px 0;
+            text-align: left;
+            white-space: nowrap;
+            vertical-align: top;
+        }
+        /* Nilai langsung rapat setelah kolom ":" (tanpa padding kiri berlebihan) */
+        .pdf-kv-value {
+            padding: 2px 0 2px 2mm;
+            word-wrap: break-word;
+        }
         
         .declaration { font-size: 10pt; color: #1a1a2e; margin: 12px 0 8px; }
-        .declaration-list { font-size: 10pt; padding-left: 22px; margin: 6px 0; }
+        .declaration-list { font-size: 10pt; padding-left: 10mm; margin: 6px 0; margin-left: 5mm; }
         .declaration-list li { margin-bottom: 4px; }
         
         .closing { font-size: 10pt; margin-top: 14px; color: #1a1a2e; }
@@ -66,26 +79,27 @@
         .sig-table td { width: 50%; text-align: center; vertical-align: top; padding: 0 10px; font-size: 10pt; }
         .sig-label    { font-weight: bold; margin-bottom: 2px; }
         .sig-position { font-size: 9.5pt; color: #374151; margin-bottom: 0px; }
-        .sig-img-box  { height: 75px; margin: 6px auto; display: flex; align-items: center; justify-content: center; }
+        .sig-img-box  { height: 75px; margin: 6px auto; margin-bottom: 1px; display: flex; align-items: center; justify-content: center; }
         .sig-img-box img { max-height: 70px; max-width: 180px; object-fit: contain; }
-        .sig-name     { font-weight: bold; font-size: 10pt; margin-top: 4px; padding-top: 4px; display: inline-block; min-width: 160px; }
+        .sig-name     { font-weight: bold; font-size: 10pt; display: inline-block; min-width: 160px; }
 
         /* Hanya disclaimer di bagian bawah halaman */
         .pdf-footer-note {
-            position: absolute;
+            position: fixed;
             left: 0;
             right: 0;
-            bottom: 5mm;
+            bottom: 0;
             width: 100%;
+            padding: 6px 10px 10px;
             page-break-inside: avoid;
         }
+
         .note {
             text-align: center;
             font-size: 8pt;
             color: #6b7280;
             margin: 0;
             font-style: italic;
-            border-top: 1px solid #d1d5db;
             padding-top: 8px;
         }
         </style>
@@ -94,7 +108,7 @@
 @php
     use Carbon\Carbon;
 
-    $tgl       = Carbon::parse($peminjaman->approved_at ?? $peminjaman->created_at);
+    $tgl       = Carbon::parse($peminjaman->approved_at);
     $tglPinjam = Carbon::parse($peminjaman->tanggal_peminjaman);
 
     $bulanId = [
@@ -136,57 +150,62 @@
         </table>
     </div>
 
-    <p class="body-text">Saya yang bertanda tangan dibawah ini :</p>
+    <p class="body-text"><br>Saya yang bertanda tangan dibawah ini:</p>
 
     <table class="pdf-kv-table">
         <tr>
-            <td class="pdf-kv-label">Nama Pegawai</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>Nama Pegawai</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $peminjaman->nama_lengkap }}</td>
         </tr>
         <tr>
-            <td class="pdf-kv-label">NIP</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>NIP</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $peminjaman->nip }}</td>
         </tr>
         <tr>
-            <td class="pdf-kv-label">Posisi</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>Posisi</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $peminjaman->jabatan }}</td>
         </tr>
         <tr>
-            <td class="pdf-kv-label">Bidang / Bagian</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>Bidang / Bagian</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $bidangTeks }}</td>
         </tr>
     </table>
 
-    <p class="body-text">Mohon untuk dapat dipinjamkan kendaraan dinas <em>Port Management</em>, sebagai berikut :</p>
+    <p class="body-text"><br>Mohon untuk dapat dipinjamkan kendaraan dinas <em>Port Management</em>, sebagai berikut:</p>
 
     <table class="pdf-kv-table">
+        <colgroup>
+            <col style="width: 72mm;">
+            <col style="width: 2.6mm;">
+            <col>
+        </colgroup>
         <tr>
-            <td class="pdf-kv-label">Jenis Kendaraan</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>Jenis Kendaraan</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $peminjaman->jenis_kendaraan }}</td>
         </tr>
         <tr>
-            <td class="pdf-kv-label">Nomor Kendaraan</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>Nomor Kendaraan</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $peminjaman->nomor_kendaraan }}</td>
         </tr>
         <tr>
-            <td class="pdf-kv-label">Hari / Tanggal Peminjaman</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>Hari / Tanggal Peminjaman</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $hariPinjam }}, {{ $tglPinjamStr }}</td>
         </tr>
         <tr>
-            <td class="pdf-kv-label">Untuk Keperluan</td>
-            <td class="pdf-kv-colon">:</td>
+            <td class="pdf-kv-label" style="width: 62mm;"><span>Untuk Keperluan</span></td>
+            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
             <td class="pdf-kv-value">{{ $peminjaman->alasan }}</td>
         </tr>
     </table>
 
-    <p class="declaration">{{ $pernyataanPengantar }}</p>
+    <p class="declaration"><br>{{ $pernyataanPengantar }}</p>
     @if($pernyataans->isNotEmpty())
         <ol class="declaration-list">
             @foreach($pernyataans as $p)
@@ -195,7 +214,7 @@
         </ol>
     @endif
 
-    <p class="closing">Demikian disampaikan. Atas perhatian dan kerjasamanya kami ucapkan terima kasih.</p>
+    <p class="closing"><br>Demikian disampaikan. Atas perhatian dan kerjasamanya kami ucapkan terima kasih.</p>
 
     <table class="sig-table">
         <tr>

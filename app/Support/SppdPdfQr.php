@@ -38,8 +38,6 @@ final class SppdPdfQr
         try {
             $logoFile = $tmpCircular ?? $logoPath;
 
-            // false: tanpa “punch out” persegi — DOM PDF sering merender transparansi sebagai kotak hitam;
-            // pola QR tetap di bawah; logo bundar ber-alpha menyatu di atas (area transparan menampilkan modul QR).
             $logo = Logo::create($logoFile)
                 ->setResizeToWidth($logoWidth)
                 ->setPunchoutBackground(false);

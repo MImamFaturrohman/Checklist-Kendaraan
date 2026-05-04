@@ -15,12 +15,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const sumBbm = document.getElementById('sppd-sum-bbm');
     const sumGrand = document.getElementById('sppd-sum-grand');
     const step4Summary = document.getElementById('sppd-step4-summary');
-    const submitBtn = document.getElementById('sppd-submit');
+
+    const swalFormTheme = () =>
+        document.body.classList.contains('dark')
+            ? {
+                  background: '#0f172a',
+                  color: '#e2e8f0',
+                  iconColor: '#38bdf8',
+                  confirmButtonColor: '#2563eb',
+                  cancelButtonColor: '#475569',
+              }
+            : {};
+
     const stepLabel = document.getElementById('sppd-step-label');
     const progressPct = document.getElementById('sppd-progress-pct');
     const progressFill = document.getElementById('sppd-progress-fill');
     const prevBtn = document.getElementById('sppd-prev');
     const nextBtn = document.getElementById('sppd-next');
+    const submitBtn = document.getElementById('sppd-submit');
     const steps = Array.from(root.querySelectorAll('[data-sppd-step]'));
     let currentStep = 1;
 
@@ -476,15 +488,12 @@ document.addEventListener('DOMContentLoaded', () => {
         recalcTotals();
     });
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!validateTolls() || !validateFuels()) {
-            return;
-        }
+    const submitReport = async () => {
+        if (!submitBtn) return;
         const fd = new FormData(form);
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
         submitBtn.disabled = true;
-        const prev = submitBtn.textContent;
+        const prevLabel = submitBtn.textContent;
         submitBtn.textContent = 'Memproses…';
         try {
             const res = await fetch(form.action, {
@@ -495,19 +504,51 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json().catch(() => ({}));
             if (res.ok && data.success) {
                 const listUrl = data.redirect || `${window.location.origin}/sppd`;
-                showResult(true, 'Rekap SPPD Tersimpan!', '', [
-                    { href: listUrl, label: '📋 Ke Daftar Rekap', class: 'modal-btn-success' },
-                ]);
+                if (typeof Swal !== 'undefined') {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Rekap SPPD berhasil dikirim.',
+                        confirmButtonText: 'Ke Daftar Rekap',
+                        ...swalFormTheme(),
+                    });
+                    window.location.href = listUrl;
+                } else {
+                    showResult(true, 'Rekap SPPD berhasil dikirim', '', [
+                        { href: listUrl, label: '📋 Ke Daftar Rekap', class: 'modal-btn-success' },
+                    ]);
+                }
             } else {
                 showResult(false, 'Gagal', data.message || 'Validasi gagal.', [{ label: 'OK', class: 'modal-btn-secondary' }]);
                 submitBtn.disabled = false;
-                submitBtn.textContent = prev;
+                submitBtn.textContent = prevLabel;
             }
         } catch {
             showResult(false, 'Koneksi Bermasalah', 'Terjadi kesalahan jaringan. Silakan coba lagi.', [{ label: 'OK', class: 'modal-btn-secondary' }]);
             submitBtn.disabled = false;
-            submitBtn.textContent = prev;
+            submitBtn.textContent = prevLabel;
         }
+    };
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!validateTolls() || !validateFuels()) {
+            return;
+        }
+        if (typeof Swal !== 'undefined') {
+            const r = await Swal.fire({
+                icon: 'question',
+                title: 'Submit Laporan?',
+                text: 'Pastikan data sudah benar.',
+                showCancelButton: true,
+                confirmButtonText: 'Kirim',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                ...swalFormTheme(),
+            });
+            if (!r.isConfirmed) return;
+        }
+        await submitReport();
     });
 
     prevBtn?.addEventListener('click', () => {

@@ -7,6 +7,7 @@
     <title>{{ $isEdit ? 'Edit' : 'Buat' }} Rekap SPPD — {{ config('app.name') }}</title>
     @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/sppd-form.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {{-- Section banner: sama dengan resources/views/checklists/create.blade.php --}}
     <style>
         .sppd-form-page .section-banner {

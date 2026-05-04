@@ -8,7 +8,9 @@ use App\Support\SppdStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SppdAdminController extends Controller
 {
@@ -90,6 +92,17 @@ class SppdAdminController extends Controller
         return response()->json([
             'sppd' => $sppd->toDetailArray(),
         ]);
+    }
+
+    public function downloadPdf(Sppd $sppd): BinaryFileResponse
+    {
+        $this->authorizeAdmin();
+        abort_unless($sppd->pdf_path && Storage::disk('public')->exists($sppd->pdf_path), 404);
+
+        return response()->download(
+            Storage::disk('public')->path($sppd->pdf_path),
+            'Rekap_SPPD_'.$sppd->id.'.pdf'
+        );
     }
 
     public function verifyApprove(Sppd $sppd): JsonResponse
