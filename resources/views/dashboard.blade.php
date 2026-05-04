@@ -431,7 +431,7 @@
                                             </svg>
                                         </span>
                                     </a>
-                                    @if ($user?->role === 'driver')
+                                    @if ($user?->role === 'driver' || $user?->role === 'pic_kendaraan')
                                         <a href="{{ route('bbm-reports.create') }}" class="dash-main-card dash-pressable">
                                             <div>
                                                 <p class="dash-main-title">Form Pengisian BBM</p>
