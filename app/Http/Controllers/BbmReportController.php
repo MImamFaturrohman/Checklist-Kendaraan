@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -55,6 +56,7 @@ class BbmReportController extends Controller
 
         $validated = $request->validate([
             'nomor_kendaraan' => ['required', 'string', 'exists:kendaraans,nomor_kendaraan'],
+            'jenis_pengisian' => ['required', 'string', Rule::in(BbmReport::JENIS_PENGISIAN_VALUES)],
             'tanggal' => ['required', 'date'],
             'waktu' => ['required', 'date_format:H:i'],
             'odometer_sebelum' => ['required', 'integer', 'min:0'],
@@ -106,6 +108,7 @@ class BbmReportController extends Controller
                 'kendaraan_id' => $kendaraan->id,
                 'nomor_kendaraan' => $kendaraan->nomor_kendaraan,
                 'jenis_kendaraan' => $kendaraan->jenis_kendaraan,
+                'jenis_pengisian' => $validated['jenis_pengisian'],
                 'tanggal' => $validated['tanggal'],
                 'waktu' => $validated['waktu'],
                 'shift' => $shiftCode,

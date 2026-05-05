@@ -600,7 +600,7 @@
 
                     <div class="checklist-field lp-form-full">
                         <span>Gambar / Foto <span style="color:#ef4444">*</span></span>
-                        <input type="file" name="foto" id="lk_foto" accept="image/*" capture="environment" required class="checklist-file-input" style="display:none">
+                        <input type="file" name="foto" id="lk_foto" accept="image/*" required class="checklist-file-input" style="display:none">
                         <div class="lp-lk-photo-actions">
                             <button type="button" class="lp-landing-file-btn" id="lk_btn_foto">Upload foto kejadian</button>
                         </div>

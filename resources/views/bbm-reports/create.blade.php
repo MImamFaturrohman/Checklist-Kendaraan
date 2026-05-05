@@ -153,6 +153,16 @@
                                 <input type="text" id="bbm-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis terisi…" autocomplete="off">
                             </div>
                         </label>
+                        <label class="checklist-field checklist-field-span2">
+                            <span>Jenis pengisian BBM</span>
+                            <div class="checklist-control-wrap checklist-control-select">
+                                <select name="jenis_pengisian" id="bbm-jenis-pengisian" required>
+                                    <option value="">Pilih jenis</option>
+                                    <option value="Operasional" @selected(old('jenis_pengisian') === 'Operasional')>Operasional</option>
+                                    <option value="Perjalanan Dinas (SPPD)" @selected(old('jenis_pengisian') === 'Perjalanan Dinas (SPPD)')>Perjalanan Dinas (SPPD)</option>
+                                </select>
+                            </div>
+                        </label>
                     </div>
                     <div class="checklist-grid-two bbm-datetime-grid">
                         <label class="checklist-field">

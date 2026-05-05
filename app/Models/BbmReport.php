@@ -7,11 +7,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BbmReport extends Model
 {
+    public const JENIS_PENGISIAN_OPERASIONAL = 'Operasional';
+
+    public const JENIS_PENGISIAN_PERJALANAN_DINAS = 'Perjalanan Dinas (SPPD)';
+
+    /** @var list<string> */
+    public const JENIS_PENGISIAN_VALUES = [
+        self::JENIS_PENGISIAN_OPERASIONAL,
+        self::JENIS_PENGISIAN_PERJALANAN_DINAS,
+    ];
+
     protected $fillable = [
         'user_id',
         'kendaraan_id',
         'nomor_kendaraan',
         'jenis_kendaraan',
+        'jenis_pengisian',
         'tanggal',
         'waktu',
         'shift',

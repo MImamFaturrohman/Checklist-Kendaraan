@@ -158,6 +158,14 @@
                                 <option value="luar" @selected(($bbmPortalShift ?? '') === 'luar')>Di Luar Shift</option>
                             </select>
                         </div>
+                        <div class="ppm-status-wrap">
+                            <label class="sr-only" for="bbm-portal-jenis-pengisian">Filter jenis pengisian BBM</label>
+                            <select name="jenis_pengisian" id="bbm-portal-jenis-pengisian" class="admin-filter-input" aria-label="Filter jenis pengisian BBM">
+                                <option value="" @selected(($bbmPortalJenisPengisian ?? '') === '')>Semua jenis</option>
+                                <option value="Operasional" @selected(($bbmPortalJenisPengisian ?? '') === 'Operasional')>Operasional</option>
+                                <option value="Perjalanan Dinas (SPPD)" @selected(($bbmPortalJenisPengisian ?? '') === 'Perjalanan Dinas (SPPD)')>Perjalanan Dinas (SPPD)</option>
+                            </select>
+                        </div>
                         <div class="ppm-status-wrap bbm-portal-date-range">
                             <label class="sr-only" for="bbm-portal-date-from">Tanggal mulai</label>
                             <input type="date" name="date_from" id="bbm-portal-date-from" class="admin-filter-input" value="{{ $bbmPortalDateFrom ?? '' }}" title="Dari tanggal" aria-label="Dari tanggal">
@@ -185,6 +193,7 @@
                                     <th>Tanggal</th>
                                     <th>Waktu</th>
                                     <th>Shift</th>
+                                    <th>Jenis BBM</th>
                                     <th>Kendaraan</th>
                                     <th>Pengemudi</th>
                                     <th>Km Sebelum</th>
@@ -210,6 +219,7 @@
                                                 {{ \App\Support\DriverShift::labelFromCode($r->shift) }}
                                             </span>
                                         </td>
+                                        <td><span class="bbm-jenis-pengisian-cell">{{ $r->jenis_pengisian ?: 'Operasional' }}</span></td>
                                         <td><strong>{{ $r->nomor_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $r->jenis_kendaraan }}</span></td>
                                         <td>{{ $r->user?->name ?? '—' }}<br><span class="sppd-cell-muted">{{ $r->user?->username }}</span></td>
                                         <td>{{ $fmtKm($r->odometer_sebelum) }}</td>
@@ -228,7 +238,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="12" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
+                                    <tr><td colspan="13" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -757,6 +767,7 @@
                 <table class="info-table sppd-mini-table">
                     <tr><td class="label">Driver</td><td>${esc(d.driver_name)} (${esc(d.driver_username || '—')})</td></tr>
                     <tr><td class="label">Kendaraan</td><td>${esc(d.nomor_kendaraan)} — ${esc(d.jenis_kendaraan)}</td></tr>
+                    <tr><td class="label">Jenis pengisian BBM</td><td>${esc(d.jenis_pengisian ?? '—')}</td></tr>
                     <tr><td class="label">Tanggal</td><td>${esc(d.tanggal)}</td></tr>
                     <tr><td class="label">Waktu</td><td>${esc(d.waktu)}</td></tr>
                     <tr><td class="label">Shift</td><td>${shiftHtml}</td></tr>

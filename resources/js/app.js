@@ -224,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (form) {
                     const q = form.querySelector('[name="q"]');
                     const shift = form.querySelector('[name="shift"]');
+                    const jenis = form.querySelector('[name="jenis_pengisian"]');
                     const df = form.querySelector('[name="date_from"]');
                     const dt = form.querySelector('[name="date_to"]');
                     const pp = form.querySelector('[name="per_page"]');
@@ -232,6 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     if (shift) {
                         shift.value = '';
+                    }
+                    if (jenis) {
+                        jenis.value = '';
                     }
                     if (df) {
                         df.value = '';

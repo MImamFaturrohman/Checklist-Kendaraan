@@ -70,11 +70,16 @@ class BbmReportDummySeeder extends Seeder
 
                 $createdAt = Carbon::parse($tanggal->toDateString().' '.$waktu);
 
+                $jenisPengisian = fake()->boolean(78)
+                    ? BbmReport::JENIS_PENGISIAN_OPERASIONAL
+                    : BbmReport::JENIS_PENGISIAN_PERJALANAN_DINAS;
+
                 $rows[] = [
                     'user_id' => (int) $driverIds->random(),
                     'kendaraan_id' => $k->id,
                     'nomor_kendaraan' => $k->nomor_kendaraan,
                     'jenis_kendaraan' => $k->jenis_kendaraan,
+                    'jenis_pengisian' => $jenisPengisian,
                     'tanggal' => $tanggal->toDateString(),
                     'waktu' => $waktu,
                     'shift' => $shiftCode,

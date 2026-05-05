@@ -158,6 +158,14 @@ class BbmOperationalPortalController extends Controller
         $perPage = $this->resolvePerPage($request);
         $search = $request->input('q');
         $shiftFilter = $request->input('shift');
+        $jenisPengisianFilter = $request->input('jenis_pengisian');
+        if (is_string($jenisPengisianFilter) && $jenisPengisianFilter !== '') {
+            if (! in_array($jenisPengisianFilter, BbmReport::JENIS_PENGISIAN_VALUES, true)) {
+                $jenisPengisianFilter = '';
+            }
+        } else {
+            $jenisPengisianFilter = '';
+        }
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
 
@@ -212,11 +220,16 @@ class BbmOperationalPortalController extends Controller
                 $reportsQuery->where(function ($q) use ($term) {
                     $q->where('nomor_kendaraan', 'like', $term)
                         ->orWhere('jenis_kendaraan', 'like', $term)
+                        ->orWhere('jenis_pengisian', 'like', $term)
                         ->orWhereHas('user', function ($uq) use ($term) {
                             $uq->where('name', 'like', $term)
                                 ->orWhere('username', 'like', $term);
                         });
                 });
+            }
+
+            if ($jenisPengisianFilter !== '') {
+                $reportsQuery->where('jenis_pengisian', $jenisPengisianFilter);
             }
 
             if ($shiftFilter === 'luar') {
@@ -270,6 +283,7 @@ class BbmOperationalPortalController extends Controller
             'bbmPortalChartsOnly' => $chartsOnly,
             'bbmPortalSearch' => $search,
             'bbmPortalShift' => $shiftFilter,
+            'bbmPortalJenisPengisian' => $jenisPengisianFilter,
             'bbmPortalDateFrom' => $dateFrom,
             'bbmPortalDateTo' => $dateTo,
         ];
@@ -302,6 +316,7 @@ class BbmOperationalPortalController extends Controller
                 'driver_username' => $bbmReport->user?->username,
                 'nomor_kendaraan' => $bbmReport->nomor_kendaraan,
                 'jenis_kendaraan' => $bbmReport->jenis_kendaraan,
+                'jenis_pengisian' => $bbmReport->jenis_pengisian ?: BbmReport::JENIS_PENGISIAN_OPERASIONAL,
                 'tanggal' => $bbmReport->tanggal->format('d/m/Y'),
                 'waktu' => $waktuStr,
                 'shift_code' => $shiftCode,
