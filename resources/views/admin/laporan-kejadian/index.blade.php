@@ -38,7 +38,7 @@
 
     @include('admin.partials.dash-admin-nav', [
         'pageTitle' => 'Laporan Kejadian',
-        'pageSubtitle' => 'Arsip dari halaman publik — unduh PDF',
+        'pageSubtitle' => 'PT. ARTHA DAYA COALINDO',
         'navChipLabel' => 'SUPERADMIN',
         'navChipClass' => 'dash-chip-admin',
     ])

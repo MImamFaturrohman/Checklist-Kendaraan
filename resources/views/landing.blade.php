@@ -171,9 +171,10 @@
     <div class="dash-nav-inner lp-nav-inner">
         <a href="#landing" onclick="smoothTo('landing',event)" class="dash-nav-brand lp-landing-brand">
             <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" alt="Logo" class="dash-nav-logo logo-desktop lp-landing-logo">
-            <img src="{{ asset('images/ADC PM Logo NEW.png') }}" alt="Logo" class="dash-nav-logo logo-mobile lp-landing-logo">
+            <img src="{{ asset('images/ADC PM Logo.png') }}" alt="Logo" class="dash-nav-logo logo-mobile lp-landing-logo">
             <div>
                 <div class="dash-nav-title">Vehicle Management System</div>
+                <span class="dash-nav-sub sub-mobile-only">PT. ARTHA DAYA COALINDO</span>
             </div>
         </a>
 
@@ -507,7 +508,7 @@
 
         <div class="landing-card landing-form-card">
             <div class="landing-form-banner">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>Formulir Laporan Kejadian</span>
             </div>
 
@@ -600,7 +601,7 @@
 
                     <div class="checklist-field lp-form-full">
                         <span>Gambar / Foto <span style="color:#ef4444">*</span></span>
-                        <input type="file" name="foto" id="lk_foto" accept="image/*" required class="checklist-file-input" style="display:none">
+                            <input type="file" name="foto" id="lk_foto" accept="image/*" required class="checklist-file-input" style="display:none">
                         <div class="lp-lk-photo-actions">
                             <button type="button" class="lp-landing-file-btn" id="lk_btn_foto">Upload foto kejadian</button>
                         </div>

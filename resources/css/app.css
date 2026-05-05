@@ -2785,6 +2785,10 @@ select.admin-filter-input {
     display: none;
 }
 
+.sub-mobile-only {
+    display: none;
+}
+
 .logo-desktop {
     display: block;
 }
@@ -2795,6 +2799,10 @@ select.admin-filter-input {
     }
 
     .logo-mobile {
+        display: block;
+    }
+
+    .sub-mobile-only {
         display: block;
     }
 }
