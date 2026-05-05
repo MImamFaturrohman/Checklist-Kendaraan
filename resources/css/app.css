@@ -1125,6 +1125,7 @@
 .checklist-field input[readonly] {
     background-color: #f1f5f9;
     color: #64748b;
+    cursor: not-allowed;
 }
 
 .driver-icon-input {
@@ -2745,6 +2746,28 @@ select.admin-filter-input {
 .lp-nav-inner.dash-nav-inner {
     flex-wrap: nowrap;
     gap: 12px;
+}
+
+/* Landing: di mobile navbar menempel di atas layar (tetap terlihat saat scroll) */
+@media (max-width: 640px) {
+    body#landing .lp-top-nav.dash-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 200;
+    }
+
+    body#landing .lp-top-nav + .lp-landing-hero--viewport.dash-hero-section {
+        margin-top: 56px;
+    }
+
+    body#landing #armada,
+    body#landing #form-peminjaman,
+    body#landing #form-laporan-kejadian {
+        scroll-margin-top: 72px;
+    }
 }
 
 .lp-landing-brand.dash-nav-brand {
@@ -6033,9 +6056,10 @@ select.admin-filter-input {
 }
 
 .dash-body.dark .checklist-field input[readonly] {
-    background: rgba(5, 11, 20, 0.5);
-    color: rgba(200, 218, 255, 0.4);
-    border-color: rgba(255, 255, 255, 0.07);
+    background: rgba(15, 23, 42, 0.75);
+    color: rgba(200, 218, 255, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+    cursor: not-allowed;
 }
 
 .dash-body.dark .checklist-field input::placeholder,

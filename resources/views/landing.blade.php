@@ -180,15 +180,15 @@
         <nav class="lp-nav-links-desktop" aria-label="Menu utama">
             <a href="#armada" class="lp-nav-link" onclick="smoothTo('armada',event)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
-                Armada
+                Daftar Armada
             </a>
             <a href="#form-peminjaman" class="lp-nav-link" onclick="smoothTo('form-peminjaman',event)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Peminjaman
+                Ajukan Peminjaman
             </a>
             <a href="#form-laporan-kejadian" class="lp-nav-link" onclick="smoothTo('form-laporan-kejadian',event)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Laporan
+                Laporan Kejadian
             </a>
         </nav>
 
@@ -426,8 +426,7 @@
                     <div class="checklist-field">
                         <span>Jenis Kendaraan</span>
                         <input type="text" id="jenis_kendaraan" name="jenis_kendaraan"
-                            placeholder="Terisi otomatis setelah memilih nomor polisi" readonly
-                            style="background:#f8fafc;color:#64748b;cursor:not-allowed">
+                            placeholder="Terisi otomatis setelah memilih nomor polisi" readonly>
                     </div>
 
                     {{-- Hari / Tanggal Peminjaman (50% lebar di desktop) --}}
@@ -508,10 +507,7 @@
 
         <div class="landing-card landing-form-card">
             <div class="landing-form-banner">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>Formulir Laporan Kejadian</span>
             </div>
 
@@ -586,7 +582,7 @@
                     <div class="checklist-field">
                         <span>Jenis Kendaraan</span>
                         <input type="text" id="lk_jenis_kendaraan" name="jenis_kendaraan"
-                            placeholder="Terisi otomatis" readonly style="background:#f8fafc;color:#64748b;cursor:not-allowed">
+                            placeholder="Terisi otomatis" readonly>
                     </div>
 
                     <div class="checklist-field lp-form-full">
