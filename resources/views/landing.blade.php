@@ -282,12 +282,12 @@
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="landing-body">
+<body class="landing-body" id="landing">
 
 {{-- ══════════════════ NAVBAR ══════════════════ --}}
 <nav class="landing-nav">
     <div class="landing-container landing-nav-inner">
-        <a href="{{ route('landing') }}" class="landing-nav-brand">
+        <a href="#landing" onclick="smoothTo('landing',event)" class="landing-nav-brand">
             <!-- Desktop -->
             <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" 
                 alt="Logo"
