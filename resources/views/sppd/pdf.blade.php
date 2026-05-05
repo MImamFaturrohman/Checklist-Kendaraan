@@ -244,7 +244,6 @@
 @endphp
 
 <div class="page">
-    {{-- Header selaras checklist PDF --}}
     <div class="header">
         <table class="header-table">
             <tr>

@@ -279,6 +279,23 @@
             .lp-btn-primary, .lp-btn-secondary { justify-content: center; }
         }
 
+        /* Laporan kejadian: foto + TTG */
+        .lp-lk-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .lp-lk-photo-preview {
+            margin-top: 10px; max-width: 360px; border-radius: 12px; overflow: hidden;
+            border: 1px solid #e2e8f0; background: #f8fafc; display: none;
+        }
+        .lp-lk-photo-preview.is-on { display: block; }
+        .lp-lk-photo-preview img { width: 100%; max-height: 220px; object-fit: contain; display: block; }
+        .lp-lk-sig-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 768px) {
+            .lp-lk-sig-row { grid-template-columns: 1fr; }
+        }
+
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -313,6 +330,10 @@
                 </svg>
                 Ajukan Peminjaman
             </a>
+            <a href="#form-laporan-kejadian" class="lp-nav-link" onclick="smoothTo('form-laporan-kejadian',event)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Laporan Kejadian
+            </a>
         </div>
 
         <div class="landing-nav-actions">
@@ -320,7 +341,7 @@
                 <a href="{{ route('dashboard') }}" class="landing-nav-login-btn">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                         <path d="M3 12h18M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    </svg>  
                     Dashboard
                 </a>
             @else
@@ -595,6 +616,178 @@
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     Kirim Permohonan Peminjaman
+                </button>
+            </form>
+        </div>
+    </section>
+
+    {{-- LAPORAN KEJADIAN --}}
+    <section class="landing-section reveal" id="form-laporan-kejadian">
+        <div style="margin-bottom:20px">
+            <h2 class="landing-section-title">Laporan Kejadian</h2>
+            <p class="landing-section-sub">Laporkan incident atau near miss terkait operasi kendaraan / lingkungan kerja</p>
+        </div>
+
+        <div class="landing-card landing-form-card">
+            <div class="landing-form-banner" style="background: linear-gradient(90deg, rgba(220,38,38,0.12) 0%, rgba(0,42,122,0.08) 100%); border-color: rgba(220,38,38,0.2)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;color:#b91c1c">
+                    <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Formulir Laporan Kejadian</span>
+            </div>
+
+            <form id="form-laporan-kejadian-form" autocomplete="off" enctype="multipart/form-data">
+                @csrf
+                <div class="lp-form-grid">
+
+                    <div class="checklist-field">
+                        <span>Nama <span style="color:#ef4444">*</span></span>
+                        <input type="text" name="nama" id="lk_nama" placeholder="Nama lengkap pelapor" required>
+                    </div>
+                    <div class="checklist-field">
+                        <span>NIP <span style="color:#ef4444">*</span></span>
+                        <input type="text" name="nip" id="lk_nip" placeholder="Nomor Induk Pegawai" required>
+                    </div>
+
+                    <div class="checklist-field">
+                        <span>Posisi / Jabatan <span style="color:#ef4444">*</span></span>
+                        <input type="text" name="jabatan" id="lk_jabatan" placeholder="Contoh: Staff HSE" required>
+                    </div>
+
+                    <div class="checklist-field">
+                        <span>Bidang / Bagian <span style="color:#ef4444">*</span></span>
+                        <div class="checklist-control-wrap checklist-control-select">
+                            <select id="lk_bidang_id" name="bidang_id" required>
+                                <option value="">-- Pilih bidang / bagian --</option>
+                                @foreach($bidangRoots as $parent)
+                                    @if($parent->children->isNotEmpty())
+                                        <optgroup label="{{ $parent->nama }}">
+                                            @foreach($parent->children as $bd)
+                                                <option value="{{ $bd->id }}">{{ $bd->nama }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="checklist-field">
+                        <span>Tanggal &amp; Waktu Kejadian <span style="color:#ef4444">*</span></span>
+                        <input type="datetime-local" name="waktu_kejadian" id="lk_waktu" required>
+                    </div>
+
+                    <div class="checklist-field">
+                        <span>Kategori <span style="color:#ef4444">*</span></span>
+                        <div class="checklist-control-wrap checklist-control-select">
+                            <select name="kategori" id="lk_kategori" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <option value="Incident">Incident</option>
+                                <option value="Nearmiss">Nearmiss</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="checklist-field lp-form-full">
+                        <span>Lokasi Kejadian <span style="color:#ef4444">*</span></span>
+                        <input type="text" name="lokasi_kejadian" id="lk_lokasi" placeholder="Lokasi kejadian" required>
+                    </div>
+
+                    <div class="checklist-field">
+                        <span>No. Polisi Kendaraan <span style="color:#ef4444">*</span></span>
+                        <div class="checklist-control-wrap checklist-control-select">
+                            <select id="lk_nomor_kendaraan" name="nomor_kendaraan" required onchange="onLkKendaraanChange(this)">
+                                <option value="">-- Pilih Nomor Polisi --</option>
+                                @foreach($kendaraans as $k)
+                                    <option value="{{ $k->nomor_kendaraan }}" data-jenis="{{ $k->jenis_kendaraan }}">{{ $k->nomor_kendaraan }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="checklist-field">
+                        <span>Jenis Kendaraan</span>
+                        <input type="text" id="lk_jenis_kendaraan" name="jenis_kendaraan"
+                            placeholder="Terisi otomatis" readonly style="background:#f8fafc;color:#64748b;cursor:not-allowed">
+                    </div>
+
+                    <div class="checklist-field lp-form-full">
+                        <span>Peristiwa <span style="color:#ef4444">*</span></span>
+                        <textarea name="peristiwa" id="lk_peristiwa" rows="3" required placeholder="Ringkas peristiwa yang dilaporkan"></textarea>
+                    </div>
+                    <div class="checklist-field lp-form-full">
+                        <span>Sebelum Kejadian <span style="color:#ef4444">*</span></span>
+                        <textarea name="sebelum_kejadian" id="lk_sebelum" rows="3" required placeholder="Kondisi / aktivitas sebelum kejadian"></textarea>
+                    </div>
+                    <div class="checklist-field lp-form-full">
+                        <span>Kejadian <span style="color:#ef4444">*</span></span>
+                        <textarea name="uraian_kejadian" id="lk_kejadian" rows="4" required placeholder="Uraian kejadian secara berurutan"></textarea>
+                    </div>
+
+                    <div class="checklist-field lp-form-full">
+                        <span>Gambar / Foto <span style="color:#ef4444">*</span></span>
+                        <input type="file" name="foto" id="lk_foto" accept="image/*" capture="environment" required class="checklist-file-input" style="display:none">
+                        <div class="lp-lk-photo-actions">
+                            <button type="button" class="lp-btn-secondary" style="color:#0f172a;border-color:#cbd5e1" id="lk_btn_foto">Upload foto kejadian</button>
+                        </div>
+                        <div class="lp-lk-photo-preview" id="lk_foto_preview_wrap">
+                            <img src="" alt="Pratinjau" id="lk_foto_preview_img">
+                        </div>
+                    </div>
+
+                    <div class="checklist-field lp-form-full">
+                        <span>Akibat dari Kejadian <span style="color:#ef4444">*</span></span>
+                        <textarea name="akibat" id="lk_akibat" rows="3" required placeholder="Dampak atau akibat yang timbul"></textarea>
+                    </div>
+
+                    <div class="checklist-field lp-form-full lp-lk-sig-row">
+                        <div>
+                            <span>TTD Manager (Bidang / Bagian) <span style="color:#ef4444">*</span></span>
+                            <div style="max-width:100%;margin-top:6px">
+                                <div class="signature-pad-wrap" style="height:140px">
+                                    <canvas id="sig-pad-lk-manager" class="signature-canvas" style="height:120px"></canvas>
+                                    <div class="signature-pad-hint" id="sig-hint-lk-manager">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                            <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/>
+                                        </svg>
+                                        <span>TANDA TANGAN MANAGER</span>
+                                    </div>
+                                </div>
+                                <button type="button" id="sig-clear-lk-manager" class="signature-clear-btn">&#x2715; Hapus</button>
+                            </div>
+                            <input type="hidden" name="ttd_manager" id="sig-data-lk-manager">
+                        </div>
+                        <div>
+                            <span>TTD Pelapor <span style="color:#ef4444">*</span></span>
+                            <div style="max-width:100%;margin-top:6px">
+                                <div class="signature-pad-wrap" style="height:140px">
+                                    <canvas id="sig-pad-lk-pelapor" class="signature-canvas" style="height:120px"></canvas>
+                                    <div class="signature-pad-hint" id="sig-hint-lk-pelapor">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                            <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/>
+                                        </svg>
+                                        <span>TANDA TANGAN PELAPOR</span>
+                                    </div>
+                                </div>
+                                <button type="button" id="sig-clear-lk-pelapor" class="signature-clear-btn">&#x2715; Hapus</button>
+                            </div>
+                            <input type="hidden" name="ttd_pelapor" id="sig-data-lk-pelapor">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="landing-form-note" style="margin-top:12px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;color:#2563eb">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Pastikan keseluruhan data sudah benar sebelum mengirim.</span>
+                </div>
+
+                <button type="submit" class="landing-submit-btn" id="btn-submit-laporan" style="margin-top:14px">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Kirim Laporan
                 </button>
             </form>
         </div>
@@ -879,6 +1072,206 @@ document.getElementById('form-request').addEventListener('submit', async functio
         btn.innerHTML = orig;
     }
 });
+
+/* ── LAPORAN KEJADIAN: kendaraan ── */
+function onLkKendaraanChange(select) {
+    const opt = select.selectedOptions[0];
+    const j = document.getElementById('lk_jenis_kendaraan');
+    if (j) j.value = opt ? (opt.dataset.jenis || '') : '';
+}
+
+/* ── LAPORAN KEJADIAN: foto (satu tombol → input file + kamera di perangkat mendukung) ── */
+(function setupLkFoto() {
+    const input = document.getElementById('lk_foto');
+    const btn = document.getElementById('lk_btn_foto');
+    const prevWrap = document.getElementById('lk_foto_preview_wrap');
+    const prevImg = document.getElementById('lk_foto_preview_img');
+    if (!input || !prevWrap || !prevImg) return;
+
+    function showPreview(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        prevImg.src = URL.createObjectURL(file);
+        prevWrap.classList.add('is-on');
+    }
+
+    input.addEventListener('change', function () {
+        const f = this.files && this.files[0];
+        if (f) showPreview(f);
+        else {
+            prevImg.src = '';
+            prevWrap.classList.remove('is-on');
+        }
+    });
+    if (btn) btn.addEventListener('click', () => input.click());
+})();
+
+/* ── LAPORAN KEJADIAN: signature pads ── */
+const _lkSigPads = [];
+
+function initLkSigPads() {
+    if (!window.SignaturePad) return;
+    const configs = [
+        { canvas: 'sig-pad-lk-manager', hint: 'sig-hint-lk-manager', clear: 'sig-clear-lk-manager', hidden: 'sig-data-lk-manager' },
+        { canvas: 'sig-pad-lk-pelapor', hint: 'sig-hint-lk-pelapor', clear: 'sig-clear-lk-pelapor', hidden: 'sig-data-lk-pelapor' },
+    ];
+
+    const pads = [];
+
+    function bindOne(cfg) {
+        const canvas = document.getElementById(cfg.canvas);
+        if (!canvas) return;
+        const hint = document.getElementById(cfg.hint);
+        const clearBtn = document.getElementById(cfg.clear);
+        const dataIn = document.getElementById(cfg.hidden);
+
+        const resize = () => {
+            const rect = canvas.getBoundingClientRect();
+            if (!rect.width || !rect.height) return false;
+            const r = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = rect.width * r;
+            canvas.height = rect.height * r;
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(r, r);
+            return true;
+        };
+
+        resize();
+        const pad = new window.SignaturePad(canvas, {
+            backgroundColor: 'rgba(255,255,255,0)',
+            penColor: '#0f172a',
+            minWidth: 1.5,
+            maxWidth: 3,
+        });
+
+        pad.addEventListener('beginStroke', () => { if (hint) hint.classList.add('hidden'); });
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                pad.clear();
+                if (hint) hint.classList.remove('hidden');
+                if (dataIn) dataIn.value = '';
+            });
+        }
+
+        pads.push({ pad, canvas, hint, resize });
+    }
+
+    configs.forEach(bindOne);
+
+    let rt;
+    window.addEventListener('resize', () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => {
+            pads.forEach(({ pad, canvas, hint, resize }) => {
+                const data = pad.isEmpty() ? [] : pad.toData();
+                resize();
+                pad.clear();
+                if (data.length) pad.fromData(data);
+                else if (hint) hint.classList.remove('hidden');
+            });
+        }, 200);
+    });
+
+    _lkSigPads.length = 0;
+    pads.forEach(p => _lkSigPads.push(p.pad));
+}
+
+(function tryInitLkPads(attempts) {
+    if (window.SignaturePad && document.getElementById('sig-pad-lk-manager')) {
+        initLkSigPads();
+        return;
+    }
+    if (attempts > 0) setTimeout(() => tryInitLkPads(attempts - 1), 150);
+})(25);
+
+/* ── LAPORAN KEJADIAN: submit ── */
+const formLk = document.getElementById('form-laporan-kejadian-form');
+if (formLk) {
+    formLk.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const hM = document.getElementById('sig-data-lk-manager');
+        const hP = document.getElementById('sig-data-lk-pelapor');
+        if (_lkSigPads.length >= 2) {
+            if (_lkSigPads[0].isEmpty()) {
+                Swal.fire({ icon: 'warning', title: 'TTD Manager Kosong', text: 'Mohon tanda tangan Manager (Bidang/Bagian).', confirmButtonColor: '#002a7a' });
+                return;
+            }
+            if (_lkSigPads[1].isEmpty()) {
+                Swal.fire({ icon: 'warning', title: 'TTD Pelapor Kosong', text: 'Mohon tanda tangan Pelapor.', confirmButtonColor: '#002a7a' });
+                return;
+            }
+            hM.value = _lkSigPads[0].toDataURL('image/png');
+            hP.value = _lkSigPads[1].toDataURL('image/png');
+        }
+
+        const fotoEl = document.getElementById('lk_foto');
+        if (!fotoEl || !fotoEl.files || !fotoEl.files[0]) {
+            Swal.fire({ icon: 'warning', title: 'Foto wajib', text: 'Mohon unggah atau ambil foto kejadian terlebih dahulu.', confirmButtonColor: '#002a7a' });
+            return;
+        }
+
+        const confirm = await Swal.fire({
+            title: 'Kirim laporan kejadian?',
+            text: 'Data akan disimpan dan PDF laporan dibuat. Lanjutkan?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, kirim',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#002a7a',
+            cancelButtonColor: '#64748b',
+        });
+        if (!confirm.isConfirmed) return;
+
+        const btn = document.getElementById('btn-submit-laporan');
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle"></span> Mengirim...';
+
+        try {
+            const res = await fetch('{{ route("laporan-kejadian.store") }}', {
+                method: 'POST',
+                body: new FormData(this),
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok && data.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Laporan Terkirim',
+                    text: 'Laporan kejadian berhasil dikirim dan PDF telah dibuat.',
+                    confirmButtonColor: '#002a7a',
+                });
+                this.reset();
+                document.getElementById('lk_jenis_kendaraan').value = '';
+                const prevWrap = document.getElementById('lk_foto_preview_wrap');
+                const prevImg = document.getElementById('lk_foto_preview_img');
+                const fotoIn = document.getElementById('lk_foto');
+                if (prevImg) prevImg.src = '';
+                if (prevWrap) prevWrap.classList.remove('is-on');
+                if (fotoIn) fotoIn.value = '';
+                _lkSigPads.forEach((pad, i) => {
+                    pad.clear();
+                    const hint = document.getElementById(i === 0 ? 'sig-hint-lk-manager' : 'sig-hint-lk-pelapor');
+                    if (hint) hint.classList.remove('hidden');
+                });
+                if (hM) hM.value = '';
+                if (hP) hP.value = '';
+            } else if (res.status === 422 && data.errors) {
+                Swal.fire({ icon: 'warning', title: 'Data Tidak Valid', html: Object.values(data.errors).flat().join('<br>'), confirmButtonColor: '#002a7a' });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: data.message || 'Terjadi kesalahan sistem.', confirmButtonColor: '#002a7a' });
+            }
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Tidak dapat terhubung ke server.', confirmButtonColor: '#002a7a' });
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        }
+    });
+}
 
 /* ── SCROLL REVEAL ── */
 const revealEls = document.querySelectorAll('.reveal');

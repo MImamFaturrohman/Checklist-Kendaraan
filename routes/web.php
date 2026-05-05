@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\SppdAdminController;
 use App\Http\Controllers\BbmReportController;
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\KendaraanController;
+use App\Http\Controllers\LaporanKejadianController;
 use App\Http\Controllers\ManagerSppdController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PeminjamanController;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 // Landing page (public)
 Route::get('/', [PeminjamanController::class, 'landingPage'])->name('landing');
 Route::post('/peminjaman', [PeminjamanController::class, 'store'])->name('peminjaman.store');
+Route::post('/laporan-kejadian', [LaporanKejadianController::class, 'store'])->name('laporan-kejadian.store');
 
 // Public kendaraan list API for landing page form
 Route::get('/api/kendaraan/public-list', [KendaraanController::class, 'apiList'])->name('api.kendaraan.public-list');
@@ -116,6 +118,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin: peminjaman kendaraan + PDF download
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'adminIndex'])->name('admin.peminjaman');
     Route::get('/admin/peminjaman/{peminjaman}/pdf', [PeminjamanController::class, 'downloadPdf'])->name('admin.peminjaman.pdf');
+
+    // Admin: laporan kejadian (dari landing)
+    Route::get('/admin/laporan-kejadian', [LaporanKejadianController::class, 'adminIndex'])->name('admin.laporan-kejadian.index');
+    Route::get('/admin/laporan-kejadian/{laporanKejadian}/pdf', [LaporanKejadianController::class, 'downloadPdf'])->name('admin.laporan-kejadian.pdf');
 
     // Admin: Rekap SPPD
     Route::get('/admin/rekap-sppd', [SppdAdminController::class, 'index'])->name('admin.sppd.index');
