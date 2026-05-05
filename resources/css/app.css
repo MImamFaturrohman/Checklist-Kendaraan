@@ -365,6 +365,7 @@
     /* Full-width items inside dropdown */
     .dash-nav-actions .dash-nav-btn-glass,
     .dash-nav-actions .dash-nav-btn-gold,
+    .dash-nav-actions .lp-nav-dashboard-btn,
     .dash-nav-actions .dash-theme-btn {
         width: 100%;
         justify-content: flex-start;
@@ -2729,144 +2730,341 @@ select.admin-filter-input {
 }
 
 /* ===================================================================
-   LANDING PAGE
+   LANDING PAGE (publik — selaras dash-body / dashboard)
    =================================================================== */
-.landing-body {
-    background-color: #f3f4f6;
-    min-height: 100vh;
-    color: #0f172a;
+
+.landing-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
 }
 
-/* Navbar */
-.landing-nav {
-    background: linear-gradient(180deg, #06318a 0%, var(--dash-blue) 100%);
-    color: #fff;
-    padding: 0 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 4px 20px rgba(0, 24, 89, 0.3);
-}
-
-.landing-nav-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 64px;
-}
-
-.landing-nav-brand {
-    display: flex;
-    align-items: center;
+/* — Navbar landing: tautan desktop + drawer mobile — */
+.lp-nav-inner.dash-nav-inner {
+    flex-wrap: nowrap;
     gap: 12px;
-    text-decoration: none;
-    color: #fff;
 }
 
-.landing-nav-logo {
-    height: 38px;
-    width: auto;
-    border-radius: 8px;
-    object-fit: contain;    
+.lp-landing-brand.dash-nav-brand {
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.lp-landing-logo.dash-nav-logo {
     filter: brightness(0) invert(1);
-}
-
-.logo-desktop {
-    display: block;
+    border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .logo-mobile {
     display: none;
 }
 
-.landing-nav-title {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.15;
+.logo-desktop {
+    display: block;
 }
 
-.landing-nav-actions {
+@media (max-width: 480px) {
+    .logo-desktop {
+        display: none;
+    }
+
+    .logo-mobile {
+        display: block;
+    }
+}
+
+.lp-nav-links-desktop {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+@media (min-width: 641px) {
+    .lp-nav-links-desktop {
+        display: flex;
+    }
+}
+
+.lp-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: background 0.18s ease, color 0.18s ease;
+    white-space: nowrap;
+}
+
+.lp-nav-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.lp-nav-links-mobile {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .lp-nav-links-mobile {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 4px;
+        padding-bottom: 10px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .lp-nav-link--drawer {
+        width: 100%;
+        justify-content: flex-start;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.88rem;
+    }
+}
+
+@media (min-width: 641px) {
+    .lp-nav-links-mobile {
+        display: none !important;
+    }
+}
+
+.lp-nav-actions a.dash-nav-btn-glass,
+.lp-nav-actions a.dash-nav-btn-gold,
+.lp-nav-actions a.lp-nav-dashboard-btn {
+    text-decoration: none;
+}
+
+/* Tombol Dashboard landing — pill kuning seperti versi sebelumnya */
+.lp-nav-dashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #facc15;
+    color: #111827;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 24px;
+    border-radius: 9999px;
+    text-decoration: none;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.lp-nav-dashboard-btn:hover {
+    background: #eab308;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.lp-nav-dashboard-btn .bi-arrow-right {
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+/* Hero — minimal tinggi satu layar (nav + hero = viewport) */
+.lp-landing-hero--viewport.dash-hero-section {
+    min-height: calc(100dvh - 64px);
     display: flex;
     align-items: center;
-    gap: 10px;
+    box-sizing: border-box;
 }
 
-.landing-nav-login-btn {
+.lp-landing-hero--viewport .lp-hero-inner-landing.dash-hero-inner {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.lp-landing-hero--viewport .lp-hero-dash-grid {
+    align-items: center;
+}
+
+@media (max-width: 640px) {
+    .lp-landing-hero--viewport.dash-hero-section {
+        min-height: calc(100dvh - 56px);
+    }
+}
+
+@media (max-height: 700px) {
+    .lp-landing-hero--viewport.dash-hero-section {
+        min-height: 0;
+        padding-top: 24px;
+        padding-bottom: 28px;
+    }
+}
+
+.lp-hero-dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.lp-hero-title-large {
+    font-size: clamp(1.85rem, 3.5vw, 2.85rem);
+    line-height: 1.12;
+    margin-bottom: 16px;
+}
+
+.lp-hero-accent {
+    color: var(--dash-yellow);
+}
+
+.lp-hero-desc {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.68);
+    line-height: 1.65;
+    margin: 0 0 28px;
+    max-width: 440px;
+}
+
+.lp-hero-btns {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.lp-btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     background: var(--dash-yellow);
     color: var(--dash-blue);
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
+    padding: 12px 22px;
     border-radius: 12px;
-    padding: 9px 18px;
     text-decoration: none;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
-    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(212, 175, 55, 0.28);
 }
 
-.landing-nav-login-btn:hover {
-    background: #e6c000;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(255, 211, 0, 0.3);
+.lp-btn-primary:hover {
+    background: #e8c140;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(212, 175, 55, 0.35);
 }
 
-/* Hero */
-.landing-hero {
-    background: linear-gradient(160deg, #032369 0%, #001655 60%, #06318a 100%);
+.lp-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
     color: #fff;
-    padding: 52px 20px 44px;
-    position: relative;
-    overflow: hidden;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 12px 22px;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.landing-hero::after {
-    content: "";
-    position: absolute;
-    right: -60px;
-    top: -60px;
-    width: 320px;
-    height: 320px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
-    pointer-events: none;
+.lp-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-2px);
 }
 
-.landing-hero-kicker {
-    font-size: 0.76rem;
+.lp-hero-right {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.lp-feat-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 18px 20px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lp-feat-card:hover {
+    background: rgba(255, 255, 255, 0.09);
+    transform: translateX(4px);
+}
+
+.lp-feat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.lp-feat-icon-yellow {
+    background: rgba(212, 175, 55, 0.18);
+    color: #fde047;
+}
+
+.lp-feat-icon-blue {
+    background: rgba(96, 165, 250, 0.15);
+    color: #93c5fd;
+}
+
+.lp-feat-icon-green {
+    background: rgba(52, 211, 153, 0.15);
+    color: #6ee7b7;
+}
+
+.lp-feat-title {
     font-weight: 700;
-    color: var(--dash-yellow);
-    letter-spacing: 2.5px;
-    margin: 0 0 12px;
-    text-transform: uppercase;
-}
-
-.landing-hero-title {
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 800;
-    margin: 0 0 14px;
-    line-height: 1.15;
     color: #fff;
+    font-size: 0.92rem;
+    margin: 0 0 4px;
 }
 
-.landing-hero-desc {
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 1rem;
+.lp-feat-desc {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
     margin: 0;
-    max-width: 520px;
+    line-height: 1.5;
 }
 
-/* Container */
-.landing-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 16px;
+@media (max-width: 768px) {
+    .lp-hero-dash-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .lp-hero-btns {
+        flex-direction: column;
+    }
+
+    .lp-btn-primary,
+    .lp-btn-secondary {
+        justify-content: center;
+    }
 }
 
-/* Section */
 .landing-section {
     padding: 32px 0;
 }
@@ -2892,16 +3090,15 @@ select.admin-filter-input {
     margin-bottom: 12px;
 }
 
-/* Card wrapper */
-.landing-card {
-    background: #fff;
+/* Kartu konten — nuansa biru seperti dashboard (light) */
+.dash-body:not(.dark) .landing-card {
+    background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
     border-radius: 22px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(59, 130, 246, 0.22);
     padding: 20px;
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.07);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.09);
 }
 
-/* Nopol badge in tables */
 .landing-nopol-badge {
     display: inline-block;
     background: #eff6ff;
@@ -2914,7 +3111,6 @@ select.admin-filter-input {
     letter-spacing: 0.5px;
 }
 
-/* Form card */
 .landing-form-card {
     padding: 24px;
 }
@@ -2924,12 +3120,12 @@ select.admin-filter-input {
     align-items: center;
     gap: 10px;
     background: linear-gradient(
-                90deg,
-                #0b2c6b 0%,
-                #123f8f 50%,
-                #3b5fa8 75%,
-                #dfe6f3 100%
-            );
+        90deg,
+        #0b2c6b 0%,
+        #123f8f 50%,
+        #3b5fa8 75%,
+        #dfe6f3 100%
+    );
     color: #fff;
     padding: 12px 16px;
     border-radius: 14px;
@@ -2994,12 +3190,13 @@ select.admin-filter-input {
     cursor: not-allowed;
 }
 
-/* Footer */
 .landing-footer {
     background: var(--dash-blue);
     color: rgba(255, 255, 255, 0.7);
     padding: 24px 20px;
     margin-top: 16px;
+    position: relative;
+    z-index: 1;
 }
 
 .landing-footer-inner {
@@ -3024,7 +3221,136 @@ select.admin-filter-input {
     margin: 0;
 }
 
-/* Landing responsive */
+/* Landing — dark mode */
+.dash-body.dark .landing-section-title {
+    color: #e8f0fe;
+}
+
+.dash-body.dark .landing-section-sub {
+    color: rgba(180, 200, 240, 0.65);
+}
+
+.dash-body.dark .landing-card {
+    background: rgba(22, 48, 90, 0.82);
+    border: 1px solid rgba(212, 175, 55, 0.16);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.dash-body.dark .landing-nopol-badge {
+    background: rgba(59, 130, 246, 0.55);
+    color: #fff;
+    border-color: rgba(147, 197, 253, 0.55);
+}
+
+.dash-body.dark .landing-form-banner {
+    background: linear-gradient(90deg, rgba(10, 35, 66, 0.95) 0%, rgba(30, 64, 128, 0.9) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dash-body.dark .landing-form-note {
+    background: rgba(30, 58, 138, 0.35);
+    border-color: rgba(96, 165, 250, 0.3);
+    color: #bfdbfe;
+}
+
+.dash-body.dark .landing-footer {
+    background: rgba(7, 16, 36, 0.95);
+    border-top: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+/* Pencarian & pagination landing — dark */
+.dash-body.dark .lp-search-input {
+    background: rgba(15, 23, 42, 0.65);
+    border-color: rgba(148, 163, 184, 0.35);
+    color: #f1f5f9;
+}
+
+.dash-body.dark .lp-search-input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.dash-body.dark .lp-search-input::placeholder {
+    color: rgba(148, 163, 184, 0.75);
+}
+
+.dash-body.dark .lp-search-icon {
+    color: rgba(148, 163, 184, 0.75);
+}
+
+.dash-body.dark .lp-search-clear {
+    background: rgba(51, 65, 85, 0.8);
+    color: rgba(226, 232, 240, 0.9);
+}
+
+.dash-body.dark .lp-search-clear:hover {
+    background: rgba(71, 85, 105, 0.9);
+}
+
+.dash-body.dark .lp-page-btn {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(148, 163, 184, 0.25);
+    color: rgba(226, 232, 240, 0.9);
+}
+
+.dash-body.dark .lp-page-btn:hover:not(.active):not(:disabled) {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    border-color: rgba(96, 165, 250, 0.35);
+}
+
+.dash-body.dark .lp-page-btn.active {
+    background: var(--dash-yellow);
+    color: var(--dash-blue);
+    border-color: var(--dash-yellow);
+}
+
+.dash-body.dark .lp-lk-photo-preview {
+    border-color: rgba(148, 163, 184, 0.3);
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.lp-info-callout {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.84rem;
+    color: #1e3a5f;
+    line-height: 1.65;
+}
+
+.lp-info-callout > p:first-child {
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.lp-info-callout ol {
+    padding-left: 18px;
+    margin: 0;
+    list-style-type: decimal;
+}
+
+.dash-body.dark .lp-info-callout {
+    background: rgba(30, 58, 138, 0.35);
+    border-color: rgba(96, 165, 250, 0.3);
+    color: #e0e7ff;
+}
+
+.lp-armada-empty {
+    text-align: center;
+    padding: 32px;
+    font-size: 0.88rem;
+    color: #9ca3af;
+}
+
+.dash-body.dark .lp-armada-empty {
+    color: rgba(148, 163, 184, 0.75);
+}
+
 @media (min-width: 640px) {
     .landing-form-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -3032,34 +3358,8 @@ select.admin-filter-input {
 }
 
 @media (max-width: 480px) {
-    .landing-nav-title {
-        font-size: 0.92rem;
-    }
-
-    .landing-nav-logo {
-        height: 42px;
-    }
-
-    .logo-desktop {
-        display: none;
-    }
-
-    .logo-mobile {
-        display: block;
-    }
-
-    .landing-nav-login-btn {
-        padding: 8px 14px;
-        font-size: 0.78rem;
-        border-radius: 10px;
-    }
-
-    .landing-hero {
-        padding: 36px 16px 30px;
-    }
-
-    .landing-hero-title {
-        font-size: 1.6rem;
+    .landing-section-title {
+        font-size: 1rem;
     }
 
     .landing-card {

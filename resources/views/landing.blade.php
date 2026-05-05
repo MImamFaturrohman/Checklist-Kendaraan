@@ -18,146 +18,12 @@
     <meta name="twitter:description" content="Vehicle Management System - PT. Artha Daya Coalindo">
     <meta name="twitter:image" content="{{ asset('images/ADC.png') }}">
 
-    <title>Vechicle Management System - PT ARTHA DAYA COALINDO</title>
+    <title>Vehicle Management System - PT ARTHA DAYA COALINDO</title>
     @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* ── HERO ── */
-        .lp-hero {
-            background: linear-gradient(135deg, #011d5c 0%, #031e6b 40%, #06318a 100%);
-            padding: 60px 0 64px;
-            position: relative;
-            overflow: hidden;
-        }
-        .lp-hero::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 70% 80% at 80% 50%, rgba(255,211,0,.06) 0%, transparent 70%),
-                        radial-gradient(ellipse 40% 60% at 10% 80%, rgba(6,49,138,.5) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .lp-hero-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 56px;
-            align-items: center;
-            position: relative;
-        }
-        .lp-hero-left {}
-        .lp-hero-kicker {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,211,0,.12);
-            border: 1px solid rgba(255,211,0,.25);
-            color: var(--dash-yellow);
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            margin-bottom: 18px;
-            text-transform: uppercase;
-        }
-        .lp-hero-title {
-            font-size: clamp(2rem, 3.8vw, 3rem);
-            font-weight: 800;
-            color: #fff;
-            line-height: 1.12;
-            margin: 0 0 16px;
-        }
-        .lp-hero-title span { color: var(--dash-yellow); }
-        .lp-hero-desc {
-            font-size: 1rem;
-            color: rgba(255,255,255,.65);
-            line-height: 1.65;
-            margin: 0 0 30px;
-            max-width: 420px;
-        }
-        .lp-hero-btns {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .lp-btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--dash-yellow);
-            color: #011d5c;
-            font-weight: 700;
-            font-size: 0.88rem;
-            padding: 12px 22px;
-            border-radius: 12px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all .2s ease;
-            box-shadow: 0 6px 18px rgba(255,211,0,.28);
-        }
-        .lp-btn-primary:hover { background: #ffe033; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,211,0,.35); }
-        .lp-btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,.08);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.88rem;
-            padding: 12px 22px;
-            border-radius: 12px;
-            text-decoration: none;
-            border: 1px solid rgba(255,255,255,.18);
-            cursor: pointer;
-            transition: all .2s ease;
-        }
-        .lp-btn-secondary:hover { background: rgba(255,255,255,.14); transform: translateY(-2px); }
-
-        /* Feature cards */
-        .lp-hero-right { display: flex; flex-direction: column; gap: 14px; }
-        .lp-feat-card {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            background: rgba(255,255,255,.055);
-            border: 1px solid rgba(255,255,255,.1);
-            border-radius: 16px;
-            padding: 18px 20px;
-            backdrop-filter: blur(6px);
-            transition: background .2s, transform .2s;
-        }
-        .lp-feat-card:hover { background: rgba(255,255,255,.09); transform: translateX(4px); }
-        .lp-feat-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
-        }
-        .lp-feat-icon-yellow { background: rgba(255,211,0,.15); color: #ffd300; }
-        .lp-feat-icon-blue   { background: rgba(96,165,250,.15); color: #60a5fa; }
-        .lp-feat-icon-green  { background: rgba(52,211,153,.15); color: #34d399; }
-        .lp-feat-title { font-weight: 700; color: #fff; font-size: .92rem; margin: 0 0 4px; }
-        .lp-feat-desc  { font-size: .8rem; color: rgba(255,255,255,.55); margin: 0; line-height: 1.5; }
-
-        /* ── NAVBAR links ── */
-        .lp-nav-links { display: flex; align-items: center; gap: 4px; }
-        .lp-nav-link {
-            color: rgba(255,255,255,.78);
-            font-size: .84rem;
-            font-weight: 600;
-            text-decoration: none;
-            padding: 7px 13px;
-            border-radius: 9px;
-            transition: all .18s;
-            white-space: nowrap;
-        }
-        .lp-nav-link:hover { color: #fff; background: rgba(255,255,255,.1); }
-
-        /* ── ARMADA SECTION ── */
+        /* ── ARMADA SECTION (ringkas; hero & navigasi di app.css agar selaras dashboard) ── */
         .lp-section-heading {
             display: flex;
             align-items: flex-end;
@@ -227,6 +93,9 @@
         .lp-status-on { background: rgba(22, 101, 52, 0.12); color: #15803d; border: 1px solid rgba(22, 101, 52, 0.2); }
         .lp-status-maint { background: rgba(180, 83, 9, 0.1); color: #b45309; border: 1px solid rgba(180, 83, 9, 0.2); }
         .lp-status-off { background: rgba(153, 27, 27, 0.1); color: #b91c1c; border: 1px solid rgba(153, 27, 27, 0.2); }
+        .dash-body.dark .lp-status-on { background: rgba(20, 83, 45, 0.62); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.38); }
+        .dash-body.dark .lp-status-maint { background: rgba(120, 53, 15, 0.55); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.38); }
+        .dash-body.dark .lp-status-off { background: rgba(127, 29, 29, 0.58); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.4); }
 
         /* Client-side pagination */
         .lp-pagination { display: flex; justify-content: center; gap: 5px; margin-top: 16px; flex-wrap: wrap; }
@@ -265,17 +134,11 @@
 
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
-            .lp-hero { padding: 44px 0 48px; }
-            .lp-hero-grid { grid-template-columns: 1fr; gap: 36px; }
-            .lp-hero-title { font-size: 1.9rem; }
-            .lp-nav-links { display: none; }
             .lp-form-grid { grid-template-columns: 1fr; }
             .lp-section-heading { flex-direction: column; align-items: flex-start; }
             .lp-search-wrap { max-width: 100%; width: 100%; }
         }
         @media (max-width: 480px) {
-            .lp-hero-title { font-size: 1.6rem; }
-            .lp-hero-btns { flex-direction: column; }
             .lp-btn-primary, .lp-btn-secondary { justify-content: center; }
         }
 
@@ -299,86 +162,101 @@
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="landing-body" id="landing">
+<body class="dash-body" id="landing">
 
-{{-- ══════════════════ NAVBAR ══════════════════ --}}
-<nav class="landing-nav">
-    <div class="landing-container landing-nav-inner">
-        <a href="#landing" onclick="smoothTo('landing',event)" class="landing-nav-brand">
-            <!-- Desktop -->
-            <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" 
-                alt="Logo"
-                class="landing-nav-logo logo-desktop">
+    @include('partials.premium-dash-bg', ['premiumBgId' => 'dashmain'])
 
-            <!-- Mobile -->
-            <img src="{{ asset('images/ADC PM Logo NEW.png') }}" 
-                alt="Logo"
-                class="landing-nav-logo logo-mobile">
+{{-- ══════════════════ NAVBAR (selaras dashboard + menu mobile) ══════════════════ --}}
+<nav class="dash-nav lp-top-nav" id="lp-top-nav" aria-label="Navigasi utama">
+    <div class="dash-nav-inner lp-nav-inner">
+        <a href="#landing" onclick="smoothTo('landing',event)" class="dash-nav-brand lp-landing-brand">
+            <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" alt="Logo" class="dash-nav-logo logo-desktop lp-landing-logo">
+            <img src="{{ asset('images/ADC PM Logo NEW.png') }}" alt="Logo" class="dash-nav-logo logo-mobile lp-landing-logo">
             <div>
-                <div class="landing-nav-title">Vechicle Management System</div>
+                <div class="dash-nav-title">Vehicle Management System</div>
             </div>
         </a>
 
-        <div class="lp-nav-links">
+        <nav class="lp-nav-links-desktop" aria-label="Menu utama">
             <a href="#armada" class="lp-nav-link" onclick="smoothTo('armada',event)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
-                Daftar Armada
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
+                Armada
             </a>
-            <a href="#form-peminjaman" style="vertical-align:middle; display: inline-flex; align-items: center;" class="lp-nav-link" onclick="smoothTo('form-peminjaman',event)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Ajukan Peminjaman
+            <a href="#form-peminjaman" class="lp-nav-link" onclick="smoothTo('form-peminjaman',event)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Peminjaman
             </a>
             <a href="#form-laporan-kejadian" class="lp-nav-link" onclick="smoothTo('form-laporan-kejadian',event)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Laporan Kejadian
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Laporan
             </a>
-        </div>
+        </nav>
 
-        <div class="landing-nav-actions">
+        <div class="dash-nav-actions lp-nav-actions" id="lp-nav-actions">
+            <div class="lp-nav-links-mobile" aria-label="Menu utama (mobile)">
+                <a href="#landing" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('landing',event)">
+                    <i class="bi bi-house-door-fill" aria-hidden="true"></i> Beranda
+                </a>
+                <a href="#armada" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('armada',event)">
+                    <i class="bi bi-truck-front-fill" aria-hidden="true"></i> Daftar Armada
+                </a>
+                <a href="#form-peminjaman" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('form-peminjaman',event)">
+                    <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i> Ajukan Peminjaman
+                </a>
+                <a href="#form-laporan-kejadian" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('form-laporan-kejadian',event)">
+                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> Laporan Kejadian
+                </a>
+            </div>
+
+            <button type="button" class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Ganti tema terang atau gelap">
+                <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
+                <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
+            </button>
+
             @auth
-                <a href="{{ route('dashboard') }}" class="landing-nav-login-btn">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                        <path d="M3 12h18M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>  
-                    Dashboard
+                <a href="{{ route('dashboard') }}" class="dash-nav-btn-gold">
+                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    <span class="dash-nav-btn-label">Dashboard</span>
                 </a>
             @else
-                <a href="{{ route('login') }}" class="landing-nav-login-btn">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Masuk
+                <a href="{{ route('login') }}" class="dash-nav-btn-gold">
+                    <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                    <span class="dash-nav-btn-label">Masuk</span>
                 </a>
             @endauth
         </div>
+
+        <button type="button" class="dash-mobile-menu-btn lp-mobile-menu-btn" id="lp-mobile-menu-btn" aria-label="Buka menu" aria-expanded="false" aria-controls="lp-nav-actions">
+            <i class="bi bi-list" id="lp-mobile-menu-icon"></i>
+        </button>
     </div>
 </nav>
 
-{{-- ══════════════════ HERO ══════════════════ --}}
-<section class="lp-hero">
-    <div class="landing-container">
-        <div class="lp-hero-grid">
+{{-- ══════════════════ HERO (gaya dash-hero) ══════════════════ --}}
+<section class="dash-hero-section lp-landing-hero lp-landing-hero--viewport">
+    <div class="dash-hero-inner lp-hero-inner-landing">
+        <div class="lp-hero-dash-grid">
 
             {{-- LEFT --}}
             <div class="lp-hero-left">
-                <div class="lp-hero-kicker">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+                <p class="dash-hero-kicker">
+                    <span class="dash-hero-kicker-dot" aria-hidden="true"></span>
                     Sistem Armada Kendaraan
-                </div>
-                <h1 class="lp-hero-title">
+                </p>
+                <h1 class="dash-hero-name lp-hero-title-large">
                     Cek Ketersediaan &amp;<br>
-                    <span>Ajukan Peminjaman</span>
+                    <span class="lp-hero-accent">Ajukan Peminjaman</span>
                 </h1>
                 <p class="lp-hero-desc">
                     Lihat daftar kendaraan operasional, kemudian ajukan permohonan peminjaman.
                 </p>
                 <div class="lp-hero-btns">
                     <a href="#armada" class="lp-btn-primary" onclick="smoothTo('armada',event)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
                         Lihat Armada
                     </a>
                     <a href="#form-peminjaman" class="lp-btn-secondary" onclick="smoothTo('form-peminjaman',event)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                         Ajukan Peminjaman
@@ -461,7 +339,7 @@
                 </table>
             </div>
             <div class="lp-pagination" id="armada-pagination"></div>
-            <p id="armada-empty" style="display:none;text-align:center;color:#9ca3af;padding:32px;font-size:.88rem">
+            <p id="armada-empty" class="lp-armada-empty" style="display:none">
                 Tidak ada kendaraan yang cocok dengan pencarian.
             </p>
         </div>
@@ -568,10 +446,10 @@
 
                     {{-- Pernyataan --}}
                     <div class="checklist-field lp-form-full" style="margin-top:4px">
-                        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;font-size:0.84rem;color:#1e3a5f;line-height:1.65">
-                            <p style="font-weight:700;margin-bottom:8px">{{ $pernyataanPengantar }}</p>
+                        <div class="lp-info-callout">
+                            <p>{{ $pernyataanPengantar }}</p>
                             @if($pernyataans->isNotEmpty())
-                                <ol style="padding-left:18px;margin:0; list-style-type: decimal !important;">
+                                <ol>
                                     @foreach($pernyataans as $p)
                                         <li>{{ $p->isi_pernyataan }}</li>
                                     @endforeach
@@ -629,9 +507,10 @@
         </div>
 
         <div class="landing-card landing-form-card">
-            <div class="landing-form-banner" style="background: linear-gradient(90deg, rgba(220,38,38,0.12) 0%, rgba(0,42,122,0.08) 100%); border-color: rgba(220,38,38,0.2)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;color:#b91c1c">
-                    <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <div class="landing-form-banner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <span>Formulir Laporan Kejadian</span>
             </div>
@@ -806,6 +685,62 @@
 
 {{-- ══════════════════ SCRIPTS ══════════════════ --}}
 <script>
+/* ── Tema (selaras dashboard / login) ── */
+(function () {
+    const body = document.body;
+    const icon = document.getElementById('dash-theme-icon');
+    const btn = document.getElementById('dash-theme-toggle');
+    const label = document.getElementById('dash-theme-label');
+
+    function applyTheme(isDark) {
+        body.classList.toggle('dark', isDark);
+        if (icon) icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+
+    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+    applyTheme(saved === 'dark');
+
+    if (btn) {
+        btn.addEventListener('click', function () {
+            const next = !body.classList.contains('dark');
+            applyTheme(next);
+            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
+            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+        });
+    }
+})();
+
+/* ── Menu mobile navbar ── */
+(function () {
+    const menuBtn = document.getElementById('lp-mobile-menu-btn');
+    const navActions = document.getElementById('lp-nav-actions');
+    const menuIcon = document.getElementById('lp-mobile-menu-icon');
+
+    if (!menuBtn || !navActions) return;
+
+    function closeMenu() {
+        navActions.classList.remove('mobile-open');
+        if (menuIcon) menuIcon.className = 'bi bi-list';
+        menuBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    menuBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = navActions.classList.toggle('mobile-open');
+        if (menuIcon) menuIcon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!navActions.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+})();
+
 /* ── DATA ── */
 const KENDARAANS = @json($kendaraans);
 const PER_PAGE   = 10;
@@ -944,6 +879,15 @@ function smoothTo(id, e) {
     e.preventDefault();
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+
+    const navActions = document.getElementById('lp-nav-actions');
+    const menuBtn = document.getElementById('lp-mobile-menu-btn');
+    const menuIcon = document.getElementById('lp-mobile-menu-icon');
+    if (navActions && navActions.classList.contains('mobile-open')) {
+        navActions.classList.remove('mobile-open');
+        if (menuIcon) menuIcon.className = 'bi bi-list';
+        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+    }
 }
 
 /* ── SIGNATURE PAD ── */
