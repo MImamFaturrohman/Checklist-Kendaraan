@@ -602,7 +602,7 @@
                         <span>Gambar / Foto <span style="color:#ef4444">*</span></span>
                         <input type="file" name="foto" id="lk_foto" accept="image/*" capture="environment" required class="checklist-file-input" style="display:none">
                         <div class="lp-lk-photo-actions">
-                            <button type="button" class="lp-btn-secondary" style="color:#0f172a;border-color:#cbd5e1" id="lk_btn_foto">Upload foto kejadian</button>
+                            <button type="button" class="lp-landing-file-btn" id="lk_btn_foto">Upload foto kejadian</button>
                         </div>
                         <div class="lp-lk-photo-preview" id="lk_foto_preview_wrap">
                             <img src="" alt="Pratinjau" id="lk_foto_preview_img">
@@ -706,6 +706,19 @@
         });
     }
 })();
+
+/** SweetAlert2 — warna popup mengikuti tema light/dark landing */
+function landingSwalOpts(opts) {
+    const dark = document.body.classList.contains('dark');
+    const base = {
+        background: dark ? '#1e293b' : '#ffffff',
+        color: dark ? '#f1f5f9' : '#0f172a',
+        confirmButtonColor: '#0A2342',
+        cancelButtonColor: dark ? '#475569' : '#94a3b8',
+        customClass: { popup: 'lp-swal-popup' },
+    };
+    return Object.assign({}, base, opts || {});
+}
 
 /* ── Menu mobile navbar ── */
 (function () {
@@ -962,11 +975,21 @@ document.getElementById('form-request').addEventListener('submit', async functio
     const dataIn = document.getElementById('sig-data-peminjaman');
     if (_sigPad) {
         if (_sigPad.isEmpty()) {
-            Swal.fire({ icon: 'warning', title: 'Tanda Tangan Kosong', text: 'Mohon berikan tanda tangan Anda sebelum mengirim.', confirmButtonColor: '#002a7a' });
+            Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Tanda Tangan Kosong', text: 'Mohon berikan tanda tangan Anda sebelum mengirim.' }));
             return;
         }
         dataIn.value = _sigPad.toDataURL('image/png');
     }
+
+    const confirmSend = await Swal.fire(landingSwalOpts({
+        title: 'Kirim permohonan peminjaman?',
+        text: 'Pastikan data sudah benar. Permohonan akan dikirim ke Manager untuk persetujuan.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, kirim',
+        cancelButtonText: 'Batal',
+    }));
+    if (!confirmSend.isConfirmed) return;
 
     const btn  = document.getElementById('btn-submit-request');
     const orig = btn.innerHTML;
@@ -982,16 +1005,12 @@ document.getElementById('form-request').addEventListener('submit', async functio
         const data = await res.json();
 
         if (res.ok && data.success) {
-            Swal.fire({
+            await Swal.fire(landingSwalOpts({
                 icon: 'success',
                 title: 'Permohonan Terkirim!',
-                html: `
-                    <div style="padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:.8rem;color:#92400e;text-align:left">
-                        <strong>ℹ️ Catatan:</strong> Permohonan sedang menunggu <strong>persetujuan Manager</strong>. Anda akan dihubungi oleh Administrator lebih lanjut.
-                    </div>`,
+                html: '<div class="lp-swal-note"><strong>Catatan:</strong> Permohonan sedang menunggu <strong>persetujuan Manager</strong>. Anda akan dihubungi oleh Administrator lebih lanjut.</div>',
                 confirmButtonText: 'OK, Mengerti',
-                confirmButtonColor: '#002a7a',
-            });
+            }));
             this.reset();
             document.getElementById('jenis_kendaraan').value = '';
             if (_sigPad) {
@@ -1001,12 +1020,12 @@ document.getElementById('form-request').addEventListener('submit', async functio
                 dataIn.value = '';
             }
         } else if (res.status === 422 && data.errors) {
-            Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', html: Object.values(data.errors).flat().join('<br>'), confirmButtonColor: '#002a7a' });
+            Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Data Tidak Lengkap', html: Object.values(data.errors).flat().join('<br>') }));
         } else {
-            Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: data.message || 'Terjadi kesalahan sistem.', confirmButtonColor: '#002a7a' });
+            Swal.fire(landingSwalOpts({ icon: 'error', title: 'Gagal Mengirim', text: data.message || 'Terjadi kesalahan sistem.' }));
         }
     } catch {
-        Swal.fire({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Tidak dapat terhubung ke server.', confirmButtonColor: '#002a7a' });
+        Swal.fire(landingSwalOpts({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Tidak dapat terhubung ke server.' }));
     } finally {
         btn.disabled = false;
         btn.innerHTML = orig;
@@ -1135,11 +1154,11 @@ if (formLk) {
         const hP = document.getElementById('sig-data-lk-pelapor');
         if (_lkSigPads.length >= 2) {
             if (_lkSigPads[0].isEmpty()) {
-                Swal.fire({ icon: 'warning', title: 'TTD Manager Kosong', text: 'Mohon tanda tangan Manager (Bidang/Bagian).', confirmButtonColor: '#002a7a' });
+                Swal.fire(landingSwalOpts({ icon: 'warning', title: 'TTD Manager Kosong', text: 'Mohon tanda tangan Manager (Bidang/Bagian).' }));
                 return;
             }
             if (_lkSigPads[1].isEmpty()) {
-                Swal.fire({ icon: 'warning', title: 'TTD Pelapor Kosong', text: 'Mohon tanda tangan Pelapor.', confirmButtonColor: '#002a7a' });
+                Swal.fire(landingSwalOpts({ icon: 'warning', title: 'TTD Pelapor Kosong', text: 'Mohon tanda tangan Pelapor.' }));
                 return;
             }
             hM.value = _lkSigPads[0].toDataURL('image/png');
@@ -1148,20 +1167,18 @@ if (formLk) {
 
         const fotoEl = document.getElementById('lk_foto');
         if (!fotoEl || !fotoEl.files || !fotoEl.files[0]) {
-            Swal.fire({ icon: 'warning', title: 'Foto wajib', text: 'Mohon unggah atau ambil foto kejadian terlebih dahulu.', confirmButtonColor: '#002a7a' });
+            Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Foto wajib', text: 'Mohon unggah atau ambil foto kejadian terlebih dahulu.' }));
             return;
         }
 
-        const confirm = await Swal.fire({
+        const confirm = await Swal.fire(landingSwalOpts({
             title: 'Kirim laporan kejadian?',
             text: 'Data akan disimpan dan PDF laporan dibuat. Lanjutkan?',
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Ya, kirim',
             cancelButtonText: 'Batal',
-            confirmButtonColor: '#002a7a',
-            cancelButtonColor: '#64748b',
-        });
+        }));
         if (!confirm.isConfirmed) return;
 
         const btn = document.getElementById('btn-submit-laporan');
@@ -1178,12 +1195,11 @@ if (formLk) {
             const data = await res.json().catch(() => ({}));
 
             if (res.ok && data.success) {
-                await Swal.fire({
+                await Swal.fire(landingSwalOpts({
                     icon: 'success',
                     title: 'Laporan Terkirim',
                     text: 'Laporan kejadian berhasil dikirim dan PDF telah dibuat.',
-                    confirmButtonColor: '#002a7a',
-                });
+                }));
                 this.reset();
                 document.getElementById('lk_jenis_kendaraan').value = '';
                 const prevWrap = document.getElementById('lk_foto_preview_wrap');
@@ -1200,12 +1216,12 @@ if (formLk) {
                 if (hM) hM.value = '';
                 if (hP) hP.value = '';
             } else if (res.status === 422 && data.errors) {
-                Swal.fire({ icon: 'warning', title: 'Data Tidak Valid', html: Object.values(data.errors).flat().join('<br>'), confirmButtonColor: '#002a7a' });
+                Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Data Tidak Valid', html: Object.values(data.errors).flat().join('<br>') }));
             } else {
-                Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: data.message || 'Terjadi kesalahan sistem.', confirmButtonColor: '#002a7a' });
+                Swal.fire(landingSwalOpts({ icon: 'error', title: 'Gagal Mengirim', text: data.message || 'Terjadi kesalahan sistem.' }));
             }
         } catch {
-            Swal.fire({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Tidak dapat terhubung ke server.', confirmButtonColor: '#002a7a' });
+            Swal.fire(landingSwalOpts({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Tidak dapat terhubung ke server.' }));
         } finally {
             btn.disabled = false;
             btn.innerHTML = orig;
