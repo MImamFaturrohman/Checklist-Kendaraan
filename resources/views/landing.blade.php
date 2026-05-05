@@ -221,7 +221,7 @@
             @else
                 <a href="{{ route('login') }}" class="dash-nav-btn-gold">
                     <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
-                    <span class="dash-nav-btn-label">Masuk</span>
+                    <span class="dash-nav-btn-label">Login</span>
                 </a>
             @endauth
         </div>
