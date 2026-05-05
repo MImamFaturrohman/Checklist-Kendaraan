@@ -318,6 +318,18 @@
                                         </span>
                                     </a>
 
+                                    <a href="{{ route('admin.vehicle-usage-logs.index') }}" class="dash-main-card dash-pressable">
+                                        <div>
+                                            <p class="dash-main-title">Arsip Log Penggunaan Kendaraan</p>
+                                            <p class="dash-main-sub">Riwayat jam pakai &amp; keperluan dari driver</p>
+                                        </div>
+                                        <span class="dash-main-icon" aria-hidden="true">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+                                    </a>
+
                                     {{-- Portal Manajemen Administrasi --}}
                                     <a href="{{ route('admin.portal-manajemen') }}" class="dash-main-card dash-pressable">
                                         <div>
@@ -451,6 +463,20 @@
                                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                                                     <path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                                     <path d="M9 14h.01M15 14h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                                </svg>
+                                            </span>
+                                        </a>
+                                    @endif
+                                    @if ($user?->role === 'driver')
+                                        <a href="{{ route('vehicle-usage-logs.create') }}" class="dash-main-card dash-pressable">
+                                            <div>
+                                                <p class="dash-main-title">Log Penggunaan Kendaraan</p>
+                                                <p class="dash-main-sub">Catat jam pakai unit &amp; keperluan</p>
+                                            </div>
+                                            <span class="dash-main-icon" aria-hidden="true">
+                                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M12 8v4l3 3M5 3h4l2-2h6l2 2h4v16a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <circle cx="12" cy="15" r="1" fill="currentColor"/>
                                                 </svg>
                                             </span>
                                         </a>

@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/sppd-form.js',
                 'resources/js/bbm-form.js',
+                'resources/js/vehicle-usage-log.js',
             ],
             refresh: true,
         }),

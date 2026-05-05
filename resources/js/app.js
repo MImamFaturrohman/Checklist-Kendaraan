@@ -300,6 +300,126 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ================================================================
+       Arsip log penggunaan kendaraan — fetch Blade fragments (AJAX)
+       ================================================================ */
+    document.querySelectorAll('[data-vms-vul-logs-live]').forEach((root) => {
+        const DEBOUNCE_MS = 380;
+        const HEADER = 'X-VMS-VUL-Logs-Fragment';
+        let timer = null;
+
+        const collectParamsFromForms = () => {
+            const params = new URLSearchParams();
+            root.querySelectorAll('form').forEach((form) => {
+                const fd = new FormData(form);
+                fd.forEach((v, k) => {
+                    if (typeof v === 'string') {
+                        params.set(k, v);
+                    }
+                });
+            });
+            return params;
+        };
+
+        const resetPagingKeys = (url) => {
+            url.searchParams.set('page', '1');
+        };
+
+        async function fetchFragment(fullUrl) {
+            try {
+                const res = await fetch(fullUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        [HEADER]: '1',
+                        Accept: 'text/html',
+                    },
+                    credentials: 'same-origin',
+                });
+                if (!res.ok) {
+                    return;
+                }
+                const html = await res.text();
+                root.innerHTML = html;
+                history.replaceState({}, '', fullUrl);
+            } catch (_) {
+                window.location.href = fullUrl;
+            }
+        }
+
+        function syncFromForms() {
+            const url = new URL(window.location.pathname, window.location.origin);
+            collectParamsFromForms().forEach((v, k) => url.searchParams.set(k, v));
+            resetPagingKeys(url);
+            fetchFragment(url.toString());
+        }
+
+        root.addEventListener('click', (e) => {
+            const resetBtn = e.target.closest('[data-vul-logs-reset]');
+            if (resetBtn && root.contains(resetBtn)) {
+                e.preventDefault();
+                const form = root.querySelector('#vul-logs-filter-form');
+                if (form) {
+                    const q = form.querySelector('[name="q"]');
+                    const df = form.querySelector('[name="date_from"]');
+                    const dt = form.querySelector('[name="date_to"]');
+                    const pp = form.querySelector('[name="per_page"]');
+                    if (q) q.value = '';
+                    if (df) df.value = '';
+                    if (dt) dt.value = '';
+                    if (pp) pp.value = '25';
+                }
+                syncFromForms();
+                return;
+            }
+            const a = e.target.closest('.admin-pagination a[href]');
+            if (!a || !root.contains(a)) {
+                return;
+            }
+            e.preventDefault();
+            fetchFragment(a.href);
+        });
+
+        root.addEventListener('submit', (e) => {
+            const form = e.target.closest('form');
+            if (!form || !root.contains(form)) {
+                return;
+            }
+            const method = (form.getAttribute('method') || 'get').toLowerCase();
+            if (method !== 'get') {
+                return;
+            }
+            e.preventDefault();
+            const url = new URL(form.action || window.location.pathname, window.location.origin);
+            const fd = new FormData(form);
+            fd.forEach((v, k) => {
+                if (typeof v === 'string') {
+                    url.searchParams.set(k, v);
+                }
+            });
+            resetPagingKeys(url);
+            fetchFragment(url.toString());
+        });
+
+        root.addEventListener('change', (e) => {
+            const t = e.target;
+            if (!root.contains(t)) {
+                return;
+            }
+            if (t.matches('select[name]') || t.matches('input[type="date"][name]')) {
+                syncFromForms();
+            }
+        });
+
+        root.addEventListener('input', (e) => {
+            const inp = e.target.closest('input[type="search"][name="q"],input[type="text"][name="q"]');
+            if (!inp || !root.contains(inp)) {
+                return;
+            }
+            clearTimeout(timer);
+            timer = setTimeout(syncFromForms, DEBOUNCE_MS);
+        });
+    });
+
+    /* ================================================================
        CHECKLIST WIZARD
        ================================================================ */
     const wizardRoot = document.querySelector('[data-checklist-wizard]');

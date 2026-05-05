@@ -8,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-DAQew9YE.css",
+    "file": "assets/app-CP1e0u9e.css",
     "name": "app",
     "names": [
       "app.css"
@@ -30,7 +30,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-D7oNC9k8.js",
+    "file": "assets/app-CPjZ9mao.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -52,6 +52,12 @@
     "file": "assets/sppd-form-bzeVm0nh.js",
     "name": "sppd-form",
     "src": "resources/js/sppd-form.js",
+    "isEntry": true
+  },
+  "resources/js/vehicle-usage-log.js": {
+    "file": "assets/vehicle-usage-log-BIOw-Z1E.js",
+    "name": "vehicle-usage-log",
+    "src": "resources/js/vehicle-usage-log.js",
     "isEntry": true
   }
 }

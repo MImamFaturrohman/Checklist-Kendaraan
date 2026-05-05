@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Arsip Log Penggunaan Kendaraan — {{ config('app.name') }}</title>
+    @include('partials.favicon')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        .vul-admin-name { font-weight: 700; color: var(--dash-text-primary, #0f172a); }
+        .vul-admin-meta { font-size: 0.76rem; opacity: 0.85; color: #64748b; }
+        .dash-body.dark .vul-admin-meta { color: rgba(200, 218, 255, 0.62); }
+        .vul-admin-keperluan { font-size: 0.84rem; line-height: 1.45; max-width: 320px; }
+        .vul-admin-time { font-size: 0.84rem; white-space: nowrap; }
+    </style>
+</head>
+<body class="dash-body">
+    @include('partials.premium-dash-bg', ['premiumBgId' => 'admin_vul'])
+
+    @include('admin.partials.dash-admin-nav', [
+        'pageTitle' => 'Arsip Log Penggunaan Kendaraan',
+        'pageSubtitle' => 'PT ARTHA DAYA COALINDO',
+        'navChipLabel' => 'SUPERADMIN',
+        'navChipClass' => 'dash-chip-admin',
+    ])
+
+    <div class="admin-shell" style="position:relative;z-index:1">
+        <div class="portal-wrapper">
+            <div class="portal-stats-row">
+                <div class="portal-stat-card" style="--accent:#0f766e">
+                    <div class="portal-stat-icon" style="background:rgba(15,118,110,.1);color:#0f766e"><i class="bi bi-journal-text"></i></div>
+                    <div>
+                        <div class="portal-stat-value">{{ $totalAll }}</div>
+                        <div class="portal-stat-label">Total entri log</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="vul-logs-live-root" data-vms-vul-logs-live>
+                @fragment('vul-logs-live-fragment')
+                @php
+                    $perPageOpts = [5, 10, 25, 50, 100];
+                @endphp
+                <div class="portal-section" style="margin-top: 8px">
+                    <div class="portal-section-header">
+                        <div class="portal-section-title"><i class="bi bi-table"></i> Daftar log</div>
+                    </div>
+
+                    <form method="get" action="{{ route('admin.vehicle-usage-logs.index') }}" class="portal-local-filters ppm-daftar-filters bbm-portal-live-filter-bar vul-logs-filter-form" id="vul-logs-filter-form" style="margin-top:14px">
+                        <div class="admin-search-wrap portal-search-full">
+                            <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Cari nopol, jenis, nama driver, keperluan…" class="admin-search-input" autocomplete="off" aria-label="Cari log">
+                        </div>
+                        <div class="ppm-status-wrap bbm-portal-date-range">
+                            <label class="sr-only" for="vul-arch-date-from">Tanggal mulai</label>
+                            <input type="date" name="date_from" id="vul-arch-date-from" class="admin-filter-input" value="{{ $filters['date_from'] ?? '' }}" title="Dari tanggal (dicatat)" aria-label="Dari tanggal">
+                            <label class="sr-only" for="vul-arch-date-to">Tanggal akhir</label>
+                            <input type="date" name="date_to" id="vul-arch-date-to" class="admin-filter-input" value="{{ $filters['date_to'] ?? '' }}" title="Sampai tanggal" aria-label="Sampai tanggal">
+                        </div>
+                        <div class="portal-perpage-wrap sppd-per-page-wrap">
+                            <span class="portal-perpage-label" id="vul-arch-per-label">Per halaman</span>
+                            <label class="sr-only" for="vul-arch-per">Per halaman</label>
+                            <select name="per_page" id="vul-arch-per" class="admin-filter-input sppd-per-page-select" aria-labelledby="vul-arch-per-label">
+                                @foreach($perPageOpts as $n)
+                                    <option value="{{ $n }}" @selected(($logs->perPage() ?? 25) === $n)>{{ $n }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="ppm-status-wrap bbm-portal-filter-actions">
+                            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" data-vul-logs-reset title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
+                        </div>
+                    </form>
+
+                    <div class="admin-table-wrap" style="margin-top: 16px">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Waktu dicatat</th>
+                                    <th>Driver</th>
+                                    <th>Kendaraan</th>
+                                    <th>Waktu awal</th>
+                                    <th>Waktu akhir</th>
+                                    <th>Durasi</th>
+                                    <th>Keperluan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($logs as $row)
+                                    @php
+                                        $fmtT = fn ($t) => is_string($t) ? substr($t, 0, 5) : (\Illuminate\Support\Carbon::parse($t)->format('H:i'));
+                                        $wAwal = $row->jam_awal;
+                                        $wAkhir = $row->jam_akhir;
+                                        $tAwal = $fmtT($wAwal);
+                                        $tAkhir = $fmtT($wAkhir);
+                                        $kep = $row->keperluan;
+                                        $kepShort = \Illuminate\Support\Str::limit(strip_tags($kep), 100);
+                                    @endphp
+                                    <tr>
+                                        <td>{{ ($logs->currentPage() - 1) * $logs->perPage() + $loop->iteration }}</td>
+                                        <td class="vul-admin-time">{{ $row->created_at?->timezone(config('app.timezone'))->translatedFormat('d F Y H:i') }}</td>
+                                        <td>
+                                            <span class="vul-admin-name">{{ $row->user?->name ?? '—' }}</span><br>
+                                            <span class="vul-admin-meta">{{ $row->user?->username ?? '' }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ $row->nomor_kendaraan }}</strong><br>
+                                            <span class="vul-admin-meta">{{ $row->jenis_kendaraan }}</span>
+                                        </td>
+                                        <td class="vul-admin-time">{{ $tAwal }}</td>
+                                        <td class="vul-admin-time">{{ $tAkhir }}</td>
+                                        <td class="vul-admin-time">{{ $row->durasiDeskripsi() }}</td>
+                                        <td class="vul-admin-keperluan" title="{{ $kep }}">{{ $kepShort }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="8" class="portal-empty">Belum ada log penggunaan kendaraan.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="sppd-pagination-scroll" style="margin-top: 12px">
+                        <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $logs->links() }}</div>
+                    </div>
+                </div>
+                @endfragment
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        const body = document.body;
+        const themeBtn = document.getElementById('dash-theme-toggle');
+        const themeIcon = document.getElementById('dash-theme-icon');
+        const themeLabel = document.getElementById('dash-theme-label');
+        const navActions = document.getElementById('dash-nav-actions');
+        const menuBtn = document.getElementById('dash-mobile-menu-btn');
+        const menuIcon = document.getElementById('dash-mobile-menu-icon');
+
+        const applyTheme = (isDark) => {
+            body.classList.toggle('dark', isDark);
+            if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        };
+        const savedTheme = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+        applyTheme(savedTheme === 'dark');
+        themeBtn?.addEventListener('click', () => {
+            const next = !body.classList.contains('dark');
+            applyTheme(next);
+            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
+            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+        });
+
+        const closeMobileMenu = () => {
+            navActions?.classList.remove('mobile-open');
+            if (menuIcon) menuIcon.className = 'bi bi-list';
+            menuBtn?.setAttribute('aria-expanded', 'false');
+        };
+        menuBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const opened = navActions?.classList.toggle('mobile-open');
+            if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
+            menuBtn?.setAttribute('aria-expanded', String(!!opened));
+        });
+        document.addEventListener('click', (e) => {
+            if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMobileMenu();
+        });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 992) closeMobileMenu();
+        });
+    })();
+    </script>
+</body>
+</html>

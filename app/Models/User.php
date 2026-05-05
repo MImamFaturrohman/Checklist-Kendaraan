@@ -40,4 +40,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(BbmReport::class);
     }
+
+    public function vehicleUsageLogs(): HasMany
+    {
+        return $this->hasMany(VehicleUsageLog::class);
+    }
 }

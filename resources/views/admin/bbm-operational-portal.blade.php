@@ -121,7 +121,7 @@
                     <div class="bbm-activity-log-head">
                         <div class="bbm-activity-log-title">Log Pengisian BBM <span class="bbm-activity-live" title="Memperbarui otomatis">· real-time</span></div>
                         @unless($bbmPortalChartsOnly ?? false)
-                            <a href="#section-bbm-table" class="bbm-activity-log-all">Lihat Semua</a>
+                            <a href="#section-bbm-table" onClick="smoothTo('section-bbm-table', event)" class="bbm-activity-log-all">Lihat Semua</a>
                         @else
                             <span class="bbm-activity-log-all bbm-activity-log-all--disabled" title="Akses tabel penuh pada akun admin">Lihat Semua</span>
                         @endunless
@@ -890,6 +890,13 @@
             if (window.innerWidth >= 992) closeMobileMenu();
         });
     })();
+
+    /* ── SMOOTH SCROLL ── */
+    function smoothTo(id, e) {
+        e.preventDefault();
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
     </script>
 </body>
 </html>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BbmOperationalPortalController;
 use App\Http\Controllers\Admin\BidangController;
 use App\Http\Controllers\Admin\PernyataanController;
 use App\Http\Controllers\Admin\SppdAdminController;
+use App\Http\Controllers\Admin\VehicleUsageLogArchiveController;
 use App\Http\Controllers\BbmReportController;
 use App\Http\Controllers\ChecklistController;
 use App\Http\Controllers\KendaraanController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SppdController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\VehicleUsageLogController;
 use App\Models\Checklist;
 use App\Models\Kendaraan;
 use App\Models\User;
@@ -71,6 +73,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporan-bbm/buat', [BbmReportController::class, 'create'])->name('bbm-reports.create');
     Route::post('/laporan-bbm', [BbmReportController::class, 'store'])->name('bbm-reports.store');
 
+    // Log penggunaan kendaraan (driver only — enforced di controller)
+    Route::get('/log-penggunaan-kendaraan/buat', [VehicleUsageLogController::class, 'create'])->name('vehicle-usage-logs.create');
+    Route::post('/log-penggunaan-kendaraan', [VehicleUsageLogController::class, 'store'])->name('vehicle-usage-logs.store');
+
     // API endpoints for checklist form
     Route::get('/api/kendaraan/lookup', [ChecklistController::class, 'lookupKendaraan'])->name('api.kendaraan.lookup');
     Route::get('/api/kendaraan/last-km', [ChecklistController::class, 'lastKm'])->name('api.kendaraan.last-km');
@@ -122,6 +128,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin: laporan kejadian (dari landing)
     Route::get('/admin/laporan-kejadian', [LaporanKejadianController::class, 'adminIndex'])->name('admin.laporan-kejadian.index');
     Route::get('/admin/laporan-kejadian/{laporanKejadian}/pdf', [LaporanKejadianController::class, 'downloadPdf'])->name('admin.laporan-kejadian.pdf');
+
+    // Admin: arsip log penggunaan kendaraan (superadmin)
+    Route::get('/admin/log-penggunaan-kendaraan', [VehicleUsageLogArchiveController::class, 'index'])->name('admin.vehicle-usage-logs.index');
 
     // Admin: Rekap SPPD
     Route::get('/admin/rekap-sppd', [SppdAdminController::class, 'index'])->name('admin.sppd.index');
