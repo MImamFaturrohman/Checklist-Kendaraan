@@ -42,15 +42,16 @@
         .header-pm    { font-size: 11pt; font-weight: bold; color: #3d4654; margin-top: 1px; }
         .header-no    { font-size: 10pt; font-weight: bold; color: #002a7a; margin-top: 1px; }
 
-        /* Styling Kategori & Checkbox yang Baru */
+        /* Styling Kategori & Checkbox */
         .lk-cat-container {
             margin: 10px 0 15px;
             font-size: 10pt;
+            text-align: right;
         }
 
         .lk-cat-item {
             display: inline-block;
-            margin-right: 25px; 
+            margin-left: 10px;
             vertical-align: middle;
         }
 
@@ -311,20 +312,27 @@
             </tr>
         </table>
     </div>
+    
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 5px;">
+        <tr>
+            <td style="width: 50%; vertical-align: middle; padding: 0;">
+                <div class="section-heading" style="margin: 0;">Data Laporan</div>
+            </td>
+            <td style="width: 50%; text-align: right; vertical-align: middle; padding: 0;">
+                <div class="lk-cat-container" style="display: inline-block; margin: 0; padding-top: 5px;">
+                    <div class="lk-cat-item" style="margin-left: 15px;">
+                        <span class="checkbox-box {{ $isIncident ? 'checked' : '' }}"></span>
+                        <span class="lk-cat-label">Insiden</span>
+                    </div>
+                    <div class="lk-cat-item" style="margin-left: 15px;">
+                        <span class="checkbox-box {{ $isNearmiss ? 'checked' : '' }}"></span>
+                        <span class="lk-cat-label">Nearmiss</span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
-    <div class="lk-cat-container">
-        <div class="lk-cat-item">
-            <span class="checkbox-box {{ $isIncident ? 'checked' : '' }}"></span>
-            <span class="lk-cat-label">Insiden</span>
-        </div>
-        
-        <div class="lk-cat-item">
-            <span class="checkbox-box {{ $isNearmiss ? 'checked' : '' }}"></span>
-            <span class="lk-cat-label">Nearmiss</span>
-        </div>
-    </div>
-
-    <div class="section-heading">Data Laporan</div>
     <table class="info-table">
         <tr>
             <td class="label">Nama Pelapor</td>
@@ -333,7 +341,7 @@
             <td>{{ $laporan->nip }}</td>
         </tr>
         <tr>
-            <td class="label">Posisi / Jabatans</td>
+            <td class="label">Posisi / Jabatan</td>
             <td>{{ $laporan->jabatan }}</td>
             <td class="label">Bidang / Bagian</td>
             <td>{{ $bidangNama }}</td>

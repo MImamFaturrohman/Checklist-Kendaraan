@@ -242,7 +242,7 @@
             <div class="lp-hero-left">
                 <p class="dash-hero-kicker">
                     <span class="dash-hero-kicker-dot" aria-hidden="true"></span>
-                    Sistem Armada Kendaraan
+                    Vehicle Management System
                 </p>
                 <h1 class="dash-hero-name lp-hero-title-large">
                     Cek Ketersediaan &amp;<br>

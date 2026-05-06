@@ -4273,7 +4273,7 @@ body#landing.dash-body.dark .signature-canvas {
     white-space: nowrap;
 }
 
-.portal-perpage-select { width: 70px !important; }
+.portal-perpage-select { width: 62px !important; min-width: 30px !important; }
 
 .portal-local-reset {
     padding: 8px 14px;
@@ -4287,6 +4287,7 @@ body#landing.dash-body.dark .signature-canvas {
     transition: border-color .2s, color .2s;
     white-space: nowrap;
 }
+
 .portal-local-reset:hover { border-color: #002a7a; color: #002a7a; }
 
 /* ---- Database sheet: detail & modal ---- */

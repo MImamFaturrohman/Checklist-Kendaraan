@@ -68,7 +68,7 @@
                 </div>
                 <div>
                     <div class="portal-stat-value">{{ $dbStats['kendaraan_unik'] }}</div>
-                    <div class="portal-stat-label">Kendaraan Unik</div>
+                    <div class="portal-stat-label">Kendaraan</div>
                 </div>
             </div>
             <div class="portal-stat-card" style="--accent:#16a34a">
