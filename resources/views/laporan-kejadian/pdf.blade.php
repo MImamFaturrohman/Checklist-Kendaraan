@@ -134,7 +134,6 @@
             word-wrap: break-word;
             border: 1px solid #e5e7eb;
             padding: 6px 8px;
-            border-radius: 3px;
             background: #f9fafb;
         }
 
@@ -166,7 +165,6 @@
         .lk-gambar-shell {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
             margin-bottom: 10px;
             border: 1px solid #d1d5db;
             font-size: 9pt;

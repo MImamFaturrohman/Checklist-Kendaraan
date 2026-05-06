@@ -210,15 +210,15 @@
         <nav class="lp-nav-links-desktop" aria-label="Menu utama">
             <a href="#armada" class="lp-nav-link" onclick="smoothTo('armada',event)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
-                Daftar Armada
+                Daftar Kendaraan
             </a>
             <a href="#form-peminjaman" class="lp-nav-link" onclick="smoothTo('form-peminjaman',event)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Ajukan Peminjaman
+                Peminjaman Kendaraan
             </a>
             <a href="#form-laporan-kejadian" class="lp-nav-link" onclick="smoothTo('form-laporan-kejadian',event)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Laporan Kejadian
+                Laporan Kejadian &amp; Kerusakan
             </a>
         </nav>
 
@@ -228,10 +228,10 @@
                     <i class="bi bi-house-door-fill" aria-hidden="true"></i> Beranda
                 </a>
                 <a href="#armada" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('armada',event)">
-                    <i class="bi bi-truck-front-fill" aria-hidden="true"></i> Daftar Armada
+                    <i class="bi bi-truck-front-fill" aria-hidden="true"></i> Daftar Kendaraan
                 </a>
                 <a href="#form-peminjaman" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('form-peminjaman',event)">
-                    <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i> Ajukan Peminjaman
+                    <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i> Peminjaman Kendaraan
                 </a>
                 <a href="#form-laporan-kejadian" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('form-laporan-kejadian',event)">
                     <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> Laporan Kejadian
@@ -269,18 +269,14 @@
 
             {{-- LEFT --}}
             <div class="lp-hero-left">
-                <p class="dash-hero-kicker">
-                    <span class="dash-hero-kicker-dot" aria-hidden="true"></span>
-                    Vehicle Management System
-                </p>
                 <h1 class="dash-hero-name lp-hero-title-large">
                     Cek Ketersediaan &amp;<br>
-                    <span class="lp-hero-accent">Ajukan Peminjaman</span>
+                    <span class="lp-hero-accent">Ajukan Peminjaman Kendaraan</span>
                 </h1>
                 <p class="lp-hero-desc">
                     Lihat daftar kendaraan operasional, kemudian ajukan permohonan peminjaman.
                 </p>
-                <div class="lp-hero-btns">
+                <!-- <div class="lp-hero-btns">
                     <a href="#armada" class="lp-btn-primary" onclick="smoothTo('armada',event)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
                         Lihat Armada
@@ -291,7 +287,7 @@
                         </svg>
                         Ajukan Peminjaman
                     </a>
-                </div>
+                </div> -->
             </div>
 
             {{-- RIGHT: Feature cards --}}
@@ -336,7 +332,7 @@
     <section class="landing-section reveal" id="armada">
         <div class="lp-section-heading">
             <div>
-                <h2 class="landing-section-title">Daftar Armada Kendaraan</h2>
+                <h2 class="landing-section-title">Daftar Kendaraan</h2>
                 <p class="landing-section-sub">Total <span id="armada-count">{{ $kendaraans->count() }}</span> kendaraan terdaftar</p>
             </div>
             <div class="lp-search-wrap">
@@ -531,14 +527,14 @@
     {{-- LAPORAN KEJADIAN --}}
     <section class="landing-section reveal" id="form-laporan-kejadian">
         <div style="margin-bottom:20px">
-            <h2 class="landing-section-title">Laporan Kejadian</h2>
+            <h2 class="landing-section-title">Laporan Kejadian dan Kerusakan Kendaraan</h2>
             <p class="landing-section-sub">Laporkan incident atau near miss terkait operasi kendaraan / lingkungan kerja</p>
         </div>
 
         <div class="landing-card landing-form-card">
             <div class="landing-form-banner">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span>Formulir Laporan Kejadian</span>
+                <span>Formulir Laporan Kejadian dan Kerusakan Kendaraan</span>
             </div>
 
             <form id="form-laporan-kejadian-form" autocomplete="off" enctype="multipart/form-data">
@@ -1352,7 +1348,7 @@ if (formLk) {
         }
 
         const confirm = await Swal.fire(landingSwalOpts({
-            title: 'Kirim laporan kejadian?',
+            title: 'Kirim laporan?',
             text: 'Data akan disimpan dan PDF laporan dibuat. Lanjutkan?',
             icon: 'question',
             showCancelButton: true,
@@ -1378,7 +1374,7 @@ if (formLk) {
                 await Swal.fire(landingSwalOpts({
                     icon: 'success',
                     title: 'Laporan Terkirim',
-                    text: 'Laporan kejadian berhasil dikirim dan PDF telah dibuat.',
+                    text: 'Laporan berhasil dikirim dan PDF telah dibuat.',
                 }));
                 this.reset();
                 document.getElementById('lk_jenis_kendaraan').value = '';
