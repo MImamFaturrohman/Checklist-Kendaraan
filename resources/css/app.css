@@ -25,7 +25,7 @@
 
 /* Light-mode hero — align with navbar colour scheme */
 .dash-body:not(.dark) .dash-hero-section {
-    background: linear-gradient(135deg, #1e4080 0%, #0e2a52 22%, #0e1f3a 60%, #071828 100%);
+    background: linear-gradient(135deg, rgba(30, 64, 128, 0.95) 0%, rgba(14, 42, 82, 0.95) 22%, rgba(14, 31, 58, 0.95) 60%, rgba(7, 24, 40, 0.95) 100%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
@@ -506,9 +506,9 @@
     }
 }
 
-/* ── Hero Section (now standalone, separate from navbar) ── */
+/* ── Hero Section ── */
 .dash-hero-section {
-    background: linear-gradient(135deg, #0A2342 0%, #0e1f3a 55%, #050f22 100%);
+    background: linear-gradient(135deg, #0a2342 0%, #0e1f3a 55%, #050f22 100%);
     padding: 32px 28px 36px;
     position: relative;
     overflow: hidden;
@@ -3083,7 +3083,7 @@ select.admin-filter-input {
 
 /* Hero — tinggi terkontrol, tidak melebar di layar PC lebar */
 .lp-landing-hero--viewport.dash-hero-section {
-    min-height: min(calc(100dvh - 64px), 289px);
+    min-height: min(calc(100dvh - 64px), 280px);
     display: flex;
     align-items: center;
     box-sizing: border-box;

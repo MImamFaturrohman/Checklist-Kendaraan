@@ -266,7 +266,6 @@
 <section class="dash-hero-section lp-landing-hero lp-landing-hero--viewport">
     <div class="dash-hero-inner lp-hero-inner-landing">
         <div class="lp-hero-dash-grid">
-
             {{-- LEFT --}}
             <div class="lp-hero-left">
                 <h1 class="dash-hero-name lp-hero-title-large">
