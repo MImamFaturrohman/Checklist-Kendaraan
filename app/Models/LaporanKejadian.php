@@ -20,7 +20,7 @@ class LaporanKejadian extends Model
         'peristiwa',
         'sebelum_kejadian',
         'uraian_kejadian',
-        'akibat',
+        'penjelasan_gambar',
         'foto_path',
         'ttd_manager',
         'ttd_pelapor',

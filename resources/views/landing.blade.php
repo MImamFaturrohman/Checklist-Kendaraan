@@ -557,8 +557,8 @@
                         <span>Kategori <span style="color:#ef4444">*</span></span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select name="kategori" id="lk_kategori" required>
-                                <option value="">-- Pilih Kategori --</option>
-                                <option value="Incident">Incident</option>
+                                <option value="">-- Pilih kategori --</option>
+                                <option value="Incident">Insiden</option>
                                 <option value="Nearmiss">Nearmiss</option>
                             </select>
                         </div>
@@ -611,8 +611,8 @@
                     </div>
 
                     <div class="checklist-field lp-form-full">
-                        <span>Akibat dari Kejadian <span style="color:#ef4444">*</span></span>
-                        <textarea name="akibat" id="lk_akibat" rows="3" required placeholder="Dampak atau akibat yang timbul"></textarea>
+                        <span>Penjelasan Gambar <span style="color:#ef4444">*</span></span>
+                        <textarea name="penjelasan_gambar" id="lk_penjelasan_gambar" rows="3" required placeholder="Jelaskan apa yang ditampilkan pada gambar / foto lampiran"></textarea>
                     </div>
 
                     <div class="checklist-field lp-form-full lp-lk-sig-row">

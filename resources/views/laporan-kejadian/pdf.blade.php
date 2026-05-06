@@ -42,6 +42,53 @@
         .header-pm    { font-size: 11pt; font-weight: bold; color: #3d4654; margin-top: 1px; }
         .header-no    { font-size: 10pt; font-weight: bold; color: #002a7a; margin-top: 1px; }
 
+        /* Styling Kategori & Checkbox yang Baru */
+        .lk-cat-container {
+            margin: 10px 0 15px;
+            font-size: 10pt;
+        }
+
+        .lk-cat-item {
+            display: inline-block;
+            margin-right: 25px; 
+            vertical-align: middle;
+        }
+
+        .checkbox-box {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid #002a7a;
+            border-radius: 2px;
+            vertical-align: middle;
+            position: relative;
+            margin-right: 6px;
+            background-color: #fff;
+        }
+
+        .checkbox-box.checked {
+            background-color: #002a7a;
+        }
+
+        .checkbox-box.checked::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 1px;
+            width: 4px;
+            height: 7px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .lk-cat-label {
+            display: inline-block;
+            vertical-align: middle;
+            font-weight: bold;
+            color: #374151;
+        }
+
         .section-heading {
             font-family: 'Arial', sans-serif;
             font-size: 10.5pt;
@@ -90,21 +137,64 @@
             background: #f9fafb;
         }
 
-        .foto-wrap {
-            margin-top: 10px;
-            margin-bottom: 6px;
-            text-align: center;
-            page-break-inside: avoid;
+        .dual-peristiwa-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            table-layout: fixed;
+            font-size: 9pt;
         }
-        .foto-wrap img {
-            max-width: 92%;
-            max-height: 220px;
+        .dual-peristiwa-table td {
+            border: 1px solid #d1d5db;
+            padding: 6px 8px;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        .dual-peristiwa-table .subhead {
+            font-weight: 700;
+            background: #f3f4f6;
+            color: #111827;
+            width: 50%;
+        }
+        .dual-peristiwa-table .subbody {
+            white-space: pre-wrap;
+            min-height: 72px;
+        }
+
+        .foto-penjelasan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            page-break-inside: avoid;
+            font-size: 9pt;
+        }
+        .foto-penjelasan-table td {
+            border: 1px solid #d1d5db;
+            padding: 8px;
+            vertical-align: top;
+        }
+        .foto-penjelasan-table .foto-cell {
+            width: 40%;
+            text-align: center;
+        }
+        .foto-penjelasan-table .foto-cell img {
+            max-width: 100%;
+            max-height: 180px;
             object-fit: contain;
             border: 1px solid #d1d5db;
             border-radius: 4px;
         }
+        .foto-penjelasan-table .penjelasan-cell { width: 60%; }
+        .foto-penjelasan-table .pg-label {
+            font-weight: 700;
+            background: #f3f4f6;
+            color: #111827;
+            padding: 5px 8px;
+            margin: -8px -8px 6px -8px;
+            border-bottom: 1px solid #d1d5db;
+        }
 
-        /* Tanda tangan: dua kolom, teks center — seperti contoh dokumen */
         .sig-table {
             width: 100%;
             border-collapse: collapse;
@@ -195,13 +285,15 @@
 
     $hariStr = $tgl->locale('id')->isoFormat('dddd');
     $tanggalStr = $tgl->day.' '.($bulanId[$tgl->month]).' '.$tgl->year;
-    $jamStr = $tgl->format('H:i').' WIB';
+    $jamLabel = $tgl->format('H:i').' WIB';
 
-    /** Hanya nama sub-bidang/bagian (tanpa induk), untuk tabel & jabatan tanda tangan manajer */
-    $bidangNamaSaja = $laporan->bidang?->nama ?? '–';
-    $jabatanManajerLine = 'MANAJER '.mb_strtoupper($bidangNamaSaja, 'UTF-8');
+    $bidangNama = $laporan->bidang?->nama ?? '–';
+    $jabatanManajerLine = 'MANAJER '.mb_strtoupper($bidangNama, 'UTF-8');
 
-    $katLabel = $laporan->kategori === 'Nearmiss' ? 'Near Miss' : $laporan->kategori;
+    $isIncident = $laporan->kategori === 'Incident';
+    $isNearmiss = $laporan->kategori === 'Nearmiss';
+    $symOn = '&#9745;';
+    $symOff = '&#9744;';
 @endphp
 
 <div class="pdf-main">
@@ -220,34 +312,37 @@
         </table>
     </div>
 
-    {{-- Satu tabel: identitas → konteks kejadian → waktu → lokasi & kendaraan (urutan baca natural) --}}
-    <div class="section-heading">Data Pelapor, Waktu, Lokasi &amp; Kendaraan</div>
+    <div class="lk-cat-container">
+        <div class="lk-cat-item">
+            <span class="checkbox-box {{ $isIncident ? 'checked' : '' }}"></span>
+            <span class="lk-cat-label">Insiden</span>
+        </div>
+        
+        <div class="lk-cat-item">
+            <span class="checkbox-box {{ $isNearmiss ? 'checked' : '' }}"></span>
+            <span class="lk-cat-label">Nearmiss</span>
+        </div>
+    </div>
+
+    <div class="section-heading">Data Laporan</div>
     <table class="info-table">
         <tr>
-            <td class="label">Nama</td>
+            <td class="label">Nama Pelapor</td>
             <td>{{ $laporan->nama }}</td>
             <td class="label">NIP</td>
             <td>{{ $laporan->nip }}</td>
         </tr>
         <tr>
-            <td class="label">Posisi / Jabatan</td>
+            <td class="label">Posisi / Jabatans</td>
             <td>{{ $laporan->jabatan }}</td>
-            <td class="label">Bagian</td>
-            <td>{{ $bidangNamaSaja }}</td>
+            <td class="label">Bidang / Bagian</td>
+            <td>{{ $bidangNama }}</td>
         </tr>
         <tr>
-            <td class="label">Kategori</td>
-            <td colspan="3">{{ $katLabel }}</td>
-        </tr>
-        <tr>
-            <td class="label">Hari / Tanggal kejadian</td>
+            <td class="label">Hari dan tanggal kejadian</td>
             <td>{{ $hariStr }}, {{ $tanggalStr }}</td>
-            <td class="label">Jam</td>
-            <td>{{ $jamStr }}</td>
-        </tr>
-        <tr>
-            <td class="label">Lokasi kejadian</td>
-            <td colspan="3">{{ $laporan->lokasi_kejadian }}</td>
+            <td class="label">Waktu Kejadian</td>
+            <td>{{ $jamLabel }}</td>
         </tr>
         <tr>
             <td class="label">No. Kendaraan</td>
@@ -255,24 +350,42 @@
             <td class="label">Jenis kendaraan</td>
             <td>{{ $laporan->jenis_kendaraan }}</td>
         </tr>
+        <tr>
+            <td class="label">Lokasi kejadian</td>
+            <td colspan="3">{{ $laporan->lokasi_kejadian }}</td>
+        </tr>
     </table>
 
     <div class="section-heading">Uraian</div>
-    <div class="block-label">Peristiwa</div>
-    <div class="block-text">{{ $laporan->peristiwa }}</div>
-    <div class="block-label">Sebelum Kejadian</div>
-    <div class="block-text">{{ $laporan->sebelum_kejadian }}</div>
+    <table class="dual-peristiwa-table">
+        <tr>
+            <td class="subhead">Peristiwa</td>
+            <td class="subhead">Sebelum Kejadian</td>
+        </tr>
+        <tr>
+            <td class="subbody">{{ $laporan->peristiwa }}</td>
+            <td class="subbody">{{ $laporan->sebelum_kejadian }}</td>
+        </tr>
+    </table>
+
     <div class="block-label">Kejadian</div>
     <div class="block-text">{{ $laporan->uraian_kejadian }}</div>
 
-    @if(!empty($fotoDataUrl))
-        <div class="foto-wrap">
-            <img src="{{ $fotoDataUrl }}" alt="Foto kejadian">
-        </div>
-    @endif
-
-    <div class="block-label">Akibat Dari Kejadian</div>
-    <div class="block-text">{{ $laporan->akibat }}</div>
+    <table class="foto-penjelasan-table">
+        <tr>
+            <td class="foto-cell">
+                @if(!empty($fotoDataUrl))
+                    <img src="{{ $fotoDataUrl }}" alt="Foto kejadian">
+                @else
+                    <span style="color:#9ca3af;font-size:8.5pt;">(Tidak ada gambar)</span>
+                @endif
+            </td>
+            <td class="penjelasan-cell">
+                <div class="pg-label">Penjelasan Gambar</div>
+                <div style="white-space:pre-wrap;word-break:break-word;">{{ $laporan->penjelasan_gambar }}</div>
+            </td>
+        </tr>
+    </table>
 
     <table class="sig-table">
         <tr>
