@@ -162,38 +162,62 @@
             min-height: 72px;
         }
 
-        .foto-penjelasan-table {
+        /* Kotak satu: header + kolom foto + penjelasan di bawah tiap foto */
+        .lk-gambar-shell {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
             margin-bottom: 10px;
-            page-break-inside: avoid;
-            font-size: 9pt;
-        }
-        .foto-penjelasan-table td {
             border: 1px solid #d1d5db;
-            padding: 8px;
+            font-size: 9pt;
+            page-break-inside: avoid;
+            table-layout: fixed;
+        }
+        .lk-gambar-shell td {
             vertical-align: top;
         }
-        .foto-penjelasan-table .foto-cell {
-            width: 40%;
-            text-align: center;
-        }
-        .foto-penjelasan-table .foto-cell img {
-            max-width: 100%;
-            max-height: 180px;
-            object-fit: contain;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-        }
-        .foto-penjelasan-table .penjelasan-cell { width: 60%; }
-        .foto-penjelasan-table .pg-label {
-            font-weight: 700;
+        /* .lk-gambar-head {
             background: #f3f4f6;
-            color: #111827;
-            padding: 5px 8px;
-            margin: -8px -8px 6px -8px;
+            font-weight: 700;
+            padding: 6px 10px;
+            text-align: center;
             border-bottom: 1px solid #d1d5db;
+            color: #111827;
+        } */
+        .lk-gambar-col {
+            border-right: 1px solid #e5e7eb;
+            padding: 0;
+        }
+        .lk-gambar-col:last-child {
+            border-right: none;
+        }
+        .lk-gambar-col-inner {
+            padding: 8px;
+        }
+        .lk-gambar-col-inner img {
+            max-width: 100%;
+            width: auto;
+            object-fit: contain;
+            border: 1px solid #e5e7eb;
+            border-radius: 3px;
+            display: block;
+            margin: 0 auto 6px;
+        }
+
+        .lk-gambar-col-caption {
+            text-align: center;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 8.5pt;
+            color: #1a1a2e;
+            padding-top: 6px;
+            margin-top: 2px;
+        }
+        .lk-gambar-empty {
+            padding: 12px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 8.5pt;
         }
 
         .sig-table {
@@ -379,19 +403,27 @@
     <div class="block-label">Kejadian</div>
     <div class="block-text">{{ $laporan->uraian_kejadian }}</div>
 
-    <table class="foto-penjelasan-table">
+    @php
+        $slides = $fotoSlides ?? [];
+        $colCount = max(1, count($slides));
+        $imgMaxH = $colCount === 1 ? 200 : ($colCount === 2 ? 168 : 128);
+    @endphp
+    <table class="lk-gambar-shell">
         <tr>
-            <td class="foto-cell">
-                @if(!empty($fotoDataUrl))
-                    <img src="{{ $fotoDataUrl }}" alt="Foto kejadian">
-                @else
-                    <span style="color:#9ca3af;font-size:8.5pt;">(Tidak ada gambar)</span>
-                @endif
-            </td>
-            <td class="penjelasan-cell">
-                <div class="pg-label">Penjelasan Gambar</div>
-                <div style="white-space:pre-wrap;word-break:break-word;">{{ $laporan->penjelasan_gambar }}</div>
-            </td>
+            @forelse($slides as $s)
+                <td class="lk-gambar-col" style="width: {{ round(100 / $colCount, 2) }}%; text-align: center; vertical-align: middle;">
+                    <div class="lk-gambar-col-inner">
+                        @if(!empty($s['data_url']))
+                            <img src="{{ $s['data_url'] }}" alt="Foto kejadian" style="max-height: {{ $imgMaxH }}px; ">
+                        @else
+                            <span style="color:#9ca3af;font-size:8.5pt;">(Tidak ada gambar)</span>
+                        @endif
+                        <div class="lk-gambar-col-caption">{{ $s['penjelasan'] ?? '' }}</div>
+                    </div>
+                </td>
+            @empty
+                <td class="lk-gambar-empty" colspan="1">(Tidak ada gambar)</td>
+            @endforelse
         </tr>
     </table>
 

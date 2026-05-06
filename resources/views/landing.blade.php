@@ -142,14 +142,43 @@
             .lp-btn-primary, .lp-btn-secondary { justify-content: center; }
         }
 
-        /* Laporan kejadian: foto + TTG */
-        .lp-lk-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        /* Laporan kejadian: multi foto + penjelasan per foto */
+        .lp-lk-gambar-hint { font-size: 0.82rem; color: #64748b; margin: 4px 0 10px; line-height: 1.45; }
+        .dash-body.dark .lp-lk-gambar-hint { color: #94a3b8; }
+        .lp-lk-gambar-list { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+        .lp-lk-gambar-item {
+            border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px;
+            background: #f8fafc;
+        }
+        .dash-body.dark .lp-lk-gambar-item { border-color: #334155; background: rgba(30,41,59,.5); }
+        .lp-lk-gambar-item-top {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            margin-bottom: 8px;
+        }
+        .lp-lk-gambar-item-label { font-size: 0.8rem; font-weight: 700; color: #334155; letter-spacing: .02em; }
+        .dash-body.dark .lp-lk-gambar-item-label { color: #cbd5e1; }
+        .lp-lk-remove-gambar {
+            padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+            border-radius: 8px; border: 1px solid #fecaca; background: #fff; color: #b91c1c;
+        }
+        .lp-lk-remove-gambar:hover { background: #fef2f2; }
+        .dash-body.dark .lp-lk-remove-gambar { background: rgba(30,41,59,.8); border-color: #7f1d1d; color: #fca5a5; }
+        .lp-lk-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .lp-landing-file-btn--secondary {
+            background: transparent !important; color: var(--dash-blue, #0A2342) !important;
+            border: 1px solid #c7d2fe !important; box-shadow: none !important;
+        }
+        .dash-body.dark .lp-landing-file-btn--secondary {
+            color: #93c5fd !important; border-color: #475569 !important;
+        }
         .lp-lk-photo-preview {
-            margin-top: 10px; max-width: 360px; border-radius: 12px; overflow: hidden;
+            margin-top: 10px; max-width: 420px; border-radius: 12px; overflow: hidden;
             border: 1px solid #e2e8f0; background: #f8fafc; display: none;
         }
         .lp-lk-photo-preview.is-on { display: block; }
         .lp-lk-photo-preview img { width: 100%; max-height: 220px; object-fit: contain; display: block; }
+        .lp-lk-gambar-item .checklist-field { margin-top: 8px; }
+        .lp-lk-gambar-item .checklist-field span { font-size: 0.82rem; }
         .lp-lk-sig-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -233,7 +262,7 @@
     </div>
 </nav>
 
-{{-- ══════════════════ HERO (gaya dash-hero) ══════════════════ --}}
+{{-- ══════════════════ HERO ══════════════════ --}}
 <section class="dash-hero-section lp-landing-hero lp-landing-hero--viewport">
     <div class="dash-hero-inner lp-hero-inner-landing">
         <div class="lp-hero-dash-grid">
@@ -600,19 +629,14 @@
                     </div>
 
                     <div class="checklist-field lp-form-full">
-                        <span>Gambar / Foto <span style="color:#ef4444">*</span></span>
-                            <input type="file" name="foto" id="lk_foto" accept="image/*" required class="checklist-file-input" style="display:none">
+                        <span>Gambar / Foto lampiran <span style="color:#ef4444">*</span></span>
+                        <p class="lp-lk-gambar-hint">Unggah 1 sampai 3 foto. Tiap foto wajib diberi penjelasan di bawahnya. Gunakan tombol + untuk menambah slot, atau &ldquo;Pilih beberapa foto&rdquo; untuk mengisi hingga 3 sekaligus.</p>
+                        <div id="lk_gambar_rows" class="lp-lk-gambar-list" aria-live="polite"></div>
                         <div class="lp-lk-photo-actions">
-                            <button type="button" class="lp-landing-file-btn" id="lk_btn_foto">Upload foto kejadian</button>
+                            <button type="button" class="lp-landing-file-btn" id="lk_btn_tambah_gambar">+ Tambah foto</button>
+                            <button type="button" class="lp-landing-file-btn lp-landing-file-btn--secondary" id="lk_btn_multi_foto">Pilih beberapa foto</button>
+                            <input type="file" id="lk_foto_multi" accept="image/*" multiple style="display:none" aria-hidden="true">
                         </div>
-                        <div class="lp-lk-photo-preview" id="lk_foto_preview_wrap">
-                            <img src="" alt="Pratinjau" id="lk_foto_preview_img">
-                        </div>
-                    </div>
-
-                    <div class="checklist-field lp-form-full">
-                        <span>Penjelasan Gambar <span style="color:#ef4444">*</span></span>
-                        <textarea name="penjelasan_gambar" id="lk_penjelasan_gambar" rows="3" required placeholder="Jelaskan apa yang ditampilkan pada gambar / foto lampiran"></textarea>
                     </div>
 
                     <div class="checklist-field lp-form-full lp-lk-sig-row">
@@ -666,6 +690,23 @@
                     Kirim Laporan
                 </button>
             </form>
+            <template id="lk_tpl_gambar_row">
+                <div class="lp-lk-gambar-item" data-lk-gambar-item>
+                    <div class="lp-lk-gambar-item-top">
+                        <span class="lp-lk-gambar-item-label">Lampiran foto</span>
+                        <button type="button" class="lp-lk-remove-gambar" data-lk-remove-gambar>Hapus gambar</button>
+                    </div>
+                    <input type="file" name="foto[]" accept="image/*" capture="environment" class="checklist-file-input lk-foto-in" style="display:none">
+                    <button type="button" class="lp-landing-file-btn lk-pick-foto">Pilih / ambil foto</button>
+                    <div class="lp-lk-photo-preview lk-slot-preview">
+                        <img src="" alt="Pratinjau">
+                    </div>
+                    <div class="checklist-field lp-form-full" style="margin-bottom:0">
+                        <span>Penjelasan gambar ini <span style="color:#ef4444">*</span></span>
+                        <textarea name="penjelasan_gambar[]" rows="3" placeholder="Jelaskan isi foto ini"></textarea>
+                    </div>
+                </div>
+            </template>
         </div>
     </section>
 
@@ -1040,29 +1081,134 @@ function onLkKendaraanChange(select) {
     if (j) j.value = opt ? (opt.dataset.jenis || '') : '';
 }
 
-/* ── LAPORAN KEJADIAN: foto (satu tombol → input file + kamera di perangkat mendukung) ── */
-(function setupLkFoto() {
-    const input = document.getElementById('lk_foto');
-    const btn = document.getElementById('lk_btn_foto');
-    const prevWrap = document.getElementById('lk_foto_preview_wrap');
-    const prevImg = document.getElementById('lk_foto_preview_img');
-    if (!input || !prevWrap || !prevImg) return;
+/* ── LAPORAN KEJADIAN: multi foto (maks 3) + penjelasan per foto ── */
+(function setupLkGambarRows() {
+    const LK_MAX_FOTO = 3;
+    const tpl = document.getElementById('lk_tpl_gambar_row');
+    const wrap = document.getElementById('lk_gambar_rows');
+    const btnAdd = document.getElementById('lk_btn_tambah_gambar');
+    const btnMulti = document.getElementById('lk_btn_multi_foto');
+    const inpMulti = document.getElementById('lk_foto_multi');
+    if (!tpl || !wrap || !btnAdd) return;
 
-    function showPreview(file) {
+    function lkGambarRowCount() {
+        return wrap.querySelectorAll('[data-lk-gambar-item]').length;
+    }
+
+    function refreshLkGambarUi() {
+        const n = lkGambarRowCount();
+        btnAdd.disabled = n >= LK_MAX_FOTO;
+        btnAdd.style.opacity = n >= LK_MAX_FOTO ? '.45' : '';
+        btnAdd.setAttribute('aria-disabled', n >= LK_MAX_FOTO ? 'true' : 'false');
+    }
+
+    function showSlotPreview(prevWrap, prevImg, file) {
         if (!file || !file.type.startsWith('image/')) return;
-        prevImg.src = URL.createObjectURL(file);
+        if (prevImg.dataset.objUrl) {
+            try { URL.revokeObjectURL(prevImg.dataset.objUrl); } catch (_) {}
+        }
+        const u = URL.createObjectURL(file);
+        prevImg.dataset.objUrl = u;
+        prevImg.src = u;
         prevWrap.classList.add('is-on');
     }
 
-    input.addEventListener('change', function () {
-        const f = this.files && this.files[0];
-        if (f) showPreview(f);
-        else {
-            prevImg.src = '';
-            prevWrap.classList.remove('is-on');
+    function clearSlotPreview(prevWrap, prevImg) {
+        if (prevImg.dataset.objUrl) {
+            try { URL.revokeObjectURL(prevImg.dataset.objUrl); } catch (_) {}
+            delete prevImg.dataset.objUrl;
         }
+        prevImg.src = '';
+        prevWrap.classList.remove('is-on');
+    }
+
+    function bindLkGambarRow(row) {
+        const input = row.querySelector('.lk-foto-in');
+        const pickBtn = row.querySelector('.lk-pick-foto');
+        const prevWrap = row.querySelector('.lk-slot-preview');
+        const prevImg = prevWrap ? prevWrap.querySelector('img') : null;
+        const removeBtn = row.querySelector('[data-lk-remove-gambar]');
+
+        function onFileChange() {
+            const f = input.files && input.files[0];
+            if (f && prevWrap && prevImg) showSlotPreview(prevWrap, prevImg, f);
+            else if (prevWrap && prevImg) clearSlotPreview(prevWrap, prevImg);
+        }
+
+        if (pickBtn && input) pickBtn.addEventListener('click', () => input.click());
+        if (input) input.addEventListener('change', onFileChange);
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', () => {
+                if (lkGambarRowCount() <= 1) {
+                    input.value = '';
+                    row.querySelector('textarea').value = '';
+                    if (prevWrap && prevImg) clearSlotPreview(prevWrap, prevImg);
+                    return;
+                }
+                if (prevImg && prevImg.dataset.objUrl) {
+                    try { URL.revokeObjectURL(prevImg.dataset.objUrl); } catch (_) {}
+                }
+                row.remove();
+                refreshLkGambarUi();
+            });
+        }
+    }
+
+    window.lkAppendGambarRow = function () {
+        if (lkGambarRowCount() >= LK_MAX_FOTO) return;
+        const row = tpl.content.firstElementChild.cloneNode(true);
+        wrap.appendChild(row);
+        bindLkGambarRow(row);
+        refreshLkGambarUi();
+        return row;
+    };
+
+    window.lkResetGambarRows = function () {
+        wrap.querySelectorAll('[data-lk-gambar-item]').forEach((row) => {
+            const prevImg = row.querySelector('.lk-slot-preview img');
+            if (prevImg && prevImg.dataset.objUrl) {
+                try { URL.revokeObjectURL(prevImg.dataset.objUrl); } catch (_) {}
+            }
+            row.remove();
+        });
+        window.lkAppendGambarRow();
+    };
+
+    btnAdd.addEventListener('click', () => {
+        if (lkGambarRowCount() >= LK_MAX_FOTO) return;
+        window.lkAppendGambarRow();
     });
-    if (btn) btn.addEventListener('click', () => input.click());
+
+    if (btnMulti && inpMulti) {
+        btnMulti.addEventListener('click', () => inpMulti.click());
+        inpMulti.addEventListener('change', function () {
+            const files = Array.from(this.files || []).filter((f) => f.type.startsWith('image/')).slice(0, LK_MAX_FOTO);
+            this.value = '';
+            if (!files.length) return;
+            while (lkGambarRowCount() < files.length) window.lkAppendGambarRow();
+            const rows = [...wrap.querySelectorAll('[data-lk-gambar-item]')];
+            files.forEach((file, i) => {
+                const row = rows[i];
+                if (!row) return;
+                const input = row.querySelector('.lk-foto-in');
+                const prevWrap = row.querySelector('.lk-slot-preview');
+                const prevImg = prevWrap ? prevWrap.querySelector('img') : null;
+                try {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    if (prevWrap && prevImg) showSlotPreview(prevWrap, prevImg, file);
+                } catch (_) {
+                    input.value = '';
+                    if (prevWrap && prevImg) clearSlotPreview(prevWrap, prevImg);
+                }
+            });
+        });
+    }
+
+    window.lkAppendGambarRow();
+    refreshLkGambarUi();
 })();
 
 /* ── LAPORAN KEJADIAN: signature pads ── */
@@ -1166,9 +1312,42 @@ if (formLk) {
             hP.value = _lkSigPads[1].toDataURL('image/png');
         }
 
-        const fotoEl = document.getElementById('lk_foto');
-        if (!fotoEl || !fotoEl.files || !fotoEl.files[0]) {
-            Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Foto wajib', text: 'Mohon unggah atau ambil foto kejadian terlebih dahulu.' }));
+        const wrapG = document.getElementById('lk_gambar_rows');
+        if (wrapG) {
+            let didPrune = true;
+            while (didPrune) {
+                didPrune = false;
+                const rs = [...wrapG.querySelectorAll('[data-lk-gambar-item]')];
+                if (rs.length <= 1) break;
+                for (const row of rs) {
+                    const fi = row.querySelector('.lk-foto-in');
+                    const ta = row.querySelector('textarea[name="penjelasan_gambar[]"]');
+                    const hasF = fi && fi.files && fi.files[0];
+                    const hasT = ta && ta.value.trim() !== '';
+                    if (!hasF && !hasT) {
+                        row.remove();
+                        didPrune = true;
+                        break;
+                    }
+                }
+            }
+        }
+        const rowsAfter = wrapG ? [...wrapG.querySelectorAll('[data-lk-gambar-item]')] : [];
+        const filled = rowsAfter.filter((row) => row.querySelector('.lk-foto-in')?.files?.[0]);
+        if (!filled.length) {
+            Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Foto wajib', text: 'Mohon unggah minimal satu foto kejadian.' }));
+            return;
+        }
+        for (const row of filled) {
+            const ta = row.querySelector('textarea[name="penjelasan_gambar[]"]');
+            if (!ta || !ta.value.trim()) {
+                Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Penjelasan wajib', text: 'Setiap foto lampiran harus dijelaskan pada kolom penjelasan di bawah foto tersebut.' }));
+                return;
+            }
+        }
+        const orphan = rowsAfter.filter((row) => !row.querySelector('.lk-foto-in')?.files?.[0] && row.querySelector('textarea[name="penjelasan_gambar[]"]')?.value.trim());
+        if (orphan.length) {
+            Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Foto tidak lengkap', text: 'Ada penjelasan tanpa foto — unggah fotonya atau kosongkan baris tersebut (hapus dengan tombol Hapus gambar).' }));
             return;
         }
 
@@ -1203,12 +1382,7 @@ if (formLk) {
                 }));
                 this.reset();
                 document.getElementById('lk_jenis_kendaraan').value = '';
-                const prevWrap = document.getElementById('lk_foto_preview_wrap');
-                const prevImg = document.getElementById('lk_foto_preview_img');
-                const fotoIn = document.getElementById('lk_foto');
-                if (prevImg) prevImg.src = '';
-                if (prevWrap) prevWrap.classList.remove('is-on');
-                if (fotoIn) fotoIn.value = '';
+                if (typeof window.lkResetGambarRows === 'function') window.lkResetGambarRows();
                 _lkSigPads.forEach((pad, i) => {
                     pad.clear();
                     const hint = document.getElementById(i === 0 ? 'sig-hint-lk-manager' : 'sig-hint-lk-pelapor');
