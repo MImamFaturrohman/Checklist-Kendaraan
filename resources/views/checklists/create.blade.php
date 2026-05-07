@@ -327,7 +327,7 @@
                                             <label for="exterior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
-                                    <input type="text" name="exterior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...(Wajib jika NO)">
+                                    <input type="text" name="exterior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
                                 </div>
                             @endforeach
                         </div>
@@ -369,7 +369,7 @@
                                             <label for="interior_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
-                                    <input type="text" name="interior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...(Wajib jika NO)">
+                                    <input type="text" name="interior_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
                                 </div>
                             @endforeach
                         </div>
@@ -406,7 +406,7 @@
                                             <label for="mesin_{{ $name }}_no">NO</label>
                                         </div>
                                     </div>
-                                    <input type="text" name="mesin_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...(Wajib Jika NO)">
+                                    <input type="text" name="mesin_{{ $name }}_catatan" class="checklist-item-note" placeholder="Keterangan...">
                                 </div>
                             @endforeach
                         </div>
