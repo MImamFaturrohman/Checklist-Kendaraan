@@ -130,7 +130,7 @@
 
     @include('partials.premium-dash-bg', ['premiumBgId' => 'admin_peminjaman'])
 
-    @include('admin.partials.dash-admin-nav', ['pageTitle' => 'Peminjaman Kendaraan'])
+    @include('admin.partials.dash-admin-nav', ['pageTitle' => 'Peminjaman Kendaraan', 'navChipLabel' => 'SUPERADMIN'])
 
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">

@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Portal BBM Operasional — {{ config('app.name') }}</title>
+    <title>Log BBM — {{ config('app.name') }}</title>
     @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
@@ -18,10 +18,10 @@
     @include('partials.premium-dash-bg', ['premiumBgId' => 'bbm_operational'])
 
     @include('admin.partials.dash-admin-nav', [
-        'pageTitle' => 'Portal BBM Operasional',
+        'pageTitle' => 'Log BBM',
         'pageSubtitle' => ($bbmPortalChartsOnly ?? false)
             ? 'Ringkasan & grafik pengisian BBM (akses terbatas)'
-            : 'Insight laporan pengisian BBM dari driver',
+            : 'PT ARTHA DAYA COALINDO',
         'navChipLabel' => ($bbmPortalChartsOnly ?? false) ? 'MANAGER' : 'SUPERADMIN',
         'navChipClass' => ($bbmPortalChartsOnly ?? false) ? 'dash-chip-manager' : 'dash-chip-admin',
     ])
@@ -105,12 +105,10 @@
                     <div class="portal-chart-title-row">
                         <div class="portal-chart-title">Pengeluaran BBM per bulan (Jan–Des)</div>
                     </div>
-                    <p class="bbm-chart-hint">Total biaya per bulan — batang pertama tahun terpilih, batang kedua tahun sebelumnya.</p>
                     <div class="portal-chart-container" style="height:260px"><canvas id="bbmChartRupiahYear"></canvas></div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--wide">
                     <div class="portal-chart-title">Total liter BBM per bulan (Jan–Des)</div>
-                    <p class="bbm-chart-hint">Agregat liter (semua unit atau satu kendaraan) — perbandingan tahun yang sama.</p>
                     <div class="portal-chart-container" style="height:280px"><canvas id="bbmChartLiterMonthly"></canvas></div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--bbm-driver-col">
@@ -294,13 +292,6 @@
         .dash-body.dark .bbm-chart-filters-hint { color: rgba(200, 218, 255, 0.55); }
         .bbm-chart-filters-hint strong { color: #0f172a; font-weight: 700; }
         .dash-body.dark .bbm-chart-filters-hint strong { color: #e8f0fe; }
-
-        .bbm-chart-hint {
-            margin: 0 0 8px;
-            font-size: 0.78rem;
-            color: #64748b;
-        }
-        .dash-body.dark .bbm-chart-hint { color: rgba(200, 218, 255, 0.55); }
 
         .bbm-activity-log-card { padding: 16px 16px 12px; }
         .dash-body.dark .bbm-activity-log-card {

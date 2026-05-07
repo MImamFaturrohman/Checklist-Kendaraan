@@ -134,7 +134,7 @@
                             <span class="dash-hero-kicker-dot"></span>
                             AKSES SUPERADMIN
                         </p>
-                        <h2 class="dash-hero-name">Pusat Kontrol Fleet</h2>
+                        <h2 class="dash-hero-name">Fleet Hub</h2>
                     @elseif($isAdmin)
                         <p class="dash-hero-kicker">
                             <span class="dash-hero-kicker-dot"></span>
@@ -148,21 +148,20 @@
                         </p>
                         <h2 class="dash-hero-name">Panel Persetujuan</h2>
                     @else
-                        <p class="dash-hero-kicker">
+                        <p class="dash-hero-kicker" style="text-transform: none;">
                             <span class="dash-hero-kicker-dot"></span>
-                            SELAMAT BEKERJA,
+                            Selamat bertugas,
                         </p>
                         <h2 class="dash-hero-name">{{ $userName }}</h2>
                     @endif
 
                     <div class="dash-hero-tags">
                         <span class="dash-tag dash-tag-outline">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                            ID: {{ strtoupper($user?->username ?? 'USER-00') }}
+                            ID: {{ '@' . str($user?->username ?? 'USER-00') }}
                         </span>
                         <span class="dash-tag dash-tag-yellow">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="5"/></svg>
-                            Status: Aktif
+                            Status: Online
                         </span>
                         @if($isDriver)
                             <span class="dash-hero-shift dash-clock-shift" id="dash-hero-shift">—</span>
@@ -179,8 +178,20 @@
                 {{-- Clock widget — hanya untuk driver & pic --}}
                 @if($isDriver)
                 <div class="dash-clock-widget" id="dash-clock-widget">
-                    <div class="dash-clock-date" id="dash-clock-date">—</div>
+                    <div class="dash-clock-date-row">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <div class="dash-clock-date" id="dash-clock-date">—</div>
+                    </div>
                     <div class="dash-clock-time-row">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M12 7v5l3 3"></path>
+                        </svg>
                         <span class="dash-clock-time" id="dash-clock-time">00:00:00 WIB</span>
                     </div>
                 </div>
@@ -222,7 +233,7 @@
                                     </a>
                                     <a href="{{ route('manager.sppd.index') }}" class="dash-main-card dash-pressable">
                                         <div>
-                                            <p class="dash-main-title">Rekap SPPD</p>
+                                            <p class="dash-main-title">TransDinas</p>
                                             <p class="dash-main-sub">
                                                 @if($sppdPendingManager > 0)
                                                     {{ $sppdPendingManager }} laporan menunggu persetujuan
@@ -320,7 +331,7 @@
 
                                     <a href="{{ route('admin.vehicle-usage-logs.index') }}" class="dash-main-card dash-pressable">
                                         <div>
-                                            <p class="dash-main-title">Arsip Log Penggunaan Kendaraan</p>
+                                            <p class="dash-main-title">Log Pemakaian Kendaraan</p>
                                             <p class="dash-main-sub">Riwayat jam pakai &amp; keperluan dari driver</p>
                                         </div>
                                         <span class="dash-main-icon" aria-hidden="true">
@@ -347,7 +358,7 @@
 
                                     <a href="{{ route('admin.portal-bbm-operasional') }}" class="dash-main-card dash-pressable">
                                         <div>
-                                            <p class="dash-main-title">Portal BBM Operasional</p>
+                                            <p class="dash-main-title">Log BBM</p>
                                             <p class="dash-main-sub">Insight liter, biaya &amp; laporan pengisian BBM</p>
                                         </div>
                                         <span class="dash-main-icon" aria-hidden="true">
@@ -375,7 +386,7 @@
 
                                     <a href="{{ route('admin.sppd.index') }}" class="dash-main-card dash-pressable">
                                         <div>
-                                            <p class="dash-main-title">Rekap SPPD</p>
+                                            <p class="dash-main-title">TransDinas</p>
                                             <p class="dash-main-sub">Verifikasi biaya dinas driver</p>
                                         </div>
                                         <span class="dash-main-icon" aria-hidden="true">
@@ -408,7 +419,7 @@
                                     </a>
                                     <a href="{{ route('admin.sppd.index') }}" class="dash-main-card dash-pressable">
                                         <div>
-                                            <p class="dash-main-title">Rekap SPPD</p>
+                                            <p class="dash-main-title">TransDinas</p>
                                             <p class="dash-main-sub">Verifikasi laporan biaya dinas driver</p>
                                         </div>
                                         <span class="dash-main-icon" aria-hidden="true">
@@ -442,7 +453,7 @@
                                     </a>
                                     <a href="{{ route('sppd.index') }}" class="dash-main-card dash-pressable">
                                         <div>
-                                            <p class="dash-main-title">Rekap SPPD</p>
+                                            <p class="dash-main-title">TransDinas</p>
                                             <p class="dash-main-sub">Laporan tol, dan BBM</p>
                                         </div>
                                         <span class="dash-main-icon" aria-hidden="true">
@@ -508,17 +519,20 @@
                     </div>
                     <span class="profile-drawer-avatar-badge" aria-hidden="true"></span>
                 </div>
-                <p class="profile-drawer-name" id="profile-display-name">{{ $userName }} <span class="profile-drawer-username">{{ '#'.$user?->username }}</span></p>
-                <span class="dash-chip {{ ($isAdmin || $isSuperAdmin) ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
-                    @if ($isAdmin || $isSuperAdmin)
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-                    @elseif ($isManager)
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    @else
-                        <i class="bi bi-person-check-fill"></i>
-                    @endif
-                    {{ $userRoleLabel }}
-                </span>
+                <p class="profile-drawer-name" id="profile-display-name">{{ $userName }}</p>
+                <div class="profile-drawer-role" style="display:flex;align-items:center;gap:5px;">
+                    <span class="dash-chip {{ ($isAdmin || $isSuperAdmin) ? 'dash-chip-admin' : ($isManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
+                        @if ($isAdmin || $isSuperAdmin)
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
+                        @elseif ($isManager)
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        @else
+                            <i class="bi bi-person-check-fill"></i>
+                        @endif
+                        {{ $userRoleLabel }}
+                    </span>
+                    <span class="profile-drawer-username" style="margin-top:8px;">{{ '@'.$user?->username }}</span>
+                </div>
             </div>
 
             <div class="profile-drawer-body">
@@ -857,7 +871,7 @@
 
                 document.getElementById('dash-clock-date').textContent =
                     `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-                document.getElementById('dash-clock-time').textContent = `${hh}:${mm}:${ss} WIB`;
+                document.getElementById('dash-clock-time').textContent = `${hh}:${mm} WIB`;
 
                 const heroShift = document.getElementById('dash-hero-shift');
                 if (heroShift) {

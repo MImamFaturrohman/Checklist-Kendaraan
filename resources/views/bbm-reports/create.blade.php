@@ -137,7 +137,7 @@
                     </div>
                     <div class="checklist-grid-two">
                         <label class="checklist-field">
-                            <span>Pilih Kendaraan</span>
+                            <span>Kendaraan</span>
                             <div class="checklist-control-wrap checklist-control-select">
                                 <select name="nomor_kendaraan" id="bbm-nopol" required>
                                     <option value="">Pilih Nomor Kendaraan</option>
@@ -154,10 +154,10 @@
                             </div>
                         </label>
                         <label class="checklist-field checklist-field-span2">
-                            <span>Jenis pengisian BBM</span>
+                            <span>Keperluan Pengisian BBM</span>
                             <div class="checklist-control-wrap checklist-control-select">
                                 <select name="jenis_pengisian" id="bbm-jenis-pengisian" required>
-                                    <option value="">Pilih jenis</option>
+                                    <option value="">Pilih Keperluan</option>
                                     <option value="Operasional" @selected(old('jenis_pengisian') === 'Operasional')>Operasional</option>
                                     <option value="Perjalanan Dinas (SPPD)" @selected(old('jenis_pengisian') === 'Perjalanan Dinas (SPPD)')>Perjalanan Dinas (SPPD)</option>
                                 </select>

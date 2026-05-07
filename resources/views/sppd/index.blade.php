@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Rekap SPPD — {{ config('app.name') }}</title>
+    <title>TransDinas — {{ config('app.name') }}</title>
     @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -18,7 +18,7 @@
             <div class="dash-nav-brand">
                 <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo">
                 <div>
-                    <div class="dash-nav-title">Rekap SPPD</div>
+                    <div class="dash-nav-title">TransDinas</div>
                     <span class="dash-nav-sub">PT ARTHA DAYA COALINDO</span>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                 <div class="portal-section-header">
                     <div class="portal-section-title">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Daftar Rekap SPPD
+                        Daftar Rekap Biaya Dinas
                     </div>
                     <a href="{{ route('sppd.create') }}" class="btn-export sppd-btn-create-rekap" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
@@ -145,7 +145,13 @@
                                                     rel="noopener"
                                                     title="Unduh PDF"
                                                     aria-label="Unduh PDF"
-                                                ><i class="bi bi-file-earmark-pdf-fill"></i></a>
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 3v12"></path>
+                                                        <path d="M7 10l5 5 5-5"></path>
+                                                        <path d="M5 21h14"></path>
+                                                    </svg>
+                                                </a>
                                             @endif
                                         </div>
                                     </td>

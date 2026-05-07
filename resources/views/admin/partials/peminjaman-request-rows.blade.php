@@ -32,17 +32,17 @@
             @if($req->isPending())
                 <span class="status-badge status-pending">
                     <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
-                    Menunggu
+                    Pending
                 </span>
             @elseif($req->isApproved())
                 <span class="status-badge status-approved">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Disetujui
+                    Approved
                 </span>
             @else
                 <span class="status-badge status-rejected">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Ditolak
+                    Rejected
                 </span>
             @endif
         </td>
@@ -64,10 +64,12 @@
         <td style="white-space:nowrap">
             @if($req->isApproved())
                 <a href="{{ route('admin.peminjaman.pdf', $req) }}" target="_blank" class="peminj-pdf">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3M3 12l9-9 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v12"></path>
+                        <path d="M7 10l5 5 5-5"></path>
+                        <path d="M5 21h14"></path>
                     </svg>
-                    {{ $req->pdf_path ? 'Unduh PDF' : 'Cetak PDF' }}
+                    {{ $req->pdf_path ? 'Download' : 'Cetak PDF' }}
                 </a>
             @else
                 <span class="peminj-meta" style="opacity:0.45">—</span>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Arsip Log Penggunaan Kendaraan — {{ config('app.name') }}</title>
+    <title>Log Pemakaian Kendaraan — {{ config('app.name') }}</title>
     @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -19,7 +19,7 @@
     @include('partials.premium-dash-bg', ['premiumBgId' => 'admin_vul'])
 
     @include('admin.partials.dash-admin-nav', [
-        'pageTitle' => 'Arsip Log Penggunaan Kendaraan',
+        'pageTitle' => 'Log Pemakaian Kendaraan',
         'pageSubtitle' => 'PT ARTHA DAYA COALINDO',
         'navChipLabel' => 'SUPERADMIN',
         'navChipClass' => 'dash-chip-admin',

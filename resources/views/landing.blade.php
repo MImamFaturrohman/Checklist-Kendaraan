@@ -195,7 +195,7 @@
 
     @include('partials.premium-dash-bg', ['premiumBgId' => 'dashmain'])
 
-{{-- ══════════════════ NAVBAR (selaras dashboard + menu mobile) ══════════════════ --}}
+{{-- ══════════════════ NAVBAR ══════════════════ --}}
 <nav class="dash-nav lp-top-nav" id="lp-top-nav" aria-label="Navigasi utama">
     <div class="dash-nav-inner lp-nav-inner">
         <a href="#landing" onclick="smoothTo('landing',event)" class="dash-nav-brand lp-landing-brand">
@@ -275,18 +275,6 @@
                 <p class="lp-hero-desc">
                     Lihat daftar kendaraan operasional, kemudian ajukan permohonan peminjaman.
                 </p>
-                <!-- <div class="lp-hero-btns">
-                    <a href="#armada" class="lp-btn-primary" onclick="smoothTo('armada',event)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v6a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="17" r="2" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/></svg>
-                        Lihat Armada
-                    </a>
-                    <a href="#form-peminjaman" class="lp-btn-secondary" onclick="smoothTo('form-peminjaman',event)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        Ajukan Peminjaman
-                    </a>
-                </div> -->
             </div>
 
             {{-- RIGHT: Feature cards --}}

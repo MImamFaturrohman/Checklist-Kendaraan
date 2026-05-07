@@ -130,13 +130,13 @@
                     </div>
                     <div class="checklist-grid-two">
                         <label class="checklist-field">
-                            <span><i class="bi bi-clock bbm-field-icon" aria-hidden="true"></i> Jam awal</span>
+                            <span><i class="bi bi-clock bbm-field-icon" aria-hidden="true"></i> Jam Penggunaan</span>
                             <div class="checklist-control-wrap bbm-input-with-icon">
                                 <input type="time" name="jam_awal" id="vul-jam-awal" required value="{{ old('jam_awal') }}">
                             </div>
                         </label>
                         <label class="checklist-field">
-                            <span><i class="bi bi-clock-history bbm-field-icon" aria-hidden="true"></i> Jam akhir</span>
+                            <span><i class="bi bi-clock-history bbm-field-icon" aria-hidden="true"></i> Jam Selesai</span>
                             <div class="checklist-control-wrap bbm-input-with-icon">
                                 <input type="time" name="jam_akhir" id="vul-jam-akhir" required value="{{ old('jam_akhir') }}">
                             </div>

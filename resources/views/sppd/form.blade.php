@@ -192,7 +192,7 @@
                             </div>
                             @endforeach
                         </div>
-                        <button type="button" class="sppd-add-row" id="sppd-add-toll-berangkat">+ Tambah baris tol berangkat</button>
+                        <button type="button" class="sppd-add-row" id="sppd-add-toll-berangkat">+ Tambah tol berangkat</button>
                     </div>
                     <div class="sppd-toll-leg-block">
                         <h3 class="sppd-toll-leg-title">Biaya tol kembali</h3>
@@ -210,7 +210,7 @@
                             </div>
                             @endforeach
                         </div>
-                        <button type="button" class="sppd-add-row" id="sppd-add-toll-kembali">+ Tambah baris tol kembali</button>
+                        <button type="button" class="sppd-add-row" id="sppd-add-toll-kembali">+ Tambah tol kembali</button>
                     </div>
                 </section>
 
@@ -261,7 +261,7 @@
                     <div class="sppd-footer-actions">
                         <button type="button" class="checklist-nav-btn checklist-nav-back" id="sppd-prev" disabled>Sebelumnya</button>
                         <button type="button" class="checklist-nav-btn checklist-nav-next" id="sppd-next">Selanjutnya</button>
-                        <button type="submit" class="checklist-nav-btn checklist-nav-next final" id="sppd-submit" style="display:none">Submit Rekap SPPD</button>
+                        <button type="submit" class="checklist-nav-btn checklist-nav-next final" id="sppd-submit" style="display:none">Submit Laporan SPPD</button>
                     </div>
                 </div>
             </form>
