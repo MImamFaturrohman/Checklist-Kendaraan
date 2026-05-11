@@ -10,8 +10,7 @@ window.SignaturePad = SignaturePad;
 Alpine.start();
 
 /* ================================================================
-   VMS DASH CHROME — centralised theme + sidebar/backdrop
-   Handles: dark/light toggle, sidebar open/close on all pages.
+   VMS DASH CHROME — theme, legacy mobile menu, notifications
    localStorage keys: 'vms-theme' (canonical) + 'vms-dash-theme' (legacy compat)
    ================================================================ */
 (function initVmsDashChrome() {
@@ -45,113 +44,6 @@ Alpine.start();
             });
         }
 
-        /* ── 3. Sidebar system (new layout) ── */
-        const sidebar     = document.getElementById('dash-sidebar');
-        const backdrop    = document.getElementById('dash-sidebar-backdrop');
-        const toggleBtn   = document.getElementById('dash-sidebar-toggle');
-        const closeBtn    = document.getElementById('dash-sidebar-close');
-
-        if (sidebar) {
-            const DESKTOP_BP = 992;
-            const LS_HIDDEN = 'vms-sidebar-desktop-hidden';
-
-            function isDesktop() { return window.innerWidth >= DESKTOP_BP; }
-
-            function syncToggleAria() {
-                if (!toggleBtn) return;
-                const expanded = isDesktop()
-                    ? !body.classList.contains('sidebar-hidden')
-                    : body.classList.contains('sidebar-open');
-                toggleBtn.setAttribute('aria-expanded', String(expanded));
-            }
-
-            /* ── Desktop: sidebar fully hidden (width 0), persisted ── */
-            function applyDesktopHidden(hidden) {
-                body.classList.toggle('sidebar-hidden', hidden);
-                localStorage.setItem(LS_HIDDEN, String(hidden));
-                if (isDesktop()) {
-                    sidebar.setAttribute('aria-hidden', hidden ? 'true' : 'false');
-                }
-                syncToggleAria();
-            }
-
-            if (isDesktop()) {
-                applyDesktopHidden(localStorage.getItem(LS_HIDDEN) === 'true');
-            } else {
-                sidebar.setAttribute(
-                    'aria-hidden',
-                    body.classList.contains('sidebar-open') ? 'false' : 'true'
-                );
-                syncToggleAria();
-            }
-
-            function toggleDesktopSidebar() {
-                applyDesktopHidden(!body.classList.contains('sidebar-hidden'));
-            }
-
-            /* ── Mobile overlay state ── */
-            function openSidebar() {
-                body.classList.add('sidebar-open');
-                sidebar.setAttribute('aria-hidden', 'false');
-                syncToggleAria();
-            }
-            function closeSidebar() {
-                body.classList.remove('sidebar-open');
-                sidebar.setAttribute('aria-hidden', 'true');
-                syncToggleAria();
-            }
-
-            function handleToggleClick() {
-                if (isDesktop()) {
-                    toggleDesktopSidebar();
-                } else {
-                    body.classList.contains('sidebar-open') ? closeSidebar() : openSidebar();
-                }
-            }
-
-            if (toggleBtn)  toggleBtn.addEventListener('click', handleToggleClick);
-            if (closeBtn)   closeBtn.addEventListener('click',  closeSidebar);
-            if (backdrop)   backdrop.addEventListener('click',  closeSidebar);
-
-            /* Close mobile overlay on Escape */
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && body.classList.contains('sidebar-open')) {
-                    closeSidebar();
-                }
-            });
-
-            /* Close after nav click on mobile */
-            sidebar.querySelectorAll('.dash-sidebar-link').forEach(function (link) {
-                link.addEventListener('click', function () {
-                    if (!isDesktop()) closeSidebar();
-                });
-            });
-
-            /* On resize: clean up cross-breakpoint state */
-            window.addEventListener('resize', function () {
-                if (isDesktop()) {
-                    body.classList.remove('sidebar-open');
-                    body.classList.toggle(
-                        'sidebar-hidden',
-                        localStorage.getItem(LS_HIDDEN) === 'true'
-                    );
-                    sidebar.setAttribute(
-                        'aria-hidden',
-                        body.classList.contains('sidebar-hidden') ? 'true' : 'false'
-                    );
-                    syncToggleAria();
-                } else {
-                    body.classList.remove('sidebar-hidden');
-                    sidebar.setAttribute(
-                        'aria-hidden',
-                        body.classList.contains('sidebar-open') ? 'false' : 'true'
-                    );
-                    syncToggleAria();
-                }
-            });
-        }
-
-        /* ── 4. Legacy mobile navbar dropdown (old dash-nav pages) ── */
         const legacyMenuBtn    = document.getElementById('dash-mobile-menu-btn');
         const legacyNavActions = document.getElementById('dash-nav-actions');
         const legacyMenuIcon   = document.getElementById('dash-mobile-menu-icon');
@@ -178,7 +70,7 @@ Alpine.start();
             });
         }
 
-        /* ── 5. Notification panel (topbar) ── */
+        /* ── 3. Notification panel (topbar) ── */
         const notifWrap  = document.getElementById('dash-notif-wrap');
         const notifBtn   = document.getElementById('dash-notif-toggle');
         const notifPanel = document.getElementById('dash-notif-panel');

@@ -17,7 +17,7 @@
     @stack('styles')
 </head>
 
-<body class="dash-body has-sidebar @yield('bodyClass')">
+<body class="dash-body @yield('bodyClass')">
 
 @php
     /* ── Shared role state (passed from views or computed here) ── */
@@ -56,22 +56,9 @@
     /* Notifications — view-passed or empty */
     $layoutNotifications  = $superadminNotifications ?? collect();
     $layoutUnreadCount    = $superadminUnreadCount ?? 0;
+
+    $layoutIsDashboard    = request()->routeIs('dashboard');
 @endphp
-
-{{-- ══ Mobile sidebar backdrop ══ --}}
-<div class="dash-sidebar-backdrop" id="dash-sidebar-backdrop" aria-hidden="true"></div>
-
-{{-- ══ SIDEBAR ══ --}}
-@include('partials.dash-sidebar', [
-    'sbUser'          => $layoutUser,
-    'sbIsSuperAdmin'  => $layoutIsSuperAdmin,
-    'sbIsAdmin'       => $layoutIsAdmin,
-    'sbIsManager'     => $layoutIsManager,
-    'sbIsPic'         => $layoutIsPic,
-    'sbIsDriver'      => $layoutIsDriver,
-    'sbPendingCount'  => $layoutPendingCount,
-    'sbSppdPending'   => $layoutSppdPending,
-])
 
 {{-- ══ MAIN CONTENT AREA ══ --}}
 <div class="dash-layout-main" id="dash-layout-main">
@@ -94,6 +81,7 @@
         'tbPageSubtitle'             => $pageSubtitle ?? null,
         'tbSuperadminNotifications'  => $layoutNotifications,
         'tbSuperadminUnreadCount'    => $layoutUnreadCount,
+        'tbIsDashboard'              => $layoutIsDashboard,
     ])
 
     {{-- ── Optional hero section (views can override) ── --}}
@@ -105,6 +93,33 @@
     </main>
 
 </div>
+
+@if(!$layoutIsDashboard)
+{{-- ══ NAV DRAWER (kanan — menu & keluar; halaman selain Dashboard) ══ --}}
+<div class="dash-nav-overlay" id="dash-nav-overlay" style="display:none" onclick="closeDashNavDrawer()" aria-hidden="true"></div>
+<aside class="dash-nav-drawer" id="dash-nav-drawer" aria-label="Menu aplikasi">
+    <div class="dash-nav-drawer-heading">
+        <h2 class="dash-nav-drawer-title">Navigasi</h2>
+        <button type="button" class="dash-nav-drawer-close" onclick="closeDashNavDrawer()" aria-label="Tutup menu navigasi">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+    </div>
+    <div class="dash-nav-drawer-body">
+        <div class="dash-nav-glass-card">
+            @include('partials.dash-nav-menu')
+        </div>
+    </div>
+    <div class="dash-nav-drawer-footer">
+        <form method="POST" action="{{ route('logout') }}" class="dash-nav-drawer-logout-form">
+            @csrf
+            <button type="submit" class="dash-nav-drawer-logout-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Keluar dari akun
+            </button>
+        </form>
+    </div>
+</aside>
+@endif
 
 {{-- ══ PROFILE DRAWER (global — available on all pages) ══ --}}
 <div class="profile-overlay" id="profile-overlay" style="display:none" onclick="closeProfileDrawer()"></div>
@@ -122,7 +137,13 @@
         <h2 class="profile-drawer-name" id="profile-display-name">{{ $layoutUserName }}</h2>
         <div class="profile-drawer-meta">
             <span class="profile-drawer-role-chip {{ $layoutRoleChipClass }}">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                @if ($layoutIsAdmin || $layoutIsSuperAdmin)
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
+                @elseif ($layoutIsManager)
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                @else
+                    <i class="bi bi-person-check-fill"></i>
+                @endif
                 {{ $layoutRoleLabel }}
             </span>
             <span class="profile-drawer-username-handle">{{ $layoutUsernameHandle }}</span>
@@ -223,8 +244,45 @@
 
 @push('scripts')
 <script>
+/* ── Nav drawer (kanan — hanya ada di luar halaman Dashboard) ── */
+function closeDashNavDrawer() {
+    const overlay = document.getElementById('dash-nav-overlay');
+    const drawer  = document.getElementById('dash-nav-drawer');
+    const openBtn = document.getElementById('dash-nav-drawer-open');
+    if (!overlay || !drawer) return;
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+}
+function openDashNavDrawer() {
+    const overlay = document.getElementById('dash-nav-overlay');
+    const drawer  = document.getElementById('dash-nav-drawer');
+    const openBtn = document.getElementById('dash-nav-drawer-open');
+    if (!overlay || !drawer) return;
+    closeProfileDrawer();
+    overlay.style.display = 'block';
+    overlay.setAttribute('aria-hidden', 'false');
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (openBtn) openBtn.setAttribute('aria-expanded', 'true');
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const drawer = document.getElementById('dash-nav-drawer');
+    if (!drawer) return;
+    drawer.querySelectorAll('a.dash-nav-drawer-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            closeDashNavDrawer();
+        });
+    });
+});
+
 /* ── Profile Drawer (global) ── */
 function openProfileDrawer() {
+    closeDashNavDrawer();
     document.getElementById('profile-overlay').style.display = 'block';
     document.getElementById('profile-drawer').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -340,7 +398,13 @@ function showProfileAlert(type, msg) {
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeProfileDrawer();
+    if (e.key !== 'Escape') return;
+    const prof = document.getElementById('profile-drawer');
+    if (prof && prof.classList.contains('open')) {
+        closeProfileDrawer();
+        return;
+    }
+    closeDashNavDrawer();
 });
 </script>
 @endpush

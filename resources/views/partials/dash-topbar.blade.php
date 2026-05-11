@@ -10,6 +10,7 @@
 
     $tbPageTitle    = $tbPageTitle    ?? null;
     $tbPageSubtitle = $tbPageSubtitle ?? null;
+    $tbIsDashboard  = $tbIsDashboard ?? request()->routeIs('dashboard');
 
     $tbSuperadminNotifications = $tbSuperadminNotifications ?? collect();
     $tbSuperadminUnreadCount   = $tbSuperadminUnreadCount   ?? 0;
@@ -17,17 +18,13 @@
 
 <header class="dash-topbar" id="dash-topbar">
     <div class="dash-topbar-left">
-        {{-- Hamburger — mobile overlay / desktop hide sidebar --}}
-        <button type="button"
-                class="dash-sidebar-toggle"
-                id="dash-sidebar-toggle"
-                aria-label="Toggle sidebar"
-                aria-expanded="false"
-                aria-controls="dash-sidebar">
-            <i class="bi bi-list"></i>
-        </button>
+        <div class="dash-topbar-brand-block">
+            <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-topbar-brand-logo" width="120" height="48">
+            @hasSection('brandText')
+                @yield('brandText')
+            @endif
+        </div>
 
-        {{-- Page title + subtitle --}}
         <div class="dash-topbar-title-wrap">
             @hasSection('pageTitle')
                 <h1 class="dash-topbar-title">@yield('pageTitle')</h1>
@@ -42,14 +39,6 @@
             @endif
         </div>
     </div>
-
-    <a href="{{ route('dashboard') }}" class="dash-topbar-brand">
-        <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-topbar-brand-logo" width="120" height="48">
-        <div class="dash-topbar-brand-text">
-            <span class="dash-topbar-brand-name">Vehicle Management System</span>
-            <span class="dash-topbar-brand-sub">Port Management</span>
-        </div>
-    </a>
 
     <div class="dash-topbar-right">
 
@@ -116,22 +105,36 @@
 
         {{-- Profile button --}}
         <button type="button"
-        class="dash-topbar-profile-btn"
-        id="profile-open-btn"
-        onclick="openProfileDrawer()"
-        aria-label="Profil Saya"
-        title="Profil Saya">
-        <span class="dash-topbar-avatar">{{ strtoupper(substr($tbUserName, 0, 1)) }}</span>
-        <span class="dash-topbar-username">{{ $tbUserName }}</span>
-    </button>
-    
-    <form method="POST" action="{{ route('logout') }}" class="dash-topbar-logout-form">
-        @csrf
-        <button type="submit" class="dash-topbar-logout" title="Keluar" aria-label="Keluar">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <span class="dash-topbar-logout-label">Keluar</span>
+                class="dash-topbar-profile-btn"
+                id="profile-open-btn"
+                onclick="openProfileDrawer()"
+                aria-label="Profil Saya"
+                title="Profil Saya">
+            <span class="dash-topbar-avatar">{{ strtoupper(substr($tbUserName, 0, 1)) }}</span>
+            <span class="dash-topbar-username">{{ $tbUserName }}</span>
         </button>
-    </form>
+
+        @if($tbIsDashboard)
+        <form method="POST" action="{{ route('logout') }}" class="dash-topbar-logout-form">
+            @csrf
+            <button type="submit" class="dash-topbar-logout" title="Keluar" aria-label="Keluar">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span class="dash-topbar-logout-label">Keluar</span>
+            </button>
+        </form>
+        @else
+        <button type="button"
+                class="dash-topbar-dash-drawer-btn"
+                id="dash-nav-drawer-open"
+                onclick="openDashNavDrawer()"
+                title="Dashboard &amp; menu"
+                aria-label="Buka menu navigasi Dashboard"
+                aria-expanded="false"
+                aria-controls="dash-nav-drawer">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="dash-topbar-dash-drawer-btn-label">Dashboard</span>
+        </button>
+        @endif
 
     </div>
 </header>
