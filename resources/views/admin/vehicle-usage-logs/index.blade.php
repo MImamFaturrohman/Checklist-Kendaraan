@@ -1,30 +1,22 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Log Pemakaian Kendaraan — {{ config('app.name') }}</title>
-    @include('partials.favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        .vul-admin-name { font-weight: 700; color: var(--dash-text-primary, #0f172a); }
-        .vul-admin-meta { font-size: 0.76rem; opacity: 0.85; color: #64748b; }
-        .dash-body.dark .vul-admin-meta { color: rgba(200, 218, 255, 0.62); }
-        .vul-admin-keperluan { font-size: 0.84rem; line-height: 1.45; max-width: 320px; }
-        .vul-admin-time { font-size: 0.84rem; white-space: nowrap; }
-    </style>
-</head>
-<body class="dash-body">
-    @include('partials.premium-dash-bg', ['premiumBgId' => 'admin_vul'])
+@extends('layouts.dash-app')
 
-    @include('admin.partials.dash-admin-nav', [
-        'pageTitle' => 'Log Pemakaian Kendaraan',
-        'pageSubtitle' => 'PT ARTHA DAYA COALINDO',
-        'navChipLabel' => 'SUPERADMIN',
-        'navChipClass' => 'dash-chip-admin',
-    ])
+@section('title', 'Log Pemakaian Kendaraan')
+@section('pageTitle', 'Log Pemakaian Kendaraan')
+@section('pageSubtitle', 'PT ARTHA DAYA COALINDO')
 
+@php $premiumBgId = 'admin_vul'; @endphp
+
+@push('styles')
+<style>
+    .vul-admin-name { font-weight: 700; color: var(--dash-text-primary, #0f172a); }
+    .vul-admin-meta { font-size: 0.76rem; opacity: 0.85; color: #64748b; }
+    .dash-body.dark .vul-admin-meta { color: rgba(200, 218, 255, 0.62); }
+    .vul-admin-keperluan { font-size: 0.84rem; line-height: 1.45; max-width: 320px; }
+    .vul-admin-time { font-size: 0.84rem; white-space: nowrap; }
+</style>
+@endpush
+
+@section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
             <div class="portal-stats-row">
@@ -128,51 +120,4 @@
         </div>
     </div>
 
-    <script>
-    (function () {
-        const body = document.body;
-        const themeBtn = document.getElementById('dash-theme-toggle');
-        const themeIcon = document.getElementById('dash-theme-icon');
-        const themeLabel = document.getElementById('dash-theme-label');
-        const navActions = document.getElementById('dash-nav-actions');
-        const menuBtn = document.getElementById('dash-mobile-menu-btn');
-        const menuIcon = document.getElementById('dash-mobile-menu-icon');
-
-        const applyTheme = (isDark) => {
-            body.classList.toggle('dark', isDark);
-            if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-            if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-        };
-        const savedTheme = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-        applyTheme(savedTheme === 'dark');
-        themeBtn?.addEventListener('click', () => {
-            const next = !body.classList.contains('dark');
-            applyTheme(next);
-            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-        });
-
-        const closeMobileMenu = () => {
-            navActions?.classList.remove('mobile-open');
-            if (menuIcon) menuIcon.className = 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', 'false');
-        };
-        menuBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const opened = navActions?.classList.toggle('mobile-open');
-            if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', String(!!opened));
-        });
-        document.addEventListener('click', (e) => {
-            if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeMobileMenu();
-        });
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 992) closeMobileMenu();
-        });
-    })();
-    </script>
-</body>
-</html>
+@endsection

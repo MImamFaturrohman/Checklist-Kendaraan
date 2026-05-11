@@ -1,19 +1,18 @@
 @php use App\Models\Sppd; @endphp
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Rekap SPPD (Admin) — {{ config('app.name') }}</title>
-    @include('partials.favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body class="dash-body">
-    @include('partials.premium-dash-bg', ['premiumBgId' => 'admin_sppd_index'])
 
-    @include('admin.partials.dash-admin-nav', ['pageTitle' => 'Rekap SPPD', 'pageSubtitle' => 'Verifikasi laporan driver'])
+@extends('layouts.dash-app')
+
+@section('title', 'Rekap SPPD (Admin)')
+@section('pageTitle', 'Rekap SPPD')
+@section('pageSubtitle', 'Verifikasi laporan driver')
+
+@php $premiumBgId = 'admin_sppd_index'; @endphp
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endpush
+
+@section('content')
 
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
@@ -268,46 +267,6 @@
             if (e.target.id === 'sppd-modal-detail-admin') e.currentTarget.style.display = 'none';
         });
 
-        const body = document.body;
-        const themeBtn = document.getElementById('dash-theme-toggle');
-        const themeIcon = document.getElementById('dash-theme-icon');
-        const themeLabel = document.getElementById('dash-theme-label');
-        const navActions = document.getElementById('dash-nav-actions');
-        const menuBtn = document.getElementById('dash-mobile-menu-btn');
-        const menuIcon = document.getElementById('dash-mobile-menu-icon');
-
-        const applyTheme = (isDark) => {
-            body.classList.toggle('dark', isDark);
-            if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-            if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-        };
-        const savedTheme = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-        applyTheme(savedTheme === 'dark');
-        themeBtn?.addEventListener('click', () => {
-            const next = !body.classList.contains('dark');
-            applyTheme(next);
-            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-        });
-
-        const closeMobileMenu = () => {
-            navActions?.classList.remove('mobile-open');
-            if (menuIcon) menuIcon.className = 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', 'false');
-        };
-        menuBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const opened = navActions?.classList.toggle('mobile-open');
-            if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', String(!!opened));
-        });
-        document.addEventListener('click', (e) => {
-            if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
-        });
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 992) closeMobileMenu();
-        });
     })();
     </script>
-</body>
-</html>
+@endsection

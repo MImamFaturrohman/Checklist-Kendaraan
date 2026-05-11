@@ -1,42 +1,18 @@
 @php use App\Models\Sppd; @endphp
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Rekap SPPD (Manager) — {{ config('app.name') }}</title>
-    @include('partials.favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body class="dash-body">
-    @include('partials.premium-dash-bg', ['premiumBgId' => 'manager_sppd'])
 
-    <nav class="dash-nav" id="dash-nav">
-        <div class="dash-nav-inner">
-            <div class="dash-nav-brand">
-                <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo">
-                <div>
-                    <div class="dash-nav-title">Rekap SPPD — Manager</div>
-                    <span class="dash-nav-sub">PT ARTHA DAYA COALINDO</span>
-                </div>
-            </div>
-            <div class="dash-nav-actions" id="dash-nav-actions">
-                <button class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Toggle Tema">
-                    <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
-                    <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
-                </button>
-                <span class="dash-chip dash-chip-manager">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
-                    <span class="dash-nav-chip-label">MANAGER</span>
-                </span>
-                <a href="{{ route('dashboard') }}" class="dash-nav-btn-glass"><span class="dash-nav-btn-label">Dashboard</span></a>
-            </div>
-            <button class="dash-mobile-menu-btn" id="dash-mobile-menu-btn" aria-label="Menu"><i class="bi bi-list" id="dash-mobile-menu-icon"></i></button>
-        </div>
-    </nav>
+@extends('layouts.dash-app')
 
+@section('title', 'Rekap SPPD (Manager)')
+@section('pageTitle', 'Rekap SPPD')
+@section('pageSubtitle', 'PT ARTHA DAYA COALINDO')
+
+@php $premiumBgId = 'manager_sppd'; @endphp
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endpush
+
+@section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
             <div id="mgr-sppd-live-root" data-vms-sppd-live>
@@ -265,46 +241,6 @@
             if (e.target.id === 'sppd-modal-detail-manager') e.currentTarget.style.display = 'none';
         });
 
-        const body = document.body;
-        const themeBtn = document.getElementById('dash-theme-toggle');
-        const themeIcon = document.getElementById('dash-theme-icon');
-        const themeLabel = document.getElementById('dash-theme-label');
-        const navActions = document.getElementById('dash-nav-actions');
-        const menuBtn = document.getElementById('dash-mobile-menu-btn');
-        const menuIcon = document.getElementById('dash-mobile-menu-icon');
-
-        const applyTheme = (isDark) => {
-            body.classList.toggle('dark', isDark);
-            if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-            if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-        };
-        const savedTheme = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-        applyTheme(savedTheme === 'dark');
-        themeBtn?.addEventListener('click', () => {
-            const next = !body.classList.contains('dark');
-            applyTheme(next);
-            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-        });
-
-        const closeMobileMenu = () => {
-            navActions?.classList.remove('mobile-open');
-            if (menuIcon) menuIcon.className = 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', 'false');
-        };
-        menuBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const opened = navActions?.classList.toggle('mobile-open');
-            if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', String(!!opened));
-        });
-        document.addEventListener('click', (e) => {
-            if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
-        });
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 992) closeMobileMenu();
-        });
     })();
     </script>
-</body>
-</html>
+@endsection

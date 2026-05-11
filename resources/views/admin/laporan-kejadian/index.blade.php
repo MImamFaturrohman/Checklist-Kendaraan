@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Laporan Kejadian — {{ config('app.name') }}</title>
-    @include('partials.favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
+@extends('layouts.dash-app')
+
+@section('title', 'Laporan Kejadian')
+@section('pageTitle', 'Laporan Kejadian')
+@section('pageSubtitle', 'PT. ARTHA DAYA COALINDO')
+
+@php $premiumBgId = 'admin_laporan_kejadian'; @endphp
+
+@push('styles')
+<style>
         /* Selaras dengan admin/peminjaman & admin/sppd */
         .lk-admin-name { font-weight: 700; color: var(--dash-text-primary, #0f172a); }
         .lk-admin-meta { font-size: 0.76rem; opacity: 0.85; color: #64748b; }
@@ -32,17 +32,9 @@
         .dash-body.dark .lk-kat-inc { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border-color: rgba(248, 113, 113, 0.35); }
         .dash-body.dark .lk-kat-nm { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border-color: rgba(251, 191, 36, 0.35); }
     </style>
-</head>
-<body class="dash-body">
-    @include('partials.premium-dash-bg', ['premiumBgId' => 'admin_laporan_kejadian'])
+@endpush
 
-    @include('admin.partials.dash-admin-nav', [
-        'pageTitle' => 'Laporan Kejadian',
-        'pageSubtitle' => 'PT. ARTHA DAYA COALINDO',
-        'navChipLabel' => 'SUPERADMIN',
-        'navChipClass' => 'dash-chip-admin',
-    ])
-
+@section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
 
@@ -144,52 +136,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-    (function () {
-        const body = document.body;
-        const themeBtn = document.getElementById('dash-theme-toggle');
-        const themeIcon = document.getElementById('dash-theme-icon');
-        const themeLabel = document.getElementById('dash-theme-label');
-        const navActions = document.getElementById('dash-nav-actions');
-        const menuBtn = document.getElementById('dash-mobile-menu-btn');
-        const menuIcon = document.getElementById('dash-mobile-menu-icon');
-
-        const applyTheme = (isDark) => {
-            body.classList.toggle('dark', isDark);
-            if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-            if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-        };
-        const savedTheme = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-        applyTheme(savedTheme === 'dark');
-        themeBtn?.addEventListener('click', () => {
-            const next = !body.classList.contains('dark');
-            applyTheme(next);
-            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-        });
-
-        const closeMobileMenu = () => {
-            navActions?.classList.remove('mobile-open');
-            if (menuIcon) menuIcon.className = 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', 'false');
-        };
-        menuBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const opened = navActions?.classList.toggle('mobile-open');
-            if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', String(!!opened));
-        });
-        document.addEventListener('click', (e) => {
-            if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeMobileMenu();
-        });
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 992) closeMobileMenu();
-        });
-    })();
-    </script>
-</body>
-</html>
+@endsection

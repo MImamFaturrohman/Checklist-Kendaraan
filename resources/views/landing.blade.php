@@ -74,14 +74,6 @@
         }
         .lp-search-clear:hover { background: #cbd5e1; }
 
-        /* Vehicle table animation */
-        #armada-tbody tr { animation: rowIn .2s ease both; }
-        @keyframes rowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
-        #armada-tbody tr:nth-child(2) { animation-delay:.03s; }
-        #armada-tbody tr:nth-child(3) { animation-delay:.06s; }
-        #armada-tbody tr:nth-child(4) { animation-delay:.09s; }
-        #armada-tbody tr:nth-child(5) { animation-delay:.12s; }
-
         .lp-status-pill {
             display: inline-block;
             font-size: 0.72rem;
@@ -127,10 +119,6 @@
         @media (min-width: 769px) {
             .lp-form-half-desktop { grid-column: 1 / 2; }
         }
-
-        /* ── SCROLL REVEAL ── */
-        .reveal { opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s ease; }
-        .reveal.visible { opacity: 1; transform: none; }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
@@ -240,7 +228,6 @@
 
             <button type="button" class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Ganti tema terang atau gelap">
                 <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
-                <span class="dash-theme-mode-label" id="dash-theme-label">Dark Mode</span>
             </button>
 
             @auth
@@ -316,7 +303,7 @@
 <div class="landing-container">
 
     {{-- ARMADA SECTION --}}
-    <section class="landing-section reveal" id="armada">
+    <section class="landing-section" id="armada">
         <div class="lp-section-heading">
             <div>
                 <h2 class="landing-section-title">Daftar Kendaraan</h2>
@@ -359,7 +346,7 @@
     </section>
 
     {{-- FORM SECTION --}}
-    <section class="landing-section reveal" id="form-peminjaman">
+    <section class="landing-section" id="form-peminjaman">
         <div style="margin-bottom:20px">
             <h2 class="landing-section-title">Form Permohonan Peminjaman Kendaraan</h2>
             <p class="landing-section-sub">Isi formulir di bawah untuk mengajukan permohonan peminjaman kendaraan</p>
@@ -512,7 +499,7 @@
     </section>
 
     {{-- LAPORAN KEJADIAN --}}
-    <section class="landing-section reveal" id="form-laporan-kejadian">
+    <section class="landing-section" id="form-laporan-kejadian">
         <div style="margin-bottom:20px">
             <h2 class="landing-section-title">Laporan Kejadian dan Kerusakan Kendaraan</h2>
             <p class="landing-section-sub">Laporkan incident atau near miss terkait operasi kendaraan / lingkungan kerja</p>
@@ -706,32 +693,6 @@
 
 {{-- ══════════════════ SCRIPTS ══════════════════ --}}
 <script>
-/* ── Tema (selaras dashboard / login) ── */
-(function () {
-    const body = document.body;
-    const icon = document.getElementById('dash-theme-icon');
-    const btn = document.getElementById('dash-theme-toggle');
-    const label = document.getElementById('dash-theme-label');
-
-    function applyTheme(isDark) {
-        body.classList.toggle('dark', isDark);
-        if (icon) icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-        if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    }
-
-    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-    applyTheme(saved === 'dark');
-
-    if (btn) {
-        btn.addEventListener('click', function () {
-            const next = !body.classList.contains('dark');
-            applyTheme(next);
-            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-        });
-    }
-})();
-
 /** SweetAlert2 — warna popup mengikuti tema light/dark landing */
 function landingSwalOpts(opts) {
     const dark = document.body.classList.contains('dark');
@@ -1386,13 +1347,6 @@ if (formLk) {
         }
     });
 }
-
-/* ── SCROLL REVEAL ── */
-const revealEls = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-}, { threshold: 0.08 });
-revealEls.forEach(el => observer.observe(el));
 
 /* ── INIT ── */
 renderTable();

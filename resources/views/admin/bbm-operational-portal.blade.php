@@ -3,29 +3,20 @@
     $fmtLiter = fn ($n) => number_format((float) $n, 3, ',', '.');
     $fmtKm = fn ($n) => number_format((int) round((float) $n), 0, ',', '.');
 @endphp
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Log BBM — {{ config('app.name') }}</title>
-    @include('partials.favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-</head>
-<body class="dash-body">
-    @include('partials.premium-dash-bg', ['premiumBgId' => 'bbm_operational'])
 
-    @include('admin.partials.dash-admin-nav', [
-        'pageTitle' => 'Log BBM',
-        'pageSubtitle' => ($bbmPortalChartsOnly ?? false)
-            ? 'Ringkasan & grafik pengisian BBM (akses terbatas)'
-            : 'PT ARTHA DAYA COALINDO',
-        'navChipLabel' => ($bbmPortalChartsOnly ?? false) ? 'MANAGER' : 'SUPERADMIN',
-        'navChipClass' => ($bbmPortalChartsOnly ?? false) ? 'dash-chip-manager' : 'dash-chip-admin',
-    ])
+@extends('layouts.dash-app')
 
+@section('title', 'Log BBM')
+@section('pageTitle', 'Log BBM')
+@section('pageSubtitle', ($bbmPortalChartsOnly ?? false) ? 'Ringkasan & grafik pengisian BBM' : 'PT ARTHA DAYA COALINDO')
+
+@php $premiumBgId = 'bbm_operational'; @endphp
+
+@push('styles')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+@endpush
+
+@section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
             <p class="bbm-portal-month-kicker">
@@ -824,30 +815,6 @@
             if (e.target.id === 'bbm-modal-detail') e.currentTarget.style.display = 'none';
         });
 
-        const body = document.body;
-        const themeBtn = document.getElementById('dash-theme-toggle');
-        const themeIcon = document.getElementById('dash-theme-icon');
-        const themeLabel = document.getElementById('dash-theme-label');
-        const navActions = document.getElementById('dash-nav-actions');
-        const menuBtn = document.getElementById('dash-mobile-menu-btn');
-        const menuIcon = document.getElementById('dash-mobile-menu-icon');
-
-        const applyTheme = (isDark) => {
-            body.classList.toggle('dark', isDark);
-            if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-            if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-            buildDriverPieChart();
-            redrawComparisonFromCache();
-        };
-        const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-        themeBtn?.addEventListener('click', () => {
-            const next = !body.classList.contains('dark');
-            applyTheme(next);
-            localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-            localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-        });
-        applyTheme(saved === 'dark');
-
         document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
         document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });
 
@@ -863,23 +830,6 @@
             bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(), 200);
         });
 
-        const closeMobileMenu = () => {
-            navActions?.classList.remove('mobile-open');
-            if (menuIcon) menuIcon.className = 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', 'false');
-        };
-        menuBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const opened = navActions?.classList.toggle('mobile-open');
-            if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
-            menuBtn?.setAttribute('aria-expanded', String(!!opened));
-        });
-        document.addEventListener('click', (e) => {
-            if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
-        });
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 992) closeMobileMenu();
-        });
     })();
 
     /* ── SMOOTH SCROLL ── */
@@ -889,5 +839,4 @@
         if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
     </script>
-</body>
-</html>
+@endsection

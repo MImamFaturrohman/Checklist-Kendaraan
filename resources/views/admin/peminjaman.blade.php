@@ -1,14 +1,17 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Peminjaman Kendaraan - {{ config('app.name') }}</title>
-    @include('partials.favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
+@extends('layouts.dash-app')
+
+@section('title', 'Peminjaman Kendaraan')
+@section('pageTitle', 'Peminjaman Kendaraan')
+@section('pageSubtitle', 'Daftar permohonan & unduh PDF')
+
+@php $premiumBgId = 'admin_peminjaman'; @endphp
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endpush
+
+@push('styles')
+<style>
         .peminj-name { font-weight: 700; }
         .peminj-meta { font-size: 0.76rem; opacity: 0.85; }
         .peminj-meta-sm { font-size: 0.72rem; opacity: 0.8; }
@@ -125,13 +128,9 @@
             }
         }
     </style>
-</head>
-<body class="dash-body">
+@endpush
 
-    @include('partials.premium-dash-bg', ['premiumBgId' => 'admin_peminjaman'])
-
-    @include('admin.partials.dash-admin-nav', ['pageTitle' => 'Peminjaman Kendaraan', 'navChipLabel' => 'SUPERADMIN'])
-
+@section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
 
@@ -769,48 +768,5 @@ window.ppmSwitchTab = function (tab) {
     updateFilterChrome();
 })();
 
-/* ── Theme Toggle ── */
-(function () {
-    const body  = document.body;
-    const icon  = document.getElementById('dash-theme-icon');
-    const btn   = document.getElementById('dash-theme-toggle');
-    const label = document.getElementById('dash-theme-label');
-    function applyTheme(isDark) {
-        body.classList.toggle('dark', isDark);
-        if (icon)  icon.className    = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-        if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    }
-    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-    applyTheme(saved === 'dark');
-    if (btn) btn.addEventListener('click', function () {
-        const next = !body.classList.contains('dark');
-        applyTheme(next);
-        localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-        localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-    });
-})();
-/* ── Mobile hamburger ── */
-(function () {
-    const menuBtn    = document.getElementById('dash-mobile-menu-btn');
-    const navActions = document.getElementById('dash-nav-actions');
-    const menuIcon   = document.getElementById('dash-mobile-menu-icon');
-    if (!menuBtn || !navActions) return;
-    function closeMenu() {
-        navActions.classList.remove('mobile-open');
-        menuIcon.className = 'bi bi-list';
-        menuBtn.setAttribute('aria-expanded', 'false');
-    }
-    menuBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const isOpen = navActions.classList.toggle('mobile-open');
-        menuIcon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
-        menuBtn.setAttribute('aria-expanded', String(isOpen));
-    });
-    document.addEventListener('click', function (e) {
-        if (!navActions.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
-    });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
-})();
 </script>
-</body>
-</html>
+@endsection

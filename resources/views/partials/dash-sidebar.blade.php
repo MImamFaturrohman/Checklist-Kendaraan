@@ -1,0 +1,192 @@
+@php
+    /* ── Sidebar: compute user state (works inside or outside layout) ── */
+    $sbUser          = $sbUser          ?? auth()->user();
+    $sbIsSuperAdmin  = $sbIsSuperAdmin  ?? ($sbUser?->role === 'superadmin');
+    $sbIsAdmin       = $sbIsAdmin       ?? ($sbUser?->role === 'admin');
+    $sbIsManager     = $sbIsManager     ?? ($sbUser?->role === 'manager');
+    $sbIsPic         = $sbIsPic         ?? ($sbUser?->role === 'pic_kendaraan');
+    $sbIsDriver      = $sbIsDriver      ?? ($sbUser?->role === 'driver' || $sbIsPic);
+
+    $sbPendingCount      = $sbPendingCount ?? 0;
+    $sbSppdPending       = $sbSppdPending  ?? 0;
+@endphp
+
+{{-- ══════════════════════════════════════════════════════
+     SIDEBAR PANEL — navigasi saja (brand & footer di top bar)
+     ══════════════════════════════════════════════════════ --}}
+<aside class="dash-sidebar" id="dash-sidebar" aria-label="Navigasi utama">
+
+    <div class="dash-sidebar-mobile-head">
+        <button class="dash-sidebar-close" id="dash-sidebar-close" aria-label="Tutup menu" type="button">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <nav class="dash-sidebar-nav" aria-label="Menu navigasi">
+
+        {{-- ─ MENU UTAMA (semua role) ─ --}}
+        <div class="dash-sidebar-group">
+            <span class="dash-sidebar-group-label">MENU UTAMA</span>
+
+            <a href="{{ route('dashboard') }}"
+               class="dash-sidebar-link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Dashboard</span>
+            </a>
+        </div>
+
+        @if($sbIsSuperAdmin || $sbIsAdmin)
+        {{-- ─ ADMINISTRASI (admin / superadmin) ─ --}}
+        <div class="dash-sidebar-group">
+            <span class="dash-sidebar-group-label">ADMINISTRASI</span>
+
+            <a href="{{ route('admin.portal-pemeriksaan') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.portal-pemeriksaan*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Portal Pemeriksaan</span>
+            </a>
+
+            <a href="{{ route('admin.peminjaman') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.peminjaman*') ? 'is-active' : '' }}"
+               style="position:relative">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Peminjaman</span>
+                @if($sbPendingCount > 0)
+                    <span class="dash-sidebar-badge">{{ $sbPendingCount > 99 ? '99+' : $sbPendingCount }}</span>
+                @endif
+            </a>
+
+            <a href="{{ route('admin.sppd.index') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.sppd.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/><line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">TransDinas</span>
+            </a>
+
+            <a href="{{ route('admin.laporan-kejadian.index') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.laporan-kejadian.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Laporan Kejadian</span>
+            </a>
+        </div>
+
+        {{-- ─ OPERASIONAL ─ --}}
+        <div class="dash-sidebar-group">
+            <span class="dash-sidebar-group-label">OPERASIONAL</span>
+
+            <a href="{{ route('admin.portal-bbm-operasional') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.portal-bbm-operasional*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 14h.01M15 14h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">BBM Operasional</span>
+            </a>
+
+            <a href="{{ route('admin.vehicle-usage-logs.index') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.vehicle-usage-logs.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Log Kendaraan</span>
+            </a>
+
+            @if($sbIsSuperAdmin)
+            <a href="{{ route('admin.portal-manajemen') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.portal-manajemen*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Manajemen Sistem</span>
+            </a>
+            @endif
+        </div>
+        @endif
+
+        @if($sbIsManager)
+        {{-- ─ TUGAS MANAGER ─ --}}
+        <div class="dash-sidebar-group">
+            <span class="dash-sidebar-group-label">TUGAS UTAMA</span>
+
+            <a href="{{ route('manager.peminjaman') }}"
+               class="dash-sidebar-link {{ request()->routeIs('manager.peminjaman*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Persetujuan Peminjaman</span>
+                @if($sbPendingCount > 0)
+                    <span class="dash-sidebar-badge">{{ $sbPendingCount > 99 ? '99+' : $sbPendingCount }}</span>
+                @endif
+            </a>
+
+            <a href="{{ route('manager.sppd.index') }}"
+               class="dash-sidebar-link {{ request()->routeIs('manager.sppd.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
+                </span>
+                <span class="dash-sidebar-label">TransDinas</span>
+                @if($sbSppdPending > 0)
+                    <span class="dash-sidebar-badge">{{ $sbSppdPending }}</span>
+                @endif
+            </a>
+
+            <a href="{{ route('admin.portal-bbm-operasional') }}"
+               class="dash-sidebar-link {{ request()->routeIs('admin.portal-bbm-operasional*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">BBM Operasional</span>
+            </a>
+        </div>
+        @endif
+
+        @if($sbIsDriver)
+        {{-- ─ DRIVER / PIC ─ --}}
+        <div class="dash-sidebar-group">
+            <span class="dash-sidebar-group-label">TUGAS SAYA</span>
+
+            <a href="{{ route('checklists.create') }}"
+               class="dash-sidebar-link {{ request()->routeIs('checklists.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Checklist Kendaraan</span>
+            </a>
+
+            <a href="{{ route('sppd.index') }}"
+               class="dash-sidebar-link {{ request()->routeIs('sppd.*') && !request()->routeIs('admin.sppd.*') && !request()->routeIs('manager.sppd.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                </span>
+                <span class="dash-sidebar-label">TransDinas</span>
+            </a>
+
+            <a href="{{ route('bbm-reports.create') }}"
+               class="dash-sidebar-link {{ request()->routeIs('bbm-reports.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Laporan BBM</span>
+            </a>
+
+            <a href="{{ route('vehicle-usage-logs.create') }}"
+               class="dash-sidebar-link {{ request()->routeIs('vehicle-usage-logs.*') ? 'is-active' : '' }}">
+                <span class="dash-sidebar-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+                </span>
+                <span class="dash-sidebar-label">Log Penggunaan Kendaraan</span>
+            </a>
+        </div>
+        @endif
+
+    </nav>
+
+</aside>

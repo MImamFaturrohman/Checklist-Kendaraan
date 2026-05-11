@@ -9,6 +9,214 @@ window.Alpine = Alpine;
 window.SignaturePad = SignaturePad;
 Alpine.start();
 
+/* ================================================================
+   VMS DASH CHROME — centralised theme + sidebar/backdrop
+   Handles: dark/light toggle, sidebar open/close on all pages.
+   localStorage keys: 'vms-theme' (canonical) + 'vms-dash-theme' (legacy compat)
+   ================================================================ */
+(function initVmsDashChrome() {
+    const body = document.body;
+
+    /* ── 1. Apply saved theme ASAP (before DOMContentLoaded) ── */
+    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+    const isDark = saved === 'dark';
+    body.classList.toggle('dark', isDark);
+
+    function applyTheme(dark) {
+        body.classList.toggle('dark', dark);
+        const icon  = document.getElementById('dash-theme-icon');
+        const label = document.getElementById('dash-theme-label');
+        if (icon)  icon.className    = dark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        if (label) label.textContent = dark ? 'Light Mode' : 'Dark Mode';
+    }
+
+    /* Re-apply after DOM ready to also update icon/label */
+    document.addEventListener('DOMContentLoaded', function () {
+        applyTheme(body.classList.contains('dark'));
+
+        /* ── 2. Theme toggle button ── */
+        const themeBtn = document.getElementById('dash-theme-toggle');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', function () {
+                const next = !body.classList.contains('dark');
+                applyTheme(next);
+                localStorage.setItem('vms-theme',      next ? 'dark' : 'light');
+                localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+            });
+        }
+
+        /* ── 3. Sidebar system (new layout) ── */
+        const sidebar     = document.getElementById('dash-sidebar');
+        const backdrop    = document.getElementById('dash-sidebar-backdrop');
+        const toggleBtn   = document.getElementById('dash-sidebar-toggle');
+        const closeBtn    = document.getElementById('dash-sidebar-close');
+
+        if (sidebar) {
+            const DESKTOP_BP = 992;
+            const LS_HIDDEN = 'vms-sidebar-desktop-hidden';
+
+            function isDesktop() { return window.innerWidth >= DESKTOP_BP; }
+
+            function syncToggleAria() {
+                if (!toggleBtn) return;
+                const expanded = isDesktop()
+                    ? !body.classList.contains('sidebar-hidden')
+                    : body.classList.contains('sidebar-open');
+                toggleBtn.setAttribute('aria-expanded', String(expanded));
+            }
+
+            /* ── Desktop: sidebar fully hidden (width 0), persisted ── */
+            function applyDesktopHidden(hidden) {
+                body.classList.toggle('sidebar-hidden', hidden);
+                localStorage.setItem(LS_HIDDEN, String(hidden));
+                if (isDesktop()) {
+                    sidebar.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+                }
+                syncToggleAria();
+            }
+
+            if (isDesktop()) {
+                applyDesktopHidden(localStorage.getItem(LS_HIDDEN) === 'true');
+            } else {
+                sidebar.setAttribute(
+                    'aria-hidden',
+                    body.classList.contains('sidebar-open') ? 'false' : 'true'
+                );
+                syncToggleAria();
+            }
+
+            function toggleDesktopSidebar() {
+                applyDesktopHidden(!body.classList.contains('sidebar-hidden'));
+            }
+
+            /* ── Mobile overlay state ── */
+            function openSidebar() {
+                body.classList.add('sidebar-open');
+                sidebar.setAttribute('aria-hidden', 'false');
+                syncToggleAria();
+            }
+            function closeSidebar() {
+                body.classList.remove('sidebar-open');
+                sidebar.setAttribute('aria-hidden', 'true');
+                syncToggleAria();
+            }
+
+            function handleToggleClick() {
+                if (isDesktop()) {
+                    toggleDesktopSidebar();
+                } else {
+                    body.classList.contains('sidebar-open') ? closeSidebar() : openSidebar();
+                }
+            }
+
+            if (toggleBtn)  toggleBtn.addEventListener('click', handleToggleClick);
+            if (closeBtn)   closeBtn.addEventListener('click',  closeSidebar);
+            if (backdrop)   backdrop.addEventListener('click',  closeSidebar);
+
+            /* Close mobile overlay on Escape */
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && body.classList.contains('sidebar-open')) {
+                    closeSidebar();
+                }
+            });
+
+            /* Close after nav click on mobile */
+            sidebar.querySelectorAll('.dash-sidebar-link').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (!isDesktop()) closeSidebar();
+                });
+            });
+
+            /* On resize: clean up cross-breakpoint state */
+            window.addEventListener('resize', function () {
+                if (isDesktop()) {
+                    body.classList.remove('sidebar-open');
+                    body.classList.toggle(
+                        'sidebar-hidden',
+                        localStorage.getItem(LS_HIDDEN) === 'true'
+                    );
+                    sidebar.setAttribute(
+                        'aria-hidden',
+                        body.classList.contains('sidebar-hidden') ? 'true' : 'false'
+                    );
+                    syncToggleAria();
+                } else {
+                    body.classList.remove('sidebar-hidden');
+                    sidebar.setAttribute(
+                        'aria-hidden',
+                        body.classList.contains('sidebar-open') ? 'false' : 'true'
+                    );
+                    syncToggleAria();
+                }
+            });
+        }
+
+        /* ── 4. Legacy mobile navbar dropdown (old dash-nav pages) ── */
+        const legacyMenuBtn    = document.getElementById('dash-mobile-menu-btn');
+        const legacyNavActions = document.getElementById('dash-nav-actions');
+        const legacyMenuIcon   = document.getElementById('dash-mobile-menu-icon');
+
+        if (legacyMenuBtn && legacyNavActions) {
+            function closeLegacyMenu() {
+                legacyNavActions.classList.remove('mobile-open');
+                if (legacyMenuIcon) legacyMenuIcon.className = 'bi bi-list';
+                legacyMenuBtn.setAttribute('aria-expanded', 'false');
+            }
+            legacyMenuBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = legacyNavActions.classList.toggle('mobile-open');
+                if (legacyMenuIcon) legacyMenuIcon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+                legacyMenuBtn.setAttribute('aria-expanded', String(isOpen));
+            });
+            document.addEventListener('click', function (e) {
+                if (!legacyNavActions.contains(e.target) && !legacyMenuBtn.contains(e.target)) {
+                    closeLegacyMenu();
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeLegacyMenu();
+            });
+        }
+
+        /* ── 5. Notification panel (topbar) ── */
+        const notifWrap  = document.getElementById('dash-notif-wrap');
+        const notifBtn   = document.getElementById('dash-notif-toggle');
+        const notifPanel = document.getElementById('dash-notif-panel');
+
+        if (notifWrap && notifBtn && notifPanel) {
+            function closeNotifPanel() {
+                notifPanel.hidden = true;
+                notifBtn.setAttribute('aria-expanded', 'false');
+            }
+            notifBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const open = notifPanel.hidden;
+                notifPanel.hidden = !open;
+                notifBtn.setAttribute('aria-expanded', String(open));
+            });
+            document.addEventListener('click', function (e) {
+                if (!notifWrap.contains(e.target)) closeNotifPanel();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeNotifPanel();
+            });
+            /* Mark read on link click */
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            notifPanel.querySelectorAll('.dash-notif-link[data-notification-id]').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    const id = a.getAttribute('data-notification-id');
+                    if (!id || !csrf) return;
+                    fetch('/notifications/' + encodeURIComponent(id) + '/read', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    }).catch(function () {});
+                    a.closest('.dash-notif-item')?.classList.remove('is-unread');
+                });
+            });
+        }
+    });
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     /* ================================================================
        LOGIN
