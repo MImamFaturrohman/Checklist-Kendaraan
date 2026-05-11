@@ -39,8 +39,8 @@
         <div class="portal-wrapper">
 
             <div class="portal-stats-row">
-                <div class="portal-stat-card" style="--accent:#002a7a">
-                    <div class="portal-stat-icon" style="background:rgba(0,42,122,.1);color:#002a7a">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
                         <i class="bi bi-clipboard-data"></i>
                     </div>
                     <div>
@@ -48,8 +48,8 @@
                         <div class="portal-stat-label">Total Laporan</div>
                     </div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#dc2626">
-                    <div class="portal-stat-icon" style="background:rgba(220,38,38,.1);color:#dc2626">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                     </div>
                     <div>
@@ -57,8 +57,8 @@
                         <div class="portal-stat-label">Incident</div>
                     </div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#d97706">
-                    <div class="portal-stat-icon" style="background:rgba(217,119,6,.1);color:#d97706">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
                         <i class="bi bi-shield-exclamation"></i>
                     </div>
                     <div>

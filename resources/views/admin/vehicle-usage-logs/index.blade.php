@@ -20,8 +20,8 @@
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
             <div class="portal-stats-row">
-                <div class="portal-stat-card" style="--accent:#0f766e">
-                    <div class="portal-stat-icon" style="background:rgba(15,118,110,.1);color:#0f766e"><i class="bi bi-journal-text"></i></div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon"><i class="bi bi-journal-text"></i></div>
                     <div>
                         <div class="portal-stat-value">{{ $totalAll }}</div>
                         <div class="portal-stat-label">Total entri log</div>

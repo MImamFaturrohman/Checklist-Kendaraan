@@ -135,8 +135,8 @@
         <div class="portal-wrapper">
 
             <div class="portal-stats-row">
-                <div class="portal-stat-card" style="--accent:#002a7a">
-                    <div class="portal-stat-icon" style="background:rgba(0,42,122,.1);color:#002a7a">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
                     </div>
                     <div>
@@ -144,8 +144,8 @@
                         <div class="portal-stat-label">Total Permohonan</div>
                     </div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#d97706">
-                    <div class="portal-stat-icon" style="background:rgba(217,119,6,.1);color:#d97706">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </div>
                     <div>
@@ -153,8 +153,8 @@
                         <div class="portal-stat-label">Menunggu</div>
                     </div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#16a34a">
-                    <div class="portal-stat-icon" style="background:rgba(22,163,74,.1);color:#16a34a">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
                     <div>
@@ -162,8 +162,8 @@
                         <div class="portal-stat-label">Disetujui</div>
                     </div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#dc2626">
-                    <div class="portal-stat-icon" style="background:rgba(220,38,38,.1);color:#dc2626">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                     </div>
                     <div>

@@ -17,11 +17,11 @@
     <div class="portal-wrapper">
 
         {{-- ============================================================
-             STATS ROW  (white card, left-accent border)
+             STATS ROW  (PM FuelLog–style premium cards)
         ============================================================ --}}
         <div class="portal-stats-row">
-            <div class="portal-stat-card" style="--accent:#002a7a">
-                <div class="portal-stat-icon" style="background:rgba(0,42,122,.1);color:#002a7a">
+            <div class="portal-stat-card">
+                <div class="portal-stat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
                 </div>
                 <div>
@@ -29,8 +29,8 @@
                     <div class="portal-stat-label">Total Ceklist</div>
                 </div>
             </div>
-            <div class="portal-stat-card" style="--accent:#4f46e5">
-                <div class="portal-stat-icon" style="background:rgba(79,70,229,.1);color:#4f46e5">
+            <div class="portal-stat-card">
+                <div class="portal-stat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
                 </div>
                 <div>
@@ -38,8 +38,8 @@
                     <div class="portal-stat-label">Kendaraan</div>
                 </div>
             </div>
-            <div class="portal-stat-card" style="--accent:#16a34a">
-                <div class="portal-stat-icon" style="background:rgba(22,163,74,.1);color:#16a34a">
+            <div class="portal-stat-card">
+                <div class="portal-stat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2"/></svg>
                 </div>
                 <div>
@@ -47,8 +47,8 @@
                     <div class="portal-stat-label">Driver Aktif</div>
                 </div>
             </div>
-            <div class="portal-stat-card" style="--accent:#d97706">
-                <div class="portal-stat-icon" style="background:rgba(217,119,6,.1);color:#d97706">
+            <div class="portal-stat-card">
+                <div class="portal-stat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 </div>
                 <div>
@@ -56,8 +56,8 @@
                     <div class="portal-stat-label">Ceklist Bulan Ini</div>
                 </div>
             </div>
-            <div class="portal-stat-card" style="--accent:#dc2626">
-                <div class="portal-stat-icon" style="background:rgba(220,38,38,.1);color:#dc2626">
+            <div class="portal-stat-card">
+                <div class="portal-stat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 </div>
                 <div>
@@ -65,8 +65,8 @@
                     <div class="portal-stat-label">Total Arsip PDF</div>
                 </div>
             </div>
-            <div class="portal-stat-card" style="--accent:#0891b2">
-                <div class="portal-stat-icon" style="background:rgba(8,145,178,.1);color:#0891b2">
+            <div class="portal-stat-card">
+                <div class="portal-stat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 </div>
                 <div>

@@ -24,24 +24,24 @@
             </p>
 
             <div class="portal-stats-row portal-stats-row--bbm">
-                <div class="portal-stat-card" style="--accent:#002a7a">
-                    <div class="portal-stat-icon" style="background:rgba(0,42,122,.1);color:#002a7a"><i class="bi bi-clipboard-data"></i></div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon"><i class="bi bi-clipboard-data"></i></div>
                     <div><div class="portal-stat-value">{{ $stats['total_reports_all'] }}</div><div class="portal-stat-label">Total Laporan BBM (keseluruhan)</div></div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#0d9488">
-                    <div class="portal-stat-icon" style="background:rgba(13,148,136,.1);color:#0d9488"><i class="bi bi-calendar-week"></i></div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon"><i class="bi bi-calendar-week"></i></div>
                     <div><div class="portal-stat-value">{{ $stats['month_reports'] }}</div><div class="portal-stat-label">Total Laporan BBM (bulanan)</div></div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#d97706">
-                    <div class="portal-stat-icon" style="background:rgba(217,119,6,.1);color:#d97706"><i class="bi bi-droplet-half"></i></div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon"><i class="bi bi-droplet-half"></i></div>
                     <div><div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtLiter($stats['month_liter']) }} L</div><div class="portal-stat-label">Total Liter (bulanan)</div></div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#16a34a">
-                    <div class="portal-stat-icon" style="background:rgba(22,163,74,.1);color:#16a34a"><i class="bi bi-currency-exchange"></i></div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon"><i class="bi bi-currency-exchange"></i></div>
                     <div><div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtRp($stats['month_rupiah']) }}</div><div class="portal-stat-label">Total Biaya BBM (bulanan)</div></div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#dc2626">
-                    <div class="portal-stat-icon" style="background:rgba(220,38,38,.1);color:#dc2626"><i class="bi bi-arrow-up-circle"></i></div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon"><i class="bi bi-arrow-up-circle"></i></div>
                     <div>
                         <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
                             @if($stats['boros'])
@@ -54,8 +54,8 @@
                         <div class="portal-stat-label">Kendaraan paling boros (Jumlah liter tertinggi, bulan ini)</div>
                     </div>
                 </div>
-                <div class="portal-stat-card" style="--accent:#2563eb">
-                    <div class="portal-stat-icon" style="background:rgba(37,99,235,.1);color:#2563eb"><i class="bi bi-arrow-down-circle"></i></div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon"><i class="bi bi-arrow-down-circle"></i></div>
                     <div>
                         <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
                             @if($stats['efisien'])

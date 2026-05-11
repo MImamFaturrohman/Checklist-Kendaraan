@@ -15,7 +15,7 @@
 
     {{-- ── STATS ROW ─────────────────────────────────────────────────────── --}}
     <div class="mgmt-stats-strip">
-        <div class="mgmt-stat-card" style="--sc:#0f766e;--scbg:rgba(15,118,110,.08)">
+        <div class="mgmt-stat-card">
             <div class="mgmt-stat-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
@@ -27,10 +27,9 @@
                 <span class="mgmt-stat-value">{{ $stats['total_kendaraan'] }}</span>
                 <span class="mgmt-stat-label">Total Kendaraan</span>
             </div>
-            <div class="mgmt-stat-accent"></div>
         </div>
 
-        <div class="mgmt-stat-card" style="--sc:#2563eb;--scbg:rgba(37,99,235,.08)">
+        <div class="mgmt-stat-card">
             <div class="mgmt-stat-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -41,10 +40,9 @@
                 <span class="mgmt-stat-value">{{ $stats['total_driver'] }}</span>
                 <span class="mgmt-stat-label">Total Driver</span>
             </div>
-            <div class="mgmt-stat-accent"></div>
         </div>
 
-        <div class="mgmt-stat-card" style="--sc:#7c3aed;--scbg:rgba(124,58,237,.08)">
+        <div class="mgmt-stat-card">
             <div class="mgmt-stat-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -56,10 +54,9 @@
                 <span class="mgmt-stat-value">{{ $stats['total_pic'] }}</span>
                 <span class="mgmt-stat-label">PIC Kendaraan</span>
             </div>
-            <div class="mgmt-stat-accent"></div>
         </div>
 
-        <div class="mgmt-stat-card" style="--sc:#d97706;--scbg:rgba(217,119,6,.08)">
+        <div class="mgmt-stat-card">
             <div class="mgmt-stat-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -71,7 +68,6 @@
                 <span class="mgmt-stat-value">{{ $stats['total_driver'] + $stats['total_pic'] }}</span>
                 <span class="mgmt-stat-label">Total User Aktif</span>
             </div>
-            <div class="mgmt-stat-accent"></div>
         </div>
     </div>
 
