@@ -14,6 +14,173 @@
 
 @push('styles')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+        .bbm-chart-global-filters.portal-local-filters {
+            align-items: flex-end;
+            gap: 12px 16px;
+            margin-top: 18px;
+            margin-bottom: 12px;
+        }
+        .bbm-filter-inline-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .dash-body.dark .bbm-filter-inline-label { color: rgba(200, 218, 255, 0.55); }
+        .bbm-chart-vehicle-wrap { min-width: min(100%, 220px); flex: 1 1 180px; }
+        .bbm-chart-filters-hint {
+            flex: 1 1 200px;
+            margin: 0;
+            font-size: 0.78rem;
+            color: #64748b;
+            line-height: 1.45;
+        }
+        .dash-body.dark .bbm-chart-filters-hint { color: rgba(200, 218, 255, 0.55); }
+        .bbm-chart-filters-hint strong { color: #0f172a; font-weight: 700; }
+        .dash-body.dark .bbm-chart-filters-hint strong { color: #e8f0fe; }
+
+        .bbm-activity-log-card { padding: 16px 16px 12px; }
+        .dash-body.dark .bbm-activity-log-card {
+            background: linear-gradient(165deg, #0f172a 0%, #1e293b 55%, #172554 100%);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
+        }
+        .dash-body:not(.dark) .bbm-activity-log-card .portal-chart-title { color: #475569; }
+        .bbm-activity-log-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .bbm-activity-log-title {
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+        }
+        .dash-body.dark .bbm-activity-log-title { color: #f8fafc; }
+        .bbm-activity-live {
+            font-weight: 600;
+            font-size: 0.78rem;
+            color: #0284c7;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .dash-body.dark .bbm-activity-live { color: #38bdf8; }
+        .bbm-activity-log-all {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #0369a1;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .bbm-activity-log-all:hover { text-decoration: underline; color: #0c4a6e; }
+        .dash-body.dark .bbm-activity-log-all { color: #7dd3fc; }
+        .dash-body.dark .bbm-activity-log-all:hover { color: #bae6fd; }
+        .bbm-activity-log-all--disabled {
+            opacity: 0.55;
+            cursor: default;
+            pointer-events: none;
+        }
+        .bbm-activity-log-scroll {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 6px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+        }
+        .bbm-activity-log-scroll::-webkit-scrollbar { width: 6px; }
+        .bbm-activity-log-scroll::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.45);
+            border-radius: 99px;
+        }
+        .bbm-activity-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .dash-body.dark .bbm-activity-row {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(148, 163, 184, 0.12);
+        }
+        .bbm-activity-row:last-child { margin-bottom: 0; }
+        .bbm-activity-row.is-clickable { cursor: pointer; }
+        .bbm-activity-row.is-clickable:hover {
+            background: rgba(2, 132, 199, 0.08);
+            border-color: rgba(2, 132, 199, 0.28);
+        }
+        .dash-body.dark .bbm-activity-row.is-clickable:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(125, 211, 252, 0.35);
+        }
+        .bbm-activity-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            background: linear-gradient(145deg, #1d4ed8 0%, #2563eb 100%);
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+        .bbm-activity-main { flex: 1; min-width: 0; }
+        .bbm-activity-nopol {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #0f172a;
+            line-height: 1.25;
+        }
+        .dash-body.dark .bbm-activity-nopol { color: #f8fafc; }
+        .bbm-activity-meta {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 3px;
+        }
+        .dash-body.dark .bbm-activity-meta { color: rgba(226, 232, 240, 0.62); }
+        .bbm-activity-side { text-align: right; flex-shrink: 0; }
+        .bbm-activity-liter {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #0f172a;
+        }
+        .dash-body.dark .bbm-activity-liter { color: #f8fafc; }
+        .bbm-activity-rp {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 3px;
+        }
+        .dash-body.dark .bbm-activity-rp { color: rgba(226, 232, 240, 0.62); }
+        .bbm-activity-placeholder {
+            margin: 0;
+            padding: 20px 8px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.88rem;
+        }
+        .dash-body.dark .bbm-activity-placeholder { color: rgba(226, 232, 240, 0.55); }
+        .portal-chart-title-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+        .bbm-portal-date-range { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+        .bbm-portal-date-range .admin-filter-input { min-width: 0; flex: 1 1 8rem; }
+        .bbm-portal-filter-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .portal-stat-sublabel { font-size:0.78rem; font-weight:600; color:#64748b; }
+        .dash-body.dark .portal-stat-sublabel { color:rgba(200,218,255,0.55); }
+    </style>
 @endpush
 
 @section('content')
@@ -241,537 +408,392 @@
             @endunless
         </div>
     </div>
+@endsection
 
+@section('modals')
     @unless($bbmPortalChartsOnly ?? false)
-    {{-- Detail modal (pola mirip sppd/index) --}}
-    <div id="bbm-modal-detail" class="modal-overlay" style="display:none">
-        <div class="modal-box profile-card sppd-modal-box" style="max-width:min(720px,100%);text-align:left;max-height:86vh;overflow:auto">
-            <h3>Detail Laporan BBM</h3>
-            <div id="bbm-detail-body" class="sppd-detail-html"></div>
-            <div class="ppm-modal-actions">
-                <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" data-close-bbm-modal title="Tutup" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+        {{-- Detail modal --}}
+        <div id="bbm-modal-detail" class="modal-overlay" style="display:none;">
+            <div class="modal-box profile-card sppd-modal-box" style="max-width:min(720px,100%);text-align:left;max-height:86vh;overflow:auto;">
+                <h3>Detail Laporan BBM</h3>
+                <div id="bbm-detail-body" class="sppd-detail-html"></div>
+                <div class="ppm-modal-actions">
+                    <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" data-close-bbm-modal title="Tutup" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+                </div>
             </div>
         </div>
-    </div>
     @endunless
+@endsection
 
-    <style>
-        .bbm-chart-global-filters.portal-local-filters {
-            align-items: flex-end;
-            gap: 12px 16px;
-            margin-top: 18px;
-            margin-bottom: 12px;
-        }
-        .bbm-filter-inline-label {
-            display: block;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #64748b;
-            margin-bottom: 4px;
-        }
-        .dash-body.dark .bbm-filter-inline-label { color: rgba(200, 218, 255, 0.55); }
-        .bbm-chart-vehicle-wrap { min-width: min(100%, 220px); flex: 1 1 180px; }
-        .bbm-chart-filters-hint {
-            flex: 1 1 200px;
-            margin: 0;
-            font-size: 0.78rem;
-            color: #64748b;
-            line-height: 1.45;
-        }
-        .dash-body.dark .bbm-chart-filters-hint { color: rgba(200, 218, 255, 0.55); }
-        .bbm-chart-filters-hint strong { color: #0f172a; font-weight: 700; }
-        .dash-body.dark .bbm-chart-filters-hint strong { color: #e8f0fe; }
-
-        .bbm-activity-log-card { padding: 16px 16px 12px; }
-        .dash-body.dark .bbm-activity-log-card {
-            background: linear-gradient(165deg, #0f172a 0%, #1e293b 55%, #172554 100%);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.35);
-        }
-        .dash-body:not(.dark) .bbm-activity-log-card .portal-chart-title { color: #475569; }
-        .bbm-activity-log-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-        .bbm-activity-log-title {
-            font-weight: 800;
-            font-size: 1.05rem;
-            letter-spacing: -0.02em;
-            color: #0f172a;
-        }
-        .dash-body.dark .bbm-activity-log-title { color: #f8fafc; }
-        .bbm-activity-live {
-            font-weight: 600;
-            font-size: 0.78rem;
-            color: #0284c7;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-        .dash-body.dark .bbm-activity-live { color: #38bdf8; }
-        .bbm-activity-log-all {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #0369a1;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-        .bbm-activity-log-all:hover { text-decoration: underline; color: #0c4a6e; }
-        .dash-body.dark .bbm-activity-log-all { color: #7dd3fc; }
-        .dash-body.dark .bbm-activity-log-all:hover { color: #bae6fd; }
-        .bbm-activity-log-all--disabled {
-            opacity: 0.55;
-            cursor: default;
-            pointer-events: none;
-        }
-        .bbm-activity-log-scroll {
-            max-height: 320px;
-            overflow-y: auto;
-            padding-right: 6px;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
-        }
-        .bbm-activity-log-scroll::-webkit-scrollbar { width: 6px; }
-        .bbm-activity-log-scroll::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.45);
-            border-radius: 99px;
-        }
-        .bbm-activity-row {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.04);
-            border: 1px solid rgba(148, 163, 184, 0.22);
-            transition: background 0.15s ease, border-color 0.15s ease;
-        }
-        .dash-body.dark .bbm-activity-row {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(148, 163, 184, 0.12);
-        }
-        .bbm-activity-row:last-child { margin-bottom: 0; }
-        .bbm-activity-row.is-clickable { cursor: pointer; }
-        .bbm-activity-row.is-clickable:hover {
-            background: rgba(2, 132, 199, 0.08);
-            border-color: rgba(2, 132, 199, 0.28);
-        }
-        .dash-body.dark .bbm-activity-row.is-clickable:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(125, 211, 252, 0.35);
-        }
-        .bbm-activity-badge {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.02em;
-            background: linear-gradient(145deg, #1d4ed8 0%, #2563eb 100%);
-            color: #fff;
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
-        }
-        .bbm-activity-main { flex: 1; min-width: 0; }
-        .bbm-activity-nopol {
-            font-weight: 800;
-            font-size: 0.95rem;
-            color: #0f172a;
-            line-height: 1.25;
-        }
-        .dash-body.dark .bbm-activity-nopol { color: #f8fafc; }
-        .bbm-activity-meta {
-            font-size: 0.78rem;
-            color: #64748b;
-            margin-top: 3px;
-        }
-        .dash-body.dark .bbm-activity-meta { color: rgba(226, 232, 240, 0.62); }
-        .bbm-activity-side { text-align: right; flex-shrink: 0; }
-        .bbm-activity-liter {
-            font-weight: 800;
-            font-size: 0.95rem;
-            color: #0f172a;
-        }
-        .dash-body.dark .bbm-activity-liter { color: #f8fafc; }
-        .bbm-activity-rp {
-            font-size: 0.78rem;
-            color: #64748b;
-            margin-top: 3px;
-        }
-        .dash-body.dark .bbm-activity-rp { color: rgba(226, 232, 240, 0.62); }
-        .bbm-activity-placeholder {
-            margin: 0;
-            padding: 20px 8px;
-            text-align: center;
-            color: #64748b;
-            font-size: 0.88rem;
-        }
-        .dash-body.dark .bbm-activity-placeholder { color: rgba(226, 232, 240, 0.55); }
-        .portal-chart-title-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
-        .bbm-portal-date-range { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
-        .bbm-portal-date-range .admin-filter-input { min-width: 0; flex: 1 1 8rem; }
-        .bbm-portal-filter-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .portal-stat-sublabel { font-size:0.78rem; font-weight:600; color:#64748b; }
-        .dash-body.dark .portal-stat-sublabel { color:rgba(200,218,255,0.55); }
-    </style>
-
+@push('scripts')
     <script>
-    (function () {
-        const BBM_PORTAL_CHARTS_ONLY = @json($bbmPortalChartsOnly ?? false);
-        const BBM_CHART_SERIES_URL = @json(route('admin.portal-bbm-operasional.charts'));
-        const BBM_ACTIVITY_LOG_URL = @json(route('admin.portal-bbm-operasional.activity-log'));
-        const TOP_DRIVERS_MONTH = @json($topDriversMonth);
+        (function () {
+            const BBM_PORTAL_CHARTS_ONLY = @json($bbmPortalChartsOnly ?? false);
+            const BBM_CHART_SERIES_URL = @json(route('admin.portal-bbm-operasional.charts'));
+            const BBM_ACTIVITY_LOG_URL = @json(route('admin.portal-bbm-operasional.activity-log'));
+            const TOP_DRIVERS_MONTH = @json($topDriversMonth);
 
-        const MONTH_LABELS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-        const CHART_POLL_MS = 66000;
-        const LOG_POLL_MS = 28000;
+            const MONTH_LABELS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            const CHART_POLL_MS = 66000;
+            const LOG_POLL_MS = 28000;
 
-        let chartRupiah, chartLiterMonthly, chartDrvFreq;
-        let lastComparisonPayload = null;
-        let chartPollTimer = null;
-        let logPollTimer = null;
+            let chartRupiah, chartLiterMonthly, chartDrvFreq;
+            let lastComparisonPayload = null;
+            let chartPollTimer = null;
+            let logPollTimer = null;
 
-        function fmtRpShort(n) {
-            const x = Number(n) || 0;
-            if (x >= 1e9) return (x / 1e9).toFixed(1) + ' M';
-            if (x >= 1e6) return (x / 1e6).toFixed(1) + ' jt';
-            if (x >= 1e3) return (x / 1e3).toFixed(0) + ' rb';
-            return String(Math.round(x));
-        }
+            function fmtRpShort(n) {
+                const x = Number(n) || 0;
+                if (x >= 1e9) return (x / 1e9).toFixed(1) + ' M';
+                if (x >= 1e6) return (x / 1e6).toFixed(1) + ' jt';
+                if (x >= 1e3) return (x / 1e3).toFixed(0) + ' rb';
+                return String(Math.round(x));
+            }
 
-        const palette = ['#002a7a', '#16a34a', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#ca8a04', '#64748b'];
+            const palette = ['#002a7a', '#16a34a', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#ca8a04', '#64748b'];
 
-        function barFill(hex, alpha) {
-            const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            if (!m) return hex;
-            return 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + alpha + ')';
-        }
+            function barFill(hex, alpha) {
+                const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                if (!m) return hex;
+                return 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + alpha + ')';
+            }
 
-        function chartCommonSkin() {
-            const dark = document.body.classList.contains('dark');
-            return {
-                dark,
-                grid: dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)',
-                tick: dark ? 'rgba(200,218,255,0.65)' : '#64748b',
-                bdr: dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)',
-                common: { responsive: true, maintainAspectRatio: false },
-            };
-        }
+            function chartCommonSkin() {
+                const dark = document.body.classList.contains('dark');
+                return {
+                    dark,
+                    grid: dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)',
+                    tick: dark ? 'rgba(200,218,255,0.65)' : '#64748b',
+                    bdr: dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)',
+                    common: { responsive: true, maintainAspectRatio: false },
+                };
+            }
 
-        function updateYearHint(y, yPrev) {
-            const a = document.getElementById('bbm-chart-year-label');
-            const b = document.getElementById('bbm-chart-prev-year-label');
-            if (a) a.textContent = String(y);
-            if (b) b.textContent = String(yPrev);
-        }
+            function updateYearHint(y, yPrev) {
+                const a = document.getElementById('bbm-chart-year-label');
+                const b = document.getElementById('bbm-chart-prev-year-label');
+                if (a) a.textContent = String(y);
+                if (b) b.textContent = String(yPrev);
+            }
 
-        function renderComparisonCharts(data) {
-            if (!data || !Array.isArray(data.month_labels)) return;
-            try { chartRupiah?.destroy(); } catch (_) {}
-            try { chartLiterMonthly?.destroy(); } catch (_) {}
-            chartRupiah = chartLiterMonthly = null;
+            function renderComparisonCharts(data) {
+                if (!data || !Array.isArray(data.month_labels)) return;
+                try { chartRupiah?.destroy(); } catch (_) {}
+                try { chartLiterMonthly?.destroy(); } catch (_) {}
+                chartRupiah = chartLiterMonthly = null;
 
-            const { dark, grid, tick, common } = chartCommonSkin();
-            const fillA = dark ? 0.62 : 0.78;
-            const colCur = palette[0];
-            const colPrev = palette[1];
-            const yCur = data.year;
-            const yPrev = data.year_previous;
-            const labels = data.month_labels.length ? data.month_labels : MONTH_LABELS;
+                const { dark, grid, tick, common } = chartCommonSkin();
+                const fillA = dark ? 0.62 : 0.78;
+                const colCur = palette[0];
+                const colPrev = palette[1];
+                const yCur = data.year;
+                const yPrev = data.year_previous;
+                const labels = data.month_labels.length ? data.month_labels : MONTH_LABELS;
 
-            const elR = document.getElementById('bbmChartRupiahYear');
-            if (elR) {
-                chartRupiah = new Chart(elR, {
-                    type: 'bar',
-                    data: {
-                        labels,
-                        datasets: [
-                            {
-                                label: String(yCur),
-                                data: (data.rupiah_current || []).map((v) => Math.round(Number(v) / 1000)),
-                                backgroundColor: barFill(colCur, fillA),
-                                borderColor: colCur,
-                                borderWidth: 1,
-                                borderRadius: 5,
-                                borderSkipped: false,
-                            },
-                            {
-                                label: String(yPrev),
-                                data: (data.rupiah_previous || []).map((v) => Math.round(Number(v) / 1000)),
-                                backgroundColor: barFill(colPrev, fillA),
-                                borderColor: colPrev,
-                                borderWidth: 1,
-                                borderRadius: 5,
-                                borderSkipped: false,
-                            },
-                        ],
-                    },
-                    options: {
-                        ...common,
-                        interaction: { mode: 'index', intersect: false },
-                        datasets: { bar: { maxBarThickness: 26 } },
-                        plugins: {
-                            legend: { display: true, position: 'top', labels: { color: tick, boxWidth: 12 } },
-                            tooltip: {
-                                callbacks: {
-                                    label(ctx) {
-                                        const arr = ctx.datasetIndex === 0 ? data.rupiah_current : data.rupiah_previous;
-                                        const raw = (arr || [])[ctx.dataIndex] || 0;
-                                        return ' ' + ctx.dataset.label + ': Rp ' + Number(raw).toLocaleString('id-ID');
+                const elR = document.getElementById('bbmChartRupiahYear');
+                if (elR) {
+                    chartRupiah = new Chart(elR, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    label: String(yCur),
+                                    data: (data.rupiah_current || []).map((v) => Math.round(Number(v) / 1000)),
+                                    backgroundColor: barFill(colCur, fillA),
+                                    borderColor: colCur,
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    borderSkipped: false,
+                                },
+                                {
+                                    label: String(yPrev),
+                                    data: (data.rupiah_previous || []).map((v) => Math.round(Number(v) / 1000)),
+                                    backgroundColor: barFill(colPrev, fillA),
+                                    borderColor: colPrev,
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    borderSkipped: false,
+                                },
+                            ],
+                        },
+                        options: {
+                            ...common,
+                            interaction: { mode: 'index', intersect: false },
+                            datasets: { bar: { maxBarThickness: 26 } },
+                            plugins: {
+                                legend: { display: true, position: 'top', labels: { color: tick, boxWidth: 12 } },
+                                tooltip: {
+                                    callbacks: {
+                                        label(ctx) {
+                                            const arr = ctx.datasetIndex === 0 ? data.rupiah_current : data.rupiah_previous;
+                                            const raw = (arr || [])[ctx.dataIndex] || 0;
+                                            return ' ' + ctx.dataset.label + ': Rp ' + Number(raw).toLocaleString('id-ID');
+                                        },
                                     },
                                 },
                             },
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'Rp (÷1000)', color: tick },
-                                ticks: { color: tick, callback: (v) => fmtRpShort(v * 1000) },
-                                grid: { color: grid },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Rp (÷1000)', color: tick },
+                                    ticks: { color: tick, callback: (v) => fmtRpShort(v * 1000) },
+                                    grid: { color: grid },
+                                },
+                                x: { ticks: { color: tick, font: { size: 11 } }, grid: { color: grid } },
                             },
-                            x: { ticks: { color: tick, font: { size: 11 } }, grid: { color: grid } },
                         },
-                    },
-                });
-            }
+                    });
+                }
 
-            const elL = document.getElementById('bbmChartLiterMonthly');
-            if (elL) {
-                chartLiterMonthly = new Chart(elL, {
-                    type: 'bar',
-                    data: {
-                        labels,
-                        datasets: [
-                            {
-                                label: String(yCur) + ' (L)',
-                                data: (data.liter_current || []).map((v) => Number(v)),
-                                backgroundColor: barFill(colCur, fillA),
-                                borderColor: colCur,
-                                borderWidth: 1,
-                                borderRadius: 5,
-                                borderSkipped: false,
-                            },
-                            {
-                                label: String(yPrev) + ' (L)',
-                                data: (data.liter_previous || []).map((v) => Number(v)),
-                                backgroundColor: barFill(colPrev, fillA),
-                                borderColor: colPrev,
-                                borderWidth: 1,
-                                borderRadius: 5,
-                                borderSkipped: false,
-                            },
-                        ],
-                    },
-                    options: {
-                        ...common,
-                        interaction: { mode: 'index', intersect: false },
-                        datasets: { bar: { maxBarThickness: 26 } },
-                        plugins: {
-                            legend: { display: true, position: 'top', labels: { color: tick, boxWidth: 12 } },
-                            tooltip: {
-                                callbacks: {
-                                    label(ctx) {
-                                        return ' ' + ctx.dataset.label + ': ' + Number(ctx.raw).toLocaleString('id-ID', { maximumFractionDigits: 3 }) + ' L';
+                const elL = document.getElementById('bbmChartLiterMonthly');
+                if (elL) {
+                    chartLiterMonthly = new Chart(elL, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    label: String(yCur) + ' (L)',
+                                    data: (data.liter_current || []).map((v) => Number(v)),
+                                    backgroundColor: barFill(colCur, fillA),
+                                    borderColor: colCur,
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    borderSkipped: false,
+                                },
+                                {
+                                    label: String(yPrev) + ' (L)',
+                                    data: (data.liter_previous || []).map((v) => Number(v)),
+                                    backgroundColor: barFill(colPrev, fillA),
+                                    borderColor: colPrev,
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    borderSkipped: false,
+                                },
+                            ],
+                        },
+                        options: {
+                            ...common,
+                            interaction: { mode: 'index', intersect: false },
+                            datasets: { bar: { maxBarThickness: 26 } },
+                            plugins: {
+                                legend: { display: true, position: 'top', labels: { color: tick, boxWidth: 12 } },
+                                tooltip: {
+                                    callbacks: {
+                                        label(ctx) {
+                                            return ' ' + ctx.dataset.label + ': ' + Number(ctx.raw).toLocaleString('id-ID', { maximumFractionDigits: 3 }) + ' L';
+                                        },
                                     },
                                 },
                             },
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'Liter', color: tick },
-                                ticks: { color: tick },
-                                grid: { color: grid },
-                            },
-                            x: { ticks: { color: tick, font: { size: 11 } }, grid: { color: grid } },
-                        },
-                    },
-                });
-            }
-        }
-
-        async function fetchComparisonCharts() {
-            const yearEl = document.getElementById('bbm-chart-year');
-            const vehEl = document.getElementById('bbm-chart-vehicle');
-            if (!yearEl) return;
-            const year = parseInt(yearEl.value, 10);
-            if (Number.isNaN(year)) return;
-            const nopol = vehEl && vehEl.value ? String(vehEl.value) : '';
-            const u = new URL(BBM_CHART_SERIES_URL, window.location.origin);
-            u.searchParams.set('year', String(year));
-            if (nopol) u.searchParams.set('nomor_kendaraan', nopol);
-            try {
-                const res = await fetch(u.toString(), { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
-                if (!res.ok) return;
-                const data = await res.json();
-                lastComparisonPayload = data;
-                renderComparisonCharts(data);
-                updateYearHint(data.year, data.year_previous);
-            } catch (_) {}
-        }
-
-        function buildDriverPieChart() {
-            try { chartDrvFreq?.destroy(); } catch (_) {}
-            chartDrvFreq = null;
-            const { tick, bdr, common } = chartCommonSkin();
-            const elD = document.getElementById('bbmChartDriverFreq');
-            if (!elD || !TOP_DRIVERS_MONTH.length) return;
-            const dark = document.body.classList.contains('dark');
-            const pieFill = dark ? 0.88 : 0.92;
-            const drvLabels = TOP_DRIVERS_MONTH.map((d) => d.name || d.username || 'Driver');
-            const drvData = TOP_DRIVERS_MONTH.map((d) => Number(d.cnt));
-            const narrow = typeof window !== 'undefined' && window.innerWidth <= 640;
-            chartDrvFreq = new Chart(elD, {
-                type: 'pie',
-                data: {
-                    labels: drvLabels,
-                    datasets: [{
-                        data: drvData,
-                        backgroundColor: TOP_DRIVERS_MONTH.map((_, i) => barFill(palette[i % palette.length], pieFill)),
-                        borderColor: bdr,
-                        borderWidth: 2,
-                        hoverOffset: 6,
-                    }],
-                },
-                options: {
-                    ...common,
-                    layout: {
-                        padding: narrow ? { left: 6, right: 6, top: 4, bottom: 4 } : { left: 4, right: 8, top: 4, bottom: 4 },
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: narrow ? 'bottom' : 'right',
-                            align: narrow ? 'center' : 'center',
-                            labels: {
-                                color: tick,
-                                boxWidth: narrow ? 10 : 12,
-                                padding: narrow ? 8 : 10,
-                                font: { size: narrow ? 10 : 11 },
-                            },
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label(ctx) {
-                                    const v = Number(ctx.raw) || 0;
-                                    const total = drvData.reduce((a, b) => a + Number(b), 0);
-                                    const pct = total ? ((v / total) * 100).toFixed(1) : '0';
-                                    return ' ' + v + ' kali isi BBM (' + pct + '%)';
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Liter', color: tick },
+                                    ticks: { color: tick },
+                                    grid: { color: grid },
                                 },
+                                x: { ticks: { color: tick, font: { size: 11 } }, grid: { color: grid } },
                             },
                         },
-                    },
-                },
-            });
-        }
-
-        function esc(s) {
-            const d = document.createElement('div');
-            d.textContent = s ?? '';
-            return d.innerHTML;
-        }
-        function formatRp(n) {
-            const x = Number(n) || 0;
-            return 'Rp ' + x.toLocaleString('id-ID');
-        }
-
-        function renderActivityLog(items) {
-            const root = document.getElementById('bbm-activity-log-root');
-            if (!root) return;
-            root.setAttribute('aria-busy', 'false');
-            if (!items || !items.length) {
-                root.innerHTML = '<p class="bbm-activity-placeholder">Belum ada pengisian BBM.</p>';
-                return;
-            }
-            root.innerHTML = items.map((it) => {
-                const liter = Number(it.liter || 0).toLocaleString('id-ID', { maximumFractionDigits: 3 });
-                const rp = formatRp(it.total_harga);
-                const clickable = it.detail_json_url ? ' is-clickable' : '';
-                const dataUrl = it.detail_json_url ? ` data-json-url="${String(it.detail_json_url).replace(/"/g, '&quot;')}"` : '';
-                return `
-                <div class="bbm-activity-row${clickable}" role="listitem"${dataUrl}>
-                    <div class="bbm-activity-badge">${esc(it.badge)}</div>
-                    <div class="bbm-activity-main">
-                        <div class="bbm-activity-nopol">${esc(it.nomor_kendaraan)}</div>
-                        <div class="bbm-activity-meta">${esc(it.driver_name)} · ${esc(it.waktu_label)} · ${esc(it.tanggal_label)}</div>
-                    </div>
-                    <div class="bbm-activity-side">
-                        <div class="bbm-activity-liter">${liter} L</div>
-                        <div class="bbm-activity-rp">${rp}</div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        async function fetchActivityLog() {
-            const root = document.getElementById('bbm-activity-log-root');
-            if (!root) return;
-            root.setAttribute('aria-busy', 'true');
-            const u = new URL(BBM_ACTIVITY_LOG_URL, window.location.origin);
-            u.searchParams.set('limit', '22');
-            try {
-                const res = await fetch(u.toString(), { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
-                if (!res.ok) throw new Error('log');
-                const j = await res.json();
-                renderActivityLog(j.items || []);
-            } catch (_) {
-                const r = document.getElementById('bbm-activity-log-root');
-                if (r) {
-                    r.setAttribute('aria-busy', 'false');
-                    r.innerHTML = '<p class="bbm-activity-placeholder">Gagal memuat log.</p>';
+                    });
                 }
             }
-        }
 
-        function redrawComparisonFromCache() {
-            if (lastComparisonPayload) renderComparisonCharts(lastComparisonPayload);
-            else fetchComparisonCharts();
-        }
+            async function fetchComparisonCharts() {
+                const yearEl = document.getElementById('bbm-chart-year');
+                const vehEl = document.getElementById('bbm-chart-vehicle');
+                if (!yearEl) return;
+                const year = parseInt(yearEl.value, 10);
+                if (Number.isNaN(year)) return;
+                const nopol = vehEl && vehEl.value ? String(vehEl.value) : '';
+                const u = new URL(BBM_CHART_SERIES_URL, window.location.origin);
+                u.searchParams.set('year', String(year));
+                if (nopol) u.searchParams.set('nomor_kendaraan', nopol);
+                try {
+                    const res = await fetch(u.toString(), { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    lastComparisonPayload = data;
+                    renderComparisonCharts(data);
+                    updateYearHint(data.year, data.year_previous);
+                } catch (_) {}
+            }
 
-        function renderBbmDetail(d) {
-            const badgeCls = (d.shift_badge_class && String(d.shift_badge_class).replace(/[^a-z0-9_-]/gi, '')) || 'bbm-shift-luar';
-            const shiftHtml = `<span class="bbm-shift-badge ${esc(badgeCls)}">${esc(d.shift_label || '—')}</span>`;
-            const odo = d.odometer_photo_url
-                ? `<a href="${String(d.odometer_photo_url).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(d.odometer_photo_url).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Odometer"></a>`
-                : '<p class="portal-empty" style="padding:8px">—</p>';
-            const struk = d.struk_photo_url
-                ? `<a href="${String(d.struk_photo_url).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(d.struk_photo_url).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Struk"></a>`
-                : '<p class="portal-empty" style="padding:8px">—</p>';
-            return `
-                <table class="info-table sppd-mini-table">
-                    <tr><td class="label">Driver</td><td>${esc(d.driver_name)} (${esc(d.driver_username || '—')})</td></tr>
-                    <tr><td class="label">Kendaraan</td><td>${esc(d.nomor_kendaraan)} — ${esc(d.jenis_kendaraan)}</td></tr>
-                    <tr><td class="label">Jenis pengisian BBM</td><td>${esc(d.jenis_pengisian ?? '—')}</td></tr>
-                    <tr><td class="label">Tanggal</td><td>${esc(d.tanggal)}</td></tr>
-                    <tr><td class="label">Waktu</td><td>${esc(d.waktu)}</td></tr>
-                    <tr><td class="label">Shift</td><td>${shiftHtml}</td></tr>
-                    <tr><td class="label">KM sebelum</td><td>${esc(d.odometer_sebelum)}</td></tr>
-                    <tr><td class="label">KM sesudah</td><td>${esc(d.odometer_sesudah)}</td></tr>
-                    <tr><td class="label">Total KM</td><td><strong>${esc(String(d.total_km ?? '—'))}</strong></td></tr>
-                    <tr><td class="label">Volume (Liter)</td><td>${esc(String(d.liter))}</td></tr>
-                    <tr><td class="label">Harga / L</td><td>${formatRp(d.harga_per_liter)}</td></tr>
-                    <tr><td class="label">Total biaya</td><td><strong>${formatRp(d.total_harga)}</strong></td></tr>
-                </table>
-                <p class="sppd-detail-sub">Foto odometer</p>
-                <div class="sppd-photo-grid">${odo}</div>
-                <p class="sppd-detail-sub">Foto struk</p>
-                <div class="sppd-photo-grid">${struk}</div>
-            `;
-        }
+            function buildDriverPieChart() {
+                try { chartDrvFreq?.destroy(); } catch (_) {}
+                chartDrvFreq = null;
+                const { tick, bdr, common } = chartCommonSkin();
+                const elD = document.getElementById('bbmChartDriverFreq');
+                if (!elD || !TOP_DRIVERS_MONTH.length) return;
+                const dark = document.body.classList.contains('dark');
+                const pieFill = dark ? 0.88 : 0.92;
+                const drvLabels = TOP_DRIVERS_MONTH.map((d) => d.name || d.username || 'Driver');
+                const drvData = TOP_DRIVERS_MONTH.map((d) => Number(d.cnt));
+                const narrow = typeof window !== 'undefined' && window.innerWidth <= 640;
+                chartDrvFreq = new Chart(elD, {
+                    type: 'pie',
+                    data: {
+                        labels: drvLabels,
+                        datasets: [{
+                            data: drvData,
+                            backgroundColor: TOP_DRIVERS_MONTH.map((_, i) => barFill(palette[i % palette.length], pieFill)),
+                            borderColor: bdr,
+                            borderWidth: 2,
+                            hoverOffset: 6,
+                        }],
+                    },
+                    options: {
+                        ...common,
+                        layout: {
+                            padding: narrow ? { left: 6, right: 6, top: 4, bottom: 4 } : { left: 4, right: 8, top: 4, bottom: 4 },
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: narrow ? 'bottom' : 'right',
+                                align: narrow ? 'center' : 'center',
+                                labels: {
+                                    color: tick,
+                                    boxWidth: narrow ? 10 : 12,
+                                    padding: narrow ? 8 : 10,
+                                    font: { size: narrow ? 10 : 11 },
+                                },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label(ctx) {
+                                        const v = Number(ctx.raw) || 0;
+                                        const total = drvData.reduce((a, b) => a + Number(b), 0);
+                                        const pct = total ? ((v / total) * 100).toFixed(1) : '0';
+                                        return ' ' + v + ' kali isi BBM (' + pct + '%)';
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            }
 
-        document.querySelector('.admin-shell')?.addEventListener('click', async (e) => {
-            const act = e.target.closest('.bbm-activity-row[data-json-url]');
-            if (act) {
-                if (!document.getElementById('bbm-modal-detail')) return;
-                const url = act.getAttribute('data-json-url');
+            function esc(s) {
+                const d = document.createElement('div');
+                d.textContent = s ?? '';
+                return d.innerHTML;
+            }
+            function formatRp(n) {
+                const x = Number(n) || 0;
+                return 'Rp ' + x.toLocaleString('id-ID');
+            }
+
+            function renderActivityLog(items) {
+                const root = document.getElementById('bbm-activity-log-root');
+                if (!root) return;
+                root.setAttribute('aria-busy', 'false');
+                if (!items || !items.length) {
+                    root.innerHTML = '<p class="bbm-activity-placeholder">Belum ada pengisian BBM.</p>';
+                    return;
+                }
+                root.innerHTML = items.map((it) => {
+                    const liter = Number(it.liter || 0).toLocaleString('id-ID', { maximumFractionDigits: 3 });
+                    const rp = formatRp(it.total_harga);
+                    const clickable = it.detail_json_url ? ' is-clickable' : '';
+                    const dataUrl = it.detail_json_url ? ` data-json-url="${String(it.detail_json_url).replace(/"/g, '&quot;')}"` : '';
+                    return `
+                    <div class="bbm-activity-row${clickable}" role="listitem"${dataUrl}>
+                        <div class="bbm-activity-badge">${esc(it.badge)}</div>
+                        <div class="bbm-activity-main">
+                            <div class="bbm-activity-nopol">${esc(it.nomor_kendaraan)}</div>
+                            <div class="bbm-activity-meta">${esc(it.driver_name)} · ${esc(it.waktu_label)} · ${esc(it.tanggal_label)}</div>
+                        </div>
+                        <div class="bbm-activity-side">
+                            <div class="bbm-activity-liter">${liter} L</div>
+                            <div class="bbm-activity-rp">${rp}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            async function fetchActivityLog() {
+                const root = document.getElementById('bbm-activity-log-root');
+                if (!root) return;
+                root.setAttribute('aria-busy', 'true');
+                const u = new URL(BBM_ACTIVITY_LOG_URL, window.location.origin);
+                u.searchParams.set('limit', '22');
+                try {
+                    const res = await fetch(u.toString(), { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+                    if (!res.ok) throw new Error('log');
+                    const j = await res.json();
+                    renderActivityLog(j.items || []);
+                } catch (_) {
+                    const r = document.getElementById('bbm-activity-log-root');
+                    if (r) {
+                        r.setAttribute('aria-busy', 'false');
+                        r.innerHTML = '<p class="bbm-activity-placeholder">Gagal memuat log.</p>';
+                    }
+                }
+            }
+
+            function redrawComparisonFromCache() {
+                if (lastComparisonPayload) renderComparisonCharts(lastComparisonPayload);
+                else fetchComparisonCharts();
+            }
+
+            function renderBbmDetail(d) {
+                const badgeCls = (d.shift_badge_class && String(d.shift_badge_class).replace(/[^a-z0-9_-]/gi, '')) || 'bbm-shift-luar';
+                const shiftHtml = `<span class="bbm-shift-badge ${esc(badgeCls)}">${esc(d.shift_label || '—')}</span>`;
+                const odo = d.odometer_photo_url
+                    ? `<a href="${String(d.odometer_photo_url).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(d.odometer_photo_url).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Odometer"></a>`
+                    : '<p class="portal-empty" style="padding:8px">—</p>';
+                const struk = d.struk_photo_url
+                    ? `<a href="${String(d.struk_photo_url).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(d.struk_photo_url).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Struk"></a>`
+                    : '<p class="portal-empty" style="padding:8px">—</p>';
+                return `
+                    <table class="info-table sppd-mini-table">
+                        <tr><td class="label">Driver</td><td>${esc(d.driver_name)} (${esc(d.driver_username || '—')})</td></tr>
+                        <tr><td class="label">Kendaraan</td><td>${esc(d.nomor_kendaraan)} — ${esc(d.jenis_kendaraan)}</td></tr>
+                        <tr><td class="label">Jenis pengisian BBM</td><td>${esc(d.jenis_pengisian ?? '—')}</td></tr>
+                        <tr><td class="label">Tanggal</td><td>${esc(d.tanggal)}</td></tr>
+                        <tr><td class="label">Waktu</td><td>${esc(d.waktu)}</td></tr>
+                        <tr><td class="label">Shift</td><td>${shiftHtml}</td></tr>
+                        <tr><td class="label">KM sebelum</td><td>${esc(d.odometer_sebelum)}</td></tr>
+                        <tr><td class="label">KM sesudah</td><td>${esc(d.odometer_sesudah)}</td></tr>
+                        <tr><td class="label">Total KM</td><td><strong>${esc(String(d.total_km ?? '—'))}</strong></td></tr>
+                        <tr><td class="label">Volume (Liter)</td><td>${esc(String(d.liter))}</td></tr>
+                        <tr><td class="label">Harga / L</td><td>${formatRp(d.harga_per_liter)}</td></tr>
+                        <tr><td class="label">Total biaya</td><td><strong>${formatRp(d.total_harga)}</strong></td></tr>
+                    </table>
+                    <p class="sppd-detail-sub">Foto odometer</p>
+                    <div class="sppd-photo-grid">${odo}</div>
+                    <p class="sppd-detail-sub">Foto struk</p>
+                    <div class="sppd-photo-grid">${struk}</div>
+                `;
+            }
+
+            document.querySelector('.admin-shell')?.addEventListener('click', async (e) => {
+                const act = e.target.closest('.bbm-activity-row[data-json-url]');
+                if (act) {
+                    if (!document.getElementById('bbm-modal-detail')) return;
+                    const url = act.getAttribute('data-json-url');
+                    const modal = document.getElementById('bbm-modal-detail');
+                    const bodyEl = document.getElementById('bbm-detail-body');
+                    bodyEl.innerHTML = '<p>Memuat…</p>';
+                    modal.style.display = 'flex';
+                    try {
+                        const res = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const j = await res.json();
+                        if (!j.report) throw new Error('Invalid payload');
+                        bodyEl.innerHTML = renderBbmDetail(j.report);
+                    } catch (err) {
+                        bodyEl.innerHTML = '<p>Gagal memuat data.</p>';
+                    }
+                    return;
+                }
+                if (BBM_PORTAL_CHARTS_ONLY) return;
+                const btn = e.target.closest('.bbm-btn-detail');
+                if (!btn) return;
+                const url = btn.getAttribute('data-json-url');
                 const modal = document.getElementById('bbm-modal-detail');
                 const bodyEl = document.getElementById('bbm-detail-body');
                 bodyEl.innerHTML = '<p>Memuat…</p>';
@@ -785,58 +807,40 @@
                 } catch (err) {
                     bodyEl.innerHTML = '<p>Gagal memuat data.</p>';
                 }
-                return;
-            }
-            if (BBM_PORTAL_CHARTS_ONLY) return;
-            const btn = e.target.closest('.bbm-btn-detail');
-            if (!btn) return;
-            const url = btn.getAttribute('data-json-url');
-            const modal = document.getElementById('bbm-modal-detail');
-            const bodyEl = document.getElementById('bbm-detail-body');
-            bodyEl.innerHTML = '<p>Memuat…</p>';
-            modal.style.display = 'flex';
-            try {
-                const res = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const j = await res.json();
-                if (!j.report) throw new Error('Invalid payload');
-                bodyEl.innerHTML = renderBbmDetail(j.report);
-            } catch (err) {
-                bodyEl.innerHTML = '<p>Gagal memuat data.</p>';
-            }
-        });
-        document.querySelectorAll('[data-close-bbm-modal]').forEach((el) => {
-            el.addEventListener('click', () => {
-                const m = document.getElementById('bbm-modal-detail');
-                if (m) m.style.display = 'none';
             });
-        });
-        document.getElementById('bbm-modal-detail')?.addEventListener('click', (e) => {
-            if (e.target.id === 'bbm-modal-detail') e.currentTarget.style.display = 'none';
-        });
+            document.querySelectorAll('[data-close-bbm-modal]').forEach((el) => {
+                el.addEventListener('click', () => {
+                    const m = document.getElementById('bbm-modal-detail');
+                    if (m) m.style.display = 'none';
+                });
+            });
+            document.getElementById('bbm-modal-detail')?.addEventListener('click', (e) => {
+                if (e.target.id === 'bbm-modal-detail') e.currentTarget.style.display = 'none';
+            });
 
-        document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
-        document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });
+            document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
+            document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });
 
-        buildDriverPieChart();
-        fetchComparisonCharts();
-        fetchActivityLog();
-        chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
-        logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
+            buildDriverPieChart();
+            fetchComparisonCharts();
+            fetchActivityLog();
+            chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
+            logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
 
-        let bbmPieResizeTimer = null;
-        window.addEventListener('resize', () => {
-            clearTimeout(bbmPieResizeTimer);
-            bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(), 200);
-        });
+            let bbmPieResizeTimer = null;
+            window.addEventListener('resize', () => {
+                clearTimeout(bbmPieResizeTimer);
+                bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(), 200);
+            });
 
-    })();
+        })();
 
-    /* ── SMOOTH SCROLL ── */
-    function smoothTo(id, e) {
-        e.preventDefault();
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
-    }
+        /* ── SMOOTH SCROLL ── */
+        function smoothTo(id, e) {
+            e.preventDefault();
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
     </script>
-@endsection
+@endpush
+

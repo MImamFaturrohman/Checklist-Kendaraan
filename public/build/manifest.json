@@ -8,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-DkCPh4mZ.css",
+    "file": "assets/app-DXHkOcVi.css",
     "name": "app",
     "names": [
       "app.css"
@@ -30,7 +30,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CymdG5uO.js",
+    "file": "assets/app-BvRH-qBc.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -55,7 +55,7 @@
     "isEntry": true
   },
   "resources/js/vehicle-usage-log.js": {
-    "file": "assets/vehicle-usage-log-C0hxhGqb.js",
+    "file": "assets/vehicle-usage-log-CBwkPbjZ.js",
     "name": "vehicle-usage-log",
     "src": "resources/js/vehicle-usage-log.js",
     "isEntry": true

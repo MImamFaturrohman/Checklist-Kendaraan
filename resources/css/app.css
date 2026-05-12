@@ -155,12 +155,11 @@
 .dash-body:not(.dark) .dash-main-title { color: #1e3a8a; }
 .dash-body:not(.dark) .dash-main-sub   { color: #3b5ba0; }
 .dash-body:not(.dark) .dash-main-icon  {
-    background: rgba(37, 99, 235, 0.1);
+    transition: 0.2s ease;
     color: #2563eb;
 }
 
 .dash-body:not(.dark) .dash-main-card:hover .dash-main-icon {
-    background: rgba(212, 175, 55, 0.18);
     color: #a17a00;
 }
 
@@ -817,7 +816,6 @@
     width: 56px;
     height: 56px;
     border-radius: 16px;
-    background: rgba(10, 35, 66, 0.07);
     display: grid;
     place-items: center;
     color: #0A2342;
@@ -826,7 +824,6 @@
 }
 
 .dash-main-card:hover .dash-main-icon {
-    background: rgba(212, 175, 55, 0.15);
     color: #a17a00;
 }
 
@@ -1381,8 +1378,17 @@
     box-shadow: 0 6px 16px rgba(59, 130, 246, 0.12);
 }
 
-.checklist-photo-slot input {
-    display: none;
+.checklist-photo-slot input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+    font-size: 0;
 }
 
 .photo-slot-placeholder {
@@ -3296,7 +3302,7 @@ select.admin-filter-input {
 .landing-footer {
     background: var(--dash-blue);
     color: rgba(255, 255, 255, 0.7);
-    padding: 24px 20px;
+    padding: 10px 20px;
     margin-top: 16px;
     position: relative;
     z-index: 1;
@@ -6245,13 +6251,12 @@ body#landing.dash-body.dark .signature-canvas {
 .dash-body.dark .dash-main-sub   { color: rgba(180, 200, 240, 0.65); }
 
 .dash-body.dark .dash-main-icon {
-    background: rgba(212, 175, 55, 0.12);
     color: #D4AF37;
+    transition: 0.2s ease;
 }
 
 .dash-body.dark .dash-main-card:hover .dash-main-icon {
-    background: rgba(212, 175, 55, 0.22);
-    color: #f0c84a;
+    color: #E6C75A;
 }
 
 /* ── DARK — Admin grid cards ── */
@@ -7555,6 +7560,7 @@ body#landing.dash-body.dark .signature-canvas {
 .sppd-modal-box {
     display: flex;
     flex-direction: column;
+    background: #fff;
 }
 .sppd-detail-html {
     flex: 1 1 auto;
@@ -7885,6 +7891,7 @@ body#landing.dash-body.dark .signature-canvas {
 }
 
 .sppd-detail-html .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.82rem; }
+.dash-body:not(.dark) .sppd-detail-html .info-table { background: #fff; }
 .sppd-detail-html .info-table td { border: 1px solid #e2e8f0; padding: 6px 8px; vertical-align: top; }
 .sppd-detail-html .info-table .label { font-weight: 700; background: #f1f5f9; width: 32%; }
 .dash-body.dark .sppd-detail-html .info-table td { border-color: rgba(255, 255, 255, 0.1); }
@@ -8220,7 +8227,6 @@ body.dash-body {
     flex: 1;
     min-width: 0;
     position: relative;
-    overflow-x: hidden;
     display: flex;
     flex-direction: column;
 }

@@ -242,6 +242,9 @@
 {{-- Additional modals / overlays from views --}}
 @yield('modals')
 
+{{-- FOOTER --}}
+@include('partials.footer')
+
 @push('scripts')
 <script>
 /* ── Nav drawer (kanan — hanya ada di luar halaman Dashboard) ── */
