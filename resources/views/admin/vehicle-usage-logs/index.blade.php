@@ -11,8 +11,12 @@
     .vul-admin-name { font-weight: 700; color: var(--dash-text-primary, #0f172a); }
     .vul-admin-meta { font-size: 0.76rem; opacity: 0.85; color: #64748b; }
     .dash-body.dark .vul-admin-meta { color: rgba(200, 218, 255, 0.62); }
-    .vul-admin-keperluan { font-size: 0.84rem; line-height: 1.45; max-width: 320px; }
+    .vul-admin-keperluan { font-size: 0.84rem; line-height: 1.45; min-width: 200px; max-width: 300px; }
+    .vul-admin-kondisi { font-size: 0.8rem; line-height: 1.4; max-width: 300px; min-width: 200px; }
+    .vul-admin-kondisi small { display: block; font-weight: 700; color: #64748b; margin-bottom: 2px; }
+    .dash-body.dark .vul-admin-kondisi small { color: rgba(200, 218, 255, 0.55); }
     .vul-admin-time { font-size: 0.84rem; white-space: nowrap; }
+    .vul-admin-mono { font-variant-numeric: tabular-nums; text-align: center; min-width: 80px }
 </style>
 @endpush
 
@@ -72,10 +76,14 @@
                                     <th>Waktu dicatat</th>
                                     <th>Driver</th>
                                     <th>Kendaraan</th>
-                                    <th>Waktu awal</th>
-                                    <th>Waktu akhir</th>
+                                    <th>BBM Awal</th>
+                                    <th>BBM Akhir</th>
+                                    <th>KM Awal</th>    
+                                    <th>KM Akhir</th>
                                     <th>Durasi</th>
                                     <th>Keperluan</th>
+                                    <th>Kondisi Sebelum</th>
+                                    <th>Kondisi Sesudah</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -87,11 +95,29 @@
                                         $tAwal = $fmtT($wAwal);
                                         $tAkhir = $fmtT($wAkhir);
                                         $kep = $row->keperluan;
-                                        $kepShort = \Illuminate\Support\Str::limit(strip_tags($kep), 100);
+                                        $kepShort = \Illuminate\Support\Str::limit(strip_tags($kep), 80);
+                                        $bbmA = $row->level_bbm_awal;
+                                        $bbmB = $row->level_bbm_akhir;
+                                        if (($bbmA !== null && $bbmA !== '' && is_numeric($bbmA)) && ($bbmB !== null && $bbmB !== '' && is_numeric($bbmB))) {
+                                            $bbmLine = (int) $bbmA.'% → '.(int) $bbmB.'%';
+                                        } elseif ($bbmA || $bbmB) {
+                                            $bbmLine = trim(($bbmA ?: '—').' → '.($bbmB ?: '—'));
+                                        } else {
+                                            $bbmLine = '—';
+                                        }
+                                        $kmA = $row->km_awal;
+                                        $kmB = $row->km_akhir;
+                                        $kmLine = ($kmA !== null && $kmB !== null)
+                                            ? number_format((int) $kmA).' → '.number_format((int) $kmB)
+                                            : '—';
+                                        $kSeb = $row->kondisi_sebelum_penggunaan;
+                                        $kSes = $row->kondisi_setelah_penggunaan;
+                                        $kSebShort = $kSeb ? \Illuminate\Support\Str::limit(strip_tags($kSeb), 120) : null;
+                                        $kSesShort = $kSes ? \Illuminate\Support\Str::limit(strip_tags($kSes), 120) : null;
                                     @endphp
                                     <tr>
                                         <td>{{ ($logs->currentPage() - 1) * $logs->perPage() + $loop->iteration }}</td>
-                                        <td class="vul-admin-time">{{ $row->created_at?->timezone(config('app.timezone'))->translatedFormat('d F Y H:i') }}</td>
+                                        <td class="vul-admin-time">{{ $row->created_at?->translatedFormat('d F Y H:i') }}</td>
                                         <td>
                                             <span class="vul-admin-name">{{ $row->user?->name ?? '—' }}</span><br>
                                             <span class="vul-admin-meta">{{ $row->user?->username ?? '' }}</span>
@@ -100,13 +126,33 @@
                                             <strong>{{ $row->nomor_kendaraan }}</strong><br>
                                             <span class="vul-admin-meta">{{ $row->jenis_kendaraan }}</span>
                                         </td>
-                                        <td class="vul-admin-time">{{ $tAwal }}</td>
-                                        <td class="vul-admin-time">{{ $tAkhir }}</td>
+                                        
+                                        <td class="vul-admin-mono">{{ $row->level_bbm_awal ? (int)$row->level_bbm_awal.'%' : '—' }}</td>
+                                        <td class="vul-admin-mono">{{ $row->level_bbm_akhir ? (int)$row->level_bbm_akhir.'%' : '—' }}</td>
+                                        
+                                        <td class="vul-admin-mono">{{ $row->km_awal ? number_format((int)$row->km_awal) : '—' }}</td>
+                                        <td class="vul-admin-mono">{{ $row->km_akhir ? number_format((int)$row->km_akhir) : '—' }}</td>
+                                        
                                         <td class="vul-admin-time">{{ $row->durasiDeskripsi() }}</td>
                                         <td class="vul-admin-keperluan" title="{{ $kep }}">{{ $kepShort }}</td>
+                                        
+                                        <td class="vul-admin-kondisi">
+                                            @if($kSebShort)
+                                                <span title="{{ $kSeb }}">{{ $kSebShort }}</span>
+                                            @else
+                                                <span class="vul-admin-meta">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="vul-admin-kondisi">
+                                            @if($kSesShort)
+                                                <span title="{{ $kSes }}">{{ $kSesShort }}</span>
+                                            @else
+                                                <span class="vul-admin-meta">—</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="8" class="portal-empty">Belum ada log penggunaan kendaraan.</td></tr>
+                                    <tr><td colspan="11" class="portal-empty">Belum ada log penggunaan kendaraan.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

@@ -141,8 +141,8 @@
 
 /* ── Light-mode — cards: light blue instead of white ── */
 .dash-body:not(.dark) .dash-main-card {
-    background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
-    border-color: rgba(59, 130, 246, 0.22);
+    background: linear-gradient(135deg, #d1e5ff 0%, #eff6ff 100%);
+    border-color: rgba(59, 131, 246, 0.352);
     box-shadow: 0 4px 18px rgba(37, 99, 235, 0.09);
 }
 
@@ -183,14 +183,14 @@
 .dash-body:not(.dark) .dash-section-title { color: rgba(30, 58, 138, 0.5); }
 
 /* ── Light-mode — desktop panel columns ── */
-@media (min-width: 992px) {
+/* @media (min-width: 992px) {
     .dash-body:not(.dark) .dash-main-column,
     .dash-body:not(.dark) .dash-side-column {
         background: rgba(219, 234, 254, 0.55);
         border-color: rgba(59, 130, 246, 0.15);
         box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
     }
-}
+} */
 
 .dash-shell {
     max-width: 1240px;
@@ -946,7 +946,7 @@
         gap: 20px;
     }
 
-    .dash-main-column,
+    /* .dash-main-column,
     .dash-side-column {
         background: #fff;
         border: 1px solid rgba(10, 35, 66, 0.08);
@@ -954,7 +954,7 @@
         padding: 22px;
         box-shadow: 0 8px 24px rgba(10, 35, 66, 0.07);
         transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-    }
+    } */
 
     .dash-desktop-grid--single {
         grid-template-columns: minmax(0, 1fr);
@@ -1040,7 +1040,8 @@
 }
 
 #checklist-progress-fill,
-#sppd-progress-fill {
+#sppd-progress-fill,
+#vul-progress-fill {
     display: block;
     height: 100%;
     width: 14%;
@@ -1076,7 +1077,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(90deg, #ffd300 0%, #f5c800 5%, #0a3a9e 35%, #06318a 100%);
+    background: linear-gradient(90deg, #0b2c6b 0%, #123f8f 40%, rgba(59,95,168,0.6) 70%, rgba(223,230,243,0.2) 100%);
     color: #fff;
     padding: 12px 16px;
     border-radius: 14px;
@@ -1086,7 +1087,6 @@
     letter-spacing: 0.3px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(6, 49, 138, 0.25);
 }
 
 .section-banner-icon {
@@ -6205,7 +6205,7 @@ body#landing.dash-body.dark .signature-canvas {
 .dash-body.dark .dash-content { background: transparent; }
 
 /* ── DARK — Desktop panel columns ── */
-@media (min-width: 992px) {
+/* @media (min-width: 992px) {
     .dash-body.dark .dash-main-column,
     .dash-body.dark .dash-side-column {
         background: rgba(16, 42, 82, 0.68) !important;
@@ -6214,7 +6214,7 @@ body#landing.dash-body.dark .signature-canvas {
         border: 1px solid rgba(212, 175, 55, 0.14) !important;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
     }
-}
+} */
 
 /* ── DARK — Mobile dropdown override ── */
 @media (max-width: 640px) {

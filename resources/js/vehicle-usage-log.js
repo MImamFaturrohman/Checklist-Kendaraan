@@ -2,6 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const root = document.querySelector('[data-vehicle-usage-form]');
     if (!root) return;
 
+    const applyTheme = (isDark) => {
+        document.body.classList.toggle('dark', isDark);
+        const themeIcon = document.getElementById('dash-theme-icon');
+        const themeLabel = document.getElementById('dash-theme-label');
+        if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    };
+
     const nomorSel = document.getElementById('vul-nopol');
     const jenisInp = document.getElementById('vul-jenis');
     if (nomorSel && jenisInp) {
@@ -14,26 +22,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const body = document.body;
-    const themeBtn = document.getElementById('dash-theme-toggle');
-    const themeIcon = document.getElementById('dash-theme-icon');
-    const themeLabel = document.getElementById('dash-theme-label');
+    // const themeBtn = document.getElementById('dash-theme-toggle');
     const navActions = document.getElementById('dash-nav-actions');
     const menuBtn = document.getElementById('dash-mobile-menu-btn');
     const menuIcon = document.getElementById('dash-mobile-menu-icon');
 
-    const applyTheme = (isDark) => {
-        body.classList.toggle('dark', isDark);
-        if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-        if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    };
     const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-    applyTheme(saved === 'dark');
-    themeBtn?.addEventListener('click', () => {
-        const next = !body.classList.contains('dark');
-        applyTheme(next);
-        localStorage.setItem('vms-theme', next ? 'dark' : 'light');
-        localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
-    });
+    // applyTheme(saved === 'dark');
+    // themeBtn?.addEventListener('click', () => {
+    //     const next = !body.classList.contains('dark');
+    //     applyTheme(next);
+    //     localStorage.setItem('vms-theme', next ? 'dark' : 'light');
+    //     localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
+    // });
 
     const closeMobileMenu = () => {
         navActions?.classList.remove('mobile-open');
@@ -54,15 +55,161 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const form = document.getElementById('vehicle-usage-log-form');
-    const submitBtn = form?.querySelector('button[type="submit"]');
+    if (!form) return;
+
+    const esc = (s) => {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    };
+
+    const swalDialog = () => ({
+        customClass: {
+            popup: 'vul-swal-dialog',
+            title: 'vul-swal-title',
+            confirmButton: 'vul-swal-confirm',
+            cancelButton: 'vul-swal-cancel',
+        },
+        buttonsStyling: false,
+    });
+
+    const bindBbmPctSlider = (sliderId, hiddenId, displayId) => {
+        const slider = document.getElementById(sliderId);
+        const hidden = document.getElementById(hiddenId);
+        const display = document.getElementById(displayId);
+        if (!slider || !hidden) return;
+        const sync = () => {
+            const v = String(slider.value);
+            hidden.value = v;
+            if (display) display.innerHTML = `${v}<small>%</small>`;
+            slider.style.background = `linear-gradient(to right, #facc15 ${v}%, #e5e7eb ${v}%)`;
+        };
+        slider.addEventListener('input', sync);
+        sync();
+    };
+    bindBbmPctSlider('vul-bbm-slider-awal', 'vul-bbm-awal', 'vul-bbm-display-awal');
+    bindBbmPctSlider('vul-bbm-slider-akhir', 'vul-bbm-akhir', 'vul-bbm-display-akhir');
+
+    const steps = Array.from(form.querySelectorAll('.wizard-step[data-step]'));
+    const btnPrev = document.getElementById('vul-prev');
+    const btnNext = document.getElementById('vul-next');
+    const submitBtn = document.getElementById('vul-submit');
+    const reviewRoot = document.getElementById('vul-review-root');
     const submitHtml = submitBtn?.innerHTML ?? '';
+    const progressFill = document.getElementById('vul-progress-fill');
+    const stepLabel = document.getElementById('vul-step-label');
+    const progressPct = document.getElementById('vul-progress-pct');
+
+    let currentStep = 1;
+    const totalSteps = steps.length || 4;
+
+    const showStep = (n) => {
+        currentStep = n;
+        steps.forEach((s) => {
+            s.classList.toggle('active', +s.dataset.step === n);
+        });
+        const pct = Math.round((n / totalSteps) * 100);
+        if (progressFill) progressFill.style.width = `${pct}%`;
+        if (stepLabel) stepLabel.textContent = `LANGKAH ${n} DARI ${totalSteps}`;
+        if (progressPct) progressPct.textContent = `${pct}%`;
+        if (btnPrev) btnPrev.disabled = n <= 1;
+        if (btnNext) {
+            const hideNext = n >= totalSteps;
+            btnNext.classList.toggle('vul-next--hidden', hideNext);
+            btnNext.setAttribute('aria-hidden', hideNext ? 'true' : 'false');
+        }
+        if (submitBtn) {
+            const hideSubmit = n !== totalSteps;
+            submitBtn.classList.toggle('vul-submit--hidden', hideSubmit);
+            submitBtn.setAttribute('aria-hidden', hideSubmit ? 'true' : 'false');
+        }
+        if (n === totalSteps) refreshReview();
+    };
+
+    const val = (id) => {
+        const el = document.getElementById(id);
+        return el && 'value' in el ? String(el.value ?? '').trim() : '';
+    };
+
+    const validateStep1 = () => {
+        const errors = [];
+        if (!nomorSel?.value) errors.push('Pilih nomor kendaraan.');
+        const ja = val('vul-jam-awal');
+        const jb = val('vul-jam-akhir');
+        if (!ja) errors.push('Jam awal wajib diisi.');
+        if (!jb) errors.push('Jam selesai wajib diisi.');
+        if (ja && jb && ja >= jb) errors.push('Jam selesai harus setelah jam awal (hari yang sama).');
+        const kep = val('vul-keperluan');
+        if (!kep) errors.push('Keperluan wajib diisi.');
+        return errors;
+    };
+
+    const validateStep2 = () => {
+        const errors = [];
+        const pct = (id) => {
+            const raw = val(id);
+            const n = parseInt(raw, 10);
+            return Number.isNaN(n) ? null : n;
+        };
+        const a = pct('vul-bbm-awal');
+        const b = pct('vul-bbm-akhir');
+        if (a === null || a < 0 || a > 100) errors.push('Level BBM awal wajib antara 0% dan 100%.');
+        if (b === null || b < 0 || b > 100) errors.push('Level BBM akhir wajib antara 0% dan 100%.');
+        const kmAwal = parseInt(val('vul-km-awal'), 10);
+        const kmAkhir = parseInt(val('vul-km-akhir'), 10);
+        if (Number.isNaN(kmAwal) || kmAwal < 0) errors.push('KM awal wajib diisi (angka valid).');
+        if (Number.isNaN(kmAkhir) || kmAkhir < 0) errors.push('KM akhir wajib diisi (angka valid).');
+        if (!Number.isNaN(kmAwal) && !Number.isNaN(kmAkhir) && kmAkhir < kmAwal) {
+            errors.push('KM akhir harus lebih besar atau sama dengan KM awal.');
+        }
+        return errors;
+    };
+
+    const validateStep3 = () => {
+        const errors = [];
+        if (!val('vul-kondisi-sebelum')) errors.push('Kondisi sebelum penggunaan wajib diisi.');
+        if (!val('vul-kondisi-sesudah')) errors.push('Kondisi setelah penggunaan wajib diisi.');
+        return errors;
+    };
+
+    const buildReviewHtml = () => {
+        const nopol = nomorSel?.options[nomorSel.selectedIndex]?.text?.trim() || '—';
+        const jenis = jenisInp?.value || '—';
+        const bbmA = val('vul-bbm-awal');
+        const bbmB = val('vul-bbm-akhir');
+        return `
+<div class="vul-review-group">
+  <h4>Data penggunaan</h4>
+  <dl class="vul-review-dl">
+    <div><dt>No. kendaraan</dt><dd>${esc(nopol)}</dd></div>
+    <div><dt>Jenis</dt><dd>${esc(jenis)}</dd></div>
+    <div><dt>Jam</dt><dd>${esc(val('vul-jam-awal'))} – ${esc(val('vul-jam-akhir'))}</dd></div>
+    <div><dt>Keperluan</dt><dd>${esc(val('vul-keperluan'))}</dd></div>
+  </dl>
+</div>
+<div class="vul-review-group">
+  <h4>BBM &amp; kilometer</h4>
+  <dl class="vul-review-dl">
+    <div><dt>Level BBM awal</dt><dd>${esc(bbmA)}%</dd></div>
+    <div><dt>Level BBM akhir</dt><dd>${esc(bbmB)}%</dd></div>
+    <div><dt>KM awal</dt><dd>${esc(val('vul-km-awal'))}</dd></div>
+    <div><dt>KM akhir</dt><dd>${esc(val('vul-km-akhir'))}</dd></div>
+  </dl>
+</div>
+<div class="vul-review-group">
+  <h4>Kondisi</h4>
+  <dl class="vul-review-dl">
+    <div><dt>Sebelum</dt><dd>${esc(val('vul-kondisi-sebelum'))}</dd></div>
+    <div><dt>Setelah</dt><dd>${esc(val('vul-kondisi-sesudah'))}</dd></div>
+  </dl>
+</div>`;
+    };
+
+    const refreshReview = () => {
+        if (reviewRoot) reviewRoot.innerHTML = buildReviewHtml();
+    };
 
     const showErrors = (messages) => {
-        const esc = (s) => {
-            const d = document.createElement('div');
-            d.textContent = s;
-            return d.innerHTML;
-        };
         const list = (Array.isArray(messages) ? messages : [messages]).filter(Boolean);
         if (typeof Swal === 'undefined') {
             window.alert(list.join('\n'));
@@ -70,19 +217,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return Swal.fire({
             icon: 'error',
-            title: 'Data belum valid',
+            iconColor: '#dc2626',
+            title: 'Formulir belum valid',
             html:
-                '<ul style="text-align:left;margin:0;padding-left:1.2rem">' +
+                '<p class="vul-swal-lead">Mohon lengkapi isian di langkah ini terlebih dahulu:</p>' +
+                '<div class="vul-swal-error-box"><ul class="vul-swal-list" style="margin:0">' +
                 list.map((e) => '<li>' + esc(String(e)) + '</li>').join('') +
-                '</ul>',
-            confirmButtonText: 'Perbaiki',
+                '</ul></div>',
+            confirmButtonText: 'Mengerti',
             allowEnterKey: false,
             returnFocus: false,
+            ...swalDialog(),
         });
     };
 
-    form?.addEventListener('submit', async (e) => {
+    btnNext?.addEventListener('click', async () => {
+        let err = [];
+        if (currentStep === 1) err = validateStep1();
+        else if (currentStep === 2) err = validateStep2();
+        else if (currentStep === 3) err = validateStep3();
+        if (err.length) {
+            await showErrors(err);
+            return;
+        }
+        showStep(currentStep + 1);
+    });
+
+    btnPrev?.addEventListener('click', () => {
+        if (currentStep > 1) showStep(currentStep - 1);
+    });
+
+    showStep(1);
+
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const allErr = [...validateStep1(), ...validateStep2(), ...validateStep3()];
+        if (allErr.length) {
+            await showErrors(allErr);
+            return;
+        }
+
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
         if (!csrf || typeof Swal === 'undefined') {
             form.submit();
@@ -93,13 +267,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const confirm = await Swal.fire({
             icon: 'question',
-            title: 'Kirim log penggunaan?',
-            text: 'Pastikan no. kendaraan, jam, dan keperluan sudah benar.',
+            iconColor: '#0b2c6b',
+            title: 'Kirim laporan?',
+            text: 'Log akan disimpan dan dikirim ke admin. Lanjutkan?',
             showCancelButton: true,
             confirmButtonText: 'Ya, kirim',
             cancelButtonText: 'Batal',
             reverseButtons: true,
             focusCancel: true,
+            width: Math.min(420, window.innerWidth - 32),
+            ...swalDialog(),
         });
         if (!confirm.isConfirmed) return;
 
@@ -141,9 +318,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok && data.success) {
                 await Swal.fire({
                     icon: 'success',
-                    title: 'Berhasil',
-                    text: data.message || 'Log tersimpan.',
+                    iconColor: '#16a34a',
+                    title: 'Berhasil dikirim',
+                    text: data.message || 'Log pemakaian kendaraan Anda sudah tersimpan.',
                     confirmButtonText: 'Kembali ke Dashboard',
+                    ...swalDialog(),
                 }).then((r) => {
                     if (r.isConfirmed) window.location.href = dashUrl;
                 });
@@ -152,16 +331,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Tidak dapat menyimpan log.',
+                title: 'Gagal mengirim',
+                text: data.message || 'Tidak dapat menyimpan log. Coba lagi.',
                 confirmButtonText: 'Tutup',
+                ...swalDialog(),
             });
         } catch {
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: 'Koneksi bermasalah. Periksa jaringan lalu coba lagi.',
+                title: 'Koneksi bermasalah',
+                text: 'Periksa jaringan lalu coba lagi.',
                 confirmButtonText: 'Tutup',
+                ...swalDialog(),
             });
         } finally {
             if (submitBtn) {

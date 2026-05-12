@@ -39,6 +39,12 @@ class VehicleUsageLogController extends Controller
             'jam_awal' => ['required', 'date_format:H:i'],
             'jam_akhir' => ['required', 'date_format:H:i', 'after:jam_awal'],
             'keperluan' => ['required', 'string', 'max:10000'],
+            'level_bbm_awal' => ['required', 'integer', 'min:0', 'max:100'],
+            'level_bbm_akhir' => ['required', 'integer', 'min:0', 'max:100'],
+            'km_awal' => ['required', 'integer', 'min:0'],
+            'km_akhir' => ['required', 'integer', 'min:0', 'gte:km_awal'],
+            'kondisi_sebelum_penggunaan' => ['required', 'string', 'max:10000'],
+            'kondisi_setelah_penggunaan' => ['required', 'string', 'max:10000'],
         ], [
             'nomor_kendaraan.required' => 'Pilih nomor kendaraan.',
             'nomor_kendaraan.exists' => 'Nomor kendaraan tidak terdaftar.',
@@ -48,6 +54,13 @@ class VehicleUsageLogController extends Controller
             'jam_akhir.date_format' => 'Format jam akhir tidak valid.',
             'jam_akhir.after' => 'Jam akhir harus setelah jam awal.',
             'keperluan.required' => 'Keperluan wajib diisi.',
+            'level_bbm_awal.required' => 'Level BBM awal wajib diisi.',
+            'level_bbm_akhir.required' => 'Level BBM akhir wajib diisi.',
+            'km_awal.required' => 'KM awal wajib diisi.',
+            'km_akhir.required' => 'KM akhir wajib diisi.',
+            'km_akhir.gte' => 'KM akhir harus lebih besar atau sama dengan KM awal.',
+            'kondisi_sebelum_penggunaan.required' => 'Kondisi sebelum penggunaan wajib diisi.',
+            'kondisi_setelah_penggunaan.required' => 'Kondisi setelah penggunaan wajib diisi.',
         ]);
 
         $kendaraan = Kendaraan::query()->where('nomor_kendaraan', $validated['nomor_kendaraan'])->firstOrFail();
@@ -60,6 +73,12 @@ class VehicleUsageLogController extends Controller
             'jam_awal' => $validated['jam_awal'],
             'jam_akhir' => $validated['jam_akhir'],
             'keperluan' => $validated['keperluan'],
+            'level_bbm_awal' => (string) $validated['level_bbm_awal'],
+            'level_bbm_akhir' => (string) $validated['level_bbm_akhir'],
+            'km_awal' => (int) $validated['km_awal'],
+            'km_akhir' => (int) $validated['km_akhir'],
+            'kondisi_sebelum_penggunaan' => $validated['kondisi_sebelum_penggunaan'],
+            'kondisi_setelah_penggunaan' => $validated['kondisi_setelah_penggunaan'],
         ]);
 
         if ($wantsJson) {

@@ -35,6 +35,10 @@ class VehicleUsageLogArchiveController extends Controller
                 $q->where('nomor_kendaraan', 'like', $term)
                     ->orWhere('jenis_kendaraan', 'like', $term)
                     ->orWhere('keperluan', 'like', $term)
+                    ->orWhere('level_bbm_awal', 'like', $term)
+                    ->orWhere('level_bbm_akhir', 'like', $term)
+                    ->orWhere('kondisi_sebelum_penggunaan', 'like', $term)
+                    ->orWhere('kondisi_setelah_penggunaan', 'like', $term)
                     ->orWhereHas('user', function ($uq) use ($term) {
                         $uq->where('name', 'like', $term)
                             ->orWhere('username', 'like', $term);

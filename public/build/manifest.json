@@ -8,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-jG9n4P_U.css",
+    "file": "assets/app-DkCPh4mZ.css",
     "name": "app",
     "names": [
       "app.css"
@@ -43,7 +43,7 @@
     ]
   },
   "resources/js/bbm-form.js": {
-    "file": "assets/bbm-form-ChrvMSVc.js",
+    "file": "assets/bbm-form-CbvP3OFp.js",
     "name": "bbm-form",
     "src": "resources/js/bbm-form.js",
     "isEntry": true
@@ -55,7 +55,7 @@
     "isEntry": true
   },
   "resources/js/vehicle-usage-log.js": {
-    "file": "assets/vehicle-usage-log-BIOw-Z1E.js",
+    "file": "assets/vehicle-usage-log-C0hxhGqb.js",
     "name": "vehicle-usage-log",
     "src": "resources/js/vehicle-usage-log.js",
     "isEntry": true

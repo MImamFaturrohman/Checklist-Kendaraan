@@ -172,6 +172,11 @@
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
+        .landing-footer-logo {
+            width: 80px;
+            height: auto;
+            filter: brightness(0) invert(1);
+        }
         @media (max-width: 768px) {
             .lp-lk-sig-row { grid-template-columns: 1fr; }
         }
@@ -686,6 +691,7 @@
 <footer class="landing-footer">
     <div class="landing-container">
         <div class="landing-footer-inner">
+            <img src="{{ asset('images/footer_logo.png') }}" alt="Logo Suralaya" class="landing-footer-logo">
             <p class="landing-footer-copy">&copy; {{ date('Y') }} Port Management Unit Suralaya</p>
         </div>
     </div>

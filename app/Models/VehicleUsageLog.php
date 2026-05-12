@@ -16,7 +16,21 @@ class VehicleUsageLog extends Model
         'jam_awal',
         'jam_akhir',
         'keperluan',
+        'level_bbm_awal',
+        'level_bbm_akhir',
+        'km_awal',
+        'km_akhir',
+        'kondisi_sebelum_penggunaan',
+        'kondisi_setelah_penggunaan',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'km_awal' => 'integer',
+            'km_akhir' => 'integer',
+        ];
+    }
 
     public function user(): BelongsTo
     {

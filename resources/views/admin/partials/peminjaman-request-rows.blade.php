@@ -1,7 +1,7 @@
 @forelse($requests as $req)
     <tr>
         <td>{{ ($requests->currentPage() - 1) * $requests->perPage() + $loop->iteration }}</td>
-        <td>
+        <td style="min-width: 150px; max-width: 200px;">
             <div class="peminj-name">{{ $req->nama_lengkap }}</div>
             <div class="peminj-meta">{{ $req->nip }}</div>
             <div class="peminj-meta">{{ $req->jabatan }}</div>
@@ -9,7 +9,7 @@
                 <div class="peminj-meta-sm">{{ \Carbon\Carbon::parse($req->tanggal_peminjaman)->translatedFormat('d M Y') }}</div>
             @endif
         </td>
-        <td style="max-width:160px">
+        <td style="min-width: 217px; max-width: 250px;">
             @if($req->bidang)
                 <span class="peminj-bidang-nama">{{ $req->bidang->nama }}</span>
                 @if($req->bidang->parent)
@@ -19,11 +19,11 @@
                 <span class="peminj-meta" style="opacity:0.5">—</span>
             @endif
         </td>
-        <td>
+        <td style="min-width: 150px; max-width: 200px;">
             <span class="landing-nopol-badge">{{ $req->nomor_kendaraan }}</span>
             <div class="peminj-meta" style="margin-top:3px">{{ $req->jenis_kendaraan }}</div>
         </td>
-        <td style="max-width:200px">
+        <td style="min-width: 200px; max-width:250px">
             <div class="peminj-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px" title="{{ $req->alasan }}">
                 {{ $req->alasan }}
             </div>
@@ -46,7 +46,7 @@
                 </span>
             @endif
         </td>
-        <td class="peminj-meta" style="max-width:160px">
+        <td class="peminj-meta" style="max-width: 220px;">
             {{ $req->catatan_manager ?: '-' }}
         </td>
         <td class="peminj-meta" style="white-space:nowrap;font-size:0.78rem">

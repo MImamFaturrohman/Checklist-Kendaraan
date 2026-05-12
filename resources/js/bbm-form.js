@@ -170,11 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuBtn = document.getElementById('dash-mobile-menu-btn');
     const menuIcon = document.getElementById('dash-mobile-menu-icon');
 
-    const applyTheme = (isDark) => {
-        body.classList.toggle('dark', isDark);
-        if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-        if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    };
+    // const applyTheme = (isDark) => {
+    //     body.classList.toggle('dark', isDark);
+    //     if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+    //     if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    // };
     const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
     applyTheme(saved === 'dark');
     themeBtn?.addEventListener('click', () => {

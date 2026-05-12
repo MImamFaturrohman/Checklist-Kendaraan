@@ -31,7 +31,7 @@
         }
         
         .pdf-main { padding-bottom: 22mm; }
-
+        .pdf-body { padding-left: 10mm; padding-right: 10mm; margin-top: -3mm; }
         .header { width: 100%; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid #002a7a; }
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { vertical-align: middle; }
@@ -135,117 +135,118 @@
 @endphp
 
     <div class="pdf-main">
-    <div class="header">
-        <table class="header-table">
-            <tr>
-                <td class="header-left">
-                    <img class="header-logo" src="{{ public_path('images/ADCPM Landscape NEW.png') }}" alt="Logo ADC PM">
-                </td>
-                <td class="header-right">
-                    <div class="header-title">PERNYATAAN PEMINJAMAN KENDARAAN DINAS</div>
-                    <div class="header-pm">PM UNIT SURALAYA</div>
-                    <div class="header-no">{{ $docNo }} &nbsp;|&nbsp; {{ $tglApproved }}</div>
-                </td>
-            </tr>
-        </table>
-    </div>
+        <div class="header">
+            <table class="header-table">
+                <tr>
+                    <td class="header-left">
+                        <img class="header-logo" src="{{ public_path('images/ADCPM Landscape NEW.png') }}" alt="Logo ADC PM">
+                    </td>
+                    <td class="header-right">
+                        <div class="header-title">PERNYATAAN PEMINJAMAN KENDARAAN DINAS</div>
+                        <div class="header-pm">PM UNIT SURALAYA</div>
+                        <div class="header-no">{{ $docNo }} &nbsp;|&nbsp; {{ $tglApproved }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <p class="body-text"><br>Saya yang bertanda tangan dibawah ini:</p>
+        <div class="pdf-body">
+            <p class="body-text"><br>Saya yang bertanda tangan dibawah ini:</p>
+            <table class="pdf-kv-table">
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>Nama Pegawai</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $peminjaman->nama_lengkap }}</td>
+                </tr>
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>NIP</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $peminjaman->nip }}</td>
+                </tr>
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>Posisi</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $peminjaman->jabatan }}</td>
+                </tr>
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>Bidang / Bagian</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $bidangTeks }}</td>
+                </tr>
+            </table>
 
-    <table class="pdf-kv-table">
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>Nama Pegawai</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $peminjaman->nama_lengkap }}</td>
-        </tr>
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>NIP</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $peminjaman->nip }}</td>
-        </tr>
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>Posisi</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $peminjaman->jabatan }}</td>
-        </tr>
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>Bidang / Bagian</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $bidangTeks }}</td>
-        </tr>
-    </table>
+            <p class="body-text"><br>Mohon untuk dapat dipinjamkan kendaraan dinas <em>Port Management</em>, sebagai berikut:</p>
 
-    <p class="body-text"><br>Mohon untuk dapat dipinjamkan kendaraan dinas <em>Port Management</em>, sebagai berikut:</p>
+            <table class="pdf-kv-table">
+                <colgroup>
+                    <col style="width: 72mm;">
+                    <col style="width: 2.6mm;">
+                    <col>
+                </colgroup>
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>Jenis Kendaraan</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $peminjaman->jenis_kendaraan }}</td>
+                </tr>
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>Nomor Kendaraan</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $peminjaman->nomor_kendaraan }}</td>
+                </tr>
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>Hari / Tanggal Peminjaman</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $hariPinjam }}, {{ $tglPinjamStr }}</td>
+                </tr>
+                <tr>
+                    <td class="pdf-kv-label" style="width: 62mm;"><span>Untuk Keperluan</span></td>
+                    <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
+                    <td class="pdf-kv-value">{{ $peminjaman->alasan }}</td>
+                </tr>
+            </table>
 
-    <table class="pdf-kv-table">
-        <colgroup>
-            <col style="width: 72mm;">
-            <col style="width: 2.6mm;">
-            <col>
-        </colgroup>
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>Jenis Kendaraan</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $peminjaman->jenis_kendaraan }}</td>
-        </tr>
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>Nomor Kendaraan</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $peminjaman->nomor_kendaraan }}</td>
-        </tr>
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>Hari / Tanggal Peminjaman</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $hariPinjam }}, {{ $tglPinjamStr }}</td>
-        </tr>
-        <tr>
-            <td class="pdf-kv-label" style="width: 62mm;"><span>Untuk Keperluan</span></td>
-            <td class="pdf-kv-colon" style="width: 2.6mm;">:</td>
-            <td class="pdf-kv-value">{{ $peminjaman->alasan }}</td>
-        </tr>
-    </table>
+            <p class="declaration"><br>{{ $pernyataanPengantar }}</p>
+            @if($pernyataans->isNotEmpty())
+                <ol class="declaration-list">
+                    @foreach($pernyataans as $p)
+                        <li>{{ $p->isi_pernyataan }}</li>
+                    @endforeach
+                </ol>
+            @endif
 
-    <p class="declaration"><br>{{ $pernyataanPengantar }}</p>
-    @if($pernyataans->isNotEmpty())
-        <ol class="declaration-list">
-            @foreach($pernyataans as $p)
-                <li>{{ $p->isi_pernyataan }}</li>
-            @endforeach
-        </ol>
-    @endif
+            <p class="closing"><br>Demikian disampaikan. Atas perhatian dan kerjasamanya kami ucapkan terima kasih.</p>
 
-    <p class="closing"><br>Demikian disampaikan. Atas perhatian dan kerjasamanya kami ucapkan terima kasih.</p>
+            <table class="sig-table">
+                <tr>
+                    <td>
+                        <div class="sig-label">Mengetahui,</div>
+                        <div class="sig-position" style="font-weight: bold;">Manager Bidang</div>
+                        <div class="sig-img-box">
+                            <img src="{{ public_path('images/TTD Manager.png') }}" alt="TTD Manager">
+                        </div>
+                        <div>
+                            <span class="sig-name">{{ $peminjaman->approver?->name ?? 'Manager' }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="sig-label">Suralaya, {{ $tglApproved }}</div>
+                        <div class="sig-position" style="font-weight: bold;">{{ $peminjaman->jabatan }}</div>
+                        <div class="sig-img-box">
+                            @if($signatureDataUrl)
+                                <img src="{{ $signatureDataUrl }}" alt="TTD Pemohon">
+                            @endif
+                        </div>
+                        <div>
+                            <span class="sig-name">{{ $peminjaman->nama_lengkap }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <table class="sig-table">
-        <tr>
-            <td>
-                <div class="sig-label">Mengetahui,</div>
-                <div class="sig-position" style="font-weight: bold;">Manager Bidang</div>
-                <div class="sig-img-box">
-                    <img src="{{ public_path('images/TTD Manager.png') }}" alt="TTD Manager">
-                </div>
-                <div>
-                    <span class="sig-name">{{ $peminjaman->approver?->name ?? 'Manager' }}</span>
-                </div>
-            </td>
-            <td>
-                <div class="sig-label">Suralaya, {{ $tglApproved }}</div>
-                <div class="sig-position" style="font-weight: bold;">{{ $peminjaman->jabatan }}</div>
-                <div class="sig-img-box">
-                    @if($signatureDataUrl)
-                        <img src="{{ $signatureDataUrl }}" alt="TTD Pemohon">
-                    @endif
-                </div>
-                <div>
-                    <span class="sig-name">{{ $peminjaman->nama_lengkap }}</span>
-                </div>
-            </td>
-        </tr>
-    </table>
-    </div>
-
-    <div class="pdf-footer-note">
-        <p class="note">Dokumen ini dihasilkan secara otomatis oleh Vehicle Management System ADC Port Management.</p>
+        <div class="pdf-footer-note">
+            <p class="note">Dokumen ini dihasilkan secara otomatis oleh Vehicle Management System ADC Port Management.</p>
+        </div>
     </div>
 
 </body>
