@@ -11,6 +11,8 @@ class Bidang extends Model
     protected $fillable = [
         'parent_id',
         'nama',
+        'manager_nama',
+        'manager_email',
         'sort_order',
     ];
 
@@ -54,6 +56,11 @@ class Bidang extends Model
         }
 
         return $this->nama;
+    }
+
+    public function hasManagerContact(): bool
+    {
+        return filled($this->manager_nama) && filled($this->manager_email);
     }
 
     /** Hanya sub-bidang (daun) yang boleh dipilih di form peminjaman. */

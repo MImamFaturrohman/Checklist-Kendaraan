@@ -33,6 +33,8 @@ class BidangController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:200',
             'parent_id' => 'nullable|exists:bidangs,id',
+            'manager_nama' => 'nullable|string|max:200',
+            'manager_email' => 'nullable|email|max:255',
         ]);
 
         if (! empty($data['parent_id'])) {
@@ -42,6 +44,12 @@ class BidangController extends Controller
                     'parent_id' => 'Sub-bidang hanya boleh di bawah bidang utama.',
                 ]);
             }
+        }
+
+        // Manager contact only makes sense on leaf / sub-bidangs
+        if (empty($data['parent_id'])) {
+            $data['manager_nama'] = null;
+            $data['manager_email'] = null;
         }
 
         $parentId = $data['parent_id'] ?? null;
@@ -66,6 +74,8 @@ class BidangController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:200',
             'parent_id' => 'nullable|exists:bidangs,id',
+            'manager_nama' => 'nullable|string|max:200',
+            'manager_email' => 'nullable|email|max:255',
         ]);
 
         if ($bidang->children()->exists()) {
@@ -89,6 +99,13 @@ class BidangController extends Controller
                     'parent_id' => 'Bidang yang memiliki sub tidak dapat dijadikan sub.',
                 ]);
             }
+        }
+
+        // Manager contact only valid on sub-bidang (leaf); clear if promoting to root
+        $effectiveParentId = array_key_exists('parent_id', $data) ? $data['parent_id'] : $bidang->parent_id;
+        if (! $effectiveParentId) {
+            $data['manager_nama'] = null;
+            $data['manager_email'] = null;
         }
 
         $oldParentId = $bidang->parent_id;
@@ -144,6 +161,8 @@ class BidangController extends Controller
             'nama' => $b->nama,
             'parent_id' => $b->parent_id,
             'sort_order' => $b->sort_order,
+            'manager_nama' => $b->manager_nama,
+            'manager_email' => $b->manager_email,
             'children' => $children,
         ];
     }

@@ -26,6 +26,7 @@ class LaporanKejadian extends Model
         'ttd_manager',
         'ttd_pelapor',
         'pdf_path',
+        'manager_approval_token',
     ];
 
     protected function casts(): array

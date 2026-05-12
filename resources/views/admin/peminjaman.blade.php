@@ -314,6 +314,21 @@
                         <option value="">— Bidang utama —</option>
                     </select>
                 </div>
+                {{-- Manager fields: hanya tampil untuk sub-bidang --}}
+                <div id="ppm-bidang-manager-wrap" style="display:none">
+                    <div style="font-size:0.78rem;font-weight:600;color:#475569;margin:12px 0 6px;letter-spacing:.3px;text-transform:uppercase;">
+                        Manajer Sub-Bidang (opsional)
+                    </div>
+                    <div class="ppm-field">
+                        <label for="ppm-bidang-manager-nama">Nama Manager</label>
+                        <input type="text" id="ppm-bidang-manager-nama" class="admin-filter-input" maxlength="200" placeholder="Nama lengkap manager">
+                    </div>
+                    <div class="ppm-field">
+                        <label for="ppm-bidang-manager-email">Email Manager</label>
+                        <input type="email" id="ppm-bidang-manager-email" class="admin-filter-input" maxlength="255" placeholder="email@perusahaan.com">
+                    </div>
+                    <p style="font-size:0.73rem;color:#64748b;margin-top:2px;">Jika terisi, laporan kejadian dari sub-bidang ini akan dikirim ke email manager untuk persetujuan sebelum PDF dibuat.</p>
+                </div>
                 <div class="ppm-modal-actions">
                     <button type="button" class="portal-local-reset" id="ppm-bidang-cancel" data-close="bidang">Batal</button>
                     <button type="submit" class="admin-filter-btn">Simpan</button>
@@ -476,11 +491,20 @@ window.ppmSwitchTab = function (tab) {
         });
     }
 
+    function toggleManagerWrap() {
+        const sel = document.getElementById('ppm-bidang-parent');
+        const wrap = document.getElementById('ppm-bidang-manager-wrap');
+        if (!wrap) return;
+        wrap.style.display = sel.value ? 'block' : 'none';
+    }
+
     function openBidangModal(opts) {
-        const { id, nama, parent_id, lockParent } = opts;
+        const { id, nama, parent_id, lockParent, manager_nama, manager_email } = opts;
         document.getElementById('ppm-modal-bidang-title').textContent = id ? 'Ubah bidang' : (lockParent ? 'Tambah sub-bidang' : 'Tambah bidang utama');
         document.getElementById('ppm-bidang-id').value = id || '';
         document.getElementById('ppm-bidang-nama').value = nama || '';
+        document.getElementById('ppm-bidang-manager-nama').value = manager_nama || '';
+        document.getElementById('ppm-bidang-manager-email').value = manager_email || '';
         populateBidangParents();
         const sel = document.getElementById('ppm-bidang-parent');
         if (lockParent) {
@@ -490,6 +514,8 @@ window.ppmSwitchTab = function (tab) {
             sel.disabled = false;
             sel.value = (parent_id != null && parent_id !== '') ? String(parent_id) : '';
         }
+        toggleManagerWrap();
+        sel.addEventListener('change', toggleManagerWrap);
         document.getElementById('ppm-modal-bidang').hidden = false;
     }
 
@@ -518,6 +544,8 @@ window.ppmSwitchTab = function (tab) {
                 id: node.id,
                 nama: node.nama,
                 parent_id: node.parent_id,
+                manager_nama: node.manager_nama || '',
+                manager_email: node.manager_email || '',
             });
             return;
         }
@@ -544,7 +572,7 @@ window.ppmSwitchTab = function (tab) {
 
     function flattenBidang(nodes, acc = []) {
         nodes.forEach(n => {
-            acc.push({ id: n.id, nama: n.nama, parent_id: n.parent_id ?? null });
+            acc.push({ id: n.id, nama: n.nama, parent_id: n.parent_id ?? null, manager_nama: n.manager_nama || null, manager_email: n.manager_email || null });
             if (n.children && n.children.length) flattenBidang(n.children, acc);
         });
         return acc;
@@ -559,6 +587,14 @@ window.ppmSwitchTab = function (tab) {
         const psel = document.getElementById('ppm-bidang-parent');
         const pv = psel.value;
         payload.parent_id = pv === '' ? null : parseInt(pv, 10);
+
+        if (pv !== '') {
+            payload.manager_nama = document.getElementById('ppm-bidang-manager-nama').value.trim() || null;
+            payload.manager_email = document.getElementById('ppm-bidang-manager-email').value.trim() || null;
+        } else {
+            payload.manager_nama = null;
+            payload.manager_email = null;
+        }
 
         const url = id ? (PPM_API.bidangs + '/' + id) : PPM_API.bidangs;
         const method = id ? 'PUT' : 'POST';

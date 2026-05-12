@@ -312,6 +312,7 @@
 
     $bidangNama = $laporan->bidang?->nama ?? '–';
     $jabatanManajerLine = 'MANAJER '.mb_strtoupper($bidangNama, 'UTF-8');
+    $namaManajer = $laporan->bidang?->manager_nama;
 
     $isIncident = $laporan->kategori === 'Incident';
     $isNearmiss = $laporan->kategori === 'Nearmiss';
@@ -428,13 +429,17 @@
     <table class="sig-table">
         <tr>
             <td>
-                <div class="sig-line">Mengetahui,</div>
-                <div class="sig-role">{{ $jabatanManajerLine }}</div>
-                <div class="sig-img-box">
-                    @if($laporan->ttd_manager)
+                @if($laporan->ttd_manager && $namaManajer && $jabatanManajerLine)
+                    <div class="sig-line">Mengetahui,</div>
+                    <div class="sig-role">{{ $jabatanManajerLine }}</div>
+
+                    <div class="sig-img-box">
                         <img src="{{ $laporan->ttd_manager }}" alt="Tanda tangan manajer">
-                    @endif
-                </div>
+                    </div>
+                    <div class="sig-print-name">
+                        {{ mb_strtoupper($namaManajer, 'UTF-8') }}
+                    </div>
+                @endif
             </td>
             <td>
                 <div class="sig-line" style="margin-top:4px">Pelapor,</div>

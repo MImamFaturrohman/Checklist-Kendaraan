@@ -26,6 +26,16 @@
             border: 1px solid rgba(212, 175, 55, 0.28);
         }
         .dash-body.dark .peminj-pdf:hover { background: rgba(40, 80, 150, 0.98); }
+        .peminj-pending {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 10px; background: rgba(245, 158, 11, 0.12); color: #b45309;
+            border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px;
+            font-size: 0.75rem; font-weight: 700; white-space: nowrap;
+        }
+        .dash-body.dark .peminj-pending {
+            background: rgba(245, 158, 11, 0.18); color: #fcd34d;
+            border-color: rgba(251, 191, 36, 0.35);
+        }
         .lk-kat { font-size: 0.72rem; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
         .lk-kat-inc { background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.25); }
         .lk-kat-nm { background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.25); }
@@ -99,7 +109,7 @@
                                     <td class="lk-admin-waktu">
                                         {{ $row->waktu_kejadian?->timezone(config('app.timezone'))->format('d/m/Y H:i') }}
                                     </td>
-                                    <td>
+                                    <td style="min-width: 105px;">
                                         @if($row->kategori === 'Incident')
                                             <span class="lk-kat lk-kat-inc">Incident</span>
                                         @else
@@ -112,9 +122,15 @@
                                         <div class="lk-admin-meta">{{ $row->jenis_kendaraan }}</div>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.laporan-kejadian.pdf', $row) }}" class="peminj-pdf" target="_blank" rel="noopener">
-                                            <i class="bi bi-file-earmark-pdf-fill"></i> Unduh
-                                        </a>
+                                        @if($row->manager_approval_token)
+                                            <span class="peminj-pending">
+                                                <i class="bi bi-hourglass-split"></i> Pending Approval
+                                            </span>
+                                        @else
+                                            <a href="{{ route('admin.laporan-kejadian.pdf', $row) }}" class="peminj-pdf" target="_blank" rel="noopener">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i> Unduh
+                                            </a>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

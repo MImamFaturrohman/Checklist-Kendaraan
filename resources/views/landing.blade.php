@@ -614,26 +614,10 @@
                         </div>
                     </div>
 
-                    <div class="checklist-field lp-form-full lp-lk-sig-row">
-                        <div>
-                            <span>TTD Manager (Bidang / Bagian) <span style="color:#ef4444">*</span></span>
-                            <div style="max-width:100%;margin-top:6px">
-                                <div class="signature-pad-wrap" style="height:140px">
-                                    <canvas id="sig-pad-lk-manager" class="signature-canvas" style="height:120px"></canvas>
-                                    <div class="signature-pad-hint" id="sig-hint-lk-manager">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                                            <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/>
-                                        </svg>
-                                        <span>TANDA TANGAN MANAGER</span>
-                                    </div>
-                                </div>
-                                <button type="button" id="sig-clear-lk-manager" class="signature-clear-btn">&#x2715; Hapus</button>
-                            </div>
-                            <input type="hidden" name="ttd_manager" id="sig-data-lk-manager">
-                        </div>
+                    <div class="checklist-field lp-form-full">
                         <div>
                             <span>TTD Pelapor <span style="color:#ef4444">*</span></span>
-                            <div style="max-width:100%;margin-top:6px">
+                            <div style="max-width:480px;margin-top:6px">
                                 <div class="signature-pad-wrap" style="height:140px">
                                     <canvas id="sig-pad-lk-pelapor" class="signature-canvas" style="height:120px"></canvas>
                                     <div class="signature-pad-hint" id="sig-hint-lk-pelapor">
@@ -1167,7 +1151,6 @@ const _lkSigPads = [];
 function initLkSigPads() {
     if (!window.SignaturePad) return;
     const configs = [
-        { canvas: 'sig-pad-lk-manager', hint: 'sig-hint-lk-manager', clear: 'sig-clear-lk-manager', hidden: 'sig-data-lk-manager' },
         { canvas: 'sig-pad-lk-pelapor', hint: 'sig-hint-lk-pelapor', clear: 'sig-clear-lk-pelapor', hidden: 'sig-data-lk-pelapor' },
     ];
 
@@ -1234,7 +1217,7 @@ function initLkSigPads() {
 }
 
 (function tryInitLkPads(attempts) {
-    if (window.SignaturePad && document.getElementById('sig-pad-lk-manager')) {
+    if (window.SignaturePad && document.getElementById('sig-pad-lk-pelapor')) {
         initLkSigPads();
         return;
     }
@@ -1247,19 +1230,13 @@ if (formLk) {
     formLk.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const hM = document.getElementById('sig-data-lk-manager');
         const hP = document.getElementById('sig-data-lk-pelapor');
-        if (_lkSigPads.length >= 2) {
+        if (_lkSigPads.length >= 1) {
             if (_lkSigPads[0].isEmpty()) {
-                Swal.fire(landingSwalOpts({ icon: 'warning', title: 'TTD Manager Kosong', text: 'Mohon tanda tangan Manager (Bidang/Bagian).' }));
-                return;
-            }
-            if (_lkSigPads[1].isEmpty()) {
                 Swal.fire(landingSwalOpts({ icon: 'warning', title: 'TTD Pelapor Kosong', text: 'Mohon tanda tangan Pelapor.' }));
                 return;
             }
-            hM.value = _lkSigPads[0].toDataURL('image/png');
-            hP.value = _lkSigPads[1].toDataURL('image/png');
+            hP.value = _lkSigPads[0].toDataURL('image/png');
         }
 
         const wrapG = document.getElementById('lk_gambar_rows');
@@ -1325,20 +1302,22 @@ if (formLk) {
             const data = await res.json().catch(() => ({}));
 
             if (res.ok && data.success) {
+                const successText = data.pending_manager_approval
+                    ? 'Laporan berhasil dikirim. Tautan persetujuan telah dikirimkan ke email manager bidang Anda.'
+                    : 'Laporan berhasil dikirim dan PDF telah dibuat.';
                 await Swal.fire(landingSwalOpts({
                     icon: 'success',
                     title: 'Laporan Terkirim',
-                    text: 'Laporan berhasil dikirim dan PDF telah dibuat.',
+                    text: successText,
                 }));
                 this.reset();
                 document.getElementById('lk_jenis_kendaraan').value = '';
                 if (typeof window.lkResetGambarRows === 'function') window.lkResetGambarRows();
-                _lkSigPads.forEach((pad, i) => {
+                _lkSigPads.forEach((pad) => {
                     pad.clear();
-                    const hint = document.getElementById(i === 0 ? 'sig-hint-lk-manager' : 'sig-hint-lk-pelapor');
+                    const hint = document.getElementById('sig-hint-lk-pelapor');
                     if (hint) hint.classList.remove('hidden');
                 });
-                if (hM) hM.value = '';
                 if (hP) hP.value = '';
             } else if (res.status === 422 && data.errors) {
                 Swal.fire(landingSwalOpts({ icon: 'warning', title: 'Data Tidak Valid', html: Object.values(data.errors).flat().join('<br>') }));

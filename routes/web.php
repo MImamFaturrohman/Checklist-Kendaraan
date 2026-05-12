@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [PeminjamanController::class, 'landingPage'])->name('landing');
 Route::post('/peminjaman', [PeminjamanController::class, 'store'])->name('peminjaman.store');
 Route::post('/laporan-kejadian', [LaporanKejadianController::class, 'store'])->name('laporan-kejadian.store');
+Route::get('/laporan-kejadian/approval/{token}', [LaporanKejadianController::class, 'showApproval'])->name('laporan-kejadian.approval.show');
+Route::post('/laporan-kejadian/approval/{token}/sign', [LaporanKejadianController::class, 'submitApproval'])->name('laporan-kejadian.approval.sign');
 
 // Public kendaraan list API for landing page form
 Route::get('/api/kendaraan/public-list', [KendaraanController::class, 'apiList'])->name('api.kendaraan.public-list');

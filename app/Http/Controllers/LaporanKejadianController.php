@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\LaporanKejadianApprovalMail;
 use App\Models\Bidang;
 use App\Models\Kendaraan;
 use App\Models\LaporanKejadian;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LaporanKejadianController extends Controller
@@ -32,7 +36,6 @@ class LaporanKejadianController extends Controller
             'foto.*' => 'required|image|max:5120',
             'penjelasan_gambar' => 'required|array|min:1|max:3',
             'penjelasan_gambar.*' => 'required|string|max:10000',
-            'ttd_manager' => 'required|string',
             'ttd_pelapor' => 'required|string',
         ], [
             'foto.required' => 'Minimal satu foto kejadian wajib diunggah.',
@@ -68,13 +71,11 @@ class LaporanKejadianController extends Controller
             ]);
         }
 
-        foreach (['ttd_manager', 'ttd_pelapor'] as $field) {
-            $v = $request->input($field);
-            if (! is_string($v) || ! str_starts_with($v, 'data:image/png;base64,')) {
-                throw ValidationException::withMessages([
-                    $field => 'Tanda tangan tidak valid.',
-                ]);
-            }
+        $ttdPelapor = $request->input('ttd_pelapor');
+        if (! is_string($ttdPelapor) || ! str_starts_with($ttdPelapor, 'data:image/png;base64,')) {
+            throw ValidationException::withMessages([
+                'ttd_pelapor' => 'Tanda tangan tidak valid.',
+            ]);
         }
 
         $lampiran = [];
@@ -88,6 +89,9 @@ class LaporanKejadianController extends Controller
 
         $firstPenjelasan = $lampiran[0]['penjelasan'] ?? '';
         $fotoPath = $lampiran[0]['path'] ?? null;
+
+        $needsManagerApproval = $bidang->hasManagerContact();
+        $token = $needsManagerApproval ? Str::random(64) : null;
 
         $laporan = LaporanKejadian::create([
             'nama' => $request->nama,
@@ -105,9 +109,26 @@ class LaporanKejadianController extends Controller
             'penjelasan_gambar' => $firstPenjelasan,
             'lampiran_gambar' => $lampiran,
             'foto_path' => $fotoPath,
-            'ttd_manager' => $request->ttd_manager,
-            'ttd_pelapor' => $request->ttd_pelapor,
+            'ttd_pelapor' => $ttdPelapor,
+            'ttd_manager' => null,
+            'manager_approval_token' => $token,
         ]);
+
+        if ($needsManagerApproval) {
+            $approvalUrl = route('laporan-kejadian.approval.show', ['token' => $token]);
+            try {
+                Mail::to($bidang->manager_email)
+                    ->send(new LaporanKejadianApprovalMail($laporan->load('bidang.parent'), $approvalUrl, $bidang->manager_nama));
+            } catch (\Throwable $e) {
+                Log::error('LaporanKejadian approval email gagal: '.$e->getMessage(), ['laporan_id' => $laporan->id]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'pending_manager_approval' => true,
+                'message' => 'Laporan kejadian berhasil dikirim. Tautan persetujuan telah dikirimkan ke email manager bidang Anda.',
+            ]);
+        }
 
         try {
             $pdfPath = $this->buildAndStorePdf($laporan);
@@ -115,13 +136,81 @@ class LaporanKejadianController extends Controller
                 $laporan->update(['pdf_path' => $pdfPath]);
             }
         } catch (\Throwable) {
-            // Tetap anggap sukses menyimpan laporan; PDF bisa diunduh ulang dari admin
+            // Tetap anggap sukses; PDF bisa diunduh ulang dari admin
         }
 
         return response()->json([
             'success' => true,
+            'pending_manager_approval' => false,
             'message' => 'Laporan kejadian berhasil dikirim.',
         ]);
+    }
+
+    public function showApproval(string $token)
+    {
+        $laporan = LaporanKejadian::query()
+            ->where('manager_approval_token', $token)
+            ->with(['bidang.parent'])
+            ->firstOrFail();
+
+        if ($laporan->ttd_manager) {
+            return view('laporan-kejadian.manager-approval', [
+                'laporan' => $laporan,
+                'alreadySigned' => true,
+            ]);
+        }
+
+        $fotoSlides = [];
+        foreach ($laporan->lampiranItems() as $item) {
+            $p = $item['path'];
+            $url = ($p !== '' && Storage::disk('public')->exists($p))
+                ? Storage::disk('public')->url($p)
+                : null;
+            $fotoSlides[] = ['url' => $url, 'penjelasan' => $item['penjelasan']];
+        }
+
+        return view('laporan-kejadian.manager-approval', [
+            'laporan' => $laporan,
+            'alreadySigned' => false,
+            'fotoSlides' => $fotoSlides,
+        ]);
+    }
+
+    public function submitApproval(Request $request, string $token): JsonResponse
+    {
+        $laporan = LaporanKejadian::query()
+            ->where('manager_approval_token', $token)
+            ->firstOrFail();
+
+        if ($laporan->ttd_manager) {
+            return response()->json(['success' => false, 'message' => 'Laporan ini sudah disetujui sebelumnya.'], 422);
+        }
+
+        $request->validate([
+            'ttd_manager' => 'required|string',
+        ]);
+
+        $ttd = $request->input('ttd_manager');
+        if (! is_string($ttd) || ! str_starts_with($ttd, 'data:image/png;base64,')) {
+            return response()->json(['success' => false, 'message' => 'Tanda tangan tidak valid.'], 422);
+        }
+
+        $laporan->update([
+            'ttd_manager' => $ttd,
+            'manager_approval_token' => null,
+        ]);
+
+        try {
+            $laporan->load('bidang.parent');
+            $pdfPath = $this->buildAndStorePdf($laporan);
+            if ($pdfPath) {
+                $laporan->update(['pdf_path' => $pdfPath]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('LaporanKejadian PDF build gagal setelah approval: '.$e->getMessage(), ['laporan_id' => $laporan->id]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Tanda tangan berhasil disimpan. Laporan telah disetujui.']);
     }
 
     public function adminIndex(Request $request)
@@ -146,6 +235,10 @@ class LaporanKejadianController extends Controller
     public function downloadPdf(LaporanKejadian $laporanKejadian)
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        if ($laporanKejadian->manager_approval_token) {
+            abort(403, 'Laporan masih menunggu persetujuan manager.');
+        }
 
         $laporanKejadian->load(['bidang.parent']);
 
