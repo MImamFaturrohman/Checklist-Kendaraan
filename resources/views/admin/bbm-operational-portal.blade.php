@@ -13,8 +13,8 @@
 @php $premiumBgId = 'bbm_operational'; @endphp
 
 @push('styles')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
         .bbm-chart-global-filters.portal-local-filters {
             align-items: flex-end;
             gap: 12px 16px;

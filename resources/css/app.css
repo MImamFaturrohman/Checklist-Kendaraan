@@ -3300,7 +3300,14 @@ select.admin-filter-input {
 }
 
 .landing-footer {
-    background: var(--dash-blue);
+    background:
+        radial-gradient(
+            ellipse 650px 120px at center,
+            #244e9b 0%,
+            #102f5b 35%,
+            #0f223f 65%,
+            #071828 100%
+        );
     color: rgba(255, 255, 255, 0.7);
     padding: 10px 20px;
     margin-top: 16px;
@@ -3328,6 +3335,12 @@ select.admin-filter-input {
 .landing-footer-copy {
     font-size: 0.78rem;
     margin: 0;
+}
+
+.landing-footer-logo {
+    width: 80px;
+    height: auto;
+    display: block;
 }
 
 /* Landing — dark: judul/subtitle mengikuti hierarki light (biru gelap / abu) */
