@@ -14,7 +14,7 @@
     /* Chrome (sidebar + topbar) tokens */
     --dash-chrome-sidebar-light: linear-gradient(180deg, #1a3a72 0%, #0e2a52 50%, #0a1f3d 100%);
     --dash-chrome-sidebar-dark:  #060c18;
-    --dash-chrome-topbar-light:  #0e2a52f7;
+    --dash-chrome-topbar-light:  #0e2a52;
     --dash-chrome-topbar-dark:   rgba(11, 31, 66, 0.97);
 }
 
@@ -8315,12 +8315,6 @@ body.dash-body {
     width: auto;
     object-fit: contain;
 }
-.dash-topbar-brand-text--compact {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    text-align: left;
-}
 
 /* Legacy centred brand anchor (unused in dash-app chrome; retained for compatibility) */
 .dash-topbar-brand {
@@ -8338,47 +8332,38 @@ body.dash-body {
     object-fit: contain;
     flex-shrink: 0;
 }
-.dash-topbar-brand-text {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    text-align: left;
-}
-.dash-topbar-brand-name {
-    font-size: 0.92rem;
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.dash-body:not(.dark) .dash-topbar-brand-name {
-    color: #ffffff;
-}
-.dash-body.dark .dash-topbar-brand-name {
-    color: #e8f0fe;
-}
-.dash-topbar-brand-sub {
-    font-size: 0.58rem;
-    font-weight: 600;
-    letter-spacing: 1.6px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.dash-body:not(.dark) .dash-topbar-brand-sub {
-    color: rgba(191, 219, 254, 0.72);
-}
-.dash-body.dark .dash-topbar-brand-sub {
-    color: rgba(200, 218, 255, 0.5);
-}
 .dash-topbar-right {
     display: flex;
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
+}
+
+/* ── Responsive: notifikasi / role / profil di topbar hanya desktop (≥992px) ── */
+@media (min-width: 992px) {
+    .dash-topbar-desktop-only--cluster {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 6px;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 991px) {
+    .dash-topbar-desktop-only--cluster {
+        display: none !important;
+    }
+
+    .dash-topbar-logout-desktop-only.dash-topbar-logout-form {
+        display: none !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .dash-topbar-drawer-mobile-only.dash-topbar-dash-drawer-btn {
+        display: none !important;
+    }
 }
 
 /* Topbar «Dashboard» — opens right nav drawer (non-dashboard routes) */
@@ -8734,6 +8719,167 @@ body.dash-body {
     padding-bottom: 4px !important;
 }
 
+/* ── Drawer: akun / notifikasi (≤991px) ── */
+.dash-nav-drawer-account {
+    display: none;
+}
+
+@media (max-width: 991px) {
+    .dash-nav-drawer-account {
+        display: block;
+        padding: 4px 8px 12px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+    }
+}
+
+.dash-body.dark .dash-nav-drawer-account {
+    border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+.dash-nav-drawer-account-label.dash-sidebar-group-label {
+    padding-left: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+.dash-nav-drawer-profile-btn {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    background: rgba(255, 255, 255, 0.5);
+    color: #0f2744;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.dash-nav-drawer-profile-btn:hover {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.28);
+}
+
+.dash-body.dark .dash-nav-drawer-profile-btn {
+    background: rgba(30, 58, 138, 0.4);
+    border-color: rgba(147, 197, 253, 0.22);
+    color: #e2e8f0;
+}
+
+.dash-body.dark .dash-nav-drawer-profile-btn:hover {
+    background: rgba(37, 99, 235, 0.35);
+}
+
+.dash-nav-drawer-profile-avatar {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.98rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #0e2a52;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.dash-body.dark .dash-nav-drawer-profile-avatar {
+    background: rgba(226, 232, 240, 0.12);
+    color: #f1f5f9;
+    border-color: rgba(212, 175, 55, 0.25);
+}
+
+.dash-nav-drawer-profile-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.dash-nav-drawer-profile-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dash-nav-drawer-profile-hint {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: rgba(51, 65, 85, 0.55);
+}
+
+.dash-body.dark .dash-nav-drawer-profile-hint {
+    color: rgba(203, 213, 225, 0.45);
+}
+
+.dash-nav-drawer-account-chip-notif-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    position: relative;
+    width: fit-content;
+}
+
+.dash-nav-drawer-account-chip.dash-chip {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    max-width: fit-content;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.dash-body:not(.dark) .dash-nav-drawer-account-chip.dash-chip.dash-chip-admin {
+    background: rgba(255, 211, 0, 0.3);
+    color: var(--dash-gold);
+    border: 1px solid rgba(255, 211, 0, 0.3);
+}
+.dash-body:not(.dark) .dash-nav-drawer-account-chip.dash-chip.dash-chip-driver {
+    background: rgba(34, 197, 94, 0.15);
+    color: #42bb6e;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.dash-nav-notif-in-drawer {
+    width: 100%;
+    position: static;
+}
+
+.dash-nav-notif-in-drawer .dash-notif-btn {
+    width: 45px;
+    background: rgba(241, 245, 249, 0.92);
+    color: var(--dash-blue);
+}
+
+.dash-body.dark .dash-nav-notif-in-drawer .dash-notif-btn {
+    background: var(--dash-blue);
+    color: rgba(241, 245, 249, 0.92);
+}
+
+.dash-notif-panel--drawer,
+#dash-nav-notif-panel.dash-notif-panel--drawer {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    margin-top: 8px;
+    width: 320px;
+    max-width: min(92vw, 365px);
+    max-height: min(280px, 42vh);
+    z-index: 999;
+}
+
 /* Light drawer: slate text on frosted panel */
 .dash-nav-glass-card .dash-sidebar-group-label,
 .dash-nav-glass-card .dash-nav-drawer-group-label {
@@ -8837,11 +8983,5 @@ body.dash-body {
     }
     .dash-topbar-brand-block .dash-topbar-brand-logo {
         height: 28px;
-    }
-    .dash-topbar-brand-name {
-        font-size: 0.78rem;
-    }
-    .dash-topbar-brand-sub {
-        display: none;
     }
 }

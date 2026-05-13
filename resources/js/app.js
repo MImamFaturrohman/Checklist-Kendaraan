@@ -70,12 +70,13 @@ Alpine.start();
             });
         }
 
-        /* ── 3. Notification panel (topbar) ── */
-        const notifWrap  = document.getElementById('dash-notif-wrap');
-        const notifBtn   = document.getElementById('dash-notif-toggle');
-        const notifPanel = document.getElementById('dash-notif-panel');
+        /* ── 3. Notification panels (topbar desktop + nav drawer mobile) ── */
+        function wireNotificationDropdown(wrapId, toggleId, panelId) {
+            const notifWrap  = document.getElementById(wrapId);
+            const notifBtn   = document.getElementById(toggleId);
+            const notifPanel = document.getElementById(panelId);
+            if (!notifWrap || !notifBtn || !notifPanel) return;
 
-        if (notifWrap && notifBtn && notifPanel) {
             function closeNotifPanel() {
                 notifPanel.hidden = true;
                 notifBtn.setAttribute('aria-expanded', 'false');
@@ -92,7 +93,6 @@ Alpine.start();
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') closeNotifPanel();
             });
-            /* Mark read on link click */
             const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
             notifPanel.querySelectorAll('.dash-notif-link[data-notification-id]').forEach(function (a) {
                 a.addEventListener('click', function () {
@@ -106,6 +106,8 @@ Alpine.start();
                 });
             });
         }
+        wireNotificationDropdown('dash-notif-wrap', 'dash-notif-toggle', 'dash-notif-panel');
+        wireNotificationDropdown('dash-nav-notif-wrap', 'dash-nav-notif-toggle', 'dash-nav-notif-panel');
     });
 })();
 

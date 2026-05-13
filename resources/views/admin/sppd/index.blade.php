@@ -2,9 +2,9 @@
 
 @extends('layouts.dash-app')
 
-@section('title', 'Rekap SPPD (Admin)')
-@section('pageTitle', 'Rekap SPPD')
-@section('pageSubtitle', 'Verifikasi laporan driver')
+@section('title', 'TransDinas')
+@section('pageTitle', 'TransDinas')
+@section('pageSubtitle', 'Verifikasi laporan SPPD driver')
 
 @php $premiumBgId = 'admin_sppd_index'; @endphp
 

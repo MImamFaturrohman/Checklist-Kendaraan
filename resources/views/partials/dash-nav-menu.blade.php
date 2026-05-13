@@ -10,8 +10,83 @@
     $sbPendingCount  = $sbPendingCount ?? 0;
     $sbSppdPending   = $sbSppdPending  ?? 0;
 
+    $sbUserName      = $sbUserName ?? ($sbUser?->name ?? $sbUser?->username ?? 'User');
+    $sbUserRoleLabel = $sbIsSuperAdmin ? 'SUPERADMIN' : ($sbIsAdmin ? 'ADMIN' : ($sbIsManager ? 'MANAGER' : ($sbIsPic ? 'PIC KENDARAAN' : 'DRIVER')));
+
+    $sbSuperadminNotifications = $sbSuperadminNotifications ?? collect();
+    $sbSuperadminUnreadCount   = $sbSuperadminUnreadCount   ?? 0;
+
     $navNavClass = $navNavClass ?? 'dash-sidebar-nav dash-nav-drawer-inner-nav';
 @endphp
+
+<div class="dash-nav-drawer-account" aria-label="Akun">
+    <span class="dash-sidebar-group-label dash-nav-drawer-group-label dash-nav-drawer-account-label">AKUN</span>
+
+    <button type="button"
+            class="dash-nav-drawer-profile-btn"
+            id="dash-nav-profile-open-btn"
+            onclick="openProfileDrawer()"
+            aria-label="Profil Saya"
+            title="Profil Saya">
+        <span class="dash-nav-drawer-profile-avatar">{{ strtoupper(substr($sbUserName, 0, 1)) }}</span>
+        <span class="dash-nav-drawer-profile-meta">
+            <span class="dash-nav-drawer-profile-name">{{ $sbUserName }}</span>
+            <span class="dash-nav-drawer-profile-hint">Profil Saya</span>
+        </span>
+    </button>
+
+    <div class="dash-nav-drawer-account-chip-notif-wrap">
+        <span class="dash-chip dash-nav-drawer-account-chip {{ ($sbIsAdmin || $sbIsSuperAdmin) ? 'dash-chip-admin' : ($sbIsManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
+            @if ($sbIsAdmin || $sbIsSuperAdmin)
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
+            @elseif ($sbIsManager)
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            @else
+                <i class="bi bi-person-check-fill"></i>
+            @endif
+            <span class="dash-nav-chip-label">{{ $sbUserRoleLabel }}</span>
+        </span>
+    
+        @if($sbIsSuperAdmin)
+        <div class="dash-notif-wrap dash-nav-notif-in-drawer" id="dash-nav-notif-wrap">
+            <button type="button"
+                    class="dash-notif-btn"
+                    id="dash-nav-notif-toggle"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    aria-controls="dash-nav-notif-panel"
+                    title="Notifikasi">
+                <i class="bi bi-bell-fill" aria-hidden="true"></i>
+                @if($sbSuperadminUnreadCount > 0)
+                    <span class="dash-notif-badge">{{ $sbSuperadminUnreadCount > 99 ? '99+' : $sbSuperadminUnreadCount }}</span>
+                @endif
+            </button>
+            <div class="dash-notif-panel dash-notif-panel--drawer" id="dash-nav-notif-panel" role="menu" hidden>
+                <div class="dash-notif-panel-head">Notifikasi</div>
+                <ul class="dash-notif-list">
+                    @forelse($sbSuperadminNotifications as $n)
+                        @php $d = $n->data; @endphp
+                        <li class="dash-notif-item{{ $n->read_at ? '' : ' is-unread' }}">
+                            <a href="{{ $d['url'] ?? '#' }}"
+                               class="dash-notif-link"
+                               data-notification-id="{{ $n->id }}"
+                               role="menuitem">
+                                <strong class="dash-notif-title">{{ $d['title'] ?? 'Notifikasi' }}</strong>
+                                <span class="dash-notif-body">{{ $d['body'] ?? '' }}</span>
+                                <time class="dash-notif-time" datetime="{{ $n->created_at?->toIso8601String() }}">
+                                    {{ $n->created_at?->timezone(config('app.timezone'))->format('d/m/Y H:i') }}
+                                </time>
+                            </a>
+                        </li>
+                    @empty
+                        <li class="dash-notif-empty">Belum ada notifikasi.</li>
+                    @endforelse
+                </ul>
+            </div>
+        </div>
+        @endif
+    </div>
+</div>
 
 <nav class="{{ $navNavClass }}" aria-label="Menu navigasi">
 
@@ -41,6 +116,7 @@
             <span class="dash-sidebar-label">Portal Pemeriksaan</span>
         </a>
 
+        @if($sbIsSuperAdmin)
         <a href="{{ route('admin.peminjaman') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.peminjaman*') ? 'is-active' : '' }}"
            style="position:relative">
@@ -52,6 +128,7 @@
                 <span class="dash-sidebar-badge">{{ $sbPendingCount > 99 ? '99+' : $sbPendingCount }}</span>
             @endif
         </a>
+        @endif
 
         <a href="{{ route('admin.sppd.index') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.sppd.*') ? 'is-active' : '' }}">
@@ -61,6 +138,7 @@
             <span class="dash-sidebar-label">TransDinas</span>
         </a>
 
+        @if($sbIsSuperAdmin)
         <a href="{{ route('admin.laporan-kejadian.index') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.laporan-kejadian.*') ? 'is-active' : '' }}">
             <span class="dash-sidebar-icon">
@@ -68,8 +146,10 @@
             </span>
             <span class="dash-sidebar-label">Laporan Kejadian</span>
         </a>
+        @endif
     </div>
 
+        @if($sbIsSuperAdmin)
         {{-- ─ OPERASIONAL ─ --}}
         <div class="dash-sidebar-group dash-nav-drawer-group">
             <span class="dash-sidebar-group-label dash-nav-drawer-group-label">OPERASIONAL</span>
@@ -90,7 +170,6 @@
                 <span class="dash-sidebar-label">Log Kendaraan</span>
             </a>
 
-            @if($sbIsSuperAdmin)
             <a href="{{ route('admin.portal-manajemen') }}"
                class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.portal-manajemen*') ? 'is-active' : '' }}">
                 <span class="dash-sidebar-icon">
@@ -98,8 +177,8 @@
                 </span>
                 <span class="dash-sidebar-label">Manajemen Sistem</span>
             </a>
-            @endif
         </div>
+        @endif
     @endif
 
     @if($sbIsManager)

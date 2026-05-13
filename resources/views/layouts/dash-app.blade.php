@@ -94,8 +94,7 @@
 
 </div>
 
-@if(!$layoutIsDashboard)
-{{-- ══ NAV DRAWER (kanan — menu & keluar; halaman selain Dashboard) ══ --}}
+{{-- ══ NAV DRAWER (kanan — akun/notifikasi pada mobile, menu, keluar) ══ --}}
 <div class="dash-nav-overlay" id="dash-nav-overlay" style="display:none" onclick="closeDashNavDrawer()" aria-hidden="true"></div>
 <aside class="dash-nav-drawer" id="dash-nav-drawer" aria-label="Menu aplikasi">
     <div class="dash-nav-drawer-heading">
@@ -106,7 +105,19 @@
     </div>
     <div class="dash-nav-drawer-body">
         <div class="dash-nav-glass-card">
-            @include('partials.dash-nav-menu')
+            @include('partials.dash-nav-menu', [
+                'sbUser'                     => $layoutUser,
+                'sbIsSuperAdmin'             => $layoutIsSuperAdmin,
+                'sbIsAdmin'                  => $layoutIsAdmin,
+                'sbIsManager'                => $layoutIsManager,
+                'sbIsPic'                    => $layoutIsPic,
+                'sbIsDriver'                 => $layoutIsDriver,
+                'sbPendingCount'             => $layoutPendingCount,
+                'sbSppdPending'              => $layoutSppdPending,
+                'sbUserName'                 => $layoutUserName,
+                'sbSuperadminNotifications'  => $layoutNotifications,
+                'sbSuperadminUnreadCount'    => $layoutUnreadCount,
+            ])
         </div>
     </div>
     <div class="dash-nav-drawer-footer">
@@ -119,7 +130,6 @@
         </form>
     </div>
 </aside>
-@endif
 
 {{-- ══ PROFILE DRAWER (global — available on all pages) ══ --}}
 <div class="profile-overlay" id="profile-overlay" style="display:none" onclick="closeProfileDrawer()"></div>
@@ -247,7 +257,7 @@
 
 @push('scripts')
 <script>
-/* ── Nav drawer (kanan — hanya ada di luar halaman Dashboard) ── */
+/* ── Nav drawer (kanan — semua halaman; blok akun di dalam menu untuk ≤991px) ── */
 function closeDashNavDrawer() {
     const overlay = document.getElementById('dash-nav-overlay');
     const drawer  = document.getElementById('dash-nav-drawer');

@@ -28,12 +28,8 @@
 
 @section('title', 'Dashboard')
 
-@section('brandText')
-    <div class="dash-topbar-brand-text dash-topbar-brand-text--compact">
-        <span class="dash-topbar-brand-name">Vehicle Management System</span>
-        <span class="dash-topbar-brand-sub">Port Management</span>
-    </div>
-@endsection
+@section('pageTitle', 'Vehicle Management system')
+@section('pageSubtitle', 'Port Management')
 
 {{-- ══ HERO SECTION ══ --}}
 @section('hero')

@@ -20,9 +20,6 @@
     <div class="dash-topbar-left">
         <div class="dash-topbar-brand-block">
             <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-topbar-brand-logo" width="120" height="48">
-            @hasSection('brandText')
-                @yield('brandText')
-            @endif
         </div>
 
         <div class="dash-topbar-title-wrap">
@@ -41,8 +38,8 @@
     </div>
 
     <div class="dash-topbar-right">
-
-        {{-- Notifikasi (superadmin only) --}}
+        <div class="dash-topbar-desktop-only dash-topbar-desktop-only--cluster">
+        {{-- Notifikasi (superadmin only — desktop ≥992px) --}}
         @if($tbIsSuperAdmin)
         <div class="dash-notif-wrap" id="dash-notif-wrap">
             <button type="button"
@@ -59,6 +56,11 @@
             </button>
             <div class="dash-notif-panel" id="dash-notif-panel" role="menu" hidden>
                 <div class="dash-notif-panel-head">Notifikasi</div>
+                @if($tbSuperadminNotifications->isNotEmpty())
+                    <span style="color: red; background-color: black;">Ada</span>
+                @else
+                    <span style="color: green; background-color: black;">Tidak ada</span>
+                @endif
                 <ul class="dash-notif-list">
                     @forelse($tbSuperadminNotifications as $n)
                         @php $d = $n->data; @endphp
@@ -82,15 +84,6 @@
         </div>
         @endif
 
-        {{-- Theme toggle --}}
-        <button type="button"
-                class="dash-theme-btn"
-                id="dash-theme-toggle"
-                title="Ganti Tema"
-                aria-label="Toggle Tema">
-            <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
-        </button>
-
         {{-- Role chip --}}
         <span class="dash-chip {{ ($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-chip-admin' : ($tbIsManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
             @if ($tbIsAdmin || $tbIsSuperAdmin)
@@ -113,28 +106,38 @@
             <span class="dash-topbar-avatar">{{ strtoupper(substr($tbUserName, 0, 1)) }}</span>
             <span class="dash-topbar-username">{{ $tbUserName }}</span>
         </button>
+        </div>
+
+        {{-- Theme toggle — semua breakpoints --}}
+        <button type="button"
+                class="dash-theme-btn"
+                id="dash-theme-toggle"
+                title="Ganti Tema"
+                aria-label="Toggle Tema">
+            <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
+        </button>
 
         @if($tbIsDashboard)
-        <form method="POST" action="{{ route('logout') }}" class="dash-topbar-logout-form">
+        <form method="POST" action="{{ route('logout') }}" class="dash-topbar-logout-form dash-topbar-logout-desktop-only">
             @csrf
             <button type="submit" class="dash-topbar-logout" title="Keluar" aria-label="Keluar">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span class="dash-topbar-logout-label">Keluar</span>
             </button>
         </form>
-        @else
+        @endif
+
         <button type="button"
-                class="dash-topbar-dash-drawer-btn"
+                class="dash-topbar-dash-drawer-btn {{ $tbIsDashboard ? 'dash-topbar-drawer-mobile-only' : '' }}"
                 id="dash-nav-drawer-open"
                 onclick="openDashNavDrawer()"
                 title="Dashboard &amp; menu"
-                aria-label="Buka menu navigasi Dashboard"
+                aria-label="Buka menu navigasi"
                 aria-expanded="false"
                 aria-controls="dash-nav-drawer">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/></svg>
             <span class="dash-topbar-dash-drawer-btn-label">Dashboard</span>
         </button>
-        @endif
 
     </div>
 </header>
