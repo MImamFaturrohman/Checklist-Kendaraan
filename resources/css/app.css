@@ -1038,7 +1038,8 @@
 
 #checklist-progress-fill,
 #sppd-progress-fill,
-#vul-progress-fill {
+#vul-progress-fill,
+#bbm-progress-fill {
     display: block;
     height: 100%;
     width: 14%;
@@ -7692,21 +7693,6 @@ body#landing.dash-body.dark .signature-canvas {
     padding-bottom: 12px;
     border-bottom: 1px dashed rgba(148, 163, 184, 0.45);
 }
-.sppd-form-footer {
-    margin-top: 22px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding-top: 10px;
-    border-top: 1px dashed rgba(148, 163, 184, 0.28);
-}
-.sppd-footer-cancel {
-    text-decoration: none;
-    text-align: center;
-    min-width: 106px;
-}
 .sppd-footer-actions {
     display: flex;
     gap: 10px;
@@ -7753,8 +7739,6 @@ body#landing.dash-body.dark .signature-canvas {
     color: #002a7a;
 }
 .dash-body.dark .sppd-add-row { color: #93c5fd; border-color: rgba(148, 163, 184, 0.35); }
-.dash-body.dark .sppd-form-footer { border-top-color: rgba(255, 255, 255, 0.12); }
-
 .sppd-summary-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -7967,20 +7951,6 @@ body#landing.dash-body.dark .signature-canvas {
 }
 
 @media (max-width: 720px) {
-    .sppd-form-footer {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .sppd-footer-actions {
-        width: 100%;
-        margin-left: 0;
-        justify-content: stretch;
-    }
-    .sppd-footer-actions .checklist-nav-btn,
-    .sppd-footer-cancel {
-        width: 100%;
-    }
-
     .sppd-table-wrap .admin-table thead { display: none; }
     .sppd-table-wrap .admin-table tr { display: block; border-bottom: 1px solid #e2e8f0; padding: 10px 0; }
     .sppd-table-wrap .admin-table td {
@@ -8067,15 +8037,9 @@ body#landing.dash-body.dark .signature-canvas {
     min-height: 52px;
     font-size: 0.95rem;
     border-radius: 14px;
-    background: #052d7f !important;
-    color: #fff !important;
     box-shadow: 0 6px 20px rgba(5, 45, 127, 0.35);
 }
-.bbm-submit-btn:hover {
-    background: #041e5a !important;
-}
 .bbm-submit-icon {
-    color: #facc15;
     font-size: 1.1rem;
 }
 

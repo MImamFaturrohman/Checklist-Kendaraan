@@ -37,6 +37,57 @@
     }
     .sppd-form-page .section-banner-icon { color: #facc15; flex-shrink: 0; }
     .sppd-form-page .section-banner span { position: relative; z-index: 1; }
+
+    /* Footer wizard — sama pola checklist / BBM */
+    .sppd-checklist-footer .sppd-footer-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+    .sppd-checklist-footer .sppd-footer-actions {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+    .sppd-checklist-footer .sppd-footer-actions .checklist-nav-next {
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
+    }
+    #sppd-next.sppd-next--hidden {
+        display: none !important;
+    }
+    #sppd-submit.sppd-submit--hidden {
+        display: none !important;
+    }
+    .sppd-footer-cancel {
+        text-decoration: none;
+        text-align: center;
+        white-space: nowrap;
+    }
+    @media (max-width: 720px) {
+        .sppd-checklist-footer {
+            grid-template-columns: 48px 1fr;
+        }
+        .sppd-checklist-footer .sppd-footer-right {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .sppd-checklist-footer .sppd-footer-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+        .sppd-checklist-footer .sppd-footer-actions .checklist-nav-next,
+        .sppd-checklist-footer .sppd-footer-cancel {
+            width: 100%;
+        }
+    }
 </style>
 @endpush
 
@@ -90,7 +141,7 @@
                     </label>
                     <label class="checklist-field checklist-field-span2" style="grid-column:1/-1">
                         <span>Keperluan Dinas</span>
-                        <div class="checklist-control-wrap"><input type="text" name="keperluan_dinas" required maxlength="500" value="{{ old('keperluan_dinas', $sppd?->keperluan_dinas) }}" placeholder="Contoh: Pengantaran dokumen ke site"></div>
+                        <div class="checklist-control-wrap"><input type="text" name="keperluan_dinas" required maxlength="500" value="{{ old('keperluan_dinas', $sppd?->keperluan_dinas) }}" placeholder="Contoh: Pengantaran dokumen"></div>
                     </label>
                     <label class="checklist-field">
                         <span>No Kendaraan</span>
@@ -106,7 +157,7 @@
                     </label>
                     <label class="checklist-field">
                         <span>Jenis Kendaraan</span>
-                        <div class="checklist-control-wrap"><input type="text" name="jenis_kendaraan" id="sppd-jenis" required readonly value="{{ old('jenis_kendaraan', $sppd?->jenis_kendaraan) }}"></div>
+                        <div class="checklist-control-wrap"><input type="text" name="jenis_kendaraan" id="sppd-jenis" required readonly value="{{ old('jenis_kendaraan', $sppd?->jenis_kendaraan) }}" placeholder="Otomatis terisi…"></div>
                     </label>
                     <label class="checklist-field checklist-field-span2" style="grid-column:1/-1">
                         <span>Tujuan</span>
@@ -216,16 +267,25 @@
                     <div class="sppd-sum-grand"><span class="sppd-sum-label">Grand Total</span><strong id="sppd-sum-grand">Rp 0</strong></div>
                 </div>
             </section>
-
-            <div class="checklist-nav-row sppd-form-footer">
-                <a href="{{ route('sppd.index') }}" class="checklist-nav-btn checklist-nav-back sppd-footer-cancel">Batal</a>
-                <div class="sppd-footer-actions">
-                    <button type="button" class="checklist-nav-btn checklist-nav-back" id="sppd-prev" disabled>Sebelumnya</button>
-                    <button type="button" class="checklist-nav-btn checklist-nav-next" id="sppd-next">Selanjutnya</button>
-                    <button type="submit" class="checklist-nav-btn checklist-nav-next final" id="sppd-submit" style="display:none">Submit Laporan SPPD</button>
-                </div>
-            </div>
         </form>
     </main>
+
+    <footer class="checklist-footer sppd-checklist-footer">
+        <button type="button" class="checklist-nav-btn checklist-nav-back" id="sppd-prev" disabled aria-label="Sebelumnya">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="sppd-footer-right">
+            <div class="sppd-footer-actions">
+                <button type="button" class="checklist-nav-btn checklist-nav-next" id="sppd-next">
+                    LANJUT
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button type="submit" form="sppd-form" class="checklist-nav-btn checklist-nav-next final bbm-submit-btn sppd-submit--hidden" id="sppd-submit" aria-hidden="true">
+                    <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
+                    Kirim Rekap SPPD
+                </button>
+            </div>
+        </div>
+    </footer>
 </div>
 @endsection

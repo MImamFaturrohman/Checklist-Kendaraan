@@ -372,8 +372,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (progressPct) progressPct.textContent = `${pct}%`;
         if (progressFill) progressFill.style.width = `${pct}%`;
         if (prevBtn) prevBtn.disabled = currentStep === 1;
-        if (nextBtn) nextBtn.style.display = currentStep >= total ? 'none' : 'inline-flex';
-        if (submitBtn) submitBtn.style.display = currentStep >= total ? 'inline-flex' : 'none';
+        if (nextBtn) {
+            const hideNext = currentStep >= total;
+            nextBtn.classList.toggle('sppd-next--hidden', hideNext);
+            nextBtn.setAttribute('aria-hidden', hideNext ? 'true' : 'false');
+        }
+        if (submitBtn) {
+            const hideSubmit = currentStep < total;
+            submitBtn.classList.toggle('sppd-submit--hidden', hideSubmit);
+            submitBtn.setAttribute('aria-hidden', hideSubmit ? 'true' : 'false');
+        }
         if (currentStep === 4) {
             renderStep4Summary();
         }
@@ -493,8 +501,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fd = new FormData(form);
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
         submitBtn.disabled = true;
-        const prevLabel = submitBtn.textContent;
-        submitBtn.textContent = 'Memproses…';
+        const prevHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span>Memproses…</span>';
         try {
             const res = await fetch(form.action, {
                 method: 'POST',
@@ -521,12 +529,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 showResult(false, 'Gagal', data.message || 'Validasi gagal.', [{ label: 'OK', class: 'modal-btn-secondary' }]);
                 submitBtn.disabled = false;
-                submitBtn.textContent = prevLabel;
+                submitBtn.innerHTML = prevHtml;
             }
         } catch {
             showResult(false, 'Koneksi Bermasalah', 'Terjadi kesalahan jaringan. Silakan coba lagi.', [{ label: 'OK', class: 'modal-btn-secondary' }]);
             submitBtn.disabled = false;
-            submitBtn.textContent = prevLabel;
+            submitBtn.innerHTML = prevHtml;
         }
     };
 

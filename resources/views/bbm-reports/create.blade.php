@@ -8,6 +8,14 @@
 @push('styles')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @vite(['resources/js/bbm-form.js'])
+@php
+    $bbmShiftCode = $driverShiftAtLogin['code'] ?? 'luar';
+    $shiftLabel = match($bbmShiftCode) {
+        'pagi'  => 'Pagi',
+        'siang' => 'Siang',
+        default => 'Di Luar Shift'
+    };
+@endphp
 <style>
     .bbm-form-page .section-banner {
         display: flex;
@@ -47,13 +55,102 @@
     .dash-body.dark .bbm-form-page .bbm-page-head h1 { color: #f1f5f9; }
     .bbm-form-page .bbm-page-head p { margin: 4px 0 0; font-size: 0.82rem; color: #64748b; }
     .dash-body.dark .bbm-form-page .bbm-page-head p { color: #94a3b8; }
+
+    .bbm-footer-actions {
+        display: flex;
+        width: 100%;
+        min-width: 0;
+        gap: 10px;
+    }
+    #bbm-submit.bbm-submit--hidden {
+        display: none !important;
+    }
+    #bbm-next.bbm-next--hidden {
+        display: none !important;
+    }
+    .bbm-footer-actions .checklist-nav-next {
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
+    }
+
+    .bbm-review {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 12px;
+        background: rgba(248, 250, 252, 0.9);
+        border: 1px solid #e2e8f0;
+        font-size: 0.88rem;
+    }
+    .dash-body.dark .bbm-review {
+        background: rgba(15, 23, 42, 0.5);
+        border-color: rgba(71, 85, 105, 0.35);
+        color: #e2e8f0;
+    }
+    .bbm-review-group h4 {
+        margin: 0 0 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #64748b;
+    }
+    .dash-body.dark .bbm-review-group h4 { color: #94a3b8; }
+    .bbm-review-dl { margin: 0; display: grid; gap: 6px; }
+    .bbm-review-dl > div { display: grid; grid-template-columns: minmax(100px, 140px) 1fr; gap: 10px; align-items: start; }
+    .bbm-review-dl dt { margin: 0; font-weight: 600; color: #475569; font-size: 0.8rem; }
+    .dash-body.dark .bbm-review-dl dt { color: #cbd5e1; }
+    .bbm-review-dl dd { margin: 0; color: #0f172a; line-height: 1.45; word-break: break-word; }
+    .dash-body.dark .bbm-review-dl dd { color: #f1f5f9; }
+    .bbm-review-photos {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 4px;
+    }
+    @media (max-width: 520px) {
+        .bbm-review-photos { grid-template-columns: 1fr; }
+    }
+    .bbm-review-photo-wrap {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+    .dash-body.dark .bbm-review-photo-wrap {
+        border-color: rgba(71, 85, 105, 0.45);
+        background: rgba(30, 41, 59, 0.45);
+    }
+    .bbm-review-photo-wrap img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 180px;
+        object-fit: contain;
+    }
+    .bbm-review-photo-caption {
+        font-size: 0.72rem;
+        padding: 6px 8px;
+        color: #64748b;
+        font-weight: 600;
+    }
+    .dash-body.dark .bbm-review-photo-caption { color: #94a3b8; }
+    p.bbm-step3-hint {
+        margin: 0 0 12px;
+        font-size: 0.85rem;
+        line-height: 1.45;
+        color: #64748b;
+    }
+    .dash-body.dark p.bbm-step3-hint { color: #94a3b8; }
+    .dash-body.dark p.bbm-step3-hint strong { color: #facc15; }
 </style>
 @endpush
 
 @section('content')
 <div class="checklist-shell" data-bbm-form>
     <main class="checklist-content">
-        <form id="bbm-report-form" class="checklist-card" action="{{ route('bbm-reports.store') }}" method="post" enctype="multipart/form-data" data-dashboard-url="{{ route('dashboard') }}">
+        <form id="bbm-report-form" class="checklist-card" action="{{ route('bbm-reports.store') }}" method="post" enctype="multipart/form-data" data-dashboard-url="{{ route('dashboard') }}" novalidate>
             @csrf
 
             @if ($errors->any())
@@ -63,10 +160,20 @@
                 </div>
             @endif
 
-            <div class="bbm-form-section">
+            <div class="checklist-progress-head">
+                <div class="checklist-progress-info">
+                    <span id="bbm-step-label">LANGKAH 1 DARI 3</span>
+                    <span id="bbm-progress-pct">33%</span>
+                </div>
+                <div class="checklist-progress-track">
+                    <span id="bbm-progress-fill"></span>
+                </div>
+            </div>
+
+            <section class="wizard-step active" data-step="1">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17h1l1-4h10l1 4h1a1 1 0 011 1v1H4v-1a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 13l1.5-5h7L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>Data Kendaraan</span>
+                    <span>1. Data Kendaraan</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
@@ -86,7 +193,7 @@
                             <input type="text" id="bbm-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis terisi…" autocomplete="off">
                         </div>
                     </label>
-                    <label class="checklist-field checklist-field-span2">
+                    <label class="checklist-field checklist-field-span">
                         <span>Keperluan Pengisian BBM</span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select name="jenis_pengisian" id="bbm-jenis-pengisian" required>
@@ -96,62 +203,47 @@
                             </select>
                         </div>
                     </label>
+                    <label class="checklist-field checklist-field-span">
+                        <span><i class="bi bi-brightness-high bbm-field-icon" aria-hidden="true"></i> Shift</span>
+                        <div class="checklist-control-wrap">
+                            <input type="text" id="bbm-shift-label" value="{{ $shiftLabel }}" readonly>
+                        </div>
+                    </label>
                 </div>
                 <div class="checklist-grid-two bbm-datetime-grid">
                     <label class="checklist-field">
                         <span><i class="bi bi-calendar3 bbm-field-icon" aria-hidden="true"></i> Tanggal</span>
                         <div class="checklist-control-wrap bbm-input-with-icon">
-                            <input type="date" name="tanggal" required value="">
+                            <input type="date" name="tanggal" id="bbm-tanggal" required value="{{ old('tanggal') }}">
                         </div>
                     </label>
                     <label class="checklist-field">
                         <span><i class="bi bi-clock bbm-field-icon" aria-hidden="true"></i> Waktu</span>
                         <div class="checklist-control-wrap bbm-input-with-icon">
-                            <input type="time" name="waktu" required value="">
-                        </div>
-                    </label>
-                    @php
-                        $bbmShiftCode = $driverShiftAtLogin['code'] ?? 'luar';
-                        $shiftLabel = match($bbmShiftCode) {
-                            'pagi'  => 'Pagi',
-                            'siang' => 'Siang',
-                            default => 'Di Luar Shift'
-                        };
-                    @endphp
-                    <label class="checklist-field checklist-field-span">
-                        <span><i class="bi bi-brightness-high bbm-field-icon" aria-hidden="true"></i> Shift</span>
-                        <div class="checklist-control-wrap">
-                            <input type="text" value="{{ $shiftLabel }}" readonly>
+                            <input type="time" name="waktu" id="bbm-waktu" required value="{{ old('waktu') }}">
                         </div>
                     </label>
                 </div>
-            </div>
+            </section>
 
-            <div class="bbm-form-section">
+            <section class="wizard-step" data-step="2">
                 <div class="section-banner">
-                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <span>KM Odometer</span>
+                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><path d="M4 10h16v6H4z" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 118 0v2" stroke="currentColor" stroke-width="2"/></svg>
+                    <span>2. Data Pengisian BBM</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>Sebelum</span>
+                        <span>KM Sebelum</span>
                         <div class="checklist-control-wrap">
-                            <input type="number" name="odometer_sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="0">
+                            <input type="number" name="odometer_sebelum" id="bbm-odo-sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="0">
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span>Sesudah</span>
+                        <span>KM Sesudah</span>
                         <div class="checklist-control-wrap">
-                            <input type="number" name="odometer_sesudah" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sesudah') }}" placeholder="0">
+                            <input type="number" name="odometer_sesudah" id="bbm-odo-sesudah" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sesudah') }}" placeholder="0">
                         </div>
                     </label>
-                </div>
-            </div>
-
-            <div class="bbm-form-section">
-                <div class="section-banner">
-                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 10h16v8H4z" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 118 0v2" stroke="currentColor" stroke-width="2"/></svg>
-                    <span>Detail BBM</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
@@ -175,28 +267,47 @@
                 </div>
                 <div class="bbm-photo-pair">
                     <label class="checklist-photo-slot" data-photo-preview-slot>
-                        <input type="file" name="foto_odometer" accept="image/*" data-photo-single required>
+                        <input type="file" name="foto_odometer" id="bbm-foto-odometer" accept="image/*" data-photo-single required>
                         <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-camera"></i></span><strong>Foto Odometer</strong></div>
                         <img class="photo-slot-preview" alt="" style="display:none" src="">
                         <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus">×</button>
                     </label>
                     <label class="checklist-photo-slot" data-photo-preview-slot>
-                        <input type="file" name="foto_struk" accept="image/*" data-photo-single required>
+                        <input type="file" name="foto_struk" id="bbm-foto-struk" accept="image/*" data-photo-single required>
                         <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-receipt"></i></span><strong>Foto Struk</strong></div>
                         <img class="photo-slot-preview" alt="" style="display:none" src="">
                         <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus">×</button>
                     </label>
                 </div>
-            </div>
+                <p style="margin:8px 0 0;font-size:0.78rem;line-height:1.45;color:#b45309;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);padding:10px 12px;border-radius:10px;">Pastikan mengambil foto dengan kamera landscape (horizontal).</p>
+            </section>
 
-            <div class="bbm-submit-row">
-                <button type="submit" class="checklist-nav-btn checklist-nav-next bbm-submit-btn">
-                    <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
-                    Kirim Laporan BBM
-                </button>
-            </div>
+            <section class="wizard-step" data-step="3">
+                <div class="section-banner">
+                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
+                    <span>3. Ringkasan</span>
+                </div>
+                <p class="bbm-step3-hint">Periksa kembali semua data. Tekan <strong>Kirim Laporan BBM</strong> di bawah jika data sudah sesuai.</p>
+                <div class="bbm-review" id="bbm-review-root" aria-live="polite"></div>
+            </section>
         </form>
     </main>
+
+    <footer class="checklist-footer">
+        <button type="button" class="checklist-nav-btn checklist-nav-back" id="bbm-prev" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="bbm-footer-actions">
+            <button type="button" class="checklist-nav-btn checklist-nav-next" id="bbm-next">
+                LANJUT
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="submit" form="bbm-report-form" class="checklist-nav-btn checklist-nav-next final bbm-submit-btn bbm-submit--hidden" id="bbm-submit" aria-hidden="true">
+                <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
+                Kirim Laporan BBM
+            </button>
+        </div>
+    </footer>
 </div>
 @endsection
 
