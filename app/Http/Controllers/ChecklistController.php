@@ -325,11 +325,13 @@ class ChecklistController extends Controller
         $fotoMeta = $canAccessDatabase ? ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()] : null;
         $pdfMeta = $canAccessDatabase ? ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()] : null;
 
+        $defaultPassword = \App\Http\Controllers\UserManagementController::DEFAULT_PASSWORD;
+
         return view('admin.portal-pemeriksaan', compact(
             'nopolList', 'dbStats', 'pdfStats', 'chartData',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
             'dbMeta', 'fotoMeta', 'pdfMeta', 'canAccessDatabase',
-            'pemeriksaanInsightOnlyManager'
+            'pemeriksaanInsightOnlyManager', 'defaultPassword'
         ));
     }
 

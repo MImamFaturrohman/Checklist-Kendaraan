@@ -56,16 +56,11 @@
             </button>
             <div class="dash-notif-panel" id="dash-notif-panel" role="menu" hidden>
                 <div class="dash-notif-panel-head">Notifikasi</div>
-                @if($tbSuperadminNotifications->isNotEmpty())
-                    <span style="color: red; background-color: black;">Ada</span>
-                @else
-                    <span style="color: green; background-color: black;">Tidak ada</span>
-                @endif
                 <ul class="dash-notif-list">
                     @forelse($tbSuperadminNotifications as $n)
                         @php $d = $n->data; @endphp
                         <li class="dash-notif-item{{ $n->read_at ? '' : ' is-unread' }}">
-                            <a href="{{ $d['url'] ?? '#' }}"
+                            <a href="{{ \App\Support\SuperadminNotificationLink::href($d['url'] ?? null) }}"
                                class="dash-notif-link"
                                data-notification-id="{{ $n->id }}"
                                role="menuitem">

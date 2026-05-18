@@ -10,6 +10,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 @endpush
 
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endpush
+
 @section('content')
 <div class="admin-shell" style="position:relative;z-index:1">
     @php $canAccessDatabase = $canAccessDatabase ?? false; @endphp
@@ -54,24 +58,6 @@
                 <div>
                     <div class="portal-stat-value">{{ $dbStats['bulan_ini'] }}</div>
                     <div class="portal-stat-label">Ceklist Bulan Ini</div>
-                </div>
-            </div>
-            <div class="portal-stat-card">
-                <div class="portal-stat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </div>
-                <div>
-                    <div class="portal-stat-value">{{ $pdfStats['total'] }}</div>
-                    <div class="portal-stat-label">Total Arsip PDF</div>
-                </div>
-            </div>
-            <div class="portal-stat-card">
-                <div class="portal-stat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </div>
-                <div>
-                    <div class="portal-stat-value">{{ $pdfStats['bulan_ini'] }}</div>
-                    <div class="portal-stat-label">PDF Bulan Ini</div>
                 </div>
             </div>
         </div>
@@ -160,6 +146,7 @@
                     Database Sheet
                 </div>
                 @if(auth()->user()?->role === 'superadmin')
+                <div class="portal-pemeriksaan-superadmin-actions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                 <button
                     type="button"
                     id="db-sync-btn"
@@ -170,6 +157,11 @@
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/></svg>
                     Sinkronkan
                 </button>
+                <button type="button" id="portal-pemeriksaan-open-add-user" class="btn-export" style="font-size:0.8rem;padding:7px 14px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Tambah User
+                </button>
+                </div>
                 @endif
             </div>
             <div id="db-sync-alert" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:10px;font-size:.82rem;line-height:1.45"></div>
@@ -594,6 +586,60 @@
     </div>{{-- end portal-wrapper --}}
 </div>{{-- end admin-shell --}}
 
+@if(auth()->user()?->role === 'superadmin')
+<div id="portal-pemeriksaan-user-add-modal" class="mgmt-modal-overlay" hidden onclick="if(event.target===this)window.__closePortalPemeriksaanUserAdd && window.__closePortalPemeriksaanUserAdd()">
+    <div class="mgmt-modal-box" onclick="event.stopPropagation()">
+        <div class="mgmt-modal-header">
+            <div class="mgmt-modal-avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;font-size:1.05rem">+</div>
+            <div>
+                <h2 class="mgmt-modal-title">Tambah User</h2>
+                <p class="mgmt-modal-sub">Kelola akun di Portal Manajemen — Super Admin tidak bisa dibuat dari sini</p>
+            </div>
+            <button type="button" class="mgmt-modal-close" onclick="window.__closePortalPemeriksaanUserAdd && window.__closePortalPemeriksaanUserAdd()" aria-label="Tutup">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+        <form id="portal-pemeriksaan-form-add-user">
+            @csrf
+            <div class="mgmt-modal-body">
+                <p class="mgmt-modal-section-label">DATA AKUN</p>
+                <div class="mgmt-modal-grid">
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="portal-pemeriksaan-add-name">Nama Lengkap</label>
+                        <input type="text" name="name" id="portal-pemeriksaan-add-name" class="mgmt-input" placeholder="Nama Lengkap" required autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="portal-pemeriksaan-add-username">Username</label>
+                        <input type="text" name="username" id="portal-pemeriksaan-add-username" class="mgmt-input" placeholder="username" required autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="portal-pemeriksaan-add-role">Role</label>
+                        <select name="role" id="portal-pemeriksaan-add-role" class="mgmt-input" required>
+                            <option value="driver">Driver</option>
+                            <option value="pic_kendaraan">PIC Kendaraan</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="portal-pemeriksaan-add-pw">Password</label>
+                        <input type="password" name="password" id="portal-pemeriksaan-add-pw" class="mgmt-input" value="{{ $defaultPassword }}" required autocomplete="new-password">
+                        <p class="mgmt-hint">Default: <code>{{ $defaultPassword }}</code></p>
+                    </div>
+                </div>
+            </div>
+            <div class="mgmt-modal-footer">
+                <button type="button" class="mgmt-cancel-btn" onclick="window.__closePortalPemeriksaanUserAdd && window.__closePortalPemeriksaanUserAdd()">Batal</button>
+                <button type="submit" class="mgmt-submit-btn" id="portal-pemeriksaan-btn-save-user">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
 @if($canAccessDatabase ?? false)
 <div id="portal-checklist-modal" class="modal-overlay" style="display:none" aria-hidden="true">
     <div class="modal-box profile-card portal-checklist-modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-checklist-modal-title">
@@ -623,6 +669,9 @@
             pdf:  @json($pdfMeta),
         }
         : null;
+
+    const USER_STORE_URL = @json(route('admin.users.store'));
+    const DEFAULT_NEW_USER_PW = @json($defaultPassword ?? '');
 
     let dbPage   = 1, dbPerPage   = 10;
     let fotoPage = 1, fotoPerPage = 10;
@@ -882,6 +931,14 @@
         return html;
     }
 
+    function refreshPortalOverlayOverflow() {
+        const cm = document.getElementById('portal-checklist-modal');
+        const um = document.getElementById('portal-pemeriksaan-user-add-modal');
+        const checklistOpen = cm && cm.style.display === 'flex';
+        const userOpen = um && !um.hidden;
+        document.body.style.overflow = checklistOpen || userOpen ? 'hidden' : '';
+    }
+
     async function openPortalChecklistDetail(id) {
         const modal = document.getElementById('portal-checklist-modal');
         const body = document.getElementById('portal-checklist-modal-body');
@@ -889,6 +946,7 @@
         body.innerHTML = '<p style="padding:12px">Memuat…</p>';
         modal.style.display = 'flex';
         modal.setAttribute('aria-hidden', 'false');
+        refreshPortalOverlayOverflow();
         try {
             const r = await fetch(`${BASE_URL}/api/admin/portal/checklist/${encodeURIComponent(id)}`);
             if (!r.ok) throw new Error('fail');
@@ -904,6 +962,7 @@
         if (!modal) return;
         modal.style.display = 'none';
         modal.setAttribute('aria-hidden', 'true');
+        refreshPortalOverlayOverflow();
     }
 
     function debounce(fn, ms = 380) {
@@ -1287,6 +1346,77 @@
     }
 
     /* ================================================================
+       SUPERADMIN: Tambah User (modal)
+    ================================================================ */
+    window.__closePortalPemeriksaanUserAdd = function () {
+        const el = document.getElementById('portal-pemeriksaan-user-add-modal');
+        if (!el) return;
+        el.hidden = true;
+        refreshPortalOverlayOverflow();
+    };
+
+    const portalUserModal = document.getElementById('portal-pemeriksaan-user-add-modal');
+    const portalUserForm = document.getElementById('portal-pemeriksaan-form-add-user');
+    const csrfMetaPortalUser = document.querySelector('meta[name="csrf-token"]');
+
+    if (portalUserModal && portalUserForm && csrfMetaPortalUser) {
+        document.getElementById('portal-pemeriksaan-open-add-user')?.addEventListener('click', () => {
+            document.getElementById('portal-pemeriksaan-add-name').value = '';
+            document.getElementById('portal-pemeriksaan-add-username').value = '';
+            document.getElementById('portal-pemeriksaan-add-role').value = 'driver';
+            document.getElementById('portal-pemeriksaan-add-pw').value = DEFAULT_NEW_USER_PW;
+            portalUserModal.hidden = false;
+            refreshPortalOverlayOverflow();
+            setTimeout(() => document.getElementById('portal-pemeriksaan-add-name').focus(), 80);
+        });
+
+        portalUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('portal-pemeriksaan-btn-save-user');
+            const prevHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.textContent = 'Menyimpan...';
+            try {
+                const fd = new FormData(portalUserForm);
+                const res = await fetch(USER_STORE_URL, {
+                    method: 'POST',
+                    body: fd,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': csrfMetaPortalUser.content,
+                    },
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 1600, showConfirmButton: false });
+                    }
+                    window.__closePortalPemeriksaanUserAdd();
+                    document.getElementById('portal-pemeriksaan-add-name').value = '';
+                    document.getElementById('portal-pemeriksaan-add-username').value = '';
+                    document.getElementById('portal-pemeriksaan-add-role').value = 'driver';
+                    document.getElementById('portal-pemeriksaan-add-pw').value = DEFAULT_NEW_USER_PW;
+                } else {
+                    const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message || 'Gagal menyimpan.');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+                    } else {
+                        alert(msg);
+                    }
+                }
+            } catch {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Koneksi bermasalah', text: 'Periksa koneksi internet.' });
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = prevHtml;
+            }
+        });
+    }
+
+    /* ================================================================
        INITIAL PAGINATION RENDER (from server-provided meta)
     ================================================================ */
     if (INIT_META) {
@@ -1320,7 +1450,14 @@
             if (e.target.id === 'portal-checklist-modal') closePortalChecklistModal();
         });
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closePortalChecklistModal();
+            if (e.key !== 'Escape') return;
+            const um = document.getElementById('portal-pemeriksaan-user-add-modal');
+            if (um && !um.hidden) {
+                um.hidden = true;
+                refreshPortalOverlayOverflow();
+                return;
+            }
+            closePortalChecklistModal();
         });
     }
 

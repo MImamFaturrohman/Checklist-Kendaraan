@@ -71,6 +71,29 @@ Alpine.start();
         }
 
         /* ── 3. Notification panels (topbar desktop + nav drawer mobile) ── */
+        function dashNormalizePath(path) {
+            if (!path || typeof path !== 'string') return '/';
+            const trimmed = path.replace(/\/+$/, '');
+            return trimmed === '' ? '/' : trimmed;
+        }
+
+        function smoothScrollDashLayoutHashTargetOnce() {
+            const raw = window.location.hash;
+            if (!raw || raw === '#') return;
+            let id = raw.slice(1);
+            try {
+                id = decodeURIComponent(id);
+            } catch (_e) { /* skip */ }
+            if (!id) return;
+            const el = document.getElementById(id);
+            if (!el) return;
+            requestAnimationFrame(function () {
+                window.setTimeout(function () {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 48);
+            });
+        }
+
         function wireNotificationDropdown(wrapId, toggleId, panelId) {
             const notifWrap  = document.getElementById(wrapId);
             const notifBtn   = document.getElementById(toggleId);
@@ -93,21 +116,63 @@ Alpine.start();
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') closeNotifPanel();
             });
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
             notifPanel.querySelectorAll('.dash-notif-link[data-notification-id]').forEach(function (a) {
-                a.addEventListener('click', function () {
-                    const id = a.getAttribute('data-notification-id');
-                    if (!id || !csrf) return;
-                    fetch('/notifications/' + encodeURIComponent(id) + '/read', {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    }).catch(function () {});
-                    a.closest('.dash-notif-item')?.classList.remove('is-unread');
+                a.addEventListener('click', function (e) {
+                    const nid = a.getAttribute('data-notification-id');
+                    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                    function markNotificationRead() {
+                        if (!nid || !csrf) return;
+                        fetch('/notifications/' + encodeURIComponent(nid) + '/read', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrf,
+                                Accept: 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            credentials: 'same-origin',
+                            keepalive: true,
+                        }).catch(function () {});
+                        a.closest('.dash-notif-item')?.classList.remove('is-unread');
+                    }
+
+                    markNotificationRead();
+
+                    const hrefAttr = a.getAttribute('href') || '';
+
+                    /** relative / empty */
+                    let targetUrl;
+                    try {
+                        targetUrl = new URL(hrefAttr, window.location.href);
+                    } catch (_err) {
+                        return;
+                    }
+
+                    const herePath = dashNormalizePath(window.location.pathname);
+                    const therePath = dashNormalizePath(targetUrl.pathname);
+                    let scrollId = '';
+                    const fragment = targetUrl.hash;
+                    if (fragment.length > 1) {
+                        scrollId = fragment.slice(1);
+                        try {
+                            scrollId = decodeURIComponent(scrollId);
+                        } catch (_e2) { /* keep */ }
+                    }
+
+                    const targetEl = scrollId ? document.getElementById(scrollId) : null;
+                    if (therePath === herePath && scrollId && targetEl) {
+                        e.preventDefault();
+                        closeNotifPanel();
+                        requestAnimationFrame(function () {
+                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        });
+                    }
                 });
             });
         }
         wireNotificationDropdown('dash-notif-wrap', 'dash-notif-toggle', 'dash-notif-panel');
         wireNotificationDropdown('dash-nav-notif-wrap', 'dash-nav-notif-toggle', 'dash-nav-notif-panel');
+
+        smoothScrollDashLayoutHashTargetOnce();
     });
 })();
 

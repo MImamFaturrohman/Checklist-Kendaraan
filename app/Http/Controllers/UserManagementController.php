@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
-    const DEFAULT_PASSWORD = 'ADC@2025';
-    const MANAGED_ROLES    = ['driver', 'pic_kendaraan'];
+    const DEFAULT_PASSWORD = 'ADCVMS@2026';
+
+    /** Role yang bisa di-CRUD superadmin — superadmin TIDAK boleh dikelola lewat portal ini. */
+    const MANAGED_ROLES = ['driver', 'pic_kendaraan', 'manager', 'admin'];
 
     public function portal(Request $request)
     {
@@ -27,15 +29,15 @@ class UserManagementController extends Controller
         }
         $kendaraans = $kQuery->paginate(10, ['*'], 'kp')->withQueryString();
 
-        // --- Users ---
-        $uQuery = User::whereIn('role', self::MANAGED_ROLES)->orderBy('name');
+        // --- Users (semua selain superadmin dalam MANAGED_ROLES) ---
+        $uQuery = User::query()->whereIn('role', self::MANAGED_ROLES)->orderBy('name');
         if ($us = $request->input('us')) {
             $uQuery->where(function ($q) use ($us) {
                 $q->where('name', 'like', "%{$us}%")
                   ->orWhere('username', 'like', "%{$us}%");
             });
         }
-        if ($rf = $request->input('role_filter')) {
+        if (($rf = $request->input('role_filter')) && in_array($rf, self::MANAGED_ROLES, true)) {
             $uQuery->where('role', $rf);
         }
         $users = $uQuery->paginate(15, ['*'], 'up')->withQueryString();
@@ -44,6 +46,10 @@ class UserManagementController extends Controller
             'total_kendaraan' => Kendaraan::count(),
             'total_driver'    => User::where('role', 'driver')->count(),
             'total_pic'       => User::where('role', 'pic_kendaraan')->count(),
+            'total_manager'   => User::where('role', 'manager')->count(),
+            'total_admin'     => User::where('role', 'admin')->count(),
+            /** User yang muncul di tab Manajemen User (tanpa superadmin) */
+            'total_portal_users' => User::whereIn('role', self::MANAGED_ROLES)->count(),
         ];
 
         $defaultPassword = self::DEFAULT_PASSWORD;
@@ -81,14 +87,14 @@ class UserManagementController extends Controller
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
-        $q = User::whereIn('role', self::MANAGED_ROLES)->orderBy('name');
+        $q = User::query()->whereIn('role', self::MANAGED_ROLES)->orderBy('name');
         if ($s = $request->input('search')) {
             $q->where(function ($x) use ($s) {
                 $x->where('name', 'like', "%{$s}%")
                   ->orWhere('username', 'like', "%{$s}%");
             });
         }
-        if ($rf = $request->input('role_filter')) {
+        if (($rf = $request->input('role_filter')) && in_array($rf, self::MANAGED_ROLES, true)) {
             $q->where('role', $rf);
         }
         $pp   = min((int) ($request->input('per_page', 15)), 100);
@@ -108,11 +114,13 @@ class UserManagementController extends Controller
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
+        $rolesRule = implode(',', self::MANAGED_ROLES);
+
         $request->validate([
             'name'     => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username',
             'password' => 'required|string|min:6',
-            'role'     => 'required|in:driver,pic_kendaraan',
+            'role'     => 'required|in:'.$rolesRule,
         ]);
 
         $user = User::create([
@@ -139,13 +147,16 @@ class UserManagementController extends Controller
     public function updateUser(Request $request, User $user)
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
-        abort_unless(in_array($user->role, self::MANAGED_ROLES), 403);
+        abort_if($user->role === 'superadmin', 403);
+        abort_unless(in_array($user->role, self::MANAGED_ROLES, true), 403);
+
+        $rolesRule = implode(',', self::MANAGED_ROLES);
 
         $request->validate([
             'name'     => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'password' => 'nullable|string|min:6',
-            'role'     => 'required|in:driver,pic_kendaraan',
+            'role'     => 'required|in:'.$rolesRule,
         ]);
 
         $data = [
@@ -176,7 +187,8 @@ class UserManagementController extends Controller
     public function destroyUser(User $user, Request $request)
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
-        abort_unless(in_array($user->role, self::MANAGED_ROLES), 403);
+        abort_if($user->role === 'superadmin', 403);
+        abort_unless(in_array($user->role, self::MANAGED_ROLES, true), 403);
 
         $name = $user->name;
         $user->delete();

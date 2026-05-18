@@ -180,6 +180,64 @@
         .bbm-portal-filter-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .portal-stat-sublabel { font-size:0.78rem; font-weight:600; color:#64748b; }
         .dash-body.dark .portal-stat-sublabel { color:rgba(200,218,255,0.55); }
+
+        .bbm-portal-stat-mom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .bbm-portal-stat-mom-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 9px;
+            border-radius: 8px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: 0.01em;
+        }
+        .bbm-portal-stat-mom-badge i { font-size: 0.78rem; }
+        .bbm-portal-stat-mom-badge--up {
+            background: rgba(248, 113, 113, 0.16);
+            color: #dc2626;
+            border: 1px solid rgba(248, 113, 113, 0.45);
+        }
+        .bbm-portal-stat-mom-badge--down {
+            background: rgba(34, 197, 94, 0.16);
+            color: #15803d;
+            border: 1px solid rgba(34, 197, 94, 0.42);
+        }
+        .bbm-portal-stat-mom-badge--flat {
+            background: rgba(148, 163, 184, 0.22);
+            color: #64748b;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            font-weight: 700;
+        }
+        .bbm-portal-stat-mom-vs {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.02em;
+        }
+        .dash-body.dark .bbm-portal-stat-mom-vs { color: rgba(200, 218, 255, 0.45); }
+        .dash-body.dark .bbm-portal-stat-mom-badge--up {
+            background: rgba(220, 38, 38, 0.2);
+            color: #fecaca;
+            border-color: rgba(248, 113, 113, 0.35);
+        }
+        .dash-body.dark .bbm-portal-stat-mom-badge--down {
+            background: rgba(22, 163, 74, 0.2);
+            color: #bbf7d0;
+            border-color: rgba(34, 197, 94, 0.38);
+        }
+        .dash-body.dark .bbm-portal-stat-mom-badge--flat {
+            background: rgba(148, 163, 184, 0.12);
+            color: rgba(226, 232, 240, 0.8);
+            border-color: rgba(148, 163, 184, 0.25);
+        }
     </style>
 @endpush
 
@@ -201,11 +259,109 @@
                 </div>
                 <div class="portal-stat-card">
                     <div class="portal-stat-icon"><i class="bi bi-droplet-half"></i></div>
-                    <div><div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtLiter($stats['month_liter']) }} L</div><div class="portal-stat-label">Total Liter (bulanan)</div></div>
+                    <div>
+                        <div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtLiter($stats['month_liter']) }} L</div>
+                        @if(!empty($stats['mom_month_liter']['show']))
+                            @php
+                                $mdir = $stats['mom_month_liter']['direction'] ?? 'flat';
+                                $mpct = $stats['mom_month_liter']['pct_display'] ?? '';
+                            @endphp
+                            <div class="bbm-portal-stat-mom" role="presentation">
+                                <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $mdir }}">
+                                    @if ($mdir === 'up')
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                            <path d="M3 17L9 11L13 15L21 7"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                            <path d="M21 7H15M21 7V13"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                        </svg>
+                                    @elseif ($mdir === 'down')
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                            <path d="M3 7L9 13L13 9L21 17"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                            <path d="M21 17H15M21 17V11"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                        </svg>
+                                    @else
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                            <path d="M5 12H19"
+                                                stroke="currentColor"
+                                                stroke-width="2.2"
+                                                stroke-linecap="round"/>
+                                        </svg>
+                                    @endif
+                                    {{ $mpct }}
+                                </span>
+                                <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
+                            </div>
+                        @endif
+                        <div class="portal-stat-label">Total Liter (bulanan)</div>
+                    </div>
                 </div>
                 <div class="portal-stat-card">
                     <div class="portal-stat-icon"><i class="bi bi-currency-exchange"></i></div>
-                    <div><div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtRp($stats['month_rupiah']) }}</div><div class="portal-stat-label">Total Biaya BBM (bulanan)</div></div>
+                    <div>
+                        <div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtRp($stats['month_rupiah']) }}</div>
+                        @if(!empty($stats['mom_month_rupiah']['show']))
+                            @php
+                                $rdir = $stats['mom_month_rupiah']['direction'] ?? 'flat';
+                                $rpct = $stats['mom_month_rupiah']['pct_display'] ?? '';
+                            @endphp
+                            <div class="bbm-portal-stat-mom" role="presentation">
+                                <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $rdir }}">
+                                @if ($mdir === 'up')
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                            <path d="M3 17L9 11L13 15L21 7"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                            <path d="M21 7H15M21 7V13"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                        </svg>
+                                    @elseif ($mdir === 'down')
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                            <path d="M3 7L9 13L13 9L21 17"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                            <path d="M21 17H15M21 17V11"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"/>
+                                        </svg>
+                                    @else
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                            <path d="M5 12H19"
+                                                stroke="currentColor"
+                                                stroke-width="2.2"
+                                                stroke-linecap="round"/>
+                                        </svg>
+                                    @endif
+                                    {{ $rpct }}
+                                </span>
+                                <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
+                            </div>
+                        @endif
+                        <div class="portal-stat-label">Total Biaya BBM (bulanan)</div>
+                    </div>
                 </div>
                 <div class="portal-stat-card">
                     <div class="portal-stat-icon"><i class="bi bi-arrow-up-circle"></i></div>
@@ -255,7 +411,6 @@
                         @endforeach
                     </select>
                 </div>
-                <p class="bbm-chart-filters-hint">Membandingkan <strong id="bbm-chart-year-label">{{ $bbmDefaultChartYear }}</strong> dengan tahun sebelumnya (<span id="bbm-chart-prev-year-label">{{ (int) ($bbmDefaultChartYear ?? now()->year) - 1 }}</span>). Data diperbarui otomatis.</p>
             </div>
 
             <div class="portal-charts-grid portal-charts-grid--bbm">

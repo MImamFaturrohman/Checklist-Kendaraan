@@ -419,6 +419,104 @@ document.addEventListener('keydown', e => {
     }
     closeDashNavDrawer();
 });
+
+/* ── SMOOTH SCROLL ── */
+(function () {
+    const STORAGE_KEY = 'dash_pending_smooth_scroll';
+
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+
+    function currentPageUrl() {
+        return window.location.origin + window.location.pathname + window.location.search;
+    }
+
+    function pageUrlWithoutHash(url) {
+        return url.origin + url.pathname + url.search;
+    }
+
+    function getTargetId(hash) {
+        return decodeURIComponent(hash.replace(/^#/, ''));
+    }
+
+    function smoothScrollToHash(hash, attempt = 0) {
+        const id = getTargetId(hash);
+        const target = document.getElementById(id);
+
+        if (!target) {
+            if (attempt < 20) {
+                setTimeout(() => {
+                    smoothScrollToHash(hash, attempt + 1);
+                }, 100);
+            }
+
+            return;
+        }
+
+        target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
+        history.replaceState(
+            null,
+            '',
+            window.location.pathname + window.location.search + hash
+        );
+    }
+
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('a.dash-notif-link');
+
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+
+        if (!href) return;
+
+        const url = new URL(href, window.location.href);
+
+        if (!url.hash) return;
+
+        e.preventDefault();
+
+        const targetPage = pageUrlWithoutHash(url);
+        const activePage = currentPageUrl();
+
+        if (targetPage === activePage) {
+            smoothScrollToHash(url.hash);
+            return;
+        }
+
+        sessionStorage.setItem(STORAGE_KEY, url.hash);
+
+        window.location.href = targetPage;
+    });
+
+    window.addEventListener('load', function () {
+        const pendingHash = sessionStorage.getItem(STORAGE_KEY);
+
+        if (!pendingHash) return;
+
+        sessionStorage.removeItem(STORAGE_KEY);
+
+        if (window.location.hash) {
+            history.replaceState(
+                null,
+                '',
+                window.location.pathname + window.location.search
+            );
+        }
+
+        window.scrollTo(0, 0);
+
+        setTimeout(() => {
+            smoothScrollToHash(pendingHash);
+        }, 300);
+    });
+})();
+
 </script>
 @endpush
 

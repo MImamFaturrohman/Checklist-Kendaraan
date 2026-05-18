@@ -33,7 +33,8 @@ class BbmReportSubmittedNotification extends Notification
         return [
             'title' => 'Laporan pengisian BBM baru',
             'body' => "{$name} mengirim laporan BBM {$liter} L untuk {$this->bbmReport->nomor_kendaraan}.",
-            'url' => route('admin.portal-bbm-operasional'),
+            'url' => route('admin.portal-bbm-operasional').'#section-bbm-table',
+            'scroll_target' => 'section-bbm-table',
             'bbm_report_id' => $this->bbmReport->id,
         ];
     }

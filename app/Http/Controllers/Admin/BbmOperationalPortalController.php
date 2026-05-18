@@ -125,6 +125,36 @@ class BbmOperationalPortalController extends Controller
     }
 
     /**
+     * @return array{show: bool, direction: 'up'|'down'|'flat', pct_display: string}
+     */
+    private function portalMonthMomMeta(float $current, float $previous): array
+    {
+        $epsilon = 0.0001;
+        if ($previous <= $epsilon && $current <= $epsilon) {
+            return ['show' => false, 'direction' => 'flat', 'pct_display' => ''];
+        }
+        if ($previous <= $epsilon) {
+            return [
+                'show' => true,
+                'direction' => 'up',
+                'pct_display' => '—',
+            ];
+        }
+
+        $pct = (($current - $previous) / $previous) * 100;
+        $absFmt = number_format(abs($pct), 1, ',', '.');
+
+        if ($pct > 0.049) {
+            return ['show' => true, 'direction' => 'up', 'pct_display' => $absFmt.'%'];
+        }
+        if ($pct < -0.049) {
+            return ['show' => true, 'direction' => 'down', 'pct_display' => $absFmt.'%'];
+        }
+
+        return ['show' => true, 'direction' => 'flat', 'pct_display' => $absFmt.'%'];
+    }
+
+    /**
      * Public URL for files on the public disk. Uses a root-relative path so the
      * browser resolves it against the current host (avoids broken images when
      * APP_URL does not match how the user opens the site).
@@ -172,10 +202,17 @@ class BbmOperationalPortalController extends Controller
         $monthStart = now()->startOfMonth()->toDateString();
         $monthEnd = now()->endOfMonth()->toDateString();
 
+        $prevMonthRef = now()->copy()->subMonth();
+        $prevMonthStart = $prevMonthRef->copy()->startOfMonth()->toDateString();
+        $prevMonthEnd = $prevMonthRef->copy()->endOfMonth()->toDateString();
+
         $totalReportsAll = BbmReport::query()->count();
         $monthReports = BbmReport::query()->whereBetween('tanggal', [$monthStart, $monthEnd])->count();
         $monthLiter = (float) BbmReport::query()->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('liter');
         $monthRupiah = (float) BbmReport::query()->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('total_harga');
+
+        $prevMonthLiter = (float) BbmReport::query()->whereBetween('tanggal', [$prevMonthStart, $prevMonthEnd])->sum('liter');
+        $prevMonthRupiah = (float) BbmReport::query()->whereBetween('tanggal', [$prevMonthStart, $prevMonthEnd])->sum('total_harga');
 
         $vehMonthAgg = BbmReport::query()
             ->whereBetween('tanggal', [$monthStart, $monthEnd])
@@ -274,6 +311,8 @@ class BbmOperationalPortalController extends Controller
                 'boros' => $boros,
                 'efisien' => $efisien,
                 'month_label' => now()->translatedFormat('F Y'),
+                'mom_month_liter' => $this->portalMonthMomMeta($monthLiter, $prevMonthLiter),
+                'mom_month_rupiah' => $this->portalMonthMomMeta($monthRupiah, $prevMonthRupiah),
             ],
             'yearsAvailable' => $yearsRange,
             'bbmVehicleNopolList' => $bbmVehicleNopolList,

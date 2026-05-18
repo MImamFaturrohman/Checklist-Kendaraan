@@ -33,18 +33,7 @@ Route::get('/api/kendaraan/public-list', [KendaraanController::class, 'apiList']
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        $user = auth()->user();
-        $superadminNotifications = collect();
-        $superadminUnreadCount = 0;
-        if ($user?->role === 'superadmin') {
-            $superadminNotifications = $user->notifications()->latest()->limit(20)->get();
-            $superadminUnreadCount = $user->unreadNotifications()->count();
-        }
-
-        return view('dashboard', [
-            'superadminNotifications' => $superadminNotifications,
-            'superadminUnreadCount' => $superadminUnreadCount,
-        ]);
+        return view('dashboard');
     })->name('dashboard');
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])

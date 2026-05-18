@@ -141,7 +141,7 @@
                     </div>
                     <div>
                         <div class="portal-stat-value">{{ $stats['total'] }}</div>
-                        <div class="portal-stat-label">Total Permohonan</div>
+                        <div class="portal-stat-label">Total</div>
                     </div>
                 </div>
                 <div class="portal-stat-card">
@@ -200,7 +200,7 @@
                             Bidang / Bagian
                         </div>
                     </div>
-                    <p class="peminj-meta" style="margin:0 0 12px">Struktur induk → sub (dipakai di dropdown form permohonan).</p>
+                    <p class="peminj-meta" style="margin:0 0 12px">Struktur induk</p>
                     <div class="ppm-master-actions">
                         <button type="button" class="admin-filter-btn" id="ppm-btn-bidang-root">+ Bidang utama</button>
                     </div>

@@ -4343,6 +4343,11 @@ body#landing.dash-body.dark .signature-canvas {
     margin-bottom: 20px;
 }
 
+#section-db.portal-section,
+#section-bbm-table.portal-section {
+    scroll-margin-top: 5.75rem;
+}
+
 .portal-section-header {
     display: flex;
     align-items: center;
@@ -5321,8 +5326,10 @@ body#landing.dash-body.dark .signature-canvas {
     letter-spacing: 0.3px;
     white-space: nowrap;
 }
-.mgmt-role-driver { background: #dbeafe; color: #1d4ed8; }
-.mgmt-role-pic    { background: #ede9fe; color: #6d28d9; }
+.mgmt-role-driver  { background: #dbeafe; color: #1d4ed8; }
+.mgmt-role-pic     { background: #ede9fe; color: #6d28d9; }
+.mgmt-role-manager { background: #ffedd5; color: #c2410c; }
+.mgmt-role-admin   { background: #ccfbf1; color: #0f766e; }
 
 /* Action buttons in table */
 .mgmt-actions {
@@ -7116,8 +7123,10 @@ body#landing.dash-body.dark .signature-canvas {
 .dash-body.dark .mgmt-status-off { background: rgba(248, 113, 113, 0.12); color: #fca5a5; border-color: rgba(248, 113, 113, 0.28); }
 .dash-body.dark .mgmt-user-name { color: #e8f0fe; }
 .dash-body.dark .mgmt-username { color: #93c5fd; }
-.dash-body.dark .mgmt-role-driver { background: rgba(30, 64, 128, 0.45); color: #93c5fd; }
-.dash-body.dark .mgmt-role-pic { background: rgba(88, 28, 135, 0.35); color: #c4b5fd; }
+.dash-body.dark .mgmt-role-driver  { background: rgba(30, 64, 128, 0.45); color: #93c5fd; }
+.dash-body.dark .mgmt-role-pic     { background: rgba(88, 28, 135, 0.35); color: #c4b5fd; }
+.dash-body.dark .mgmt-role-manager { background: rgba(194, 65, 12, 0.25); color: #fdba74; }
+.dash-body.dark .mgmt-role-admin   { background: rgba(15, 118, 110, 0.3); color: #5eead4; }
 
 .dash-body.dark .mgmt-act-edit   { background: rgba(30, 64, 128, 0.4); color: #93c5fd; }
 .dash-body.dark .mgmt-act-edit:hover { background: rgba(30, 64, 128, 0.55); }

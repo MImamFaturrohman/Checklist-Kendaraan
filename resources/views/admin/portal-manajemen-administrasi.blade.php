@@ -17,11 +17,7 @@
     <div class="mgmt-stats-strip">
         <div class="mgmt-stat-card">
             <div class="mgmt-stat-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
-                    <path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="12" cy="12" r="1" fill="currentColor"/>
-                </svg>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
             </div>
             <div class="mgmt-stat-body">
                 <span class="mgmt-stat-value">{{ $stats['total_kendaraan'] }}</span>
@@ -44,10 +40,15 @@
 
         <div class="mgmt-stat-card">
             <div class="mgmt-stat-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <svg class="stat-icon stat-icon-pic" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M10.5 11.5C12.433 11.5 14 9.933 14 8C14 6.067 12.433 4.5 10.5 4.5C8.567 4.5 7 6.067 7 8C7 9.933 8.567 11.5 10.5 11.5Z"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.5 19.5C5.05 16.55 7.35 14.5 10.5 14.5C11.65 14.5 12.7 14.8 13.55 15.35"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.2 20.2C19.1882 20.2 20.8 18.5882 20.8 16.6C20.8 14.6118 19.1882 13 17.2 13C15.2118 13 13.6 14.6118 13.6 16.6C13.6 18.5882 15.2118 20.2 17.2 20.2Z"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.7 16.65L16.75 17.65L18.85 15.55"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
             <div class="mgmt-stat-body">
@@ -61,12 +62,12 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                    <path d="M21 15l-3-3m0 0l-3 3m3-3v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
             </div>
             <div class="mgmt-stat-body">
-                <span class="mgmt-stat-value">{{ $stats['total_driver'] + $stats['total_pic'] }}</span>
-                <span class="mgmt-stat-label">Total User Aktif</span>
+                <span class="mgmt-stat-value">{{ $stats['total_portal_users'] }}</span>
+                <span class="mgmt-stat-label">Total User</span>
             </div>
         </div>
     </div>
@@ -74,10 +75,7 @@
     {{-- ── TAB BAR ───────────────────────────────────────────────────────── --}}
     <div class="mgmt-tab-bar">
         <button class="mgmt-tab active" id="tab-armada" onclick="switchTab('armada')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
-                <path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
             <span>Master Armada</span>
             <span class="mgmt-tab-count" id="tc-armada">{{ $stats['total_kendaraan'] }}</span>
         </button>
@@ -88,7 +86,7 @@
                 <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
             <span>Manajemen User</span>
-            <span class="mgmt-tab-count" id="tc-users">{{ $stats['total_driver'] + $stats['total_pic'] }}</span>
+            <span class="mgmt-tab-count" id="tc-users">{{ $stats['total_portal_users'] }}</span>
         </button>
     </div>
 
@@ -101,11 +99,7 @@
             {{-- Panel header --}}
             <div class="mgmt-panel-header" style="--ph:#0f766e">
                 <div class="mgmt-ph-icon" style="background:rgba(15,118,110,.12);color:#0f766e">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
-                        <path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="12" cy="12" r="1" fill="currentColor"/>
-                    </svg>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
                 </div>
                 <div class="mgmt-ph-text">
                     <p class="mgmt-ph-title">Master Armada</p>
@@ -232,56 +226,12 @@
                 </div>
                 <div class="mgmt-ph-text">
                     <p class="mgmt-ph-title">Manajemen User</p>
-                    <p class="mgmt-ph-sub">Driver &amp; PIC Kendaraan</p>
+                    <p class="mgmt-ph-sub">Driver, PIC, Manager &amp; Admin</p>
                 </div>
-                <button class="mgmt-ph-add-btn" id="btn-toggle-user-form" onclick="toggleAddForm('user')">
+                <button type="button" class="mgmt-ph-add-btn" id="btn-open-user-add-modal" onclick="openUserAddModal()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
                     Tambah User
                 </button>
-            </div>
-
-            {{-- Collapsible add form --}}
-            <div id="user-add-panel" class="mgmt-add-panel">
-                <div class="mgmt-add-inner">
-                    <p class="mgmt-add-heading">Data User Baru</p>
-                    <form id="form-add-user">
-                        @csrf
-                        <div class="mgmt-form-grid5">
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Nama Lengkap</label>
-                                <input type="text" name="name" class="mgmt-input" placeholder="Nama Lengkap" required>
-                            </div>
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Username</label>
-                                <input type="text" name="username" class="mgmt-input" placeholder="username" required autocomplete="off">
-                            </div>
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Role</label>
-                                <select name="role" class="mgmt-input" required>
-                                    <option value="driver">Driver</option>
-                                    <option value="pic_kendaraan">PIC Kendaraan</option>
-                                </select>
-                            </div>
-                            <div class="mgmt-field">
-                                <label class="mgmt-label">Password</label>
-                                <div class="mgmt-pw-wrap">
-                                    <input type="password" name="password" id="add-user-pw" class="mgmt-input" value="{{ $defaultPassword }}" required autocomplete="new-password">
-                                    <button type="button" class="mgmt-pw-eye" onclick="toggleEye('add-user-pw', this)" tabindex="-1">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
-                                    </button>
-                                </div>
-                                <p class="mgmt-hint">Default: <code>{{ $defaultPassword }}</code></p>
-                            </div>
-                            <div class="mgmt-field-action">
-                                <button type="submit" class="mgmt-submit-btn" id="btn-add-user">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                                    Simpan
-                                </button>
-                                <button type="button" class="mgmt-cancel-btn" onclick="toggleAddForm('user')">Batal</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
             </div>
 
             {{-- Filter bar --}}
@@ -296,6 +246,8 @@
                         <option value="">Semua Role</option>
                         <option value="driver">Driver</option>
                         <option value="pic_kendaraan">PIC Kendaraan</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
                     </select>
                 </div>
                 <div class="mgmt-perpage-wrap">
@@ -334,11 +286,19 @@
                     </thead>
                     <tbody id="user-tbody">
                         @forelse($users as $u)
+                            @php
+                                $uGrad = match ($u->role) {
+                                    'pic_kendaraan' => 'linear-gradient(135deg,#7c3aed,#a78bfa)',
+                                    'manager'       => 'linear-gradient(135deg,#ea580c,#fb923c)',
+                                    'admin'         => 'linear-gradient(135deg,#0d9488,#2dd4bf)',
+                                    default         => 'linear-gradient(135deg,#2563eb,#60a5fa)',
+                                };
+                            @endphp
                             <tr id="urow-server-{{ $u->id }}">
                                 <td class="text-muted">{{ ($users->currentPage()-1)*$users->perPage()+$loop->iteration }}</td>
                                 <td>
                                     <div class="mgmt-user-cell">
-                                        <div class="mgmt-user-avatar" style="{{ $u->role === 'pic_kendaraan' ? 'background:linear-gradient(135deg,#7c3aed,#a78bfa)' : 'background:linear-gradient(135deg,#2563eb,#60a5fa)' }}">
+                                        <div class="mgmt-user-avatar" style="background:{{ $uGrad }}">
                                             {{ strtoupper(substr($u->name, 0, 1)) }}
                                         </div>
                                         <div>
@@ -348,11 +308,19 @@
                                 </td>
                                 <td><span class="mgmt-username">{{ $u->username }}</span></td>
                                 <td>
-                                    @if($u->role === 'pic_kendaraan')
-                                        <span class="mgmt-role-badge mgmt-role-pic">PIC Kendaraan</span>
-                                    @else
-                                        <span class="mgmt-role-badge mgmt-role-driver">Driver</span>
-                                    @endif
+                                    @switch($u->role)
+                                        @case('pic_kendaraan')
+                                            <span class="mgmt-role-badge mgmt-role-pic">PIC Kendaraan</span>
+                                            @break
+                                        @case('manager')
+                                            <span class="mgmt-role-badge mgmt-role-manager">Manager</span>
+                                            @break
+                                        @case('admin')
+                                            <span class="mgmt-role-badge mgmt-role-admin">Admin</span>
+                                            @break
+                                        @default
+                                            <span class="mgmt-role-badge mgmt-role-driver">Driver</span>
+                                    @endswitch
                                 </td>
                                 <td class="text-center">
                                     <div class="mgmt-actions">
@@ -381,7 +349,9 @@
     </div>
 
 </div>{{-- /.armada-shell --}}
+@endsection
 
+@section('modals')
 {{-- ══════════════════════════════════════════════════════════════════════ --}}
 {{-- TAMBAH / UBAH KENDARAAN (MASTER ARMADA)                                --}}
 {{-- ══════════════════════════════════════════════════════════════════════ --}}
@@ -457,6 +427,66 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════════════ --}}
+{{-- TAMBAH USER MODAL                                                      --}}
+{{-- ══════════════════════════════════════════════════════════════════════ --}}
+<div id="user-add-modal" class="mgmt-modal-overlay" hidden onclick="if(event.target===this)closeUserAddModal()">
+    <div class="mgmt-modal-box" onclick="event.stopPropagation()">
+        <div class="mgmt-modal-header">
+            <div class="mgmt-modal-avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;font-size:1.05rem">+</div>
+            <div>
+                <h2 class="mgmt-modal-title">Tambah User</h2>
+                <p class="mgmt-modal-sub">Akun baru</p>
+            </div>
+            <button type="button" class="mgmt-modal-close" onclick="closeUserAddModal()" aria-label="Tutup">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+        <form id="form-add-user">
+            @csrf
+            <div class="mgmt-modal-body">
+                <p class="mgmt-modal-section-label">DATA AKUN</p>
+                <div class="mgmt-modal-grid">
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="add-user-name">Nama Lengkap</label>
+                        <input type="text" name="name" id="add-user-name" class="mgmt-input" placeholder="Nama Lengkap" required autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="add-user-username">Username</label>
+                        <input type="text" name="username" id="add-user-username" class="mgmt-input" placeholder="username" required autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="add-user-role">Role</label>
+                        <select name="role" id="add-user-role" class="mgmt-input" required>
+                            <option value="driver">Driver</option>
+                            <option value="pic_kendaraan">PIC Kendaraan</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label" for="add-user-pw">Password</label>
+                        <div class="mgmt-pw-wrap">
+                            <input type="password" name="password" id="add-user-pw" class="mgmt-input" value="{{ $defaultPassword }}" required autocomplete="new-password">
+                            <button type="button" class="mgmt-pw-eye" onclick="toggleEye('add-user-pw', this)" tabindex="-1" aria-label="Tampilkan password">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                            </button>
+                        </div>
+                        <p class="mgmt-hint">Default: <code>{{ $defaultPassword }}</code></p>
+                    </div>
+                </div>
+            </div>
+            <div class="mgmt-modal-footer">
+                <button type="button" class="mgmt-cancel-btn" onclick="closeUserAddModal()">Batal</button>
+                <button type="submit" class="mgmt-submit-btn" id="btn-add-user">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════════════════ --}}
 {{-- EDIT USER MODAL                                                        --}}
 {{-- ══════════════════════════════════════════════════════════════════════ --}}
 <div id="user-edit-modal" class="mgmt-modal-overlay" hidden onclick="if(event.target===this)closeUserModal()">
@@ -495,6 +525,8 @@
                         <select id="edit-role" class="mgmt-input" required>
                             <option value="driver">Driver</option>
                             <option value="pic_kendaraan">PIC Kendaraan</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
                         </select>
                     </div>
                 </div>
@@ -502,8 +534,15 @@
                 <div class="mgmt-modal-divider"></div>
                 <p class="mgmt-modal-section-label">RESET PASSWORD <span style="font-weight:400;text-transform:none;color:#94a3b8">(opsional)</span></p>
                 <div class="mgmt-hint-box">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Password default: <code>{{ $defaultPassword }}</code> — Kosongkan jika tidak ingin mengubah password.
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <span style="display:inline-flex;align-items:center;gap:6px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Password default: <code>{{ $defaultPassword }}</code>
+                        </span>
+                        <span>
+                            Kosongkan jika tidak ingin mengubah password.
+                        </span>
+                    </div>
                 </div>
                 <div class="mgmt-field" style="max-width:320px">
                     <label class="mgmt-label">Password Baru</label>
@@ -525,7 +564,9 @@
         </form>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
 (function () {
 'use strict';
@@ -538,6 +579,36 @@ const ARMADA_UPDATE_URL_TMPL = @json(url('/admin/portal-manajemen-administrasi/k
 /* ─── Helpers ──────────────────────────────────────────────────────────── */
 function escHtml(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escJs(s)   { return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+/** Avatar & badge konsisten untuk role yang dikelola portal. */
+function userMgmtAvatarGradient(role) {
+    switch (role) {
+        case 'pic_kendaraan': return 'linear-gradient(135deg,#7c3aed,#a78bfa)';
+        case 'manager':       return 'linear-gradient(135deg,#ea580c,#fb923c)';
+        case 'admin':         return 'linear-gradient(135deg,#0d9488,#2dd4bf)';
+        default:              return 'linear-gradient(135deg,#2563eb,#60a5fa)';
+    }
+}
+function userMgmtRoleBadge(role) {
+    switch (role) {
+        case 'pic_kendaraan':
+            return '<span class="mgmt-role-badge mgmt-role-pic">PIC Kendaraan</span>';
+        case 'manager':
+            return '<span class="mgmt-role-badge mgmt-role-manager">Manager</span>';
+        case 'admin':
+            return '<span class="mgmt-role-badge mgmt-role-admin">Admin</span>';
+        default:
+            return '<span class="mgmt-role-badge mgmt-role-driver">Driver</span>';
+    }
+}
+function userMgmtRoleLabel(role) {
+    switch (role) {
+        case 'pic_kendaraan': return 'PIC Kendaraan';
+        case 'manager':       return 'Manager';
+        case 'admin':         return 'Admin';
+        default:              return 'Driver';
+    }
+}
 
 function armadaFmtIdDate(v) {
     if (!v) return '';
@@ -583,12 +654,28 @@ window.toggleEye = function(inputId, btn) {
         : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>';
 };
 
-/* ─── Collapsible add forms ───────────────────────────────────────────── */
-window.toggleAddForm = function(section) {
-    const panel = document.getElementById(section + '-add-panel');
-    const btn   = document.getElementById('btn-toggle-' + section + '-form');
-    const open  = panel.classList.toggle('open');
-    btn.classList.toggle('active', open);
+/* ─── Modal overlay lock (armada + tambah user + edit user) ───────────── */
+function refreshMgmtModalOverflow() {
+    const armada = document.getElementById('armada-form-modal');
+    const userAdd = document.getElementById('user-add-modal');
+    const userEdit = document.getElementById('user-edit-modal');
+    const anyOpen = [armada, userAdd, userEdit].some(el => el && !el.hidden);
+    document.body.style.overflow = anyOpen ? 'hidden' : '';
+}
+
+window.openUserAddModal = function() {
+    document.getElementById('add-user-name').value = '';
+    document.getElementById('add-user-username').value = '';
+    document.getElementById('add-user-role').value = 'driver';
+    document.getElementById('add-user-pw').value = '{{ $defaultPassword }}';
+    document.getElementById('user-add-modal').hidden = false;
+    refreshMgmtModalOverflow();
+    setTimeout(() => document.getElementById('add-user-name').focus(), 80);
+};
+
+window.closeUserAddModal = function() {
+    document.getElementById('user-add-modal').hidden = true;
+    refreshMgmtModalOverflow();
 };
 
 /* ─── Pagination builder ───────────────────────────────────────────────── */
@@ -706,9 +793,8 @@ window.openArmadaAddModal = function() {
     document.getElementById('armada-modal-tanggal-pajak').value = '';
     document.getElementById('armada-modal-tanggal-kir').value = '';
     document.getElementById('armada-modal-status').value = 'Aktif';
-    const modal = document.getElementById('armada-form-modal');
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
+    document.getElementById('armada-form-modal').hidden = false;
+    refreshMgmtModalOverflow();
     setTimeout(() => document.getElementById('armada-modal-nopol').focus(), 80);
 };
 
@@ -726,14 +812,13 @@ window.openArmadaEditModal = function(id, nopol, jenis, bidang, kmCurrent, tangg
     document.getElementById('armada-modal-tanggal-kir').value = tanggalKir || '';
     document.getElementById('armada-modal-status').value = statusKendaraan && ['Aktif','Maintenance','Non Aktif'].includes(statusKendaraan) ? statusKendaraan : 'Aktif';
     document.getElementById('armada-form-modal').hidden = false;
-    document.body.style.overflow = 'hidden';
+    refreshMgmtModalOverflow();
     setTimeout(() => document.getElementById('armada-modal-nopol').focus(), 80);
 };
 
 window.closeArmadaModal = function() {
     document.getElementById('armada-form-modal').hidden = true;
-    const userModal = document.getElementById('user-edit-modal');
-    document.body.style.overflow = userModal.hidden ? '' : 'hidden';
+    refreshMgmtModalOverflow();
 };
 
 window.submitArmadaModal = async function() {
@@ -849,18 +934,15 @@ function renderUserTable(rows, page, perPage) {
     }
     const offset = (page - 1) * perPage;
     tbody.innerHTML = rows.map((u, i) => {
-        const isPic = u.role === 'pic_kendaraan';
-        const avatarBg = isPic ? 'linear-gradient(135deg,#7c3aed,#a78bfa)' : 'linear-gradient(135deg,#2563eb,#60a5fa)';
-        const badge = isPic
-            ? '<span class="mgmt-role-badge mgmt-role-pic">PIC Kendaraan</span>'
-            : '<span class="mgmt-role-badge mgmt-role-driver">Driver</span>';
+        const avatarBg = userMgmtAvatarGradient(u.role);
+        const badge = userMgmtRoleBadge(u.role);
         return `
         <tr id="urow-${u.id}">
             <td class="text-muted">${offset + i + 1}</td>
             <td>
                 <div class="mgmt-user-cell">
                     <div class="mgmt-user-avatar" style="background:${avatarBg}">${escHtml(u.name.charAt(0).toUpperCase())}</div>
-                    <p class="mgmt-user-name">${escHtml(u.name)}</p>
+                    <div><p class="mgmt-user-name">${escHtml(u.name)}</p></div>
                 </div>
             </td>
             <td><span class="mgmt-username">${escHtml(u.username)}</span></td>
@@ -902,9 +984,11 @@ document.getElementById('form-add-user').addEventListener('submit', async functi
         const data = await res.json();
         if (res.ok && data.success) {
             Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1600,showConfirmButton:false});
-            this.reset();
+            document.getElementById('add-user-name').value = '';
+            document.getElementById('add-user-username').value = '';
+            document.getElementById('add-user-role').value = 'driver';
             document.getElementById('add-user-pw').value = '{{ $defaultPassword }}';
-            toggleAddForm('user'); fetchUsers();
+            closeUserAddModal(); fetchUsers();
         } else {
             const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message||'Gagal.');
             Swal.fire({icon:'error',title:'Gagal',text:msg});
@@ -925,20 +1009,19 @@ window.openUserEdit = function(id, name, username, role) {
     document.getElementById('edit-password').value = '';
 
     // Update modal header
-    const isPic = role === 'pic_kendaraan';
-    const av    = document.getElementById('modal-avatar');
+    const av = document.getElementById('modal-avatar');
     av.textContent = name.charAt(0).toUpperCase();
-    av.style.background = isPic ? 'linear-gradient(135deg,#7c3aed,#a78bfa)' : 'linear-gradient(135deg,#2563eb,#60a5fa)';
-    document.getElementById('modal-sub-text').textContent = isPic ? 'PIC Kendaraan · @' + username : 'Driver · @' + username;
+    av.style.background = userMgmtAvatarGradient(role);
+    document.getElementById('modal-sub-text').textContent = userMgmtRoleLabel(role) + ' · @' + username;
 
     document.getElementById('user-edit-modal').hidden = false;
-    document.body.style.overflow = 'hidden';
+    refreshMgmtModalOverflow();
     setTimeout(() => document.getElementById('edit-name').focus(), 100);
 };
 
 window.closeUserModal = function() {
     document.getElementById('user-edit-modal').hidden = true;
-    document.body.style.overflow = document.getElementById('armada-form-modal').hidden ? '' : 'hidden';
+    refreshMgmtModalOverflow();
 };
 
 window.submitUserEdit = async function() {
@@ -1034,5 +1117,4 @@ document.addEventListener('keydown', e => {
 
 })();
 </script>
-
-@endsection
+@endpush
