@@ -1080,6 +1080,53 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ================================================================
        PHOTO PREVIEW
        ================================================================ */
+    async function compressImage(file, quality = 0.8, maxWidth = 1920) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = e => {
+                img.src = e.target.result;
+            };
+
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    blob => {
+                        const compressedFile = new File(
+                            [blob],
+                            file.name.replace(/\.\w+$/, '.jpg'),
+                            {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            }
+                        );
+
+                        resolve(compressedFile);
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
     const initPhotoSlot = slot => {
         const input = slot.querySelector('[data-photo-single]');
         const preview = slot.querySelector('.photo-slot-preview');
@@ -1089,12 +1136,30 @@ document.addEventListener('DOMContentLoaded', () => {
         input.setAttribute('capture', 'environment');
         input.setAttribute('accept', 'image/*');
 
-        input.addEventListener('change', () => {
-            if (input.files?.[0]) {
-                const reader = new FileReader();
-                reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; if (placeholder) placeholder.style.display = 'none'; if (removeBtn) removeBtn.style.display = 'flex'; slot.classList.add('has-file'); };
-                reader.readAsDataURL(input.files[0]);
-            }
+        input.addEventListener('change', async () => {
+            if (!input.files?.[0]) return;
+
+            const originalFile = input.files[0];
+
+            const compressedFile = await compressImage(originalFile);
+
+            const dt = new DataTransfer();
+            dt.items.add(compressedFile);
+            input.files = dt.files;
+
+            const reader = new FileReader();
+
+            reader.onload = e => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+
+                if (placeholder) placeholder.style.display = 'none';
+                if (removeBtn) removeBtn.style.display = 'flex';
+
+                slot.classList.add('has-file');
+            };
+
+            reader.readAsDataURL(compressedFile);
         });
         if (removeBtn) removeBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); input.value = ''; preview.style.display = 'none'; preview.src = ''; if (placeholder) placeholder.style.display = 'flex'; removeBtn.style.display = 'none'; slot.classList.remove('has-file'); });
     };

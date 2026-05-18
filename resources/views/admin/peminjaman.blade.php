@@ -296,7 +296,9 @@
 
         </div>
     </div>
+@endsection
 
+@section('modals')
     {{-- Modal Bidang --}}
     <div id="ppm-modal-bidang" class="ppm-modal" hidden>
         <div class="ppm-modal-backdrop" data-close="bidang"></div>
@@ -327,7 +329,6 @@
                         <label for="ppm-bidang-manager-email">Email Manager</label>
                         <input type="email" id="ppm-bidang-manager-email" class="admin-filter-input" maxlength="255" placeholder="email@perusahaan.com">
                     </div>
-                    <p style="font-size:0.73rem;color:#64748b;margin-top:2px;">Jika terisi, laporan kejadian dari sub-bidang ini akan dikirim ke email manager untuk persetujuan sebelum PDF dibuat.</p>
                 </div>
                 <div class="ppm-modal-actions">
                     <button type="button" class="portal-local-reset" id="ppm-bidang-cancel" data-close="bidang">Batal</button>
@@ -355,204 +356,344 @@
             </form>
         </div>
     </div>
+@endsection
 
-<script>
-window.PPM_API = {
-    csrf: @json(csrf_token()),
-    bidangs: @json(url('/admin/bidangs')),
-    pernyataans: @json(url('/admin/pernyataans')),
-};
-window.PPM_LIST_URL = @json(route('admin.peminjaman'));
+@push('scripts')
+    <script>
+    window.PPM_API = {
+        csrf: @json(csrf_token()),
+        bidangs: @json(url('/admin/bidangs')),
+        pernyataans: @json(url('/admin/pernyataans')),
+    };
+    window.PPM_LIST_URL = @json(route('admin.peminjaman'));
 
-window.ppmSwitchTab = function (tab) {
-    const tabs = ['bidang', 'pernyataan', 'daftar'];
-    if (!tabs.includes(tab)) tab = 'daftar';
-    tabs.forEach(t => {
-        const sec = document.getElementById('ppm-section-' + t);
-        const btn = document.getElementById('ppm-tab-' + t);
-        if (sec) sec.style.display = t === tab ? 'block' : 'none';
-        if (btn) btn.classList.toggle('active', t === tab);
-    });
-    try {
-        const url = new URL(location.href);
-        url.hash = tab;
-        history.replaceState(null, '', url.pathname + url.search + '#' + tab);
-    } catch (e) { /* ignore */ }
-    try { localStorage.setItem('ppm-active-tab', tab); } catch (e) { /* ignore */ }
-};
-
-(function () {
-    let initialTab = 'daftar';
-    const h = (location.hash || '').replace(/^#/, '');
-    if (['bidang', 'pernyataan', 'daftar'].includes(h)) initialTab = h;
-    else {
-        try {
-            const s = localStorage.getItem('ppm-active-tab');
-            if (['bidang', 'pernyataan', 'daftar'].includes(s)) initialTab = s;
-        } catch (e) { /* ignore */ }
-    }
-    window.ppmSwitchTab(initialTab);
-})();
-
-(function () {
-    const headers = () => ({
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': PPM_API.csrf,
-        'X-Requested-With': 'XMLHttpRequest',
-    });
-
-    function showErrors(res, data) {
-        if (data.errors) {
-            const msg = Object.values(data.errors).flat().join('<br>');
-            Swal.fire({ icon: 'warning', title: 'Validasi', html: msg, confirmButtonColor: '#002a7a' });
-            return;
-        }
-        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
-    }
-
-    let bidangTree = [];
-
-    function renderBidangTree(data) {
-        bidangTree = data;
-        const el = document.getElementById('ppm-bidang-tree');
-        if (!data.length) {
-            el.innerHTML = '<p class="peminj-meta">Belum ada data bidang.</p>';
-            const tc = document.getElementById('tc-bidang');
-            if (tc) tc.textContent = '0';
-            return;
-        }
-        el.innerHTML = '<ul>' + data.map(renderRoot).join('') + '</ul>';
-    }
-
-    function renderRoot(node) {
-        const actions = `
-            <div class="ppm-tree-actions">
-                <button type="button" class="ppm-btn-ghost" data-act="edit-bidang" data-id="${node.id}">Edit</button>
-                <button type="button" class="ppm-btn-ghost" data-act="add-sub" data-parent="${node.id}">+ Sub</button>
-                <button type="button" class="ppm-btn-ghost ppm-btn-danger" data-act="del-bidang" data-id="${node.id}">Hapus</button>
-            </div>`;
-        const subs = (node.children && node.children.length)
-            ? '<ul>' + node.children.map(ch => renderChild(ch)).join('') + '</ul>'
-            : '';
-        return `<li>
-            <div class="ppm-tree-row">
-                <strong>${escapeHtml(node.nama)}</strong>
-                ${actions}
-            </div>${subs}
-        </li>`;
-    }
-
-    function renderChild(node) {
-        const actions = `
-            <div class="ppm-tree-actions">
-                <button type="button" class="ppm-btn-ghost" data-act="edit-bidang" data-id="${node.id}">Edit</button>
-                <button type="button" class="ppm-btn-ghost ppm-btn-danger" data-act="del-bidang" data-id="${node.id}">Hapus</button>
-            </div>`;
-        return `<li>
-            <div class="ppm-tree-row">
-                <span>${escapeHtml(node.nama)}</span>
-                ${actions}
-            </div>
-        </li>`;
-    }
-
-    function escapeHtml(s) {
-        const d = document.createElement('div');
-        d.textContent = s;
-        return d.innerHTML;
-    }
-
-    function escapeAttr(s) {
-        return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-            .replace(/</g, '&lt;');
-    }
-
-    async function loadBidangs() {
-        const res = await fetch(PPM_API.bidangs, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-        const data = await res.json();
-        if (!res.ok) { showErrors(res, data); return; }
-        renderBidangTree(data.data || []);
-        const tc = document.getElementById('tc-bidang');
-        if (tc) tc.textContent = String(flattenBidang(data.data || []).length);
-    }
-
-    function populateBidangParents() {
-        const sel = document.getElementById('ppm-bidang-parent');
-        sel.innerHTML = '<option value="">— Bidang utama —</option>';
-        bidangTree.forEach(r => {
-            const o = document.createElement('option');
-            o.value = String(r.id);
-            o.textContent = r.nama;
-            sel.appendChild(o);
+    window.ppmSwitchTab = function (tab) {
+        const tabs = ['bidang', 'pernyataan', 'daftar'];
+        if (!tabs.includes(tab)) tab = 'daftar';
+        tabs.forEach(t => {
+            const sec = document.getElementById('ppm-section-' + t);
+            const btn = document.getElementById('ppm-tab-' + t);
+            if (sec) sec.style.display = t === tab ? 'block' : 'none';
+            if (btn) btn.classList.toggle('active', t === tab);
         });
-    }
+        try {
+            const url = new URL(location.href);
+            url.hash = tab;
+            history.replaceState(null, '', url.pathname + url.search + '#' + tab);
+        } catch (e) { /* ignore */ }
+        try { localStorage.setItem('ppm-active-tab', tab); } catch (e) { /* ignore */ }
+    };
 
-    function toggleManagerWrap() {
-        const sel = document.getElementById('ppm-bidang-parent');
-        const wrap = document.getElementById('ppm-bidang-manager-wrap');
-        if (!wrap) return;
-        wrap.style.display = sel.value ? 'block' : 'none';
-    }
-
-    function openBidangModal(opts) {
-        const { id, nama, parent_id, lockParent, manager_nama, manager_email } = opts;
-        document.getElementById('ppm-modal-bidang-title').textContent = id ? 'Ubah bidang' : (lockParent ? 'Tambah sub-bidang' : 'Tambah bidang utama');
-        document.getElementById('ppm-bidang-id').value = id || '';
-        document.getElementById('ppm-bidang-nama').value = nama || '';
-        document.getElementById('ppm-bidang-manager-nama').value = manager_nama || '';
-        document.getElementById('ppm-bidang-manager-email').value = manager_email || '';
-        populateBidangParents();
-        const sel = document.getElementById('ppm-bidang-parent');
-        if (lockParent) {
-            sel.value = String(lockParent);
-            sel.disabled = true;
-        } else {
-            sel.disabled = false;
-            sel.value = (parent_id != null && parent_id !== '') ? String(parent_id) : '';
+    (function () {
+        let initialTab = 'daftar';
+        const h = (location.hash || '').replace(/^#/, '');
+        if (['bidang', 'pernyataan', 'daftar'].includes(h)) initialTab = h;
+        else {
+            try {
+                const s = localStorage.getItem('ppm-active-tab');
+                if (['bidang', 'pernyataan', 'daftar'].includes(s)) initialTab = s;
+            } catch (e) { /* ignore */ }
         }
-        toggleManagerWrap();
-        sel.addEventListener('change', toggleManagerWrap);
-        document.getElementById('ppm-modal-bidang').hidden = false;
-    }
+        window.ppmSwitchTab(initialTab);
+    })();
 
-    function closeBidangModal() {
-        document.getElementById('ppm-modal-bidang').hidden = true;
-        document.getElementById('ppm-bidang-parent').disabled = false;
-    }
+    (function () {
+        const headers = () => ({
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': PPM_API.csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+        });
 
-    document.getElementById('ppm-btn-bidang-root').addEventListener('click', () => openBidangModal({}));
-
-    document.getElementById('ppm-bidang-tree').addEventListener('click', e => {
-        const btn = e.target.closest('[data-act]');
-        if (!btn) return;
-        const act = btn.getAttribute('data-act');
-        const id = btn.getAttribute('data-id');
-        const parent = btn.getAttribute('data-parent');
-        if (act === 'add-sub') {
-            openBidangModal({ lockParent: parent, parent_id: parent });
-            return;
+        function showErrors(res, data) {
+            if (data.errors) {
+                const msg = Object.values(data.errors).flat().join('<br>');
+                Swal.fire({ icon: 'warning', title: 'Validasi', html: msg, confirmButtonColor: '#002a7a' });
+                return;
+            }
+            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
         }
-        if (act === 'edit-bidang') {
-            const flat = flattenBidang(bidangTree);
-            const node = flat.find(x => String(x.id) === String(id));
-            if (!node) return;
-            openBidangModal({
-                id: node.id,
-                nama: node.nama,
-                parent_id: node.parent_id,
-                manager_nama: node.manager_nama || '',
-                manager_email: node.manager_email || '',
+
+        let bidangTree = [];
+
+        function renderBidangTree(data) {
+            bidangTree = data;
+            const el = document.getElementById('ppm-bidang-tree');
+            if (!data.length) {
+                el.innerHTML = '<p class="peminj-meta">Belum ada data bidang.</p>';
+                const tc = document.getElementById('tc-bidang');
+                if (tc) tc.textContent = '0';
+                return;
+            }
+            el.innerHTML = '<ul>' + data.map(renderRoot).join('') + '</ul>';
+        }
+
+        function renderRoot(node) {
+            const actions = `
+                <div class="ppm-tree-actions">
+                    <button type="button" class="ppm-btn-ghost" data-act="edit-bidang" data-id="${node.id}">Edit</button>
+                    <button type="button" class="ppm-btn-ghost" data-act="add-sub" data-parent="${node.id}">+ Sub</button>
+                    <button type="button" class="ppm-btn-ghost ppm-btn-danger" data-act="del-bidang" data-id="${node.id}">Hapus</button>
+                </div>`;
+            const subs = (node.children && node.children.length)
+                ? '<ul>' + node.children.map(ch => renderChild(ch)).join('') + '</ul>'
+                : '';
+            return `<li>
+                <div class="ppm-tree-row">
+                    <strong>${escapeHtml(node.nama)}</strong>
+                    ${actions}
+                </div>${subs}
+            </li>`;
+        }
+
+        function renderChild(node) {
+            const actions = `
+                <div class="ppm-tree-actions">
+                    <button type="button" class="ppm-btn-ghost" data-act="edit-bidang" data-id="${node.id}">Edit</button>
+                    <button type="button" class="ppm-btn-ghost ppm-btn-danger" data-act="del-bidang" data-id="${node.id}">Hapus</button>
+                </div>`;
+            return `<li>
+                <div class="ppm-tree-row">
+                    <span>${escapeHtml(node.nama)}</span>
+                    ${actions}
+                </div>
+            </li>`;
+        }
+
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function escapeAttr(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;');
+        }
+
+        async function loadBidangs() {
+            const res = await fetch(PPM_API.bidangs, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const data = await res.json();
+            if (!res.ok) { showErrors(res, data); return; }
+            renderBidangTree(data.data || []);
+            const tc = document.getElementById('tc-bidang');
+            if (tc) tc.textContent = String(flattenBidang(data.data || []).length);
+        }
+
+        function populateBidangParents() {
+            const sel = document.getElementById('ppm-bidang-parent');
+            sel.innerHTML = '<option value="">— Bidang utama —</option>';
+            bidangTree.forEach(r => {
+                const o = document.createElement('option');
+                o.value = String(r.id);
+                o.textContent = r.nama;
+                sel.appendChild(o);
             });
-            return;
         }
-        if (act === 'del-bidang') {
+
+        function toggleManagerWrap() {
+            const sel = document.getElementById('ppm-bidang-parent');
+            const wrap = document.getElementById('ppm-bidang-manager-wrap');
+            if (!wrap) return;
+            wrap.style.display = sel.value ? 'block' : 'none';
+        }
+
+        function openBidangModal(opts) {
+            const { id, nama, parent_id, lockParent, manager_nama, manager_email } = opts;
+            document.getElementById('ppm-modal-bidang-title').textContent = id ? 'Ubah bidang' : (lockParent ? 'Tambah sub-bidang' : 'Tambah bidang utama');
+            document.getElementById('ppm-bidang-id').value = id || '';
+            document.getElementById('ppm-bidang-nama').value = nama || '';
+            document.getElementById('ppm-bidang-manager-nama').value = manager_nama || '';
+            document.getElementById('ppm-bidang-manager-email').value = manager_email || '';
+            populateBidangParents();
+            const sel = document.getElementById('ppm-bidang-parent');
+            if (lockParent) {
+                sel.value = String(lockParent);
+                sel.disabled = true;
+            } else {
+                sel.disabled = false;
+                sel.value = (parent_id != null && parent_id !== '') ? String(parent_id) : '';
+            }
+            toggleManagerWrap();
+            sel.addEventListener('change', toggleManagerWrap);
+            document.getElementById('ppm-modal-bidang').hidden = false;
+        }
+
+        function closeBidangModal() {
+            document.getElementById('ppm-modal-bidang').hidden = true;
+            document.getElementById('ppm-bidang-parent').disabled = false;
+        }
+
+        document.getElementById('ppm-btn-bidang-root').addEventListener('click', () => openBidangModal({}));
+
+        document.getElementById('ppm-bidang-tree').addEventListener('click', e => {
+            const btn = e.target.closest('[data-act]');
+            if (!btn) return;
+            const act = btn.getAttribute('data-act');
+            const id = btn.getAttribute('data-id');
+            const parent = btn.getAttribute('data-parent');
+            if (act === 'add-sub') {
+                openBidangModal({ lockParent: parent, parent_id: parent });
+                return;
+            }
+            if (act === 'edit-bidang') {
+                const flat = flattenBidang(bidangTree);
+                const node = flat.find(x => String(x.id) === String(id));
+                if (!node) return;
+                openBidangModal({
+                    id: node.id,
+                    nama: node.nama,
+                    parent_id: node.parent_id,
+                    manager_nama: node.manager_nama || '',
+                    manager_email: node.manager_email || '',
+                });
+                return;
+            }
+            if (act === 'del-bidang') {
+                Swal.fire({
+                    title: 'Hapus bidang?',
+                    text: 'Tindakan ini tidak dapat dibatalkan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#b91c1c',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                }).then(async r => {
+                    if (!r.isConfirmed) return;
+                    const res = await fetch(PPM_API.bidangs + '/' + id, { method: 'DELETE', headers: headers() });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.success) { showErrors(res, data); return; }
+                    Swal.fire({ icon: 'success', title: 'Terhapus', timer: 1400, showConfirmButton: false });
+                    loadBidangs();
+                });
+            }
+        });
+
+        function flattenBidang(nodes, acc = []) {
+            nodes.forEach(n => {
+                acc.push({ id: n.id, nama: n.nama, parent_id: n.parent_id ?? null, manager_nama: n.manager_nama || null, manager_email: n.manager_email || null });
+                if (n.children && n.children.length) flattenBidang(n.children, acc);
+            });
+            return acc;
+        }
+
+        document.getElementById('ppm-form-bidang').addEventListener('submit', async e => {
+            e.preventDefault();
+            const id = document.getElementById('ppm-bidang-id').value;
+            const payload = {
+                nama: document.getElementById('ppm-bidang-nama').value.trim(),
+            };
+            const psel = document.getElementById('ppm-bidang-parent');
+            const pv = psel.value;
+            payload.parent_id = pv === '' ? null : parseInt(pv, 10);
+
+            if (pv !== '') {
+                payload.manager_nama = document.getElementById('ppm-bidang-manager-nama').value.trim() || null;
+                payload.manager_email = document.getElementById('ppm-bidang-manager-email').value.trim() || null;
+            } else {
+                payload.manager_nama = null;
+                payload.manager_email = null;
+            }
+
+            const url = id ? (PPM_API.bidangs + '/' + id) : PPM_API.bidangs;
+            const method = id ? 'PUT' : 'POST';
+            const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(payload) });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) { showErrors(res, data); return; }
+            closeBidangModal();
+            Swal.fire({ icon: 'success', title: 'Disimpan', timer: 1200, showConfirmButton: false });
+            loadBidangs();
+        });
+
+        document.querySelectorAll('[data-close="bidang"]').forEach(el => el.addEventListener('click', closeBidangModal));
+
+        /* --- Pernyataan (tabel + modal seperti Bidang, AJAX) --- */
+        let pernyataanRowsCache = [];
+
+        function openPernyataanModal(opts = {}) {
+            const id = opts.id != null && opts.id !== '' ? String(opts.id) : '';
+            const isi = opts.isi_pernyataan != null ? opts.isi_pernyataan : '';
+            document.getElementById('ppm-modal-pernyataan-title').textContent = id ? 'Ubah pernyataan' : 'Tambah pernyataan';
+            document.getElementById('ppm-pernyataan-id').value = id;
+            document.getElementById('ppm-pernyataan-isi').value = isi;
+            document.getElementById('ppm-modal-pernyataan').hidden = false;
+        }
+
+        function closePernyataanModal() {
+            document.getElementById('ppm-modal-pernyataan').hidden = true;
+        }
+
+        async function loadPernyataans() {
+            const res = await fetch(PPM_API.pernyataans, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const data = await res.json();
+            if (!res.ok) { showErrors(res, data); return; }
+            const rows = data.data || [];
+            pernyataanRowsCache = rows;
+            const tb = document.getElementById('ppm-pernyataan-tbody');
+            const tcP = document.getElementById('tc-pernyataan');
+            if (!rows.length) {
+                tb.innerHTML = '<tr><td colspan="3" class="peminj-empty">Belum ada pernyataan.</td></tr>';
+                if (tcP) tcP.textContent = '0';
+                return;
+            }
+            if (tcP) tcP.textContent = String(rows.length);
+            tb.innerHTML = rows.map((p, i) => {
+                const isiEsc = escapeHtml(p.isi_pernyataan || '');
+                const titleAttr = escapeAttr(p.isi_pernyataan || '');
+                return `<tr data-id="${p.id}">
+                    <td class="ppm-pernyataan-no">${i + 1}</td>
+                    <td class="ppm-pernyataan-isi-cell" title="${titleAttr}">${isiEsc}</td>
+                    <td class="ppm-pernyataan-aksi">
+                        <button type="button" class="ppm-btn-ghost ppm-edit-p" data-id="${p.id}">Edit</button>
+                        <button type="button" class="ppm-btn-ghost ppm-btn-danger ppm-del-p" data-id="${p.id}">Hapus</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        document.getElementById('ppm-btn-pernyataan-add').addEventListener('click', () => {
+            openPernyataanModal({});
+        });
+
+        document.querySelectorAll('[data-close="pernyataan"]').forEach(el => el.addEventListener('click', closePernyataanModal));
+
+        document.getElementById('ppm-form-pernyataan').addEventListener('submit', async e => {
+            e.preventDefault();
+            const id = document.getElementById('ppm-pernyataan-id').value;
+            const payload = {
+                isi_pernyataan: document.getElementById('ppm-pernyataan-isi').value.trim(),
+            };
+            const url = id ? (PPM_API.pernyataans + '/' + id) : PPM_API.pernyataans;
+            const method = id ? 'PUT' : 'POST';
+            const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(payload) });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) { showErrors(res, data); return; }
+            closePernyataanModal();
+            Swal.fire({ icon: 'success', title: id ? 'Diperbarui' : 'Disimpan', timer: 1200, showConfirmButton: false });
+            loadPernyataans();
+        });
+
+        document.getElementById('ppm-pernyataan-tbody').addEventListener('click', e => {
+            const edit = e.target.closest('.ppm-edit-p');
+            if (edit) {
+                const id = parseInt(edit.getAttribute('data-id'), 10);
+                const p = pernyataanRowsCache.find(x => Number(x.id) === id);
+                if (!p) return;
+                openPernyataanModal({
+                    id: p.id,
+                    isi_pernyataan: p.isi_pernyataan,
+                });
+                return;
+            }
+            const del = e.target.closest('.ppm-del-p');
+            if (!del) return;
+            const id = del.getAttribute('data-id');
             Swal.fire({
-                title: 'Hapus bidang?',
-                text: 'Tindakan ini tidak dapat dibatalkan.',
+                title: 'Hapus pernyataan?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#b91c1c',
@@ -561,248 +702,110 @@ window.ppmSwitchTab = function (tab) {
                 cancelButtonText: 'Batal',
             }).then(async r => {
                 if (!r.isConfirmed) return;
-                const res = await fetch(PPM_API.bidangs + '/' + id, { method: 'DELETE', headers: headers() });
+                const res = await fetch(PPM_API.pernyataans + '/' + id, { method: 'DELETE', headers: headers() });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok || !data.success) { showErrors(res, data); return; }
-                Swal.fire({ icon: 'success', title: 'Terhapus', timer: 1400, showConfirmButton: false });
-                loadBidangs();
+                Swal.fire({ icon: 'success', title: 'Terhapus', timer: 1200, showConfirmButton: false });
+                loadPernyataans();
             });
-        }
-    });
-
-    function flattenBidang(nodes, acc = []) {
-        nodes.forEach(n => {
-            acc.push({ id: n.id, nama: n.nama, parent_id: n.parent_id ?? null, manager_nama: n.manager_nama || null, manager_email: n.manager_email || null });
-            if (n.children && n.children.length) flattenBidang(n.children, acc);
         });
-        return acc;
-    }
 
-    document.getElementById('ppm-form-bidang').addEventListener('submit', async e => {
-        e.preventDefault();
-        const id = document.getElementById('ppm-bidang-id').value;
-        const payload = {
-            nama: document.getElementById('ppm-bidang-nama').value.trim(),
-        };
-        const psel = document.getElementById('ppm-bidang-parent');
-        const pv = psel.value;
-        payload.parent_id = pv === '' ? null : parseInt(pv, 10);
-
-        if (pv !== '') {
-            payload.manager_nama = document.getElementById('ppm-bidang-manager-nama').value.trim() || null;
-            payload.manager_email = document.getElementById('ppm-bidang-manager-email').value.trim() || null;
-        } else {
-            payload.manager_nama = null;
-            payload.manager_email = null;
-        }
-
-        const url = id ? (PPM_API.bidangs + '/' + id) : PPM_API.bidangs;
-        const method = id ? 'PUT' : 'POST';
-        const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(payload) });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { showErrors(res, data); return; }
-        closeBidangModal();
-        Swal.fire({ icon: 'success', title: 'Disimpan', timer: 1200, showConfirmButton: false });
         loadBidangs();
-    });
-
-    document.querySelectorAll('[data-close="bidang"]').forEach(el => el.addEventListener('click', closeBidangModal));
-
-    /* --- Pernyataan (tabel + modal seperti Bidang, AJAX) --- */
-    let pernyataanRowsCache = [];
-
-    function openPernyataanModal(opts = {}) {
-        const id = opts.id != null && opts.id !== '' ? String(opts.id) : '';
-        const isi = opts.isi_pernyataan != null ? opts.isi_pernyataan : '';
-        document.getElementById('ppm-modal-pernyataan-title').textContent = id ? 'Ubah pernyataan' : 'Tambah pernyataan';
-        document.getElementById('ppm-pernyataan-id').value = id;
-        document.getElementById('ppm-pernyataan-isi').value = isi;
-        document.getElementById('ppm-modal-pernyataan').hidden = false;
-    }
-
-    function closePernyataanModal() {
-        document.getElementById('ppm-modal-pernyataan').hidden = true;
-    }
-
-    async function loadPernyataans() {
-        const res = await fetch(PPM_API.pernyataans, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-        const data = await res.json();
-        if (!res.ok) { showErrors(res, data); return; }
-        const rows = data.data || [];
-        pernyataanRowsCache = rows;
-        const tb = document.getElementById('ppm-pernyataan-tbody');
-        const tcP = document.getElementById('tc-pernyataan');
-        if (!rows.length) {
-            tb.innerHTML = '<tr><td colspan="3" class="peminj-empty">Belum ada pernyataan.</td></tr>';
-            if (tcP) tcP.textContent = '0';
-            return;
-        }
-        if (tcP) tcP.textContent = String(rows.length);
-        tb.innerHTML = rows.map((p, i) => {
-            const isiEsc = escapeHtml(p.isi_pernyataan || '');
-            const titleAttr = escapeAttr(p.isi_pernyataan || '');
-            return `<tr data-id="${p.id}">
-                <td class="ppm-pernyataan-no">${i + 1}</td>
-                <td class="ppm-pernyataan-isi-cell" title="${titleAttr}">${isiEsc}</td>
-                <td class="ppm-pernyataan-aksi">
-                    <button type="button" class="ppm-btn-ghost ppm-edit-p" data-id="${p.id}">Edit</button>
-                    <button type="button" class="ppm-btn-ghost ppm-btn-danger ppm-del-p" data-id="${p.id}">Hapus</button>
-                </td>
-            </tr>`;
-        }).join('');
-    }
-
-    document.getElementById('ppm-btn-pernyataan-add').addEventListener('click', () => {
-        openPernyataanModal({});
-    });
-
-    document.querySelectorAll('[data-close="pernyataan"]').forEach(el => el.addEventListener('click', closePernyataanModal));
-
-    document.getElementById('ppm-form-pernyataan').addEventListener('submit', async e => {
-        e.preventDefault();
-        const id = document.getElementById('ppm-pernyataan-id').value;
-        const payload = {
-            isi_pernyataan: document.getElementById('ppm-pernyataan-isi').value.trim(),
-        };
-        const url = id ? (PPM_API.pernyataans + '/' + id) : PPM_API.pernyataans;
-        const method = id ? 'PUT' : 'POST';
-        const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(payload) });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { showErrors(res, data); return; }
-        closePernyataanModal();
-        Swal.fire({ icon: 'success', title: id ? 'Diperbarui' : 'Disimpan', timer: 1200, showConfirmButton: false });
         loadPernyataans();
-    });
+    })();
 
-    document.getElementById('ppm-pernyataan-tbody').addEventListener('click', e => {
-        const edit = e.target.closest('.ppm-edit-p');
-        if (edit) {
-            const id = parseInt(edit.getAttribute('data-id'), 10);
-            const p = pernyataanRowsCache.find(x => Number(x.id) === id);
-            if (!p) return;
-            openPernyataanModal({
-                id: p.id,
-                isi_pernyataan: p.isi_pernyataan,
+    /* ── Daftar permohonan: filter & halaman real-time ── */
+    (function () {
+        const listUrl = window.PPM_LIST_URL;
+        const searchEl = document.getElementById('ppm-search-live');
+        const statusEl = document.getElementById('ppm-status-live');
+        const tbody = document.getElementById('ppm-requests-tbody');
+        const pagEl = document.getElementById('ppm-requests-pagination');
+        const clearBtn = document.getElementById('ppm-search-clear');
+        const resetBtn = document.getElementById('ppm-filter-reset');
+        if (!searchEl || !statusEl || !tbody || !pagEl) return;
+
+        function updateFilterChrome() {
+            const hasSearch = searchEl.value.trim().length > 0;
+            if (clearBtn) clearBtn.style.display = hasSearch ? 'flex' : 'none';
+            const showReset = hasSearch || (statusEl.value && statusEl.value !== '');
+            if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
+        }
+
+        async function fetchRequestsFromUrl(url) {
+            const u = url instanceof URL ? url : new URL(url, location.origin);
+            const res = await fetch(u.toString(), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+                cache: 'no-store',
             });
-            return;
+            let data = {};
+            try { data = await res.json(); } catch (e) { /* ignore */ }
+            if (!res.ok) {
+                Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
+                return;
+            }
+            tbody.innerHTML = data.tbody || '';
+            pagEl.innerHTML = data.pagination || '';
+            searchEl.value = u.searchParams.get('search') || '';
+            statusEl.value = u.searchParams.get('status') || '';
+            try {
+                const keepHash = location.hash || '#daftar';
+                history.replaceState(null, '', u.pathname + u.search + keepHash);
+            } catch (e) { /* ignore */ }
+            updateFilterChrome();
         }
-        const del = e.target.closest('.ppm-del-p');
-        if (!del) return;
-        const id = del.getAttribute('data-id');
-        Swal.fire({
-            title: 'Hapus pernyataan?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#b91c1c',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: 'Ya, hapus',
-            cancelButtonText: 'Batal',
-        }).then(async r => {
-            if (!r.isConfirmed) return;
-            const res = await fetch(PPM_API.pernyataans + '/' + id, { method: 'DELETE', headers: headers() });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok || !data.success) { showErrors(res, data); return; }
-            Swal.fire({ icon: 'success', title: 'Terhapus', timer: 1200, showConfirmButton: false });
-            loadPernyataans();
-        });
-    });
 
-    loadBidangs();
-    loadPernyataans();
-})();
-
-/* ── Daftar permohonan: filter & halaman real-time ── */
-(function () {
-    const listUrl = window.PPM_LIST_URL;
-    const searchEl = document.getElementById('ppm-search-live');
-    const statusEl = document.getElementById('ppm-status-live');
-    const tbody = document.getElementById('ppm-requests-tbody');
-    const pagEl = document.getElementById('ppm-requests-pagination');
-    const clearBtn = document.getElementById('ppm-search-clear');
-    const resetBtn = document.getElementById('ppm-filter-reset');
-    if (!searchEl || !statusEl || !tbody || !pagEl) return;
-
-    function updateFilterChrome() {
-        const hasSearch = searchEl.value.trim().length > 0;
-        if (clearBtn) clearBtn.style.display = hasSearch ? 'flex' : 'none';
-        const showReset = hasSearch || (statusEl.value && statusEl.value !== '');
-        if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
-    }
-
-    async function fetchRequestsFromUrl(url) {
-        const u = url instanceof URL ? url : new URL(url, location.origin);
-        const res = await fetch(u.toString(), {
-            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-            credentials: 'same-origin',
-            cache: 'no-store',
-        });
-        let data = {};
-        try { data = await res.json(); } catch (e) { /* ignore */ }
-        if (!res.ok) {
-            Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
-            return;
+        function buildListUrl(overrides = {}) {
+            const u = new URL(listUrl, location.origin);
+            const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
+            const status = overrides.status !== undefined ? overrides.status : statusEl.value;
+            if (search) u.searchParams.set('search', search); else u.searchParams.delete('search');
+            if (status) u.searchParams.set('status', status); else u.searchParams.delete('status');
+            const page = overrides.page;
+            if (page) u.searchParams.set('page', String(page)); else u.searchParams.delete('page');
+            return u;
         }
-        tbody.innerHTML = data.tbody || '';
-        pagEl.innerHTML = data.pagination || '';
-        searchEl.value = u.searchParams.get('search') || '';
-        statusEl.value = u.searchParams.get('status') || '';
-        try {
-            const keepHash = location.hash || '#daftar';
-            history.replaceState(null, '', u.pathname + u.search + keepHash);
-        } catch (e) { /* ignore */ }
-        updateFilterChrome();
-    }
 
-    function buildListUrl(overrides = {}) {
-        const u = new URL(listUrl, location.origin);
-        const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
-        const status = overrides.status !== undefined ? overrides.status : statusEl.value;
-        if (search) u.searchParams.set('search', search); else u.searchParams.delete('search');
-        if (status) u.searchParams.set('status', status); else u.searchParams.delete('status');
-        const page = overrides.page;
-        if (page) u.searchParams.set('page', String(page)); else u.searchParams.delete('page');
-        return u;
-    }
+        let debounceT;
+        searchEl.addEventListener('input', () => {
+            updateFilterChrome();
+            clearTimeout(debounceT);
+            debounceT = setTimeout(() => {
+                fetchRequestsFromUrl(buildListUrl({ page: null }));
+            }, 320);
+        });
 
-    let debounceT;
-    searchEl.addEventListener('input', () => {
-        updateFilterChrome();
-        clearTimeout(debounceT);
-        debounceT = setTimeout(() => {
+        statusEl.addEventListener('change', () => {
             fetchRequestsFromUrl(buildListUrl({ page: null }));
-        }, 320);
-    });
-
-    statusEl.addEventListener('change', () => {
-        fetchRequestsFromUrl(buildListUrl({ page: null }));
-    });
-
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            searchEl.value = '';
-            fetchRequestsFromUrl(buildListUrl({ search: '', page: null }));
         });
-    }
 
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-            searchEl.value = '';
-            statusEl.value = '';
-            fetchRequestsFromUrl(new URL(listUrl, location.origin));
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchEl.value = '';
+                fetchRequestsFromUrl(buildListUrl({ search: '', page: null }));
+            });
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                searchEl.value = '';
+                statusEl.value = '';
+                fetchRequestsFromUrl(new URL(listUrl, location.origin));
+            });
+        }
+
+        pagEl.addEventListener('click', e => {
+            const a = e.target.closest('a[href]');
+            if (!a) return;
+            const u = new URL(a.getAttribute('href'), location.origin);
+            if (u.pathname !== new URL(listUrl, location.origin).pathname) return;
+            e.preventDefault();
+            fetchRequestsFromUrl(u);
         });
-    }
 
-    pagEl.addEventListener('click', e => {
-        const a = e.target.closest('a[href]');
-        if (!a) return;
-        const u = new URL(a.getAttribute('href'), location.origin);
-        if (u.pathname !== new URL(listUrl, location.origin).pathname) return;
-        e.preventDefault();
-        fetchRequestsFromUrl(u);
-    });
+        updateFilterChrome();
+    })();
 
-    updateFilterChrome();
-})();
-
-</script>
-@endsection
+    </script>
+@endpush

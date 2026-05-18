@@ -3343,6 +3343,12 @@ select.admin-filter-input {
     display: block;
 }
 
+@media (max-width: 480px){
+    .landing-footer-logo {
+        width: 65px;
+    }
+}
+
 /* Landing — dark: judul/subtitle mengikuti hierarki light (biru gelap / abu) */
 .dash-body.dark .landing-section-title {
     color: #bfdbfe;
