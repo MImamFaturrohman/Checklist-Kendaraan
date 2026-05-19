@@ -205,7 +205,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mgmt-pagination" id="armada-pagination"></div>
+            <div class="mgmt-pagination" id="armada-pagination" style="display: flex; justify-content: center;"></div>
         </div>
     </div>
 

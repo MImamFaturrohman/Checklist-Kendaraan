@@ -1320,7 +1320,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isKmAwalValid = false;
             } else if (val !== lastKmDatabase) {
                 kmAwalError.style.display = 'flex';
-                kmAwalErrorText.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir (${lastKmDatabase}).`;
+                kmAwalErrorText.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir.`;
                 kmAwalInput.style.borderColor = '#ef4444';
                 kmAwalError.classList.remove('km-error-primary');
                 kmAwalError.classList.add('km-error-danger');
