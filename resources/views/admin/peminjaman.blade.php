@@ -171,6 +171,15 @@
                         <div class="portal-stat-label">Ditolak</div>
                     </div>
                 </div>
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div>
+                        <div class="portal-stat-value" style="color:#6b7280">{{ $stats['expired'] }}</div>
+                        <div class="portal-stat-label">Kedaluwarsa</div>
+                    </div>
+                </div>
             </div>
 
             <div class="mgmt-tab-bar" style="margin-top: 4px">
@@ -261,9 +270,10 @@
                         <div class="ppm-status-wrap">
                             <select id="ppm-status-live" class="admin-filter-input" aria-label="Filter status permohonan">
                                 <option value="">Semua status</option>
-                                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu</option>
+                                <option value="pending"  {{ request('status') === 'pending'  ? 'selected' : '' }}>Menunggu</option>
                                 <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Disetujui</option>
                                 <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                                <option value="expired"  {{ request('status') === 'expired'  ? 'selected' : '' }}>Kedaluwarsa</option>
                             </select>
                         </div>
                         <button type="button" class="portal-local-reset ppm-filter-reset" id="ppm-filter-reset" title="Reset filter" style="display: none">Reset</button>

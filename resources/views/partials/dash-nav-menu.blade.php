@@ -232,9 +232,30 @@
         <a href="{{ route('admin.portal-bbm-operasional') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.portal-bbm-operasional*') ? 'is-active' : '' }}">
             <span class="dash-sidebar-icon">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg width="17" height="17" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 56V14C18 10.6863 20.6863 8 24 8H38C41.3137 8 44 10.6863 44 14V56" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="24" y="16" width="14" height="12" rx="2" 
+                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M14 56H48" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M44 20H50C52.2091 20 54 21.7909 54 24V42C54 44.2091 52.2091 46 50 46C47.7909 46 46 44.2091 46 42V34" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M44 34H54" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M31 35C31 35 25 42 25 47C25 50.3137 27.6863 53 31 53C34.3137 53 37 50.3137 37 47C37 42 31 35 31 35Z" 
+                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                </svg>
             </span>
             <span class="dash-sidebar-label">BBM Operasional</span>
+        </a>
+
+        <a href="{{ route('admin.portal-pemeriksaan') }}"
+           class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.portal-pemeriksaan*') ? 'is-active' : '' }}">
+            <span class="dash-sidebar-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="dash-sidebar-label">Portal Pemeriksaan</span>
         </a>
     </div>
     @endif

@@ -185,16 +185,23 @@
             page-break-inside: avoid;
         }
 
-        .signature-footer-line {
-            margin-top: 16px;
-            border-top: 1px solid #9ca3af;
+        .pdf-page-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 6px 10px 10px;
+            background: #fff;
+            text-align: center;
         }
-
+        
         .note {
             text-align: center;
             font-size: 8pt;
             color: #6b7280;
             margin-top: 6px;
+            margin-bottom: 0;
             font-style: italic;
         }
     </style>
@@ -229,7 +236,7 @@
 
                             $bulan = $bulanRomawi[$now->month];
 
-                            $id = str_pad($checklist->id, 4, '0', STR_PAD_LEFT);
+                            $id = str_pad($checklist->id, 3, '0', STR_PAD_LEFT);
                         @endphp
                         <div class="header-number">
                             No. ADC-{{ $tahun }}{{ $bulan }}DRV{{ $id }} | {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
@@ -407,7 +414,8 @@
                 </td>
             </tr>
         </table>
-        <div class="signature-footer-line"></div>
+    </div>
+    <div class="pdf-page-footer">
         <div class="note">
             Dokumen ini dihasilkan secara otomatis oleh Vehicle Management System ADC Port Management.
         </div>

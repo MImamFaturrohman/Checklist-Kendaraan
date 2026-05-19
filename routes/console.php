@@ -10,12 +10,9 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 /*
- * Daily at midnight: clear tanda_tangan for pending requests whose
- * tanggal_peminjaman has already passed (expired).
+ * Daily at 00:05: expire pending requests whose tanggal_peminjaman has
+ * already passed, and clear their signature data.
  */
 Schedule::call(function () {
-    PeminjamanRequest::where('status', 'pending')
-        ->whereNotNull('tanda_tangan')
-        ->whereDate('tanggal_peminjaman', '<', now()->toDateString())
-        ->update(['tanda_tangan' => null]);
-})->dailyAt('00:05')->name('peminjaman.cleanup-expired-signatures');
+    PeminjamanRequest::expirePendingPastBorrowDate();
+})->dailyAt('00:05')->name('peminjaman.expire-pending-requests');

@@ -32,7 +32,7 @@ class ChecklistController extends Controller
     /** Database sheet, foto log, arsip PDF — superadmin */
     private function canAccessFullPortalDatabase(): bool
     {
-        return in_array(auth()->user()?->role, ['superadmin'], true);
+        return in_array(auth()->user()?->role, ['superadmin', 'manager'], true);
     }
 
     private function canAccessInspectionPortal(): bool
@@ -160,14 +160,28 @@ class ChecklistController extends Controller
             Kendaraan::where('nomor_kendaraan', $request->nomor_kendaraan)
                 ->update(['km_current' => (int) $request->km_akhir]);
 
-            // Generate PDF
+            // Generate PDF (must happen before we clear the signature paths)
             $checklist->load(['exterior', 'interior', 'mesin', 'perlengkapan']);
             $pdf = Pdf::loadView('checklists.pdf', ['checklist' => $checklist]);
             $pdfFileName = 'checklist_'.$checklist->id.'_'.now()->format('Ymd_His').'.pdf';
             $pdfPath = 'checklists/pdf/'.$pdfFileName;
             Storage::disk('public')->put($pdfPath, $pdf->output());
 
-            $checklist->update(['pdf_path' => $pdfPath]);
+            // Persist PDF path and clear signature data — the PDF already embeds the images.
+            $ttdSerahPathSaved  = $checklist->tanda_tangan_serah;
+            $ttdTerimaPathSaved = $checklist->tanda_tangan_terima;
+
+            $checklist->update([
+                'pdf_path'          => $pdfPath,
+                'tanda_tangan_serah'  => null,
+                'tanda_tangan_terima' => null,
+            ]);
+
+            foreach ([$ttdSerahPathSaved, $ttdTerimaPathSaved] as $sigPath) {
+                if ($sigPath && Storage::disk('public')->exists($sigPath)) {
+                    Storage::disk('public')->delete($sigPath);
+                }
+            }
 
             $pdfUrl = $pdfUrl = Storage::url($pdfPath);
 
@@ -325,13 +339,11 @@ class ChecklistController extends Controller
         $fotoMeta = $canAccessDatabase ? ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()] : null;
         $pdfMeta = $canAccessDatabase ? ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()] : null;
 
-        $defaultPassword = \App\Http\Controllers\UserManagementController::DEFAULT_PASSWORD;
-
         return view('admin.portal-pemeriksaan', compact(
             'nopolList', 'dbStats', 'pdfStats', 'chartData',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
             'dbMeta', 'fotoMeta', 'pdfMeta', 'canAccessDatabase',
-            'pemeriksaanInsightOnlyManager', 'defaultPassword'
+            'pemeriksaanInsightOnlyManager'
         ));
     }
 

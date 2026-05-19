@@ -75,15 +75,17 @@ class PeminjamanController extends Controller
     {
         abort_unless(auth()->user()?->role === 'manager', 403);
 
+        PeminjamanRequest::expirePendingPastBorrowDate();
+
         $pendingRequests = PeminjamanRequest::where('status', 'pending')
             ->with('bidang.parent')
             ->orderByDesc('created_at')
             ->paginate(10, ['*'], 'pending_page')
             ->withQueryString();
 
-        $historyRequests = PeminjamanRequest::whereIn('status', ['approved', 'rejected'])
+        $historyRequests = PeminjamanRequest::whereIn('status', ['approved', 'rejected', 'expired'])
             ->with(['approver', 'bidang.parent'])
-            ->orderByDesc('approved_at')
+            ->orderByDesc('updated_at')
             ->paginate(10, ['*'], 'history_page')
             ->withQueryString();
 
@@ -93,6 +95,8 @@ class PeminjamanController extends Controller
     public function approve(Request $request, PeminjamanRequest $peminjaman): JsonResponse
     {
         abort_unless(auth()->user()?->role === 'manager', 403);
+        PeminjamanRequest::expirePendingPastBorrowDate();
+        $peminjaman->refresh();
         abort_unless($peminjaman->isPending(), 422);
 
         $peminjaman->update([
@@ -121,6 +125,8 @@ class PeminjamanController extends Controller
     public function reject(Request $request, PeminjamanRequest $peminjaman): JsonResponse
     {
         abort_unless(auth()->user()?->role === 'manager', 403);
+        PeminjamanRequest::expirePendingPastBorrowDate();
+        $peminjaman->refresh();
         abort_unless($peminjaman->isPending(), 422);
 
         $request->validate([
@@ -200,14 +206,17 @@ class PeminjamanController extends Controller
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
+        PeminjamanRequest::expirePendingPastBorrowDate();
+
         $query = $this->adminPeminjamanRequestsQuery($request);
         $requests = $query->paginate(15)->withQueryString();
 
         $stats = [
-            'total' => PeminjamanRequest::count(),
+            'total'   => PeminjamanRequest::count(),
             'pending' => PeminjamanRequest::where('status', 'pending')->count(),
             'approved' => PeminjamanRequest::where('status', 'approved')->count(),
             'rejected' => PeminjamanRequest::where('status', 'rejected')->count(),
+            'expired'  => PeminjamanRequest::where('status', 'expired')->count(),
         ];
 
         $tabCounts = [

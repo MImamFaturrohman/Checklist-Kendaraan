@@ -55,4 +55,23 @@ class PeminjamanRequest extends Model
     {
         return $this->status === 'rejected';
     }
+
+    public function isExpired(): bool
+    {
+        return $this->status === 'expired';
+    }
+
+    /**
+     * Mark all pending requests whose tanggal_peminjaman has already passed
+     * as expired, and clear their signature data.
+     */
+    public static function expirePendingPastBorrowDate(): int
+    {
+        return static::where('status', 'pending')
+            ->whereDate('tanggal_peminjaman', '<', now()->toDateString())
+            ->update([
+                'status'        => 'expired',
+                'tanda_tangan'  => null,
+            ]);
+    }
 }

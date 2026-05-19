@@ -301,7 +301,7 @@
         7=>'VII',8=>'VIII',9=>'IX',10=>'X',11=>'XI',12=>'XII'
     ];
 
-    $docId    = str_pad($laporan->id, 4, '0', STR_PAD_LEFT);
+    $docId    = str_pad($laporan->id, 3, '0', STR_PAD_LEFT);
     $docBulan = $bulanRomawi[$tgl->month];
     $docTahun = $tgl->format('y');
     $docNo    = "No. ADC-{$docTahun}{$docBulan}LK{$docId}";

@@ -133,7 +133,11 @@ class LaporanKejadianController extends Controller
         try {
             $pdfPath = $this->buildAndStorePdf($laporan);
             if ($pdfPath) {
-                $laporan->update(['pdf_path' => $pdfPath]);
+                $laporan->update([
+                    'pdf_path'    => $pdfPath,
+                    'ttd_pelapor' => null,
+                    'ttd_manager' => null,
+                ]);
             }
         } catch (\Throwable) {
             // Tetap anggap sukses; PDF bisa diunduh ulang dari admin
@@ -204,7 +208,11 @@ class LaporanKejadianController extends Controller
             $laporan->load('bidang.parent');
             $pdfPath = $this->buildAndStorePdf($laporan);
             if ($pdfPath) {
-                $laporan->update(['pdf_path' => $pdfPath]);
+                $laporan->update([
+                    'pdf_path'    => $pdfPath,
+                    'ttd_pelapor' => null,
+                    'ttd_manager' => null,
+                ]);
             }
         } catch (\Throwable $e) {
             Log::error('LaporanKejadian PDF build gagal setelah approval: '.$e->getMessage(), ['laporan_id' => $laporan->id]);
@@ -251,7 +259,11 @@ class LaporanKejadianController extends Controller
 
         $path = $this->buildAndStorePdf($laporanKejadian);
         if ($path) {
-            $laporanKejadian->update(['pdf_path' => $path]);
+            $laporanKejadian->update([
+                'pdf_path'    => $path,
+                'ttd_pelapor' => null,
+                'ttd_manager' => null,
+            ]);
         }
 
         $laporanKejadian->refresh();

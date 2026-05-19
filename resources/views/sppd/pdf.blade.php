@@ -239,7 +239,7 @@
         9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
     ];
     $bulan = $bulanRomawi[(int) $headerDate->format('n')];
-    $sppdNo = str_pad((string) $sppd->id, 4, '0', STR_PAD_LEFT);
+    $sppdNo = str_pad((string) $sppd->id, 3, '0', STR_PAD_LEFT);
     $noSurat = 'ADC-'.$tahun.$bulan.'KEU'.$sppdNo;
 @endphp
 

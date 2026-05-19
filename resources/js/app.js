@@ -1119,6 +1119,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(form.action, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }, body: formData });
             const data = await res.json();
             if (data.success) {
+                // Clear signature canvases — server has already discarded the image files.
+                [
+                    { pad: window._sigPadSerah,  hidden: 'sig-data-serah',  hint: 'serah' },
+                    { pad: window._sigPadTerima, hidden: 'sig-data-terima', hint: 'terima' },
+                ].forEach(({ pad, hidden, hint }) => {
+                    if (pad) { pad.clear(); }
+                    const hiddenEl = document.getElementById(hidden);
+                    if (hiddenEl) hiddenEl.value = '';
+                    const hintEl = wizardRoot.querySelector(`[data-sig-hint="${hint}"]`);
+                    if (hintEl) hintEl.classList.remove('hidden');
+                });
+
                 showModal('success', 'PDF Berhasil Dibuat!', 'Laporan checklist kendaraan telah berhasil di-generate dan disimpan.', [
                     { label: '📄 Lihat PDF', class: 'modal-btn-success', href: data.pdf_url, target: '_blank' },
                     { label: '← Kembali ke Dashboard', class: 'modal-btn-secondary', action: 'dashboard' }

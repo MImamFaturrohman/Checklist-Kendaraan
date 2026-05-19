@@ -157,10 +157,6 @@
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/></svg>
                     Sinkronkan
                 </button>
-                <button type="button" id="portal-pemeriksaan-open-add-user" class="btn-export" style="font-size:0.8rem;padding:7px 14px">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Tambah User
-                </button>
                 </div>
                 @endif
             </div>
@@ -573,72 +569,9 @@
             </div>
             <div id="pdf-pagination" class="portal-pagination-wrap"></div>
         </div>
-        @else
-            @unless($pemeriksaanInsightOnlyManager ?? false)
-            <div class="portal-section">
-                <div class="portal-empty" style="padding: 20px 24px;">
-                    Akses data detail database, foto fisik, dan arsip PDF hanya untuk Superadmin dan Admin.
-                </div>
-            </div>
-            @endunless
         @endif
-
     </div>{{-- end portal-wrapper --}}
 </div>{{-- end admin-shell --}}
-
-@if(auth()->user()?->role === 'superadmin')
-<div id="portal-pemeriksaan-user-add-modal" class="mgmt-modal-overlay" hidden onclick="if(event.target===this)window.__closePortalPemeriksaanUserAdd && window.__closePortalPemeriksaanUserAdd()">
-    <div class="mgmt-modal-box" onclick="event.stopPropagation()">
-        <div class="mgmt-modal-header">
-            <div class="mgmt-modal-avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;font-size:1.05rem">+</div>
-            <div>
-                <h2 class="mgmt-modal-title">Tambah User</h2>
-                <p class="mgmt-modal-sub">Kelola akun di Portal Manajemen — Super Admin tidak bisa dibuat dari sini</p>
-            </div>
-            <button type="button" class="mgmt-modal-close" onclick="window.__closePortalPemeriksaanUserAdd && window.__closePortalPemeriksaanUserAdd()" aria-label="Tutup">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
-        </div>
-        <form id="portal-pemeriksaan-form-add-user">
-            @csrf
-            <div class="mgmt-modal-body">
-                <p class="mgmt-modal-section-label">DATA AKUN</p>
-                <div class="mgmt-modal-grid">
-                    <div class="mgmt-field">
-                        <label class="mgmt-label" for="portal-pemeriksaan-add-name">Nama Lengkap</label>
-                        <input type="text" name="name" id="portal-pemeriksaan-add-name" class="mgmt-input" placeholder="Nama Lengkap" required autocomplete="off">
-                    </div>
-                    <div class="mgmt-field">
-                        <label class="mgmt-label" for="portal-pemeriksaan-add-username">Username</label>
-                        <input type="text" name="username" id="portal-pemeriksaan-add-username" class="mgmt-input" placeholder="username" required autocomplete="off">
-                    </div>
-                    <div class="mgmt-field">
-                        <label class="mgmt-label" for="portal-pemeriksaan-add-role">Role</label>
-                        <select name="role" id="portal-pemeriksaan-add-role" class="mgmt-input" required>
-                            <option value="driver">Driver</option>
-                            <option value="pic_kendaraan">PIC Kendaraan</option>
-                            <option value="manager">Manager</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    <div class="mgmt-field">
-                        <label class="mgmt-label" for="portal-pemeriksaan-add-pw">Password</label>
-                        <input type="password" name="password" id="portal-pemeriksaan-add-pw" class="mgmt-input" value="{{ $defaultPassword }}" required autocomplete="new-password">
-                        <p class="mgmt-hint">Default: <code>{{ $defaultPassword }}</code></p>
-                    </div>
-                </div>
-            </div>
-            <div class="mgmt-modal-footer">
-                <button type="button" class="mgmt-cancel-btn" onclick="window.__closePortalPemeriksaanUserAdd && window.__closePortalPemeriksaanUserAdd()">Batal</button>
-                <button type="submit" class="mgmt-submit-btn" id="portal-pemeriksaan-btn-save-user">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Simpan
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-@endif
 
 @if($canAccessDatabase ?? false)
 <div id="portal-checklist-modal" class="modal-overlay" style="display:none" aria-hidden="true">
@@ -651,823 +584,743 @@
     </div>
 </div>
 @endif
+@endsection
 
-<script>
-(function () {
-    'use strict';
+@push('scripts')
+    <script>
+    (function () {
+        'use strict';
 
-    /* ================================================================
-       CONFIG & STATE
-    ================================================================ */
-    const BASE_URL   = '{{ url("/") }}';
-    const CHART_DATA = @json($chartData);
-    const CAN_ACCESS_DATABASE = @json($canAccessDatabase);
-    const INIT_META  = CAN_ACCESS_DATABASE
-        ? {
-            db:   @json($dbMeta),
-            foto: @json($fotoMeta),
-            pdf:  @json($pdfMeta),
-        }
-        : null;
+        /* ================================================================
+        CONFIG & STATE
+        ================================================================ */
+        const BASE_URL   = '{{ url("/") }}';
+        const CHART_DATA = @json($chartData);
+        const CAN_ACCESS_DATABASE = @json($canAccessDatabase);
+        const INIT_META  = CAN_ACCESS_DATABASE
+            ? {
+                db:   @json($dbMeta),
+                foto: @json($fotoMeta),
+                pdf:  @json($pdfMeta),
+            }
+            : null;
 
-    const USER_STORE_URL = @json(route('admin.users.store'));
-    const DEFAULT_NEW_USER_PW = @json($defaultPassword ?? '');
+        let dbPage   = 1, dbPerPage   = 10;
+        let fotoPage = 1, fotoPerPage = 10;
+        let pdfPage  = 1, pdfPerPage  = 10;
 
-    let dbPage   = 1, dbPerPage   = 10;
-    let fotoPage = 1, fotoPerPage = 10;
-    let pdfPage  = 1, pdfPerPage  = 10;
+        /* ================================================================
+        CHARTS — dark-mode aware, rebuilds on theme toggle
+        ================================================================ */
+        const YELLOW = '#ffd700';
+        const GREEN  = '#16a34a';
+        const RED    = '#dc2626';
+        const SLATE  = '#94a3b8';
+        const INDIGO = '#818cf8';
 
-    /* ================================================================
-       CHARTS — dark-mode aware, rebuilds on theme toggle
-    ================================================================ */
-    const YELLOW = '#ffd700';
-    const GREEN  = '#16a34a';
-    const RED    = '#dc2626';
-    const SLATE  = '#94a3b8';
-    const INDIGO = '#818cf8';
+        let _chartInstances = {};
 
-    let _chartInstances = {};
+        function _buildCharts() {
+            Object.values(_chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
+            _chartInstances = {};
 
-    function _buildCharts() {
-        Object.values(_chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
-        _chartInstances = {};
+            const dark  = document.body.classList.contains('dark');
+            const blue  = dark ? '#60a5fa' : '#002a7a';
+            const grid  = dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)';
+            const tick  = dark ? 'rgba(200,218,255,0.65)' : '#64748b';
+            const lgnd  = dark ? 'rgba(200,218,255,0.75)' : '#475569';
+            const bdr   = dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)';
 
-        const dark  = document.body.classList.contains('dark');
-        const blue  = dark ? '#60a5fa' : '#002a7a';
-        const grid  = dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)';
-        const tick  = dark ? 'rgba(200,218,255,0.65)' : '#64748b';
-        const lgnd  = dark ? 'rgba(200,218,255,0.75)' : '#475569';
-        const bdr   = dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)';
+            const commonOpts = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+            };
+            const xyScales = {
+                y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
+                x: { ticks: { maxRotation: 45, font: { size: 11 }, color: tick }, grid: { color: grid } },
+            };
 
-        const commonOpts = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-        };
-        const xyScales = {
-            y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
-            x: { ticks: { maxRotation: 45, font: { size: 11 }, color: tick }, grid: { color: grid } },
-        };
-
-        // Ceklist per bulan — line
-        const ctxBulan = document.getElementById('chartBulan');
-        if (ctxBulan) {
-            _chartInstances.bulan = new Chart(ctxBulan, {
-                type: 'line',
-                data: {
-                    labels: CHART_DATA.perBulan.labels,
-                    datasets: [{
-                        data: CHART_DATA.perBulan.data,
-                        borderColor: blue,
-                        backgroundColor: dark ? 'rgba(96,165,250,0.1)' : 'rgba(0,42,122,0.08)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 4,
-                        pointBackgroundColor: blue,
-                    }],
-                },
-                options: { ...commonOpts, scales: xyScales },
-            });
-        }
-
-        // Ceklist per kendaraan — bar
-        const ctxKendaraan = document.getElementById('chartKendaraan');
-        if (ctxKendaraan) {
-            _chartInstances.kendaraan = new Chart(ctxKendaraan, {
-                type: 'bar',
-                data: {
-                    labels: CHART_DATA.perKendaraan.labels,
-                    datasets: [{
-                        data: CHART_DATA.perKendaraan.data,
-                        backgroundColor: blue,
-                        borderRadius: 4,
-                    }],
-                },
-                options: {
-                    ...commonOpts,
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
-                        x: { ticks: { maxRotation: 45, font: { size: 10 }, color: tick }, grid: { color: grid } },
+            // Ceklist per bulan — line
+            const ctxBulan = document.getElementById('chartBulan');
+            if (ctxBulan) {
+                _chartInstances.bulan = new Chart(ctxBulan, {
+                    type: 'line',
+                    data: {
+                        labels: CHART_DATA.perBulan.labels,
+                        datasets: [{
+                            data: CHART_DATA.perBulan.data,
+                            borderColor: blue,
+                            backgroundColor: dark ? 'rgba(96,165,250,0.1)' : 'rgba(0,42,122,0.08)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointBackgroundColor: blue,
+                        }],
                     },
-                },
-            });
-        }
+                    options: { ...commonOpts, scales: xyScales },
+                });
+            }
 
-        // Distribusi shift — doughnut
-        const ctxShift = document.getElementById('chartShift');
-        if (ctxShift) {
-            _chartInstances.shift = new Chart(ctxShift, {
-                type: 'doughnut',
-                data: {
-                    labels: CHART_DATA.perShift.labels,
-                    datasets: [{
-                        data: CHART_DATA.perShift.data,
-                        backgroundColor: [blue, YELLOW, SLATE, GREEN, INDIGO],
-                        borderWidth: 2,
-                        borderColor: bdr,
-                    }],
-                },
-                options: {
-                    ...commonOpts,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: { font: { size: 11 }, padding: 10, color: lgnd },
+            // Ceklist per kendaraan — bar
+            const ctxKendaraan = document.getElementById('chartKendaraan');
+            if (ctxKendaraan) {
+                _chartInstances.kendaraan = new Chart(ctxKendaraan, {
+                    type: 'bar',
+                    data: {
+                        labels: CHART_DATA.perKendaraan.labels,
+                        datasets: [{
+                            data: CHART_DATA.perKendaraan.data,
+                            backgroundColor: blue,
+                            borderRadius: 4,
+                        }],
+                    },
+                    options: {
+                        ...commonOpts,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
+                            x: { ticks: { maxRotation: 45, font: { size: 10 }, color: tick }, grid: { color: grid } },
                         },
                     },
-                    cutout: '58%',
-                },
-            });
-        }
+                });
+            }
 
-        // Rata-rata BBM — horizontal bar
-        const ctxBbm = document.getElementById('chartBbm');
-        if (ctxBbm) {
-            _chartInstances.bbm = new Chart(ctxBbm, {
-                type: 'bar',
-                data: {
-                    labels: CHART_DATA.bbmPerKendaraan.labels,
-                    datasets: [{
-                        data: CHART_DATA.bbmPerKendaraan.data,
-                        backgroundColor: CHART_DATA.bbmPerKendaraan.data.map(v =>
-                            v >= 70 ? GREEN : v >= 40 ? YELLOW : RED
-                        ),
-                        borderRadius: 4,
-                    }],
-                },
-                options: {
-                    ...commonOpts,
-                    indexAxis: 'y',
-                    scales: {
-                        x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { size: 11 }, color: tick }, grid: { color: grid } },
-                        y: { ticks: { font: { size: 11 }, color: tick }, grid: { color: grid } },
+            // Distribusi shift — doughnut
+            const ctxShift = document.getElementById('chartShift');
+            if (ctxShift) {
+                _chartInstances.shift = new Chart(ctxShift, {
+                    type: 'doughnut',
+                    data: {
+                        labels: CHART_DATA.perShift.labels,
+                        datasets: [{
+                            data: CHART_DATA.perShift.data,
+                            backgroundColor: [blue, YELLOW, SLATE, GREEN, INDIGO],
+                            borderWidth: 2,
+                            borderColor: bdr,
+                        }],
                     },
-                },
-            });
-        }
-    }
-
-    _buildCharts();
-    if (!CAN_ACCESS_DATABASE) return;
-
-    /* ================================================================
-       SECTION TABS
-    ================================================================ */
-    document.querySelectorAll('.portal-section-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.portal-section-tab').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const target = btn.dataset.section;
-            document.querySelectorAll('.portal-section').forEach(s => {
-                const id = s.id.replace('section-', '');
-                s.style.display = id === target ? '' : 'none';
-            });
-        });
-    });
-
-    /* ================================================================
-       DB SUB-TABS
-    ================================================================ */
-    document.querySelectorAll('[data-db-tab]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('[data-db-tab]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const t = btn.dataset.dbTab;
-            document.querySelectorAll('[data-db-panel]').forEach(p => {
-                p.style.display = p.dataset.dbPanel === t ? '' : 'none';
-            });
-        });
-    });
-
-    /* ================================================================
-       FOTO SUB-TABS
-    ================================================================ */
-    document.querySelectorAll('[data-foto-tab]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('[data-foto-tab]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const t = btn.dataset.fotoTab;
-            document.querySelectorAll('[data-foto-panel]').forEach(p => {
-                p.style.display = p.dataset.fotoPanel === t ? '' : 'none';
-            });
-        });
-    });
-
-    /* ================================================================
-       HELPERS
-    ================================================================ */
-    function buildParams(obj = {}) {
-        return new URLSearchParams(
-            Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== '' && v != null))
-        ).toString();
-    }
-
-    function showLoading(id) { const el = document.getElementById(id); if (el) el.style.display = 'flex'; }
-    function hideLoading(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
-
-    function scrollToSection(sectionId) {
-        const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function statusColor(v) {
-        if (v === 'ok') return '#16a34a';
-        if (v === 'no' || v === 'tidak_ok') return '#dc2626';
-        return '#334155';
-    }
-    function statusLabel(v) {
-        if (v === 'ok') return 'OK';
-        if (v === 'no' || v === 'tidak_ok') return 'NO';
-        return (v ?? '-').toUpperCase();
-    }
-
-    function escHtml(s) {
-        if (s == null || s === '') return '';
-        const d = document.createElement('div');
-        d.textContent = s;
-        return d.innerHTML;
-    }
-
-    function renderChecklistDetailModal(d) {
-        const m = d.meta || {};
-        const row = (label, v) => `<dt>${escHtml(label)}</dt><dd>${escHtml(v != null && v !== '' ? String(v) : '—')}</dd>`;
-        let html = '<dl class="portal-detail-dl">';
-        html += row('Nopol', m.nomor_kendaraan);
-        html += row('Tanggal', m.tanggal);
-        html += row('Shift', m.shift);
-        html += row('Jenis kendaraan', m.jenis_kendaraan);
-        html += row('Driver serah', m.driver_serah);
-        html += row('Driver terima', m.driver_terima);
-        html += row('Jam serah terima', m.jam_serah_terima);
-        html += row('Level BBM', m.level_bbm != null && m.level_bbm !== '' ? String(m.level_bbm) + '%' : null);
-        html += row('KM awal', m.km_awal != null && m.km_awal !== '' ? String(m.km_awal) : null);
-        html += row('KM akhir', m.km_akhir != null && m.km_akhir !== '' ? String(m.km_akhir) : null);
-        html += '</dl>';
-
-        const section = (key, title) => {
-            const list = d[key];
-            html += `<h4 class="portal-detail-section-title">${escHtml(title)}</h4>`;
-            if (!list || !list.length) {
-                html += '<p class="portal-empty" style="padding:8px 0">Tidak ada data.</p>';
-                return;
-            }
-            html += '<div class="admin-table-wrap"><table class="admin-table portal-detail-table"><thead><tr><th>Bagian</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
-            list.forEach(r => {
-                const col = statusColor(r.status);
-                const lab = statusLabel(r.status);
-                const ket = (r.keterangan != null && r.keterangan !== '') ? r.keterangan : '—';
-                html += `<tr><td>${escHtml(r.label)}</td><td style="font-weight:700;color:${col}">${escHtml(lab)}</td><td>${escHtml(ket)}</td></tr>`;
-            });
-            html += '</tbody></table></div>';
-        };
-        section('exterior', 'Exterior');
-        section('interior', 'Interior');
-        section('mesin', 'Mesin & operasional');
-        if (m.catatan_khusus) {
-            html += `<div class="portal-detail-catatan"><strong>Catatan khusus</strong><br>${escHtml(m.catatan_khusus)}</div>`;
-        }
-        return html;
-    }
-
-    function refreshPortalOverlayOverflow() {
-        const cm = document.getElementById('portal-checklist-modal');
-        const um = document.getElementById('portal-pemeriksaan-user-add-modal');
-        const checklistOpen = cm && cm.style.display === 'flex';
-        const userOpen = um && !um.hidden;
-        document.body.style.overflow = checklistOpen || userOpen ? 'hidden' : '';
-    }
-
-    async function openPortalChecklistDetail(id) {
-        const modal = document.getElementById('portal-checklist-modal');
-        const body = document.getElementById('portal-checklist-modal-body');
-        if (!modal || !body) return;
-        body.innerHTML = '<p style="padding:12px">Memuat…</p>';
-        modal.style.display = 'flex';
-        modal.setAttribute('aria-hidden', 'false');
-        refreshPortalOverlayOverflow();
-        try {
-            const r = await fetch(`${BASE_URL}/api/admin/portal/checklist/${encodeURIComponent(id)}`);
-            if (!r.ok) throw new Error('fail');
-            const data = await r.json();
-            body.innerHTML = renderChecklistDetailModal(data);
-        } catch {
-            body.innerHTML = '<p class="portal-empty">Gagal memuat detail.</p>';
-        }
-    }
-
-    function closePortalChecklistModal() {
-        const modal = document.getElementById('portal-checklist-modal');
-        if (!modal) return;
-        modal.style.display = 'none';
-        modal.setAttribute('aria-hidden', 'true');
-        refreshPortalOverlayOverflow();
-    }
-
-    function debounce(fn, ms = 380) {
-        let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
-    }
-
-    /* ================================================================
-       PAGINATION BUILDER
-    ================================================================ */
-    function buildPagination(wrap, meta, onPage) {
-        if (!wrap) return;
-        if (!meta || meta.last_page <= 1) {
-            wrap.innerHTML = meta
-                ? `<div class="portal-page-info">${meta.total} data ditemukan</div>`
-                : '';
-            return;
-        }
-        const { current_page: cur, last_page: last, total, per_page } = meta;
-
-        const pages = new Set();
-        for (let i = 1; i <= Math.min(2, last); i++) pages.add(i);
-        for (let i = Math.max(1, cur - 1); i <= Math.min(last, cur + 1); i++) pages.add(i);
-        for (let i = Math.max(last - 1, 1); i <= last; i++) pages.add(i);
-        const sorted = [...pages].sort((a, b) => a - b);
-
-        let html = '<div class="portal-page-btns">';
-        if (cur > 1) html += `<button class="portal-page-btn" data-p="${cur - 1}" title="Prev">‹</button>`;
-
-        let prev = 0;
-        sorted.forEach(p => {
-            if (prev && p - prev > 1) html += `<span class="portal-page-dots">…</span>`;
-            html += `<button class="portal-page-btn${p === cur ? ' active' : ''}" data-p="${p}">${p}</button>`;
-            prev = p;
-        });
-
-        if (cur < last) html += `<button class="portal-page-btn" data-p="${cur + 1}" title="Next">›</button>`;
-        html += `</div><div class="portal-page-info">Hal. ${cur}/${last} · ${total} data · ${per_page}/hal</div>`;
-
-        wrap.innerHTML = html;
-        wrap.querySelectorAll('[data-p]').forEach(btn => {
-            btn.addEventListener('click', () => onPage(parseInt(btn.dataset.p)));
-        });
-    }
-
-    /* ================================================================
-       DATABASE SHEET AJAX
-    ================================================================ */
-    function getDbParams() {
-        return {
-            search:         document.getElementById('db-search')?.value ?? '',
-            tanggal_dari:   document.getElementById('db-dari')?.value ?? '',
-            tanggal_sampai: document.getElementById('db-sampai')?.value ?? '',
-            nopol:          document.getElementById('db-nopol')?.value ?? '',
-            shift:          document.getElementById('db-shift')?.value ?? '',
-            per_page:       dbPerPage,
-            page:           dbPage,
-        };
-    }
-
-    async function fetchDb(scroll = false) {
-        showLoading('db-loading');
-        const q = buildParams(getDbParams());
-        try {
-            const json = await fetch(`${BASE_URL}/api/admin/portal/database-sheet?${q}`).then(r => r.json());
-            renderDbAll(json);
-            renderDbExterior(json);
-            renderDbInterior(json);
-            renderDbMesin(json);
-            buildPagination(
-                document.getElementById('db-pagination'),
-                { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
-                p => { dbPage = p; fetchDb(true); }
-            );
-            if (scroll) scrollToSection('section-db');
-        } finally { hideLoading('db-loading'); }
-    }
-
-    function renderDbAll(json) {
-        const tbody = document.getElementById('db-tbody-all');
-        if (!tbody) return;
-        const off = (json.current_page - 1) * json.per_page;
-        tbody.innerHTML = json.data.length
-            ? json.data.map((c, i) => `<tr>
-                <td>${off + i + 1}</td>
-                <td>${c.tanggal ?? '-'}</td><td>${c.shift ?? '-'}</td>
-                <td><strong>${c.nomor_kendaraan}</strong></td><td>${c.jenis_kendaraan ?? '-'}</td>
-                <td>${c.driver_serah ?? '-'}</td><td>${c.driver_terima ?? '-'}</td>
-                <td>${c.level_bbm ?? '-'}%</td><td>${c.km_awal ?? '-'}</td><td>${c.km_akhir ?? '-'}</td>
-            </tr>`).join('')
-            : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
-    }
-
-    function renderDbExterior(json) {
-        const tbody = document.getElementById('db-tbody-exterior');
-        if (!tbody) return;
-        const rows = json.data.filter(c => c.exterior);
-        const keys = ['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'];
-        tbody.innerHTML = rows.length
-            ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
-                ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.exterior[k])}">${statusLabel(c.exterior[k])}</td>`).join('')}
-                <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
-            </tr>`).join('')
-            : '<tr><td colspan="11" class="portal-empty">Tidak ada data.</td></tr>';
-    }
-
-    function renderDbInterior(json) {
-        const tbody = document.getElementById('db-tbody-interior');
-        if (!tbody) return;
-        const rows = json.data.filter(c => c.interior);
-        const keys = ['jok','dashboard','ac','sabuk_pengaman','audio','kebersihan'];
-        tbody.innerHTML = rows.length
-            ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
-                ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.interior[k])}">${statusLabel(c.interior[k])}</td>`).join('')}
-                <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
-            </tr>`).join('')
-            : '<tr><td colspan="9" class="portal-empty">Tidak ada data.</td></tr>';
-    }
-
-    function renderDbMesin(json) {
-        const tbody = document.getElementById('db-tbody-mesin');
-        if (!tbody) return;
-        const rows = json.data.filter(c => c.mesin);
-        const keys = ['mesin','oli','radiator','rem','kopling','transmisi','indikator'];
-        tbody.innerHTML = rows.length
-            ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
-                ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.mesin[k])}">${statusLabel(c.mesin[k])}</td>`).join('')}
-                <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
-            </tr>`).join('')
-            : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
-    }
-
-    /* ================================================================
-       LOG FOTO AJAX
-    ================================================================ */
-    function getFotoParams() {
-        return {
-            search:         document.getElementById('foto-search')?.value ?? '',
-            tanggal_dari:   document.getElementById('foto-dari')?.value ?? '',
-            tanggal_sampai: document.getElementById('foto-sampai')?.value ?? '',
-            nopol:          document.getElementById('foto-nopol')?.value ?? '',
-            per_page:       fotoPerPage,
-            page:           fotoPage,
-        };
-    }
-
-    function thumbHtml(url, label) {
-        return `<a href="${url}" target="_blank" rel="noopener" title="${label}"><img src="${url}" alt="${label}" loading="lazy" class="portal-thumb"></a>`;
-    }
-
-    async function fetchFoto(scroll = false) {
-        showLoading('foto-loading');
-        const q = buildParams(getFotoParams());
-        try {
-            const json = await fetch(`${BASE_URL}/api/admin/portal/log-foto?${q}`).then(r => r.json());
-
-            const extRows = json.data.filter(c => c.exterior && Object.values(c.exterior).some(Boolean));
-            document.getElementById('foto-tbody-exterior').innerHTML = extRows.length
-                ? extRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td>
-                    <td><div class="portal-thumb-row">
-                        ${[['foto_depan','Depan'],['foto_kanan','Kanan'],['foto_kiri','Kiri'],['foto_belakang','Belakang']].map(([f,l]) => c.exterior[f] ? thumbHtml(c.exterior[f], l) : '').join('')}
-                    </div></td></tr>`).join('')
-                : '<tr><td colspan="3" class="portal-empty">Belum ada foto eksterior.</td></tr>';
-
-            const intRows = json.data.filter(c => c.interior && (c.interior.foto_1 || c.interior.foto_2 || c.interior.foto_3));
-            document.getElementById('foto-tbody-interior').innerHTML = intRows.length
-                ? intRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td>
-                    <td><div class="portal-thumb-row">
-                        ${[1,2,3].map(i => c.interior[`foto_${i}`] ? thumbHtml(c.interior[`foto_${i}`], `Interior ${i}`) : '').join('')}
-                    </div></td></tr>`).join('')
-                : '<tr><td colspan="3" class="portal-empty">Belum ada foto interior.</td></tr>';
-
-            const mesinRows = json.data.filter(c => c.mesin && (c.mesin.foto_1 || c.mesin.foto_2 || c.mesin.foto_3));
-            document.getElementById('foto-tbody-mesin').innerHTML = mesinRows.length
-                ? mesinRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td>
-                    <td><div class="portal-thumb-row">
-                        ${[1,2,3].map(i => c.mesin[`foto_${i}`] ? thumbHtml(c.mesin[`foto_${i}`], `Mesin ${i}`) : '').join('')}
-                    </div></td></tr>`).join('')
-                : '<tr><td colspan="3" class="portal-empty">Belum ada foto mesin.</td></tr>';
-
-            const bbmRows = json.data.filter(c => c.foto_bbm);
-            document.getElementById('foto-tbody-bbm').innerHTML = bbmRows.length
-                ? bbmRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td><td>${thumbHtml(c.foto_bbm, 'BBM')}</td></tr>`).join('')
-                : '<tr><td colspan="3" class="portal-empty">Belum ada foto BBM.</td></tr>';
-
-            buildPagination(
-                document.getElementById('foto-pagination'),
-                { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
-                p => { fotoPage = p; fetchFoto(true); }
-            );
-            if (scroll) scrollToSection('section-foto');
-        } finally { hideLoading('foto-loading'); }
-    }
-
-    /* ================================================================
-       ARSIP PDF AJAX
-    ================================================================ */
-    function getPdfParams() {
-        return {
-            search:         document.getElementById('pdf-search')?.value ?? '',
-            tanggal_dari:   document.getElementById('pdf-dari')?.value ?? '',
-            tanggal_sampai: document.getElementById('pdf-sampai')?.value ?? '',
-            nopol:          document.getElementById('pdf-nopol')?.value ?? '',
-            shift:          document.getElementById('pdf-shift')?.value ?? '',
-            per_page:       pdfPerPage,
-            page:           pdfPage,
-        };
-    }
-
-    async function fetchPdf(scroll = false) {
-        showLoading('pdf-loading');
-        const q = buildParams(getPdfParams());
-        try {
-            const json = await fetch(`${BASE_URL}/api/admin/portal/arsip-pdf?${q}`).then(r => r.json());
-            const off = (json.current_page - 1) * json.per_page;
-            const tbody = document.getElementById('pdf-tbody');
-            if (tbody) {
-                tbody.innerHTML = json.data.length
-                    ? json.data.map((c, i) => `<tr>
-                        <td>${off + i + 1}</td>
-                        <td>${c.tanggal ?? '-'}</td>
-                        <td><strong>${c.nomor_kendaraan}</strong></td>
-                        <td>${c.driver_serah ?? '-'}</td>
-                        <td>${c.driver_terima ?? '-'}</td>
-                        <td>${c.shift ?? '-'}</td>
-                        <td>${c.pdf_url
-                            ? `<a href="${c.pdf_url}" target="_blank" class="btn-view-pdf">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
-                                View PDF</a>`
-                            : '<span style="color:#94a3b8;font-size:.75rem">—</span>'}</td>
-                    </tr>`).join('')
-                    : '<tr><td colspan="7" class="portal-empty">Belum ada laporan PDF.</td></tr>';
-            }
-            buildPagination(
-                document.getElementById('pdf-pagination'),
-                { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
-                p => { pdfPage = p; fetchPdf(true); }
-            );
-            if (scroll) scrollToSection('section-pdf');
-        } finally { hideLoading('pdf-loading'); }
-    }
-
-    /* ================================================================
-       LOCAL FILTER WIRING
-    ================================================================ */
-    const debouncedDb   = debounce(() => { dbPage = 1;   fetchDb(); });
-    const debouncedFoto = debounce(() => { fotoPage = 1; fetchFoto(); });
-    const debouncedPdf  = debounce(() => { pdfPage = 1;  fetchPdf(); });
-
-    ['db-search','db-dari','db-sampai','db-nopol','db-shift'].forEach(id => {
-        document.getElementById(id)?.addEventListener('input', debouncedDb);
-    });
-    ['foto-search','foto-dari','foto-sampai','foto-nopol'].forEach(id => {
-        document.getElementById(id)?.addEventListener('input', debouncedFoto);
-    });
-    ['pdf-search','pdf-dari','pdf-sampai','pdf-nopol','pdf-shift'].forEach(id => {
-        document.getElementById(id)?.addEventListener('input', debouncedPdf);
-    });
-
-    // Per-page dropdowns
-    document.getElementById('db-perpage')?.addEventListener('change', e => {
-        dbPerPage = parseInt(e.target.value); dbPage = 1; fetchDb();
-    });
-    document.getElementById('foto-perpage')?.addEventListener('change', e => {
-        fotoPerPage = parseInt(e.target.value); fotoPage = 1; fetchFoto();
-    });
-    document.getElementById('pdf-perpage')?.addEventListener('change', e => {
-        pdfPerPage = parseInt(e.target.value); pdfPage = 1; fetchPdf();
-    });
-
-    // Reset buttons
-    document.querySelectorAll('[data-section-reset]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const p = btn.dataset.sectionReset;
-            [`${p}-search`,`${p}-dari`,`${p}-sampai`].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-            [`${p}-nopol`,`${p}-shift`].forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex=0; });
-            const ppEl = document.getElementById(`${p}-perpage`);
-            if (ppEl) { ppEl.value = '10'; }
-            if (p === 'db')   { dbPerPage=10;   dbPage=1;   fetchDb(); }
-            if (p === 'foto') { fotoPerPage=10; fotoPage=1; fetchFoto(); }
-            if (p === 'pdf')  { pdfPerPage=10;  pdfPage=1;  fetchPdf(); }
-        });
-    });
-
-    /* ================================================================
-       GLOBAL SEARCH & FILTER
-    ================================================================ */
-    function syncGlobalToLocal(params) {
-        ['db','foto','pdf'].forEach(pfx => {
-            const s = document.getElementById(`${pfx}-search`);
-            const d = document.getElementById(`${pfx}-dari`);
-            const u = document.getElementById(`${pfx}-sampai`);
-            const n = document.getElementById(`${pfx}-nopol`);
-            const h = document.getElementById(`${pfx}-shift`);
-            if (s) s.value = params.search;
-            if (d) d.value = params.tanggal_dari;
-            if (u) u.value = params.tanggal_sampai;
-            if (n) n.value = params.nopol;
-            if (h) h.value = params.shift ?? '';
-        });
-    }
-
-    const debouncedGlobal = debounce(() => {
-        const params = {
-            search:         document.getElementById('global-search')?.value ?? '',
-            tanggal_dari:   document.getElementById('global-dari')?.value ?? '',
-            tanggal_sampai: document.getElementById('global-sampai')?.value ?? '',
-            nopol:          document.getElementById('global-nopol')?.value ?? '',
-            shift:          document.getElementById('global-shift')?.value ?? '',
-        };
-        syncGlobalToLocal(params);
-        dbPage=1; fotoPage=1; pdfPage=1;
-        fetchDb(); fetchFoto(); fetchPdf();
-    });
-
-    ['global-search','global-dari','global-sampai','global-nopol','global-shift'].forEach(id => {
-        document.getElementById(id)?.addEventListener('input', debouncedGlobal);
-    });
-
-    document.getElementById('global-reset')?.addEventListener('click', () => {
-        ['global-search','global-dari','global-sampai'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-        ['global-nopol','global-shift'].forEach(id => { const el=document.getElementById(id); if(el) el.selectedIndex=0; });
-        syncGlobalToLocal({ search:'', tanggal_dari:'', tanggal_sampai:'', nopol:'', shift:'' });
-        dbPage=1; fotoPage=1; pdfPage=1;
-        fetchDb(); fetchFoto(); fetchPdf();
-    });
-
-    /* ================================================================
-       DATABASE SYNC (without page refresh)
-    ================================================================ */
-    const syncBtn = document.getElementById('db-sync-btn');
-    const syncAlert = document.getElementById('db-sync-alert');
-
-    function showSyncAlert(type, message, sheetUrl = null) {
-        if (!syncAlert) return;
-        const ok = type === 'success';
-        syncAlert.style.display = '';
-        syncAlert.style.background = ok ? '#dcfce7' : '#fee2e2';
-        syncAlert.style.color = ok ? '#166534' : '#991b1b';
-        syncAlert.style.border = ok ? '1px solid #86efac' : '1px solid #fca5a5';
-        syncAlert.innerHTML = ok && sheetUrl
-            ? `${message} <a href="${sheetUrl}" target="_blank" rel="noopener" style="font-weight:700;color:inherit;text-decoration:underline">Buka Spreadsheet</a>`
-            : message;
-    }
-
-    if (syncBtn) {
-        const defaultBtnHtml = syncBtn.innerHTML;
-        syncBtn.addEventListener('click', async () => {
-            const exportUrl = syncBtn.dataset.exportUrl;
-            if (!exportUrl) return;
-
-            syncBtn.disabled = true;
-            syncBtn.innerHTML = 'Menyinkronkan...';
-            showSyncAlert('success', 'Proses sinkronisasi sedang berjalan...');
-
-            try {
-                const res = await fetch(exportUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
+                    options: {
+                        ...commonOpts,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: { font: { size: 11 }, padding: 10, color: lgnd },
+                            },
+                        },
+                        cutout: '58%',
                     },
                 });
+            }
 
-                let data = null;
-                try { data = await res.json(); } catch (_) {}
+            // Rata-rata BBM — horizontal bar
+            const ctxBbm = document.getElementById('chartBbm');
+            if (ctxBbm) {
+                _chartInstances.bbm = new Chart(ctxBbm, {
+                    type: 'bar',
+                    data: {
+                        labels: CHART_DATA.bbmPerKendaraan.labels,
+                        datasets: [{
+                            data: CHART_DATA.bbmPerKendaraan.data,
+                            backgroundColor: CHART_DATA.bbmPerKendaraan.data.map(v =>
+                                v >= 70 ? GREEN : v >= 40 ? YELLOW : RED
+                            ),
+                            borderRadius: 4,
+                        }],
+                    },
+                    options: {
+                        ...commonOpts,
+                        indexAxis: 'y',
+                        scales: {
+                            x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { size: 11 }, color: tick }, grid: { color: grid } },
+                            y: { ticks: { font: { size: 11 }, color: tick }, grid: { color: grid } },
+                        },
+                    },
+                });
+            }
+        }
 
-                if (!res.ok || !data?.success) {
-                    const errMsg = data?.message || `Sinkronisasi gagal (HTTP ${res.status}).`;
-                    showSyncAlert('error', errMsg);
+        _buildCharts();
+        if (!CAN_ACCESS_DATABASE) return;
+
+        /* ================================================================
+        SECTION TABS
+        ================================================================ */
+        document.querySelectorAll('.portal-section-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.portal-section-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const target = btn.dataset.section;
+                document.querySelectorAll('.portal-section').forEach(s => {
+                    const id = s.id.replace('section-', '');
+                    s.style.display = id === target ? '' : 'none';
+                });
+            });
+        });
+
+        /* ================================================================
+        DB SUB-TABS
+        ================================================================ */
+        document.querySelectorAll('[data-db-tab]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-db-tab]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const t = btn.dataset.dbTab;
+                document.querySelectorAll('[data-db-panel]').forEach(p => {
+                    p.style.display = p.dataset.dbPanel === t ? '' : 'none';
+                });
+            });
+        });
+
+        /* ================================================================
+        FOTO SUB-TABS
+        ================================================================ */
+        document.querySelectorAll('[data-foto-tab]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-foto-tab]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const t = btn.dataset.fotoTab;
+                document.querySelectorAll('[data-foto-panel]').forEach(p => {
+                    p.style.display = p.dataset.fotoPanel === t ? '' : 'none';
+                });
+            });
+        });
+
+        /* ================================================================
+        HELPERS
+        ================================================================ */
+        function buildParams(obj = {}) {
+            return new URLSearchParams(
+                Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== '' && v != null))
+            ).toString();
+        }
+
+        function showLoading(id) { const el = document.getElementById(id); if (el) el.style.display = 'flex'; }
+        function hideLoading(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+
+        function scrollToSection(sectionId) {
+            const el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function statusColor(v) {
+            if (v === 'ok') return '#16a34a';
+            if (v === 'no' || v === 'tidak_ok') return '#dc2626';
+            return '#334155';
+        }
+        function statusLabel(v) {
+            if (v === 'ok') return 'OK';
+            if (v === 'no' || v === 'tidak_ok') return 'NO';
+            return (v ?? '-').toUpperCase();
+        }
+
+        function escHtml(s) {
+            if (s == null || s === '') return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function renderChecklistDetailModal(d) {
+            const m = d.meta || {};
+            const row = (label, v) => `<dt>${escHtml(label)}</dt><dd>${escHtml(v != null && v !== '' ? String(v) : '—')}</dd>`;
+            let html = '<dl class="portal-detail-dl">';
+            html += row('Nopol', m.nomor_kendaraan);
+            html += row('Tanggal', m.tanggal);
+            html += row('Shift', m.shift);
+            html += row('Jenis kendaraan', m.jenis_kendaraan);
+            html += row('Driver serah', m.driver_serah);
+            html += row('Driver terima', m.driver_terima);
+            html += row('Jam serah terima', m.jam_serah_terima);
+            html += row('Level BBM', m.level_bbm != null && m.level_bbm !== '' ? String(m.level_bbm) + '%' : null);
+            html += row('KM awal', m.km_awal != null && m.km_awal !== '' ? String(m.km_awal) : null);
+            html += row('KM akhir', m.km_akhir != null && m.km_akhir !== '' ? String(m.km_akhir) : null);
+            html += '</dl>';
+
+            const section = (key, title) => {
+                const list = d[key];
+                html += `<h4 class="portal-detail-section-title">${escHtml(title)}</h4>`;
+                if (!list || !list.length) {
+                    html += '<p class="portal-empty" style="padding:8px 0">Tidak ada data.</p>';
                     return;
                 }
-
-                showSyncAlert('success', data.message || 'Sinkronisasi berhasil.', data.sheet_url || null);
-            } catch (error) {
-                showSyncAlert('error', `Sinkronisasi gagal: ${error.message}`);
-            } finally {
-                syncBtn.disabled = false;
-                syncBtn.innerHTML = defaultBtnHtml;
-            }
-        });
-    }
-
-    /* ================================================================
-       SUPERADMIN: Tambah User (modal)
-    ================================================================ */
-    window.__closePortalPemeriksaanUserAdd = function () {
-        const el = document.getElementById('portal-pemeriksaan-user-add-modal');
-        if (!el) return;
-        el.hidden = true;
-        refreshPortalOverlayOverflow();
-    };
-
-    const portalUserModal = document.getElementById('portal-pemeriksaan-user-add-modal');
-    const portalUserForm = document.getElementById('portal-pemeriksaan-form-add-user');
-    const csrfMetaPortalUser = document.querySelector('meta[name="csrf-token"]');
-
-    if (portalUserModal && portalUserForm && csrfMetaPortalUser) {
-        document.getElementById('portal-pemeriksaan-open-add-user')?.addEventListener('click', () => {
-            document.getElementById('portal-pemeriksaan-add-name').value = '';
-            document.getElementById('portal-pemeriksaan-add-username').value = '';
-            document.getElementById('portal-pemeriksaan-add-role').value = 'driver';
-            document.getElementById('portal-pemeriksaan-add-pw').value = DEFAULT_NEW_USER_PW;
-            portalUserModal.hidden = false;
-            refreshPortalOverlayOverflow();
-            setTimeout(() => document.getElementById('portal-pemeriksaan-add-name').focus(), 80);
-        });
-
-        portalUserForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('portal-pemeriksaan-btn-save-user');
-            const prevHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.textContent = 'Menyimpan...';
-            try {
-                const fd = new FormData(portalUserForm);
-                const res = await fetch(USER_STORE_URL, {
-                    method: 'POST',
-                    body: fd,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        Accept: 'application/json',
-                        'X-CSRF-TOKEN': csrfMetaPortalUser.content,
-                    },
+                html += '<div class="admin-table-wrap"><table class="admin-table portal-detail-table"><thead><tr><th>Bagian</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
+                list.forEach(r => {
+                    const col = statusColor(r.status);
+                    const lab = statusLabel(r.status);
+                    const ket = (r.keterangan != null && r.keterangan !== '') ? r.keterangan : '—';
+                    html += `<tr><td>${escHtml(r.label)}</td><td style="font-weight:700;color:${col}">${escHtml(lab)}</td><td>${escHtml(ket)}</td></tr>`;
                 });
-                const data = await res.json().catch(() => ({}));
-                if (res.ok && data.success) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 1600, showConfirmButton: false });
-                    }
-                    window.__closePortalPemeriksaanUserAdd();
-                    document.getElementById('portal-pemeriksaan-add-name').value = '';
-                    document.getElementById('portal-pemeriksaan-add-username').value = '';
-                    document.getElementById('portal-pemeriksaan-add-role').value = 'driver';
-                    document.getElementById('portal-pemeriksaan-add-pw').value = DEFAULT_NEW_USER_PW;
-                } else {
-                    const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message || 'Gagal menyimpan.');
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
-                    } else {
-                        alert(msg);
-                    }
-                }
+                html += '</tbody></table></div>';
+            };
+            section('exterior', 'Exterior');
+            section('interior', 'Interior');
+            section('mesin', 'Mesin & operasional');
+            if (m.catatan_khusus) {
+                html += `<div class="portal-detail-catatan"><strong>Catatan khusus</strong><br>${escHtml(m.catatan_khusus)}</div>`;
+            }
+            return html;
+        }
+
+        function refreshPortalOverlayOverflow() {
+            const cm = document.getElementById('portal-checklist-modal');
+            const checklistOpen = cm && cm.style.display === 'flex';
+            document.body.style.overflow = checklistOpen ? 'hidden' : '';
+        }
+
+        async function openPortalChecklistDetail(id) {
+            const modal = document.getElementById('portal-checklist-modal');
+            const body = document.getElementById('portal-checklist-modal-body');
+            if (!modal || !body) return;
+            body.innerHTML = '<p style="padding:12px">Memuat…</p>';
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+            refreshPortalOverlayOverflow();
+            try {
+                const r = await fetch(`${BASE_URL}/api/admin/portal/checklist/${encodeURIComponent(id)}`);
+                if (!r.ok) throw new Error('fail');
+                const data = await r.json();
+                body.innerHTML = renderChecklistDetailModal(data);
             } catch {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'error', title: 'Koneksi bermasalah', text: 'Periksa koneksi internet.' });
-                }
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = prevHtml;
+                body.innerHTML = '<p class="portal-empty">Gagal memuat detail.</p>';
             }
-        });
-    }
+        }
 
-    /* ================================================================
-       INITIAL PAGINATION RENDER (from server-provided meta)
-    ================================================================ */
-    if (INIT_META) {
-        buildPagination(
-            document.getElementById('db-pagination'),
-            INIT_META.db,
-            p => { dbPage = p; fetchDb(true); }
-        );
-        buildPagination(
-            document.getElementById('foto-pagination'),
-            INIT_META.foto,
-            p => { fotoPage = p; fetchFoto(true); }
-        );
-        buildPagination(
-            document.getElementById('pdf-pagination'),
-            INIT_META.pdf,
-            p => { pdfPage = p; fetchPdf(true); }
-        );
-    }
+        function closePortalChecklistModal() {
+            const modal = document.getElementById('portal-checklist-modal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            refreshPortalOverlayOverflow();
+        }
 
-    if (CAN_ACCESS_DATABASE) {
-        document.addEventListener('click', function (e) {
-            const btn = e.target.closest('.portal-db-detail-btn');
-            if (btn && btn.dataset.checklistId) {
-                e.preventDefault();
-                openPortalChecklistDetail(btn.dataset.checklistId);
-            }
-        });
-        document.getElementById('portal-checklist-modal-close')?.addEventListener('click', closePortalChecklistModal);
-        document.getElementById('portal-checklist-modal')?.addEventListener('click', function (e) {
-            if (e.target.id === 'portal-checklist-modal') closePortalChecklistModal();
-        });
-        document.addEventListener('keydown', function (e) {
-            if (e.key !== 'Escape') return;
-            const um = document.getElementById('portal-pemeriksaan-user-add-modal');
-            if (um && !um.hidden) {
-                um.hidden = true;
-                refreshPortalOverlayOverflow();
+        function debounce(fn, ms = 380) {
+            let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+        }
+
+        /* ================================================================
+        PAGINATION BUILDER
+        ================================================================ */
+        function buildPagination(wrap, meta, onPage) {
+            if (!wrap) return;
+            if (!meta || meta.last_page <= 1) {
+                wrap.innerHTML = meta
+                    ? `<div class="portal-page-info">${meta.total} data ditemukan</div>`
+                    : '';
                 return;
             }
-            closePortalChecklistModal();
+            const { current_page: cur, last_page: last, total, per_page } = meta;
+
+            const pages = new Set();
+            for (let i = 1; i <= Math.min(2, last); i++) pages.add(i);
+            for (let i = Math.max(1, cur - 1); i <= Math.min(last, cur + 1); i++) pages.add(i);
+            for (let i = Math.max(last - 1, 1); i <= last; i++) pages.add(i);
+            const sorted = [...pages].sort((a, b) => a - b);
+
+            let html = '<div class="portal-page-btns">';
+            if (cur > 1) html += `<button class="portal-page-btn" data-p="${cur - 1}" title="Prev">‹</button>`;
+
+            let prev = 0;
+            sorted.forEach(p => {
+                if (prev && p - prev > 1) html += `<span class="portal-page-dots">…</span>`;
+                html += `<button class="portal-page-btn${p === cur ? ' active' : ''}" data-p="${p}">${p}</button>`;
+                prev = p;
+            });
+
+            if (cur < last) html += `<button class="portal-page-btn" data-p="${cur + 1}" title="Next">›</button>`;
+            html += `</div><div class="portal-page-info">Hal. ${cur}/${last} · ${total} data · ${per_page}/hal</div>`;
+
+            wrap.innerHTML = html;
+            wrap.querySelectorAll('[data-p]').forEach(btn => {
+                btn.addEventListener('click', () => onPage(parseInt(btn.dataset.p)));
+            });
+        }
+
+        /* ================================================================
+        DATABASE SHEET AJAX
+        ================================================================ */
+        function getDbParams() {
+            return {
+                search:         document.getElementById('db-search')?.value ?? '',
+                tanggal_dari:   document.getElementById('db-dari')?.value ?? '',
+                tanggal_sampai: document.getElementById('db-sampai')?.value ?? '',
+                nopol:          document.getElementById('db-nopol')?.value ?? '',
+                shift:          document.getElementById('db-shift')?.value ?? '',
+                per_page:       dbPerPage,
+                page:           dbPage,
+            };
+        }
+
+        async function fetchDb(scroll = false) {
+            showLoading('db-loading');
+            const q = buildParams(getDbParams());
+            try {
+                const json = await fetch(`${BASE_URL}/api/admin/portal/database-sheet?${q}`).then(r => r.json());
+                renderDbAll(json);
+                renderDbExterior(json);
+                renderDbInterior(json);
+                renderDbMesin(json);
+                buildPagination(
+                    document.getElementById('db-pagination'),
+                    { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
+                    p => { dbPage = p; fetchDb(true); }
+                );
+                if (scroll) scrollToSection('section-db');
+            } finally { hideLoading('db-loading'); }
+        }
+
+        function renderDbAll(json) {
+            const tbody = document.getElementById('db-tbody-all');
+            if (!tbody) return;
+            const off = (json.current_page - 1) * json.per_page;
+            tbody.innerHTML = json.data.length
+                ? json.data.map((c, i) => `<tr>
+                    <td>${off + i + 1}</td>
+                    <td>${c.tanggal ?? '-'}</td><td>${c.shift ?? '-'}</td>
+                    <td><strong>${c.nomor_kendaraan}</strong></td><td>${c.jenis_kendaraan ?? '-'}</td>
+                    <td>${c.driver_serah ?? '-'}</td><td>${c.driver_terima ?? '-'}</td>
+                    <td>${c.level_bbm ?? '-'}%</td><td>${c.km_awal ?? '-'}</td><td>${c.km_akhir ?? '-'}</td>
+                </tr>`).join('')
+                : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
+        }
+
+        function renderDbExterior(json) {
+            const tbody = document.getElementById('db-tbody-exterior');
+            if (!tbody) return;
+            const rows = json.data.filter(c => c.exterior);
+            const keys = ['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'];
+            tbody.innerHTML = rows.length
+                ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
+                    ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.exterior[k])}">${statusLabel(c.exterior[k])}</td>`).join('')}
+                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
+                </tr>`).join('')
+                : '<tr><td colspan="11" class="portal-empty">Tidak ada data.</td></tr>';
+        }
+
+        function renderDbInterior(json) {
+            const tbody = document.getElementById('db-tbody-interior');
+            if (!tbody) return;
+            const rows = json.data.filter(c => c.interior);
+            const keys = ['jok','dashboard','ac','sabuk_pengaman','audio','kebersihan'];
+            tbody.innerHTML = rows.length
+                ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
+                    ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.interior[k])}">${statusLabel(c.interior[k])}</td>`).join('')}
+                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
+                </tr>`).join('')
+                : '<tr><td colspan="9" class="portal-empty">Tidak ada data.</td></tr>';
+        }
+
+        function renderDbMesin(json) {
+            const tbody = document.getElementById('db-tbody-mesin');
+            if (!tbody) return;
+            const rows = json.data.filter(c => c.mesin);
+            const keys = ['mesin','oli','radiator','rem','kopling','transmisi','indikator'];
+            tbody.innerHTML = rows.length
+                ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
+                    ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.mesin[k])}">${statusLabel(c.mesin[k])}</td>`).join('')}
+                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
+                </tr>`).join('')
+                : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
+        }
+
+        /* ================================================================
+        LOG FOTO AJAX
+        ================================================================ */
+        function getFotoParams() {
+            return {
+                search:         document.getElementById('foto-search')?.value ?? '',
+                tanggal_dari:   document.getElementById('foto-dari')?.value ?? '',
+                tanggal_sampai: document.getElementById('foto-sampai')?.value ?? '',
+                nopol:          document.getElementById('foto-nopol')?.value ?? '',
+                per_page:       fotoPerPage,
+                page:           fotoPage,
+            };
+        }
+
+        function thumbHtml(url, label) {
+            return `<a href="${url}" target="_blank" rel="noopener" title="${label}"><img src="${url}" alt="${label}" loading="lazy" class="portal-thumb"></a>`;
+        }
+
+        async function fetchFoto(scroll = false) {
+            showLoading('foto-loading');
+            const q = buildParams(getFotoParams());
+            try {
+                const json = await fetch(`${BASE_URL}/api/admin/portal/log-foto?${q}`).then(r => r.json());
+
+                const extRows = json.data.filter(c => c.exterior && Object.values(c.exterior).some(Boolean));
+                document.getElementById('foto-tbody-exterior').innerHTML = extRows.length
+                    ? extRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td>
+                        <td><div class="portal-thumb-row">
+                            ${[['foto_depan','Depan'],['foto_kanan','Kanan'],['foto_kiri','Kiri'],['foto_belakang','Belakang']].map(([f,l]) => c.exterior[f] ? thumbHtml(c.exterior[f], l) : '').join('')}
+                        </div></td></tr>`).join('')
+                    : '<tr><td colspan="3" class="portal-empty">Belum ada foto eksterior.</td></tr>';
+
+                const intRows = json.data.filter(c => c.interior && (c.interior.foto_1 || c.interior.foto_2 || c.interior.foto_3));
+                document.getElementById('foto-tbody-interior').innerHTML = intRows.length
+                    ? intRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td>
+                        <td><div class="portal-thumb-row">
+                            ${[1,2,3].map(i => c.interior[`foto_${i}`] ? thumbHtml(c.interior[`foto_${i}`], `Interior ${i}`) : '').join('')}
+                        </div></td></tr>`).join('')
+                    : '<tr><td colspan="3" class="portal-empty">Belum ada foto interior.</td></tr>';
+
+                const mesinRows = json.data.filter(c => c.mesin && (c.mesin.foto_1 || c.mesin.foto_2 || c.mesin.foto_3));
+                document.getElementById('foto-tbody-mesin').innerHTML = mesinRows.length
+                    ? mesinRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td>
+                        <td><div class="portal-thumb-row">
+                            ${[1,2,3].map(i => c.mesin[`foto_${i}`] ? thumbHtml(c.mesin[`foto_${i}`], `Mesin ${i}`) : '').join('')}
+                        </div></td></tr>`).join('')
+                    : '<tr><td colspan="3" class="portal-empty">Belum ada foto mesin.</td></tr>';
+
+                const bbmRows = json.data.filter(c => c.foto_bbm);
+                document.getElementById('foto-tbody-bbm').innerHTML = bbmRows.length
+                    ? bbmRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td><td>${thumbHtml(c.foto_bbm, 'BBM')}</td></tr>`).join('')
+                    : '<tr><td colspan="3" class="portal-empty">Belum ada foto BBM.</td></tr>';
+
+                buildPagination(
+                    document.getElementById('foto-pagination'),
+                    { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
+                    p => { fotoPage = p; fetchFoto(true); }
+                );
+                if (scroll) scrollToSection('section-foto');
+            } finally { hideLoading('foto-loading'); }
+        }
+
+        /* ================================================================
+        ARSIP PDF AJAX
+        ================================================================ */
+        function getPdfParams() {
+            return {
+                search:         document.getElementById('pdf-search')?.value ?? '',
+                tanggal_dari:   document.getElementById('pdf-dari')?.value ?? '',
+                tanggal_sampai: document.getElementById('pdf-sampai')?.value ?? '',
+                nopol:          document.getElementById('pdf-nopol')?.value ?? '',
+                shift:          document.getElementById('pdf-shift')?.value ?? '',
+                per_page:       pdfPerPage,
+                page:           pdfPage,
+            };
+        }
+
+        async function fetchPdf(scroll = false) {
+            showLoading('pdf-loading');
+            const q = buildParams(getPdfParams());
+            try {
+                const json = await fetch(`${BASE_URL}/api/admin/portal/arsip-pdf?${q}`).then(r => r.json());
+                const off = (json.current_page - 1) * json.per_page;
+                const tbody = document.getElementById('pdf-tbody');
+                if (tbody) {
+                    tbody.innerHTML = json.data.length
+                        ? json.data.map((c, i) => `<tr>
+                            <td>${off + i + 1}</td>
+                            <td>${c.tanggal ?? '-'}</td>
+                            <td><strong>${c.nomor_kendaraan}</strong></td>
+                            <td>${c.driver_serah ?? '-'}</td>
+                            <td>${c.driver_terima ?? '-'}</td>
+                            <td>${c.shift ?? '-'}</td>
+                            <td>${c.pdf_url
+                                ? `<a href="${c.pdf_url}" target="_blank" class="btn-view-pdf">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                                    View PDF</a>`
+                                : '<span style="color:#94a3b8;font-size:.75rem">—</span>'}</td>
+                        </tr>`).join('')
+                        : '<tr><td colspan="7" class="portal-empty">Belum ada laporan PDF.</td></tr>';
+                }
+                buildPagination(
+                    document.getElementById('pdf-pagination'),
+                    { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
+                    p => { pdfPage = p; fetchPdf(true); }
+                );
+                if (scroll) scrollToSection('section-pdf');
+            } finally { hideLoading('pdf-loading'); }
+        }
+
+        /* ================================================================
+        LOCAL FILTER WIRING
+        ================================================================ */
+        const debouncedDb   = debounce(() => { dbPage = 1;   fetchDb(); });
+        const debouncedFoto = debounce(() => { fotoPage = 1; fetchFoto(); });
+        const debouncedPdf  = debounce(() => { pdfPage = 1;  fetchPdf(); });
+
+        ['db-search','db-dari','db-sampai','db-nopol','db-shift'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', debouncedDb);
         });
-    }
+        ['foto-search','foto-dari','foto-sampai','foto-nopol'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', debouncedFoto);
+        });
+        ['pdf-search','pdf-dari','pdf-sampai','pdf-nopol','pdf-shift'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', debouncedPdf);
+        });
 
-})();
-</script>
+        // Per-page dropdowns
+        document.getElementById('db-perpage')?.addEventListener('change', e => {
+            dbPerPage = parseInt(e.target.value); dbPage = 1; fetchDb();
+        });
+        document.getElementById('foto-perpage')?.addEventListener('change', e => {
+            fotoPerPage = parseInt(e.target.value); fotoPage = 1; fetchFoto();
+        });
+        document.getElementById('pdf-perpage')?.addEventListener('change', e => {
+            pdfPerPage = parseInt(e.target.value); pdfPage = 1; fetchPdf();
+        });
 
-<script>
-/* Rebuild charts when theme changes */
-document.getElementById('dash-theme-toggle')?.addEventListener('click', function () {
-    setTimeout(_buildCharts, 60);
-});
-</script>
-@endsection
+        // Reset buttons
+        document.querySelectorAll('[data-section-reset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const p = btn.dataset.sectionReset;
+                [`${p}-search`,`${p}-dari`,`${p}-sampai`].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+                [`${p}-nopol`,`${p}-shift`].forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex=0; });
+                const ppEl = document.getElementById(`${p}-perpage`);
+                if (ppEl) { ppEl.value = '10'; }
+                if (p === 'db')   { dbPerPage=10;   dbPage=1;   fetchDb(); }
+                if (p === 'foto') { fotoPerPage=10; fotoPage=1; fetchFoto(); }
+                if (p === 'pdf')  { pdfPerPage=10;  pdfPage=1;  fetchPdf(); }
+            });
+        });
+
+        /* ================================================================
+        GLOBAL SEARCH & FILTER
+        ================================================================ */
+        function syncGlobalToLocal(params) {
+            ['db','foto','pdf'].forEach(pfx => {
+                const s = document.getElementById(`${pfx}-search`);
+                const d = document.getElementById(`${pfx}-dari`);
+                const u = document.getElementById(`${pfx}-sampai`);
+                const n = document.getElementById(`${pfx}-nopol`);
+                const h = document.getElementById(`${pfx}-shift`);
+                if (s) s.value = params.search;
+                if (d) d.value = params.tanggal_dari;
+                if (u) u.value = params.tanggal_sampai;
+                if (n) n.value = params.nopol;
+                if (h) h.value = params.shift ?? '';
+            });
+        }
+
+        const debouncedGlobal = debounce(() => {
+            const params = {
+                search:         document.getElementById('global-search')?.value ?? '',
+                tanggal_dari:   document.getElementById('global-dari')?.value ?? '',
+                tanggal_sampai: document.getElementById('global-sampai')?.value ?? '',
+                nopol:          document.getElementById('global-nopol')?.value ?? '',
+                shift:          document.getElementById('global-shift')?.value ?? '',
+            };
+            syncGlobalToLocal(params);
+            dbPage=1; fotoPage=1; pdfPage=1;
+            fetchDb(); fetchFoto(); fetchPdf();
+        });
+
+        ['global-search','global-dari','global-sampai','global-nopol','global-shift'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', debouncedGlobal);
+        });
+
+        document.getElementById('global-reset')?.addEventListener('click', () => {
+            ['global-search','global-dari','global-sampai'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+            ['global-nopol','global-shift'].forEach(id => { const el=document.getElementById(id); if(el) el.selectedIndex=0; });
+            syncGlobalToLocal({ search:'', tanggal_dari:'', tanggal_sampai:'', nopol:'', shift:'' });
+            dbPage=1; fotoPage=1; pdfPage=1;
+            fetchDb(); fetchFoto(); fetchPdf();
+        });
+
+        /* ================================================================
+        DATABASE SYNC (without page refresh)
+        ================================================================ */
+        const syncBtn = document.getElementById('db-sync-btn');
+        const syncAlert = document.getElementById('db-sync-alert');
+
+        function showSyncAlert(type, message, sheetUrl = null) {
+            if (!syncAlert) return;
+            const ok = type === 'success';
+            syncAlert.style.display = '';
+            syncAlert.style.background = ok ? '#dcfce7' : '#fee2e2';
+            syncAlert.style.color = ok ? '#166534' : '#991b1b';
+            syncAlert.style.border = ok ? '1px solid #86efac' : '1px solid #fca5a5';
+            syncAlert.innerHTML = ok && sheetUrl
+                ? `${message} <a href="${sheetUrl}" target="_blank" rel="noopener" style="font-weight:700;color:inherit;text-decoration:underline">Buka Spreadsheet</a>`
+                : message;
+        }
+
+        if (syncBtn) {
+            const defaultBtnHtml = syncBtn.innerHTML;
+            syncBtn.addEventListener('click', async () => {
+                const exportUrl = syncBtn.dataset.exportUrl;
+                if (!exportUrl) return;
+
+                syncBtn.disabled = true;
+                syncBtn.innerHTML = 'Menyinkronkan...';
+                showSyncAlert('success', 'Proses sinkronisasi sedang berjalan...');
+
+                try {
+                    const res = await fetch(exportUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+
+                    let data = null;
+                    try { data = await res.json(); } catch (_) {}
+
+                    if (!res.ok || !data?.success) {
+                        const errMsg = data?.message || `Sinkronisasi gagal (HTTP ${res.status}).`;
+                        showSyncAlert('error', errMsg);
+                        return;
+                    }
+
+                    showSyncAlert('success', data.message || 'Sinkronisasi berhasil.', data.sheet_url || null);
+                } catch (error) {
+                    showSyncAlert('error', `Sinkronisasi gagal: ${error.message}`);
+                } finally {
+                    syncBtn.disabled = false;
+                    syncBtn.innerHTML = defaultBtnHtml;
+                }
+            });
+        }
+
+        /* ================================================================
+        INITIAL PAGINATION RENDER (from server-provided meta)
+        ================================================================ */
+        if (INIT_META) {
+            buildPagination(
+                document.getElementById('db-pagination'),
+                INIT_META.db,
+                p => { dbPage = p; fetchDb(true); }
+            );
+            buildPagination(
+                document.getElementById('foto-pagination'),
+                INIT_META.foto,
+                p => { fotoPage = p; fetchFoto(true); }
+            );
+            buildPagination(
+                document.getElementById('pdf-pagination'),
+                INIT_META.pdf,
+                p => { pdfPage = p; fetchPdf(true); }
+            );
+        }
+
+        if (CAN_ACCESS_DATABASE) {
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.portal-db-detail-btn');
+                if (btn && btn.dataset.checklistId) {
+                    e.preventDefault();
+                    openPortalChecklistDetail(btn.dataset.checklistId);
+                }
+            });
+            document.getElementById('portal-checklist-modal-close')?.addEventListener('click', closePortalChecklistModal);
+            document.getElementById('portal-checklist-modal')?.addEventListener('click', function (e) {
+                if (e.target.id === 'portal-checklist-modal') closePortalChecklistModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape') return;
+                closePortalChecklistModal();
+            });
+        }
+
+        })();
+    </script>
+
+    <script>
+        /* Rebuild charts when theme changes */
+        document.getElementById('dash-theme-toggle')?.addEventListener('click', function () {
+            setTimeout(_buildCharts, 60);
+        });
+    </script>
+@endpush
