@@ -4451,6 +4451,7 @@ body#landing.dash-body.dark .signature-canvas {
     max-width: min(720px, 100%);
     width: 100%;
     max-height: min(88vh, calc(100dvh - 32px));
+    background: #fff;
     text-align: left;
     padding: 0;
     overflow: hidden;

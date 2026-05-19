@@ -572,18 +572,20 @@
         @endif
     </div>{{-- end portal-wrapper --}}
 </div>{{-- end admin-shell --}}
+@endsection
 
-@if($canAccessDatabase ?? false)
-<div id="portal-checklist-modal" class="modal-overlay" style="display:none" aria-hidden="true">
-    <div class="modal-box profile-card portal-checklist-modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-checklist-modal-title">
-        <h3 id="portal-checklist-modal-title">Detail pemeriksaan</h3>
-        <div id="portal-checklist-modal-body"></div>
-        <div class="portal-checklist-modal-actions">
-            <button type="button" class="portal-local-reset" id="portal-checklist-modal-close">Tutup</button>
+@section('modals')
+    @if($canAccessDatabase ?? false)
+    <div id="portal-checklist-modal" class="modal-overlay" style="display:none" aria-hidden="true">
+        <div class="modal-box profile-card portal-checklist-modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-checklist-modal-title">
+            <h3 id="portal-checklist-modal-title">Detail pemeriksaan</h3>
+            <div id="portal-checklist-modal-body"></div>
+            <div class="portal-checklist-modal-actions">
+                <button type="button" class="portal-local-reset" id="portal-checklist-modal-close">Tutup</button>
+            </div>
         </div>
     </div>
-</div>
-@endif
+    @endif
 @endsection
 
 @push('scripts')

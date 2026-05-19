@@ -128,7 +128,9 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('modals')
     <div id="sppd-modal-detail-admin" class="modal-overlay" style="display:none">
         <div class="modal-box profile-card sppd-modal-box" style="max-width:min(720px,100%);text-align:left;max-height:86vh;overflow:auto">
             <h3>Detail Rekap SPPD</h3>
@@ -139,134 +141,136 @@
             </div>
         </div>
     </div>
-
-    <script>
-    (function () {
-        const BASE = @json(url('/'));
-        const csrf = document.querySelector('meta[name="csrf-token"]').content;
-        const detailUrl = (id) => BASE + '/admin/rekap-sppd/' + id;
-        const approveUrl = (id) => BASE + '/admin/rekap-sppd/' + id + '/verify-approve';
-        const rejectUrl = (id) => BASE + '/admin/rekap-sppd/' + id + '/verify-reject';
-
-        function formatRp(n) {
-            return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
-        }
-
-        function esc(s) {
-            const d = document.createElement('div');
-            d.textContent = s ?? '';
-            return d.innerHTML;
-        }
-
-        function normalizeUrl(u) {
-            if (!u) return '';
-            const raw = String(u);
-            if (/^data:image/i.test(raw)) return raw;
-            if (/^https?:\/\//i.test(raw)) return raw;
-            if (raw.startsWith('/')) return BASE + raw;
-            return BASE + '/' + raw.replace(/^\/+/, '');
-        }
-
-        function renderDetail(d) {
-            let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
-            if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
-            let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
-            if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
-            return `
-                <table class="info-table sppd-mini-table">
-                    <tr><td class="label">Driver</td><td>${esc(d.nama_driver)} (${esc(d.driver_username || '-')})</td></tr>
-                    <tr><td class="label">Keperluan</td><td>${esc(d.keperluan_dinas)}</td></tr>
-                    <tr><td class="label">Kendaraan</td><td>${esc(d.no_kendaraan)} — ${esc(d.jenis_kendaraan)}</td></tr>
-                    <tr><td class="label">Tanggal</td><td>${esc(d.tanggal_dinas)}</td></tr>
-                    <tr><td class="label">Tujuan</td><td>${esc(d.tujuan)}</td></tr>
-                    <tr><td class="label">Status</td><td>${esc(d.status_label)}</td></tr>
-                </table>
-                <p class="sppd-detail-sub">Biaya Tol</p>
-                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
-                <p class="sppd-detail-sub">BBM</p>
-                <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
-                <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
-                ${d.revision_note ? `<p class="sppd-detail-sub">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
-                ${d.rejection_note ? `<p class="sppd-detail-sub">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
-            `;
-        }
-
-        function qaAttr(s) {
-            return String(s ?? '').replace(/"/g, '&quot;');
-        }
-
-        function renderAdminPdfActions(d) {
-            if (d.pdf_download_url && d.pdf_available) {
-                return `<a href="${qaAttr(d.pdf_download_url)}" class="btn btn-sm sppd-btn-modal-pdf" target="_blank" rel="noopener" title="Unduh PDF"><i class="bi bi-file-earmark-arrow-down"></i> Unduh PDF</a>`;
-            }
-            return '';
-        }
-
-        async function showDetail(id) {
-            const r = await fetch(detailUrl(id), { headers: { Accept: 'application/json' } });
-            const j = await r.json();
-            const d = j.sppd;
-            const modal = document.getElementById('sppd-modal-detail-admin');
-            const body = document.getElementById('sppd-admin-detail-body');
-            const pdfWrap = document.getElementById('sppd-admin-detail-pdf-wrap');
-            pdfWrap.hidden = true;
-            pdfWrap.innerHTML = '';
-            body.innerHTML = renderDetail(d);
-            const pdfHtml = renderAdminPdfActions(d);
-            if (pdfHtml) {
-                pdfWrap.innerHTML = pdfHtml;
-                pdfWrap.hidden = false;
-            }
-            modal.style.display = 'flex';
-        }
-
-        document.getElementById('section-sppd-admin')?.addEventListener('click', async (e) => {
-            const detailBtn = e.target.closest('.admin-sppd-detail');
-            if (detailBtn) {
-                await showDetail(detailBtn.dataset.id);
-                return;
-            }
-            const okBtn = e.target.closest('.admin-sppd-ok');
-            if (okBtn) {
-                const id = okBtn.dataset.id;
-                const c = await Swal.fire({ title: 'Verifikasi?', text: 'Laporan akan diteruskan ke Manager.', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, setujui' });
-                if (!c.isConfirmed) return;
-                const r = await fetch(approveUrl(id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
-                const j = await r.json();
-                if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
-                else Swal.fire('Gagal', j.message || 'Error', 'error');
-                return;
-            }
-            const rejBtn = e.target.closest('.admin-sppd-reject');
-            if (rejBtn) {
-                const id = rejBtn.dataset.id;
-                const { value: note } = await Swal.fire({
-                    title: 'Alasan revisi',
-                    input: 'textarea',
-                    inputLabel: 'Pesan untuk driver',
-                    inputPlaceholder: 'Jelaskan bagian yang perlu diperbaiki…',
-                    showCancelButton: true,
-                    confirmButtonText: 'Kirim revisi',
-                    inputValidator: (v) => !v && 'Wajib diisi',
-                });
-                if (!note) return;
-                const r = await fetch(rejectUrl(id), {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json', 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ revision_note: note }),
-                });
-                const j = await r.json();
-                if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
-                else Swal.fire('Gagal', j.message || 'Error', 'error');
-            }
-        });
-        document.querySelectorAll('[data-close-admin-sppd-modal]').forEach(el => {
-            el.addEventListener('click', () => { document.getElementById('sppd-modal-detail-admin').style.display = 'none'; });
-        });
-        document.getElementById('sppd-modal-detail-admin')?.addEventListener('click', (e) => {
-            if (e.target.id === 'sppd-modal-detail-admin') e.currentTarget.style.display = 'none';
-        });
-
-    })();
-    </script>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            const BASE = @json(url('/'));
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            const detailUrl = (id) => BASE + '/admin/rekap-sppd/' + id;
+            const approveUrl = (id) => BASE + '/admin/rekap-sppd/' + id + '/verify-approve';
+            const rejectUrl = (id) => BASE + '/admin/rekap-sppd/' + id + '/verify-reject';
+
+            function formatRp(n) {
+                return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
+            }
+
+            function esc(s) {
+                const d = document.createElement('div');
+                d.textContent = s ?? '';
+                return d.innerHTML;
+            }
+
+            function normalizeUrl(u) {
+                if (!u) return '';
+                const raw = String(u);
+                if (/^data:image/i.test(raw)) return raw;
+                if (/^https?:\/\//i.test(raw)) return raw;
+                if (raw.startsWith('/')) return BASE + raw;
+                return BASE + '/' + raw.replace(/^\/+/, '');
+            }
+
+            function renderDetail(d) {
+                let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
+                if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
+                let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
+                if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
+                return `
+                    <table class="info-table sppd-mini-table">
+                        <tr><td class="label">Driver</td><td>${esc(d.nama_driver)} (${esc(d.driver_username || '-')})</td></tr>
+                        <tr><td class="label">Keperluan</td><td>${esc(d.keperluan_dinas)}</td></tr>
+                        <tr><td class="label">Kendaraan</td><td>${esc(d.no_kendaraan)} — ${esc(d.jenis_kendaraan)}</td></tr>
+                        <tr><td class="label">Tanggal</td><td>${esc(d.tanggal_dinas)}</td></tr>
+                        <tr><td class="label">Tujuan</td><td>${esc(d.tujuan)}</td></tr>
+                        <tr><td class="label">Status</td><td>${esc(d.status_label)}</td></tr>
+                    </table>
+                    <p class="sppd-detail-sub">Biaya Tol</p>
+                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
+                    <p class="sppd-detail-sub">BBM</p>
+                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
+                    <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
+                    ${d.revision_note ? `<p class="sppd-detail-sub">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
+                    ${d.rejection_note ? `<p class="sppd-detail-sub">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
+                `;
+            }
+
+            function qaAttr(s) {
+                return String(s ?? '').replace(/"/g, '&quot;');
+            }
+
+            function renderAdminPdfActions(d) {
+                if (d.pdf_download_url && d.pdf_available) {
+                    return `<a href="${qaAttr(d.pdf_download_url)}" class="btn btn-sm sppd-btn-modal-pdf" target="_blank" rel="noopener" title="Unduh PDF"><i class="bi bi-file-earmark-arrow-down"></i> Unduh PDF</a>`;
+                }
+                return '';
+            }
+
+            async function showDetail(id) {
+                const r = await fetch(detailUrl(id), { headers: { Accept: 'application/json' } });
+                const j = await r.json();
+                const d = j.sppd;
+                const modal = document.getElementById('sppd-modal-detail-admin');
+                const body = document.getElementById('sppd-admin-detail-body');
+                const pdfWrap = document.getElementById('sppd-admin-detail-pdf-wrap');
+                pdfWrap.hidden = true;
+                pdfWrap.innerHTML = '';
+                body.innerHTML = renderDetail(d);
+                const pdfHtml = renderAdminPdfActions(d);
+                if (pdfHtml) {
+                    pdfWrap.innerHTML = pdfHtml;
+                    pdfWrap.hidden = false;
+                }
+                modal.style.display = 'flex';
+            }
+
+            document.getElementById('section-sppd-admin')?.addEventListener('click', async (e) => {
+                const detailBtn = e.target.closest('.admin-sppd-detail');
+                if (detailBtn) {
+                    await showDetail(detailBtn.dataset.id);
+                    return;
+                }
+                const okBtn = e.target.closest('.admin-sppd-ok');
+                if (okBtn) {
+                    const id = okBtn.dataset.id;
+                    const c = await Swal.fire({ title: 'Verifikasi?', text: 'Laporan akan diteruskan ke Manager.', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, setujui' });
+                    if (!c.isConfirmed) return;
+                    const r = await fetch(approveUrl(id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
+                    const j = await r.json();
+                    if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
+                    else Swal.fire('Gagal', j.message || 'Error', 'error');
+                    return;
+                }
+                const rejBtn = e.target.closest('.admin-sppd-reject');
+                if (rejBtn) {
+                    const id = rejBtn.dataset.id;
+                    const { value: note } = await Swal.fire({
+                        title: 'Alasan revisi',
+                        input: 'textarea',
+                        inputLabel: 'Pesan untuk driver',
+                        inputPlaceholder: 'Jelaskan bagian yang perlu diperbaiki…',
+                        showCancelButton: true,
+                        confirmButtonText: 'Kirim revisi',
+                        inputValidator: (v) => !v && 'Wajib diisi',
+                    });
+                    if (!note) return;
+                    const r = await fetch(rejectUrl(id), {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json', 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ revision_note: note }),
+                    });
+                    const j = await r.json();
+                    if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
+                    else Swal.fire('Gagal', j.message || 'Error', 'error');
+                }
+            });
+            document.querySelectorAll('[data-close-admin-sppd-modal]').forEach(el => {
+                el.addEventListener('click', () => { document.getElementById('sppd-modal-detail-admin').style.display = 'none'; });
+            });
+            document.getElementById('sppd-modal-detail-admin')?.addEventListener('click', (e) => {
+                if (e.target.id === 'sppd-modal-detail-admin') e.currentTarget.style.display = 'none';
+            });
+
+        })();
+    </script>
+@endpush

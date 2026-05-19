@@ -18,9 +18,6 @@ class BbmReportDummySeeder extends Seeder
      */
     public function run(): void
     {
-        $deleted = BbmReport::query()->delete();
-        $this->command->info("Menghapus {$deleted} baris lama dari bbm_reports.");
-
         $driverIds = User::query()->where('role', 'driver')->pluck('id');
         $kendaraans = Kendaraan::query()->get(['id', 'nomor_kendaraan', 'jenis_kendaraan']);
 

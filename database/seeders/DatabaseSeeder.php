@@ -152,15 +152,19 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($kendaraans as $k) {
+            $nomor = $k['nomor_kendaraan'];
+            unset($k['nomor_kendaraan']);
+
             Kendaraan::firstOrCreate(
-                ['nomor_kendaraan' => $k['nomor_kendaraan']], // 🔑 unik
-                [
-                    'jenis_kendaraan' => $k['jenis_kendaraan'],
-                    'set_km' => $k['set_km'],
-                ]
+                ['nomor_kendaraan' => $nomor],
+                $k
             );
         }
 
-        $this->call(BidangPernyataanSeeder::class);
+        $this->call([
+            BidangPernyataanSeeder::class,
+            BbmReportDummySeeder::class,
+            PortalDummyDataSeeder::class,
+        ]);
     }
 }
