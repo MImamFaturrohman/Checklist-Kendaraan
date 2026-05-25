@@ -70,8 +70,8 @@
 
     background-size: 200% 100%;
 
-    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    -webkit-mask-image: url('/images/textures/cubes.png');
+    mask-image: url('/images/textures/cubes.png');
 
     animation: vms-shine-lines 12s linear infinite;
 
@@ -1849,13 +1849,13 @@
     background-color: #fef2f2;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 560px) {
     .signature-row {
         grid-template-columns: 1fr;
     }
 
     .signature-canvas {
-        height: 120px;
+        height: 140px;
     }
 }
 
@@ -5952,7 +5952,7 @@ body#landing.dash-body.dark .signature-canvas {
 
 .dash-bg-cubes {
     inset: 0;
-    background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    background-image: url('/images/textures/cubes.png');
     mix-blend-mode: overlay;
     filter: contrast(1.25);
 }
@@ -5968,8 +5968,8 @@ body#landing.dash-body.dark .signature-canvas {
         transparent 70%
     );
     background-size: 300% 100%;
-    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    -webkit-mask-image: url('/images/textures/cubes.png');
+    mask-image: url('/images/textures/cubes.png');
     animation: vms-shine-lines 15s infinite linear;
     mix-blend-mode: color-dodge;
 }
@@ -5981,7 +5981,7 @@ body#landing.dash-body.dark .signature-canvas {
 
 .dash-bg-stardust {
     inset: 0;
-    background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+    background-image: url('/images/textures/stardust.png');
     mix-blend-mode: overlay;
 }
 
@@ -8969,5 +8969,102 @@ body.dash-body {
     }
     .dash-topbar-brand-block .dash-topbar-brand-logo {
         height: 28px;
+    }
+}
+
+/* Spin animation used by checklist form submit button loading state */
+@keyframes spinIcon {
+    to { transform: rotate(360deg); }
+}
+.spin-icon {
+    animation: spinIcon 1s linear infinite;
+}
+
+/* =============================================================
+   MOBILE PERFORMANCE OVERRIDES
+   Target: Android low-RAM / mid-CPU devices (≤768px)
+   Menghilangkan operasi GPU mahal tanpa mengubah logika apapun.
+   ============================================================= */
+@media (max-width: 768px) {
+    /* --- Disable heavy blur orbs (filter:blur 140-160px = GPU bottleneck #1) --- */
+    .dash-bg-orb-gold,
+    .dash-bg-orb-blue {
+        filter: none !important;
+        opacity: 0.18 !important;
+    }
+
+    /* --- Disable infinite shine animation + external texture mask --- */
+    .dash-bg-sparkle {
+        animation: none !important;
+        -webkit-mask-image: none !important;
+        mask-image: none !important;
+        background: none !important;
+        opacity: 0 !important;
+    }
+
+    /* --- Disable external texture + costly mix-blend-mode --- */
+    .dash-bg-cubes {
+        background-image: none !important;
+        mix-blend-mode: normal !important;
+        filter: none !important;
+        opacity: 0 !important;
+    }
+
+    .dash-bg-stardust {
+        background-image: none !important;
+        mix-blend-mode: normal !important;
+        opacity: 0 !important;
+    }
+
+    /* --- Stop SVG wave animations (GPU composite + paint) --- */
+    .vms-wave-line-solid,
+    .vms-wave-line-dashed {
+        animation: none !important;
+    }
+
+    /* --- Replace backdrop-filter with solid backgrounds (composite layer cost) --- */
+    .dash-nav-drawer,
+    .profile-drawer {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    .dash-theme-btn {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(15, 23, 42, 0.88) !important;
+    }
+
+    /* --- Reduce box-shadow complexity on cards for faster paint --- */
+    .dash-main-card,
+    .portal-stat-card,
+    .dash-glass-card,
+    .dash-nav-glass-card {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18) !important;
+    }
+
+    /* --- Simplify hero section gradient on mobile --- */
+    .dash-hero-section {
+        background: var(--dash-blue, #0A2342) !important;
+    }
+}
+
+/* --- Respect user OS reduced-motion preference --- */
+@media (prefers-reduced-motion: reduce) {
+    .dash-bg-sparkle,
+    .dash-bg-cubes,
+    .vms-wave-line-solid,
+    .vms-wave-line-dashed,
+    .dash-hero-kicker-dot {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* Slow transitions to instant for reduced-motion users */
+    .dash-nav-drawer,
+    .profile-drawer,
+    .dash-nav-overlay,
+    .profile-overlay {
+        transition: none !important;
     }
 }

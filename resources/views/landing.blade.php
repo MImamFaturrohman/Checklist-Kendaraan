@@ -21,7 +21,7 @@
     <title>Vehicle Management System - PT ARTHA DAYA COALINDO</title>
     @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <style>
         /* ── ARMADA SECTION (ringkas; hero & navigasi di app.css agar selaras dashboard) ── */
         .lp-section-heading {
@@ -187,8 +187,8 @@
 <nav class="dash-nav lp-top-nav" id="lp-top-nav" aria-label="Navigasi utama">
     <div class="dash-nav-inner lp-nav-inner">
         <a href="#landing" onclick="smoothTo('landing',event)" class="dash-nav-brand lp-landing-brand">
-            <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" alt="Logo" class="dash-nav-logo logo-desktop lp-landing-logo">
-            <img src="{{ asset('images/ADC PM Logo.png') }}" alt="Logo" class="dash-nav-logo logo-mobile lp-landing-logo">
+            <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" alt="Logo" class="dash-nav-logo logo-desktop lp-landing-logo" fetchpriority="high">
+            <img src="{{ asset('images/ADC PM Logo.png') }}" alt="Logo" class="dash-nav-logo logo-mobile lp-landing-logo" fetchpriority="high">
             <div>
                 <div class="dash-nav-title">Vehicle Management System</div>
                 <span class="dash-nav-sub sub-mobile-only">PT. ARTHA DAYA COALINDO</span>

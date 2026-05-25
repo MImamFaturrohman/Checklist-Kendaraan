@@ -6,12 +6,9 @@
 
 @php $premiumBgId = 'portal_pemeriksaan'; @endphp
 
-@push('styles')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-@endpush
-
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @endpush
 
 @section('content')
@@ -743,7 +740,21 @@
             }
         }
 
-        _buildCharts();
+        // Lazy-render charts using IntersectionObserver — defers canvas paint
+        // until the chart grid enters the viewport, reducing initial load freeze.
+        const chartsGrid = document.querySelector('.portal-charts-grid');
+        if (chartsGrid && 'IntersectionObserver' in window) {
+            const chartObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    _buildCharts();
+                    chartObserver.disconnect();
+                }
+            }, { threshold: 0.05, rootMargin: '100px' });
+            chartObserver.observe(chartsGrid);
+        } else {
+            _buildCharts(); // Fallback for older browsers
+        }
+
         if (!CAN_ACCESS_DATABASE) return;
 
         /* ================================================================
@@ -940,6 +951,13 @@
         }
 
         /* ================================================================
+        ABORT CONTROLLERS — cancel stale requests on rapid filter changes
+        ================================================================ */
+        let _abortDb   = null;
+        let _abortFoto = null;
+        let _abortPdf  = null;
+
+        /* ================================================================
         DATABASE SHEET AJAX
         ================================================================ */
         function getDbParams() {
@@ -955,10 +973,13 @@
         }
 
         async function fetchDb(scroll = false) {
+            _abortDb?.abort();
+            _abortDb = new AbortController();
             showLoading('db-loading');
             const q = buildParams(getDbParams());
             try {
-                const json = await fetch(`${BASE_URL}/api/admin/portal/database-sheet?${q}`).then(r => r.json());
+                const r = await fetch(`${BASE_URL}/api/admin/portal/database-sheet?${q}`, { signal: _abortDb.signal });
+                const json = await r.json();
                 renderDbAll(json);
                 renderDbExterior(json);
                 renderDbInterior(json);
@@ -969,6 +990,8 @@
                     p => { dbPage = p; fetchDb(true); }
                 );
                 if (scroll) scrollToSection('section-db');
+            } catch (e) {
+                if (e.name !== 'AbortError') console.warn('fetchDb error', e);
             } finally { hideLoading('db-loading'); }
         }
 
@@ -1045,10 +1068,13 @@
         }
 
         async function fetchFoto(scroll = false) {
+            _abortFoto?.abort();
+            _abortFoto = new AbortController();
             showLoading('foto-loading');
             const q = buildParams(getFotoParams());
             try {
-                const json = await fetch(`${BASE_URL}/api/admin/portal/log-foto?${q}`).then(r => r.json());
+                const r = await fetch(`${BASE_URL}/api/admin/portal/log-foto?${q}`, { signal: _abortFoto.signal });
+                const json = await r.json();
 
                 const extRows = json.data.filter(c => c.exterior && Object.values(c.exterior).some(Boolean));
                 document.getElementById('foto-tbody-exterior').innerHTML = extRows.length
@@ -1085,6 +1111,8 @@
                     p => { fotoPage = p; fetchFoto(true); }
                 );
                 if (scroll) scrollToSection('section-foto');
+            } catch (e) {
+                if (e.name !== 'AbortError') console.warn('fetchFoto error', e);
             } finally { hideLoading('foto-loading'); }
         }
 
@@ -1104,10 +1132,13 @@
         }
 
         async function fetchPdf(scroll = false) {
+            _abortPdf?.abort();
+            _abortPdf = new AbortController();
             showLoading('pdf-loading');
             const q = buildParams(getPdfParams());
             try {
-                const json = await fetch(`${BASE_URL}/api/admin/portal/arsip-pdf?${q}`).then(r => r.json());
+                const r = await fetch(`${BASE_URL}/api/admin/portal/arsip-pdf?${q}`, { signal: _abortPdf.signal });
+                const json = await r.json();
                 const off = (json.current_page - 1) * json.per_page;
                 const tbody = document.getElementById('pdf-tbody');
                 if (tbody) {
@@ -1133,6 +1164,8 @@
                     p => { pdfPage = p; fetchPdf(true); }
                 );
                 if (scroll) scrollToSection('section-pdf');
+            } catch (e) {
+                if (e.name !== 'AbortError') console.warn('fetchPdf error', e);
             } finally { hideLoading('pdf-loading'); }
         }
 

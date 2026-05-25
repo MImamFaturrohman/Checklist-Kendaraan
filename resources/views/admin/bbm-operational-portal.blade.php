@@ -12,8 +12,11 @@
 
 @php $premiumBgId = 'bbm_operational'; @endphp
 
-@push('styles')
+@push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+@endpush
+
+@push('styles')
     <style>
         .bbm-chart-global-filters.portal-local-filters {
             align-items: flex-end;
@@ -976,17 +979,52 @@
             document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
             document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });
 
-            buildDriverPieChart();
-            fetchComparisonCharts();
-            fetchActivityLog();
-            chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
-            logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
+            // Lazy-init charts using IntersectionObserver for faster initial render
+            const bbmChartSection = document.getElementById('bbmChartRupiahYear')?.closest('.portal-chart-card, .portal-charts-grid, [class*="chart"]') || document.getElementById('bbmChartRupiahYear');
+            let chartsInitialized = false;
+
+            function initBbmCharts() {
+                if (chartsInitialized) return;
+                chartsInitialized = true;
+                buildDriverPieChart();
+                fetchComparisonCharts();
+                fetchActivityLog();
+                chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
+                logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
+            }
+
+            if (bbmChartSection && 'IntersectionObserver' in window) {
+                const bbmChartObserver = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        initBbmCharts();
+                        bbmChartObserver.disconnect();
+                    }
+                }, { threshold: 0.05, rootMargin: '150px' });
+                bbmChartObserver.observe(bbmChartSection);
+            } else {
+                initBbmCharts();
+            }
+
+            // Pause polling when tab is not visible — saves battery and network on mobile
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(chartPollTimer);
+                    clearInterval(logPollTimer);
+                    chartPollTimer = null;
+                    logPollTimer = null;
+                } else if (chartsInitialized) {
+                    fetchComparisonCharts();
+                    fetchActivityLog();
+                    chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
+                    logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
+                }
+            });
 
             let bbmPieResizeTimer = null;
             window.addEventListener('resize', () => {
                 clearTimeout(bbmPieResizeTimer);
                 bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(), 200);
-            });
+            }, { passive: true });
 
         })();
 

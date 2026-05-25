@@ -20,7 +20,7 @@
 
         @page { margin: 30px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; margin: 10px; padding: 10px; padding-top: 10px; }
+        body { font-family: 'Arial', sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.4; margin: 10px; padding: 10px; padding-top: 10px; position: relative; }
 
         /* .page-border {
             position: fixed;

@@ -1,7 +1,6 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 import SignaturePad from 'signature_pad';
-import TomSelect from 'tom-select';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'tom-select/dist/css/tom-select.bootstrap5.css';
 
@@ -176,7 +175,7 @@ Alpine.start();
     });
 })();
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     /* ================================================================
        LOGIN
        ================================================================ */
@@ -588,9 +587,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ================================================================
        CHECKLIST WIZARD
+       Dynamic import: TomSelect is only loaded on pages that have the
+       wizard, avoiding ~30KB JS parse cost on all other pages.
        ================================================================ */
     const wizardRoot = document.querySelector('[data-checklist-wizard]');
     if (!wizardRoot) return;
+
+    // Load TomSelect only when the wizard page is actually open
+    const { default: TomSelect } = await import('tom-select');
 
     const form = wizardRoot.querySelector('#checklist-form');
     const steps = Array.from(wizardRoot.querySelectorAll('.wizard-step'));
@@ -1157,21 +1161,21 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ================================================================
        PHOTO PREVIEW
        ================================================================ */
-    async function compressImage(file, quality = 0.8, maxWidth = 1920) {
+    async function compressImage(file, quality = 0.75, maxWidth = 1280) {
         return new Promise((resolve) => {
             const img = new Image();
-            const reader = new FileReader();
-
-            reader.onload = e => {
-                img.src = e.target.result;
-            };
+            // Use createObjectURL instead of FileReader.readAsDataURL — no base64 overhead,
+            // binary blob stays in native memory and is released via revokeObjectURL.
+            const objectUrl = URL.createObjectURL(file);
 
             img.onload = () => {
+                URL.revokeObjectURL(objectUrl); // release as soon as image is decoded
+
                 let width = img.width;
                 let height = img.height;
 
                 if (width > maxWidth) {
-                    height *= maxWidth / width;
+                    height = Math.round(height * maxWidth / width);
                     width = maxWidth;
                 }
 
@@ -1200,7 +1204,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
             };
 
-            reader.readAsDataURL(file);
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                resolve(file); // fallback: return original if decode fails
+            };
+
+            img.src = objectUrl;
         });
     }
 
@@ -1224,21 +1233,29 @@ document.addEventListener('DOMContentLoaded', () => {
             dt.items.add(compressedFile);
             input.files = dt.files;
 
-            const reader = new FileReader();
+            // Revoke previous object URL to free memory before creating a new one
+            if (preview._blobUrl) URL.revokeObjectURL(preview._blobUrl);
+            preview._blobUrl = URL.createObjectURL(compressedFile);
+            preview.src = preview._blobUrl;
+            preview.style.display = 'block';
 
-            reader.onload = e => {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+            if (removeBtn) removeBtn.style.display = 'flex';
 
-                if (placeholder) placeholder.style.display = 'none';
-                if (removeBtn) removeBtn.style.display = 'flex';
-
-                slot.classList.add('has-file');
-            };
-
-            reader.readAsDataURL(compressedFile);
+            slot.classList.add('has-file');
         });
-        if (removeBtn) removeBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); input.value = ''; preview.style.display = 'none'; preview.src = ''; if (placeholder) placeholder.style.display = 'flex'; removeBtn.style.display = 'none'; slot.classList.remove('has-file'); });
+        if (removeBtn) removeBtn.addEventListener('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            input.value = '';
+            // Revoke blob URL to free memory
+            if (preview._blobUrl) { URL.revokeObjectURL(preview._blobUrl); preview._blobUrl = null; }
+            preview.style.display = 'none';
+            preview.src = '';
+            if (placeholder) placeholder.style.display = 'flex';
+            removeBtn.style.display = 'none';
+            slot.classList.remove('has-file');
+        });
     };
     wizardRoot.querySelectorAll('[data-photo-preview-slot]').forEach(initPhotoSlot);
 
@@ -1391,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 hint.classList.remove('hidden');
             }
         };
-        let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { pad._refreshCanvas(); }, 200); });
+        let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { pad._refreshCanvas(); }, 200); }, { passive: true });
         return pad;
     };
     window._sigPadSerah = initSigPad('sig-pad-serah', 'serah', 'serah', 'sig-data-serah');
@@ -1409,11 +1426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (konfirmasi && completeAlert) {
         konfirmasi.addEventListener('change', () => { completeAlert.style.display = konfirmasi.checked ? 'flex' : 'none'; });
     }
-
-    /* Spinning icon */
-    const st = document.createElement('style');
-    st.textContent = '@keyframes spinIcon { to { transform: rotate(360deg); } } .spin-icon { animation: spinIcon 1s linear infinite; }';
-    document.head.appendChild(st);
 
     updateWizardUI();
 });

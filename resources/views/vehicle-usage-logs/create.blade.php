@@ -11,9 +11,12 @@
     $bbmAkhirNum = is_numeric($bbmAkhirOld) ? max(0, min(100, (int) $bbmAkhirOld)) : 50;
 @endphp
 
-@push('styles')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @vite(['resources/js/vehicle-usage-log.js'])
+@endpush
+
+@push('styles')
 <style>
     /* Ringkasan langkah 4 + dialog SweetAlert selaras tema checklist */
     .vul-review {

@@ -5,9 +5,12 @@
 @section('pageTitle', 'TransDinas')
 @section('pageSubtitle', 'Buat Rekap SPPD')
 
-@push('styles')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @vite(['resources/js/sppd-form.js'])
+@endpush
+
+@push('styles')
 <style>
     .sppd-form-page .section-banner {
         display: flex;
@@ -38,7 +41,6 @@
     .sppd-form-page .section-banner-icon { color: #facc15; flex-shrink: 0; }
     .sppd-form-page .section-banner span { position: relative; z-index: 1; }
 
-    /* Footer wizard — sama pola checklist / BBM */
     .sppd-checklist-footer .sppd-footer-right {
         display: flex;
         align-items: center;

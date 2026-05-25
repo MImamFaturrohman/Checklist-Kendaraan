@@ -206,7 +206,6 @@
             font-style: italic;
         }
 
-        /* Footer halaman: garis + catatan di dasar lembar PDF */
         .pdf-page-footer {
             position: fixed;
             bottom: 0;

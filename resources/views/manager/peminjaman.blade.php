@@ -7,7 +7,7 @@
 @php $premiumBgId = 'manager_peminjaman'; @endphp
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @endpush
 
 @section('content')

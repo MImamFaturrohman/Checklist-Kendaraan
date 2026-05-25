@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     window.addEventListener('resize', () => {
         if (window.innerWidth >= 992) closeMobileMenu();
-    });
+    }, { passive: true });
 
     const bbmForm = document.getElementById('bbm-report-form');
     const bbmSubmitBtn = document.getElementById('bbm-submit');

@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     window.addEventListener('resize', () => {
         if (window.innerWidth >= 992) closeMobileMenu();
-    });
+    }, { passive: true });
 
     const form = document.getElementById('vehicle-usage-log-form');
     if (!form) return;

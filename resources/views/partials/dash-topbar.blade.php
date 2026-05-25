@@ -19,7 +19,7 @@
 <header class="dash-topbar" id="dash-topbar">
     <div class="dash-topbar-left">
         <div class="dash-topbar-brand-block">
-            <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-topbar-brand-logo" width="120" height="48">
+            <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-topbar-brand-logo" width="120" height="48" fetchpriority="high">
         </div>
 
         <div class="dash-topbar-title-wrap">

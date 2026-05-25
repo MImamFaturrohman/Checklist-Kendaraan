@@ -59,7 +59,7 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    background-image: url('/images/textures/cubes.png');
     opacity: 0.8;
     mix-blend-mode: overlay;
     filter: contrast(1.25);
@@ -81,8 +81,8 @@
         transparent 70%
     );
     background-size: 300% 100%;
-    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    -webkit-mask-image: url('/images/textures/cubes.png');
+    mask-image: url('/images/textures/cubes.png');
     animation: vms-shine-lines 15s infinite linear;
     opacity: 0.9;
     mix-blend-mode: color-dodge;
@@ -110,7 +110,7 @@
     inset: 0;
     z-index: 3;
     pointer-events: none;
-    background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+    background-image: url('/images/textures/stardust.png');
     opacity: 0.2;
     mix-blend-mode: overlay;
     transition: opacity 0.5s ease;
@@ -762,8 +762,8 @@
 
     background-size: 200% 100%;
 
-    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    -webkit-mask-image: url('/images/textures/cubes.png');
+    mask-image: url('/images/textures/cubes.png');
 
     animation: vms-shine-lines 12s linear infinite;
 

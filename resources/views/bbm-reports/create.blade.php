@@ -5,9 +5,12 @@
 @section('pageTitle', 'Form Pengisian BBM')
 
 
-@push('styles')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @vite(['resources/js/bbm-form.js'])
+@endpush
+
+@push('styles')
 @php
     $bbmShiftCode = $driverShiftAtLogin['code'] ?? 'luar';
     $shiftLabel = match($bbmShiftCode) {

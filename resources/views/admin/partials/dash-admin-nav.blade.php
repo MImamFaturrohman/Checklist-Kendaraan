@@ -6,7 +6,7 @@
 <nav class="dash-nav" id="dash-nav">
     <div class="dash-nav-inner">
         <div class="dash-nav-brand">
-            <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo">
+            <img src="{{ asset('images/VMS.png') }}" alt="VMS" class="dash-nav-logo" fetchpriority="high">
             <div>
                 <div class="dash-nav-title">{{ $pageTitle }}</div>
                 <span class="dash-nav-sub">{{ $pageSubtitle ?? 'PT ARTHA DAYA COALINDO' }}</span>
