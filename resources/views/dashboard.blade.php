@@ -64,11 +64,11 @@
 
             <div class="dash-hero-tags">
                 <span class="dash-tag dash-tag-outline">
-                    {{ '@' . str($user?->username ?? 'USER-00') }}
+                    {{ 'ID: ' . str($user?->username ?? 'USER-00') }}
                 </span>
-                <span class="dash-tag dash-tag-yellow">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="5"/></svg>
-                    Status: Online
+                <span class="mgmt-presence mgmt-presence--online" id="dash-presence-status">
+                    <span class="mgmt-presence-dot" aria-hidden="true"></span>
+                    <span id="dash-presence-label">Online</span>
                 </span>
                 @if($isDriver)
                     <span class="dash-hero-shift dash-clock-shift" id="dash-hero-shift">—</span>

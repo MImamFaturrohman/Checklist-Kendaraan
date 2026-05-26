@@ -12,6 +12,7 @@
 
     $sbUserName      = $sbUserName ?? ($sbUser?->name ?? $sbUser?->username ?? 'User');
     $sbUserRoleLabel = $sbIsSuperAdmin ? 'SUPERADMIN' : ($sbIsAdmin ? 'ADMIN' : ($sbIsManager ? 'MANAGER' : ($sbIsPic ? 'PIC KENDARAAN' : 'DRIVER')));
+    $sbRoleAvatarClass = $sbRoleAvatarClass ?? (($sbIsAdmin || $sbIsSuperAdmin) ? 'dash-avatar--admin' : ($sbIsManager ? 'dash-avatar--manager' : 'dash-avatar--driver'));
 
     $sbSuperadminNotifications = $sbSuperadminNotifications ?? collect();
     $sbSuperadminUnreadCount   = $sbSuperadminUnreadCount   ?? 0;
@@ -28,7 +29,7 @@
             onclick="openProfileDrawer()"
             aria-label="Profil Saya"
             title="Profil Saya">
-        <span class="dash-nav-drawer-profile-avatar">{{ strtoupper(substr($sbUserName, 0, 1)) }}</span>
+        <span class="dash-nav-drawer-profile-avatar {{ $sbRoleAvatarClass }}">{{ strtoupper(substr($sbUserName, 0, 1)) }}</span>
         <span class="dash-nav-drawer-profile-meta">
             <span class="dash-nav-drawer-profile-name">{{ $sbUserName }}</span>
             <span class="dash-nav-drawer-profile-hint">Profil Saya</span>

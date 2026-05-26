@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -83,8 +84,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        $userId = $user->id;
 
         Auth::logout();
+
+        User::markOfflineById($userId);
 
         $user->delete();
 

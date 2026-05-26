@@ -49,6 +49,15 @@
         default         => 'profile-drawer-role-chip--default',
     };
 
+    $layoutRoleAvatarClass = match ($layoutUser?->role) {
+        'driver'        => 'dash-avatar--driver',
+        'pic_kendaraan' => 'dash-avatar--driver',
+        'admin'         => 'dash-avatar--admin',
+        'superadmin'    => 'dash-avatar--admin',
+        'manager'       => 'dash-avatar--manager',
+        default         => 'dash-avatar--default',
+    };
+
     /* Pending counts — use view-passed values when available */
     $layoutPendingCount   = $pendingCount ?? 0;
     $layoutSppdPending    = $sppdPendingManager ?? 0;
@@ -82,6 +91,7 @@
         'tbSuperadminNotifications'  => $layoutNotifications,
         'tbSuperadminUnreadCount'    => $layoutUnreadCount,
         'tbIsDashboard'              => $layoutIsDashboard,
+        'tbRoleAvatarClass'          => $layoutRoleAvatarClass,
     ])
 
     {{-- ── Optional hero section (views can override) ── --}}
@@ -117,6 +127,7 @@
                 'sbUserName'                 => $layoutUserName,
                 'sbSuperadminNotifications'  => $layoutNotifications,
                 'sbSuperadminUnreadCount'    => $layoutUnreadCount,
+                'sbRoleAvatarClass'          => $layoutRoleAvatarClass,
             ])
         </div>
     </div>
@@ -139,8 +150,8 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
         </button>
         <div class="profile-drawer-avatar-outer">
-            <div class="profile-drawer-avatar-ring">
-                <div class="profile-drawer-avatar">{{ strtoupper(substr($layoutUserName, 0, 1)) }}</div>
+            <div class="profile-drawer-avatar-ring {{ $layoutRoleAvatarClass }}">
+                <div class="profile-drawer-avatar {{ $layoutRoleAvatarClass }}">{{ strtoupper(substr($layoutUserName, 0, 1)) }}</div>
             </div>
             <span class="profile-drawer-avatar-badge" title="Online"></span>
         </div>

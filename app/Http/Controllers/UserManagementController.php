@@ -100,8 +100,19 @@ class UserManagementController extends Controller
         $pp   = min((int) ($request->input('per_page', 15)), 100);
         $page = $q->paginate($pp);
 
+        $data = collect($page->items())->map(function (User $user) {
+            return [
+                'id'           => $user->id,
+                'name'         => $user->name,
+                'username'     => $user->username,
+                'role'         => $user->role,
+                'is_online'    => $user->isOnline(),
+                'last_seen_at' => $user->last_seen_at?->toIso8601String(),
+            ];
+        })->values();
+
         return response()->json([
-            'data'         => $page->items(),
+            'data'         => $data,
             'current_page' => $page->currentPage(),
             'last_page'    => $page->lastPage(),
             'total'        => $page->total(),

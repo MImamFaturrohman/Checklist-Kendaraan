@@ -7,6 +7,7 @@
     $tbIsDriver     = $tbIsDriver     ?? ($tbUser?->role === 'driver' || $tbIsPic);
     $tbUserName     = $tbUserName     ?? ($tbUser?->name ?? $tbUser?->username ?? 'User');
     $tbUserRoleLabel = $tbIsSuperAdmin ? 'SUPERADMIN' : ($tbIsAdmin ? 'ADMIN' : ($tbIsManager ? 'MANAGER' : ($tbIsPic ? 'PIC KENDARAAN' : 'DRIVER')));
+    $tbRoleAvatarClass = $tbRoleAvatarClass ?? (($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-avatar--admin' : ($tbIsManager ? 'dash-avatar--manager' : 'dash-avatar--driver'));
 
     $tbPageTitle    = $tbPageTitle    ?? null;
     $tbPageSubtitle = $tbPageSubtitle ?? null;
@@ -79,6 +80,14 @@
         </div>
         @endif
 
+        {{-- Theme toggle — semua breakpoints --}}
+        <button type="button"
+                class="dash-theme-btn"
+                id="dash-theme-toggle"
+                title="Ganti Tema"
+                aria-label="Toggle Tema">
+            <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
+        </button>
         {{-- Role chip --}}
         <span class="dash-chip {{ ($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-chip-admin' : ($tbIsManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
             @if ($tbIsAdmin || $tbIsSuperAdmin)
@@ -98,19 +107,10 @@
                 onclick="openProfileDrawer()"
                 aria-label="Profil Saya"
                 title="Profil Saya">
-            <span class="dash-topbar-avatar">{{ strtoupper(substr($tbUserName, 0, 1)) }}</span>
+            <span class="dash-topbar-avatar {{ $tbRoleAvatarClass }}">{{ strtoupper(substr($tbUserName, 0, 1)) }}</span>
             <span class="dash-topbar-username">{{ $tbUserName }}</span>
         </button>
         </div>
-
-        {{-- Theme toggle — semua breakpoints --}}
-        <button type="button"
-                class="dash-theme-btn"
-                id="dash-theme-toggle"
-                title="Ganti Tema"
-                aria-label="Toggle Tema">
-            <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
-        </button>
 
         @if($tbIsDashboard)
         <form method="POST" action="{{ route('logout') }}" class="dash-topbar-logout-form dash-topbar-logout-desktop-only">

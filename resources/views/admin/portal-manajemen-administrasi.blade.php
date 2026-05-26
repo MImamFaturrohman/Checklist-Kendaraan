@@ -281,6 +281,7 @@
                             <th>Nama Lengkap</th>
                             <th>Username</th>
                             <th>Role</th>
+                            <th>Status</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -322,6 +323,19 @@
                                             <span class="mgmt-role-badge mgmt-role-driver">Driver</span>
                                     @endswitch
                                 </td>
+                                <td>
+                                    @if($u->isOnline())
+                                        <span class="mgmt-presence mgmt-presence--online">
+                                            <span class="mgmt-presence-dot" aria-hidden="true"></span>
+                                            Online
+                                        </span>
+                                    @else
+                                        <span class="mgmt-presence mgmt-presence--offline">
+                                            <span class="mgmt-presence-dot" aria-hidden="true"></span>
+                                            Offline
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <div class="mgmt-actions">
                                         <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="openUserEdit({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->username) }}', '{{ $u->role }}')">
@@ -336,7 +350,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="mgmt-empty">
+                            <tr><td colspan="6" class="mgmt-empty">
                                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style="margin:0 auto 8px;display:block;opacity:.3"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
                                 Belum ada data user.
                             </td></tr>
@@ -608,6 +622,12 @@ function userMgmtRoleLabel(role) {
         case 'admin':         return 'Admin';
         default:              return 'Driver';
     }
+}
+function userMgmtPresenceBadge(isOnline) {
+    if (isOnline) {
+        return '<span class="mgmt-presence mgmt-presence--online"><span class="mgmt-presence-dot" aria-hidden="true"></span>Online</span>';
+    }
+    return '<span class="mgmt-presence mgmt-presence--offline"><span class="mgmt-presence-dot" aria-hidden="true"></span>Offline</span>';
 }
 
 function armadaFmtIdDate(v) {
@@ -926,7 +946,7 @@ async function fetchUsers(scroll = false) {
 function renderUserTable(rows, page, perPage) {
     const tbody = document.getElementById('user-tbody');
     if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="mgmt-empty">
+        tbody.innerHTML = `<tr><td colspan="6" class="mgmt-empty">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style="margin:0 auto 8px;display:block;opacity:.3"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
             Tidak ada data user.
         </td></tr>`;
@@ -936,6 +956,7 @@ function renderUserTable(rows, page, perPage) {
     tbody.innerHTML = rows.map((u, i) => {
         const avatarBg = userMgmtAvatarGradient(u.role);
         const badge = userMgmtRoleBadge(u.role);
+        const presence = userMgmtPresenceBadge(!!u.is_online);
         return `
         <tr id="urow-${u.id}">
             <td class="text-muted">${offset + i + 1}</td>
@@ -947,6 +968,7 @@ function renderUserTable(rows, page, perPage) {
             </td>
             <td><span class="mgmt-username">${escHtml(u.username)}</span></td>
             <td>${badge}</td>
+            <td>${presence}</td>
             <td class="text-center">
                 <div class="mgmt-actions">
                     <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="openUserEdit(${u.id},'${escJs(u.name)}','${escJs(u.username)}','${u.role}')">
@@ -1085,6 +1107,10 @@ buildPagination(document.getElementById('armada-pagination'),
 buildPagination(document.getElementById('user-pagination'),
     { current_page:{{ $users->currentPage() }}, last_page:{{ $users->lastPage() }}, total:{{ $users->total() }}, per_page:{{ $users->perPage() }} },
     p => { userPage = p; fetchUsers(true); });
+
+setInterval(() => {
+    if (document.getElementById('user-tbody')) fetchUsers();
+}, 60000);
 
 document.getElementById('armada-tbody').addEventListener('click', function (ev) {
     const btn = ev.target.closest('.js-armada-edit');

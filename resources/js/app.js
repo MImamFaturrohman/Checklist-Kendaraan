@@ -175,6 +175,117 @@ Alpine.start();
     });
 })();
 
+(function initVmsPresence() {
+    if (!document.body.classList.contains('dash-body')) return;
+
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const HEARTBEAT_URL = '/api/presence/heartbeat';
+    const OFFLINE_URL = '/api/presence/offline';
+    const HEARTBEAT_MS = 60000;
+    let heartbeatTimer = null;
+
+    function updateDashPresenceUI(online) {
+        const statusEl = document.getElementById('dash-presence-status');
+        const labelEl = document.getElementById('dash-presence-label');
+        if (!statusEl) return;
+
+        statusEl.classList.toggle('mgmt-presence--online', online);
+        statusEl.classList.toggle('mgmt-presence--offline', !online);
+
+        if (labelEl) labelEl.textContent = online ? 'Online' : 'Offline';
+    }
+
+    function syncLocalPresence() {
+        updateDashPresenceUI(navigator.onLine);
+    }
+
+    function stopHeartbeat() {
+        if (heartbeatTimer !== null) {
+            window.clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+        }
+    }
+
+    function sendHeartbeat() {
+        if (!navigator.onLine || !csrf) return;
+
+        fetch(HEARTBEAT_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            credentials: 'same-origin',
+        }).catch(function () {});
+    }
+
+    function sendOfflineSignal() {
+        if (!csrf) return;
+
+        const payload = new URLSearchParams({ _token: csrf });
+
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon(OFFLINE_URL, payload);
+            return;
+        }
+
+        fetch(OFFLINE_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            },
+            credentials: 'same-origin',
+            body: payload.toString(),
+            keepalive: true,
+        }).catch(function () {});
+    }
+
+    function markOfflineAndStop() {
+        stopHeartbeat();
+        updateDashPresenceUI(false);
+        sendOfflineSignal();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        syncLocalPresence();
+        sendHeartbeat();
+        heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
+
+        window.addEventListener('online', function () {
+            syncLocalPresence();
+            sendHeartbeat();
+            if (heartbeatTimer === null) {
+                heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
+            }
+        });
+
+        window.addEventListener('offline', function () {
+            stopHeartbeat();
+            updateDashPresenceUI(false);
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible' && navigator.onLine) {
+                syncLocalPresence();
+                sendHeartbeat();
+                if (heartbeatTimer === null) {
+                    heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
+                }
+            }
+        });
+
+        document.querySelectorAll('form[action*="logout"]').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                markOfflineAndStop();
+            });
+        });
+    });
+})();
+
 document.addEventListener('DOMContentLoaded', async () => {
     /* ================================================================
        DASHBOARD

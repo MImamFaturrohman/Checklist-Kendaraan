@@ -12,6 +12,7 @@ use App\Http\Controllers\LaporanKejadianController;
 use App\Http\Controllers\ManagerSppdController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SppdController;
 use App\Http\Controllers\UserManagementController;
@@ -38,6 +39,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])
         ->name('notifications.read');
+
+    Route::post('/api/presence/heartbeat', [PresenceController::class, 'heartbeat'])
+        ->name('api.presence.heartbeat');
+
+    Route::post('/api/presence/offline', [PresenceController::class, 'offline'])
+        ->name('api.presence.offline');
 
     Route::get('/checklists/create', function () {
         $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();

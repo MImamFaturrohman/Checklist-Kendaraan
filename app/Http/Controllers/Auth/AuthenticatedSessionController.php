@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use App\Support\DriverShift;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,12 +31,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
-        if ($user && $user->role === 'driver') {
-            $s = DriverShift::current();
-            $request->session()->put('driver_shift_at_login', [
-                'code' => $s['code'],
-                'label' => $s['label'],
-            ]);
+        if ($user) {
+            $user->markOnline();
+
+            if ($user->role === 'driver') {
+                $s = DriverShift::current();
+                $request->session()->put('driver_shift_at_login', [
+                    'code' => $s['code'],
+                    'label' => $s['label'],
+                ]);
+            }
         }
 
         return redirect()->intended(route('dashboard', absolute: false));
@@ -46,7 +51,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $userId = $request->user()?->id;
+
         Auth::guard('web')->logout();
+
+        User::markOfflineById($userId);
 
         $request->session()->invalidate();
 
