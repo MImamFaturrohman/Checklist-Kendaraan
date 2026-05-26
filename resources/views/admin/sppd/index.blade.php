@@ -132,12 +132,12 @@
 
 @section('modals')
     <div id="sppd-modal-detail-admin" class="modal-overlay" style="display:none">
-        <div class="modal-box profile-card sppd-modal-box" style="max-width:min(720px,100%);text-align:left;max-height:86vh;overflow:auto">
+        <div class="modal-box sppd-modal-box" style="max-width:min(720px,100%);text-align:left;max-height:86vh;overflow:auto">
             <h3>Detail Rekap SPPD</h3>
             <div id="sppd-admin-detail-body" class="sppd-detail-html"></div>
             <div class="ppm-modal-actions">
                 <div id="sppd-admin-detail-pdf-wrap" class="sppd-detail-pdf-wrap" hidden></div>
-                <button type="button" class="ppm-btn-ghost" data-close-admin-sppd-modal>Tutup</button>
+                <button type="button" class="ppm-btn-ghost portal-local-reset" data-close-admin-sppd-modal>Tutup</button>
             </div>
         </div>
     </div>

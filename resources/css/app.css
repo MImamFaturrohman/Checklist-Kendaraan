@@ -263,7 +263,7 @@
 }
 
 .dash-nav-logo {
-    height: 36px;
+    height: 56px;
     width: auto;
     object-fit: contain;
 }
@@ -2932,6 +2932,12 @@ select.admin-filter-input {
     display: block;
 }
 
+@media (max-width: 991px) {
+    .dash-nav-logo {
+        max-height: clamp(30px, 6vw, 48px);
+    }
+}
+
 @media (max-width: 480px) {
     .logo-desktop {
         display: none;
@@ -4530,6 +4536,23 @@ body#landing.dash-body.dark .signature-canvas {
     border-color: rgba(212, 175, 55, 0.35);
 }
 /* Detail ceklist: scroll di body (profile-card di bawah ini memakai overflow:visible — perlu #id agar menang) */
+.portal-checklist-modal-box {
+    background: rgba(255, 255, 255, 0.38); 
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    height: auto;
+    min-height: min-content;
+    width: 100%;
+    overflow: visible;
+}
+.dash-body.dark .portal-checklist-modal-box {
+    background: rgba(10, 35, 66, 0.35) !important;
+    border: 1px solid rgba(212, 175, 55, 0.1) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
 #portal-checklist-modal .portal-checklist-modal-box.modal-box {
     max-width: min(720px, 100%);
     width: 100%;
@@ -5634,7 +5657,9 @@ body#landing.dash-body.dark .signature-canvas {
     height: 100%;
     width: 420px;
     max-width: 100vw;
-    background: rgba(241, 245, 249, 0.75);
+    background: rgba(241, 245, 249, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow: -12px 0 60px rgba(0,0,0,0.18);
     z-index: 810;
     display: block;
@@ -5889,23 +5914,28 @@ body#landing.dash-body.dark .signature-canvas {
     overflow: visible;
 }
 
-/* Cards */
+/* Section blocks — single drawer surface, no nested glass card */
 .profile-card {
-    background: rgba(255, 255, 255, 0.38); 
-    backdrop-filter: blur(10px);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
     height: auto;
     min-height: min-content;
     width: 100%;
     overflow: visible;
 }
+.profile-card + .profile-card {
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    padding-top: 16px;
+}
 .profile-card-header {
     display: flex;
     align-items: center;
     gap: 9px;
-    padding: 13px 16px;
+    padding: 0 0 10px;
     font-size: 0.69rem;
     font-weight: 800;
     color: #475569;
@@ -5914,7 +5944,7 @@ body#landing.dash-body.dark .signature-canvas {
     border-bottom: 1.5px solid #e5e7eb;
 }
 .profile-card-header svg { color: #3b82f6; flex-shrink: 0; }
-.profile-card-body { padding: 16px; }
+.profile-card-body { padding: 14px 0 0; }
 
 /* Fields */
 .profile-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -6000,7 +6030,7 @@ body#landing.dash-body.dark .signature-canvas {
     text-transform: uppercase;
     transition: background .15s;
 }
-.profile-pw-accordion:hover { background: #f8fafc; }
+.profile-pw-accordion:hover { background: #f8fafc; border-radius: 10px; }
 .profile-pw-body {
     padding: 14px 16px 16px;
     border-top: 1.5px solid #f1f5f9;
@@ -6029,7 +6059,7 @@ body#landing.dash-body.dark .signature-canvas {
     gap: 10px;
     padding: 14px 16px;
     border-top: 1px solid #e2e8f0;
-    background: rgba(241, 245, 249, 0.7);
+    background: transparent;
     flex-shrink: 0;
     position: relative;
 }
@@ -6495,6 +6525,8 @@ body#landing.dash-body.dark .signature-canvas {
 
 .dash-body.dark .profile-drawer {
     background: rgba(14, 31, 58, 0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow: -12px 0 60px rgba(0, 0, 0, 0.4);
 }
 
@@ -6512,9 +6544,12 @@ body#landing.dash-body.dark .signature-canvas {
 } */
 
 .dash-body.dark .profile-card {
-    background: rgba(10, 35, 66, 0.35);
-    border: 1px solid rgba(212, 175, 55, 0.1);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+.dash-body.dark .profile-card + .profile-card {
+    border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .dash-body.dark .profile-card-header {
@@ -6575,7 +6610,7 @@ body#landing.dash-body.dark .signature-canvas {
 }
 
 .dash-body.dark .profile-drawer-footer {
-    background: rgba(5, 11, 20, 0.6);
+    background: transparent;
     border-top-color: rgba(255, 255, 255, 0.07);
 }
 
@@ -7737,6 +7772,24 @@ body#landing.dash-body.dark .signature-canvas {
     border-color: rgba(148, 163, 184, 0.35) !important;
 }
 
+.dash-body.dark .sppd-modal-box {
+    background: rgba(10, 35, 66, 0.35);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sppd-modal-box {
+    background: rgba(255, 255, 255, 0.38); 
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    height: auto;
+    min-height: min-content;
+    width: 100%;
+    overflow: visible;
+}
+
 .sppd-modal-box h3 {
     margin: 0 0 12px;
     font-size: 1.02rem;
@@ -8776,6 +8829,8 @@ body.dash-body {
     display: flex;
     flex-direction: column;
     background: rgba(241, 245, 249, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     box-shadow: -12px 0 52px rgba(0, 0, 0, 0.2);
     transform: translateX(100%);
     transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
@@ -8790,31 +8845,16 @@ body.dash-body {
         rgba(15, 27, 50, 0.72) 52%,
         rgba(10, 20, 38, 0.72) 100%
     );
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     box-shadow: -12px 0 52px rgba(0, 0, 0, 0.55);
 }
-.dash-nav-drawer-heading {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px 16px 12px;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-}
-.dash-body.dark .dash-nav-drawer-heading {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-.dash-nav-drawer-title {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: #0f2744;
-}
-.dash-body.dark .dash-nav-drawer-title {
-    color: #e8f0fe;
-}
+
 .dash-nav-drawer-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -8829,6 +8869,11 @@ body.dash-body {
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
+@media (min-width: 992px) {
+    .dash-nav-drawer-close {
+        top: 46px;
+    }
+}
 .dash-nav-drawer-close:hover {
     background: rgba(255, 255, 255, 0.75);
 }
@@ -8842,37 +8887,37 @@ body.dash-body {
 }
 
 .dash-nav-drawer-body {
+    position: relative;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 12px 16px 14px;
+    padding: 10px 10px 14px 16px;
     -webkit-overflow-scrolling: touch;
 }
 
-/* Glass morphism card wrapping nav lists */
+/* Legacy wrapper — flattened (menu sits directly on drawer surface) */
 .dash-nav-glass-card {
-    border-radius: 16px;
-    padding: 12px 4px 14px;
-    border: 1px solid rgba(59, 130, 246, 0.22);
-    box-shadow:
-        0 4px 26px rgba(37, 99, 235, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.45);
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
 }
 .dash-body.dark .dash-nav-glass-card {
-    border-color: rgba(147, 197, 253, 0.2);
-    background: rgba(30, 58, 138, 0.14);
-    box-shadow:
-        0 6px 32px rgba(0, 10, 30, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 }
 
 .dash-nav-drawer-inner-nav {
     padding-top: 2px !important;
     padding-bottom: 4px !important;
+    padding-right: 48px;
 }
 
 /* ── Drawer: akun / notifikasi (≤991px) ── */
@@ -8883,7 +8928,7 @@ body.dash-body {
 @media (max-width: 991px) {
     .dash-nav-drawer-account {
         display: block;
-        padding: 4px 8px 12px;
+        padding: 4px 48px 12px 8px;
         margin-bottom: 8px;
         border-bottom: 1px solid rgba(148, 163, 184, 0.28);
     }
@@ -9063,42 +9108,59 @@ body.dash-body {
 }
 
 /* Light drawer: slate text on frosted panel */
+.dash-nav-drawer-body .dash-sidebar-group-label,
+.dash-nav-drawer-body .dash-nav-drawer-group-label,
 .dash-nav-glass-card .dash-sidebar-group-label,
 .dash-nav-glass-card .dash-nav-drawer-group-label {
     color: rgba(30, 64, 175, 0.55) !important;
 }
+.dash-nav-drawer-body .dash-sidebar-link:not(.is-active),
+.dash-nav-drawer-body .dash-nav-drawer-link:not(.is-active),
 .dash-nav-glass-card .dash-sidebar-link:not(.is-active),
 .dash-nav-glass-card .dash-nav-drawer-link:not(.is-active) {
     color: rgba(15, 39, 71, 0.85) !important;
 }
+.dash-nav-drawer-body .dash-sidebar-icon,
 .dash-nav-glass-card .dash-sidebar-icon {
     color: rgba(30, 64, 175, 0.5) !important;
 }
+.dash-nav-drawer-body .dash-sidebar-link:hover:not(.is-active),
+.dash-nav-drawer-body .dash-nav-drawer-link:hover:not(.is-active),
 .dash-nav-glass-card .dash-sidebar-link:hover:not(.is-active),
 .dash-nav-glass-card .dash-nav-drawer-link:hover:not(.is-active) {
     background: rgba(37, 99, 235, 0.1) !important;
     color: #0f2744 !important;
 }
+.dash-nav-drawer-body .dash-sidebar-link:hover:not(.is-active) .dash-sidebar-icon,
 .dash-nav-glass-card .dash-sidebar-link:hover:not(.is-active) .dash-sidebar-icon {
     color: #2563eb !important;
 }
+.dash-nav-drawer-body .dash-sidebar-link.is-active,
+.dash-nav-drawer-body .dash-nav-drawer-link.is-active,
 .dash-nav-glass-card .dash-sidebar-link.is-active,
 .dash-nav-glass-card .dash-nav-drawer-link.is-active {
     box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
 }
 
 /* Dark drawer panel */
+.dash-body.dark .dash-nav-drawer-body .dash-sidebar-group-label,
+.dash-body.dark .dash-nav-drawer-body .dash-nav-drawer-group-label,
 .dash-body.dark .dash-nav-glass-card .dash-sidebar-group-label,
 .dash-body.dark .dash-nav-glass-card .dash-nav-drawer-group-label {
     color: rgba(186, 210, 255, 0.42) !important;
 }
+.dash-body.dark .dash-nav-drawer-body .dash-sidebar-link:not(.is-active),
+.dash-body.dark .dash-nav-drawer-body .dash-nav-drawer-link:not(.is-active),
 .dash-body.dark .dash-nav-glass-card .dash-sidebar-link:not(.is-active),
 .dash-body.dark .dash-nav-glass-card .dash-nav-drawer-link:not(.is-active) {
     color: rgba(226, 232, 240, 0.88) !important;
 }
+.dash-body.dark .dash-nav-drawer-body .dash-sidebar-icon,
 .dash-body.dark .dash-nav-glass-card .dash-sidebar-icon {
     color: rgba(191, 219, 254, 0.5) !important;
 }
+.dash-body.dark .dash-nav-drawer-body .dash-sidebar-link:hover:not(.is-active),
+.dash-body.dark .dash-nav-drawer-body .dash-nav-drawer-link:hover:not(.is-active),
 .dash-body.dark .dash-nav-glass-card .dash-sidebar-link:hover:not(.is-active),
 .dash-body.dark .dash-nav-glass-card .dash-nav-drawer-link:hover:not(.is-active) {
     background: rgba(147, 197, 253, 0.12) !important;

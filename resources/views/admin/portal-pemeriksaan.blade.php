@@ -574,7 +574,7 @@
 @section('modals')
     @if($canAccessDatabase ?? false)
     <div id="portal-checklist-modal" class="modal-overlay" style="display:none" aria-hidden="true">
-        <div class="modal-box profile-card portal-checklist-modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-checklist-modal-title">
+        <div class="modal-box portal-checklist-modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-checklist-modal-title">
             <h3 id="portal-checklist-modal-title">Detail pemeriksaan</h3>
             <div id="portal-checklist-modal-body"></div>
             <div class="portal-checklist-modal-actions">

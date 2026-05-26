@@ -107,29 +107,24 @@
 {{-- ══ NAV DRAWER (kanan — akun/notifikasi pada mobile, menu, keluar) ══ --}}
 <div class="dash-nav-overlay" id="dash-nav-overlay" style="display:none" onclick="closeDashNavDrawer()" aria-hidden="true"></div>
 <aside class="dash-nav-drawer" id="dash-nav-drawer" aria-label="Menu aplikasi">
-    <div class="dash-nav-drawer-heading">
-        <h2 class="dash-nav-drawer-title">Navigasi</h2>
+    <div class="dash-nav-drawer-body">
         <button type="button" class="dash-nav-drawer-close" onclick="closeDashNavDrawer()" aria-label="Tutup menu navigasi">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
         </button>
-    </div>
-    <div class="dash-nav-drawer-body">
-        <div class="dash-nav-glass-card">
-            @include('partials.dash-nav-menu', [
-                'sbUser'                     => $layoutUser,
-                'sbIsSuperAdmin'             => $layoutIsSuperAdmin,
-                'sbIsAdmin'                  => $layoutIsAdmin,
-                'sbIsManager'                => $layoutIsManager,
-                'sbIsPic'                    => $layoutIsPic,
-                'sbIsDriver'                 => $layoutIsDriver,
-                'sbPendingCount'             => $layoutPendingCount,
-                'sbSppdPending'              => $layoutSppdPending,
-                'sbUserName'                 => $layoutUserName,
-                'sbSuperadminNotifications'  => $layoutNotifications,
-                'sbSuperadminUnreadCount'    => $layoutUnreadCount,
-                'sbRoleAvatarClass'          => $layoutRoleAvatarClass,
-            ])
-        </div>
+        @include('partials.dash-nav-menu', [
+            'sbUser'                     => $layoutUser,
+            'sbIsSuperAdmin'             => $layoutIsSuperAdmin,
+            'sbIsAdmin'                  => $layoutIsAdmin,
+            'sbIsManager'                => $layoutIsManager,
+            'sbIsPic'                    => $layoutIsPic,
+            'sbIsDriver'                 => $layoutIsDriver,
+            'sbPendingCount'             => $layoutPendingCount,
+            'sbSppdPending'              => $layoutSppdPending,
+            'sbUserName'                 => $layoutUserName,
+            'sbSuperadminNotifications'  => $layoutNotifications,
+            'sbSuperadminUnreadCount'    => $layoutUnreadCount,
+            'sbRoleAvatarClass'          => $layoutRoleAvatarClass,
+        ])
     </div>
     <div class="dash-nav-drawer-footer">
         <form method="POST" action="{{ route('logout') }}" class="dash-nav-drawer-logout-form">
@@ -172,8 +167,6 @@
     </div>
     <div class="profile-drawer-body">
         <div id="profile-alert" class="profile-alert" style="display:none"></div>
-
-        <div class="profile-card">
             <div class="profile-card-header">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
                 Informasi Profil
@@ -198,9 +191,7 @@
                     </p>
                 </div>
             </div>
-        </div>
 
-        <div class="profile-card">
             <button type="button" class="profile-pw-accordion" id="profile-pw-toggle" onclick="togglePwSection()">
                 <div style="display:flex;align-items:center;gap:8px">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -249,10 +240,10 @@
         </div>
     </div>
     <div class="profile-drawer-footer">
-        <button type="button" class="profile-btn-cancel" onclick="closeProfileDrawer()">
+        <!-- <button type="button" class="profile-btn-cancel" onclick="closeProfileDrawer()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             Tutup
-        </button>
+        </button> -->
         <button type="button" class="profile-btn-save" id="profile-save-btn" onclick="saveProfile()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Simpan Perubahan

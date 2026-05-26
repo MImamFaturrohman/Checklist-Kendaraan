@@ -223,7 +223,7 @@
                 <i class="bi bi-list" id="lp-mobile-menu-icon"></i>
             </button>
         </div>
-        
+
         <div class="dash-nav-actions lp-nav-actions" id="lp-nav-actions">
             <div class="lp-nav-links-mobile" aria-label="Menu utama (mobile)">
                 <a href="#landing" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('landing',event)">
@@ -281,7 +281,7 @@
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 12h.01M12 16h.01M8 12h.01M8 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </div>
                     <div>
-                        <p class="lp-feat-title">Ajukan Permohonan</p>
+                        <p class="lp-feat-title">Peminjaman Kendaraan</p>
                         <p class="lp-feat-desc">Isi formulir online dengan detail kebutuhan peminjaman Anda.</p>
                     </div>
                 </a>
