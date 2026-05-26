@@ -8,7 +8,7 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
         @include('partials.favicon')
 
-        @vite(['resources/css/auth.css', 'resources/js/app.js'])
+        @vite(['resources/css/auth.css', 'resources/js/auth.js'])
     </head>
     <body class="auth-page-body">
         <div class="container-fluid px-0">

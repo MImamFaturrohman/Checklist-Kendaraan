@@ -8,7 +8,7 @@ export default defineConfig({
         strictPort: true,
 
         hmr: {
-            host: '192.168.1.175',
+            host: '192.168.1.225',
             protocol: 'ws',
             port: 5173,
         },
@@ -19,6 +19,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/auth.css',
                 'resources/js/app.js',
+                'resources/js/auth.js',
                 'resources/js/sppd-form.js',
                 'resources/js/bbm-form.js',
                 'resources/js/vehicle-usage-log.js',

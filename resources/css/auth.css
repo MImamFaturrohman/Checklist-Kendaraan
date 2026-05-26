@@ -59,7 +59,7 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background-image: url('/images/textures/cubes.png');
+    background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
     opacity: 0.8;
     mix-blend-mode: overlay;
     filter: contrast(1.25);
@@ -81,8 +81,8 @@
         transparent 70%
     );
     background-size: 300% 100%;
-    -webkit-mask-image: url('/images/textures/cubes.png');
-    mask-image: url('/images/textures/cubes.png');
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
     animation: vms-shine-lines 15s infinite linear;
     opacity: 0.9;
     mix-blend-mode: color-dodge;
@@ -110,7 +110,7 @@
     inset: 0;
     z-index: 3;
     pointer-events: none;
-    background-image: url('/images/textures/stardust.png');
+    background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
     opacity: 0.2;
     mix-blend-mode: overlay;
     transition: opacity 0.5s ease;
@@ -762,8 +762,8 @@
 
     background-size: 200% 100%;
 
-    -webkit-mask-image: url('/images/textures/cubes.png');
-    mask-image: url('/images/textures/cubes.png');
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
 
     animation: vms-shine-lines 12s linear infinite;
 
@@ -958,4 +958,137 @@
 
 .light-mode ::-webkit-scrollbar-thumb:hover {
     background: #3b5fc0;
+}
+
+/* ================================================================
+   TOUCH / TAP UX — eliminasi 300ms tap-delay dan tap highlight
+   ================================================================ */
+.auth-input,
+.auth-btn-submit,
+.auth-password-toggle,
+.auth-theme-toggle,
+.auth-back-link {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ================================================================
+   MOBILE PERFORMANCE OVERRIDES (≤768px)
+   Mirror dari dashboard app.css — GPU effects dimatikan di mobile
+   tanpa mengubah tampilan desktop/light-dark mode sama sekali.
+   ================================================================ */
+@media (max-width: 768px) {
+    /* --- Disable heavy blur orbs (filter:blur 140-160px = GPU bottleneck) --- */
+    .auth-bg-orb-gold,
+    .auth-bg-orb-blue {
+        filter: none !important;
+        opacity:  0.18 !important;
+    }
+
+    /* --- Disable infinite shine animation + texture mask --- */
+    .auth-bg-sparkle {
+        animation: none !important;
+        opacity: 0 !important;
+    }
+
+    /* --- Disable external texture + costly mix-blend-mode --- */
+    .auth-bg-cubes {
+        mix-blend-mode: normal !important;
+        opacity: 0.3 !important;
+    }
+
+    .auth-bg-stardust {
+        mix-blend-mode: normal !important;
+        opacity: 0.25 !important;
+    }
+
+    .light-mode .auth-bg-cubes {
+        opacity: 1 !important;
+    }
+
+    .light-mode .auth-bg-stardust {
+        opacity: 0 !important;
+    }
+
+    /* --- Stop SVG wave animations --- */
+    .vms-wave-line-solid,
+    .vms-wave-line-dashed {
+        animation: none !important;
+    }
+
+    /* --- Remove backdrop-filter dari input group dan theme toggle --- */
+    .auth-input-group {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    .auth-theme-toggle {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(20, 40, 80, 0.85) !important;
+    }
+
+    /* --- Batasi transition input hanya border-color (skip background + box-shadow repaint) --- */
+    .auth-input-group {
+        transition: border-color 0.2s ease !important;
+    }
+
+    /* --- Overflow: body di mobile cukup x-hidden (keyboard virtual tidak potong layout) --- */
+    .auth-page-body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        align-items: flex-start !important;
+        padding-top: max(2rem, env(safe-area-inset-top, 2rem)) !important;
+    }
+}
+
+/* --- Light mode override untuk card di mobile --- */
+@media (max-width: 768px) {
+    .light-mode .auth-card {
+        background: rgba(240, 246, 255, 0.93) !important;
+    }
+
+    .light-mode .auth-theme-toggle {
+        background: rgba(255, 255, 255, 0.82) !important;
+    }
+}
+
+/* --- Nonaktifkan hover transform pada perangkat tanpa pointer (mobile touch) --- */
+@media (hover: none) {
+    .auth-btn-submit:hover {
+        transform: none !important;
+        box-shadow:
+            0 4px 16px rgba(10, 22, 40, 0.3),
+            0 2px 6px rgba(10, 22, 40, 0.2) !important;
+    }
+
+    .auth-btn-submit::before {
+        display: none !important;
+    }
+
+    .auth-back-link:hover {
+        transform: none !important;
+    }
+}
+
+/* ================================================================
+   PREFERS-REDUCED-MOTION — konsisten dengan dashboard
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .auth-bg-sparkle,
+    .auth-bg-cubes,
+    .vms-wave-line-solid,
+    .vms-wave-line-dashed {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .auth-card {
+        animation: none !important;
+    }
+
+    .auth-alert,
+    .auth-error-msg {
+        animation: none !important;
+    }
 }

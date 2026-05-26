@@ -70,8 +70,8 @@
 
     background-size: 200% 100%;
 
-    -webkit-mask-image: url('/images/textures/cubes.png');
-    mask-image: url('/images/textures/cubes.png');
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
 
     animation: vms-shine-lines 12s linear infinite;
 
@@ -422,12 +422,11 @@
 
 /* ── Hero Section (now standalone, separate from navbar) ── */
 .dash-hero-section {
-    background: linear-gradient(135deg, #0A2342 0%, #0e1f3a 55%, #050f22 100%);
     padding: 32px 28px 36px;
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid rgba(212, 175, 55, 0.12);
-    z-index: -1;
+    z-index: 0;
 }
 
 .dash-hero-section::before {
@@ -438,6 +437,7 @@
         radial-gradient(ellipse 55% 90% at 95% 50%, rgba(212, 175, 55, 0.07) 0%, transparent 70%),
         radial-gradient(ellipse 35% 60% at 0% 100%, rgba(10, 35, 66, 0.6) 0%, transparent 65%);
     pointer-events: none;
+    z-index: -1;
 }
 
 .dash-hero-section::after {
@@ -449,6 +449,7 @@
     height: 100%;
     background: radial-gradient(ellipse 80% 80% at 100% 50%, rgba(96, 165, 250, 0.06) 0%, transparent 70%);
     pointer-events: none;
+    z-index: -1;
 }
 
 .dash-hero-inner {
@@ -3017,6 +3018,17 @@ select.admin-filter-input {
     z-index: 1;
 }
 
+.lp-hero-left {
+    display: flex;
+    justify-content: center;
+}
+
+.lp-hero-image {
+    width: 80%;
+    height: auto;
+    object-fit: contain;
+}
+
 .lp-hero-title-large {
     font-size: clamp(1.85rem, 3.5vw, 2.85rem);
     line-height: 1.12;
@@ -3093,7 +3105,7 @@ select.admin-filter-input {
 
 .lp-feat-card {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
     background: rgba(255, 255, 255, 0.055);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3128,9 +3140,9 @@ select.admin-filter-input {
     color: #93c5fd;
 }
 
-.lp-feat-icon-green {
-    background: rgba(52, 211, 153, 0.15);
-    color: #6ee7b7;
+.lp-feat-icon-red {
+    background: rgba(246, 28, 28, 0.25);
+    color: #b91c1c;
 }
 
 .lp-feat-title {
@@ -5952,7 +5964,7 @@ body#landing.dash-body.dark .signature-canvas {
 
 .dash-bg-cubes {
     inset: 0;
-    background-image: url('/images/textures/cubes.png');
+    background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
     mix-blend-mode: overlay;
     filter: contrast(1.25);
 }
@@ -5968,8 +5980,8 @@ body#landing.dash-body.dark .signature-canvas {
         transparent 70%
     );
     background-size: 300% 100%;
-    -webkit-mask-image: url('/images/textures/cubes.png');
-    mask-image: url('/images/textures/cubes.png');
+    -webkit-mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+    mask-image: url('https://www.transparenttextures.com/patterns/cubes.png');
     animation: vms-shine-lines 15s infinite linear;
     mix-blend-mode: color-dodge;
 }
@@ -5981,7 +5993,7 @@ body#landing.dash-body.dark .signature-canvas {
 
 .dash-bg-stardust {
     inset: 0;
-    background-image: url('/images/textures/stardust.png');
+    background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
     mix-blend-mode: overlay;
 }
 
@@ -6219,9 +6231,7 @@ body#landing.dash-body.dark .signature-canvas {
 
 /* ── DARK — Hero section ── */
 .dash-body.dark .dash-hero-section {
-    background: rgba(8, 20, 48, 0.72);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(8, 20, 48, 0.62);
     border-bottom: 1px solid rgba(212, 175, 55, 0.14);
 }
 
@@ -8986,34 +8996,26 @@ body.dash-body {
    Menghilangkan operasi GPU mahal tanpa mengubah logika apapun.
    ============================================================= */
 @media (max-width: 768px) {
-    /* --- Disable heavy blur orbs (filter:blur 140-160px = GPU bottleneck #1) --- */
-    .dash-bg-orb-gold,
-    .dash-bg-orb-blue {
-        filter: none !important;
-        opacity: 0.18 !important;
-    }
-
     /* --- Disable infinite shine animation + external texture mask --- */
     .dash-bg-sparkle {
         animation: none !important;
-        -webkit-mask-image: none !important;
-        mask-image: none !important;
-        background: none !important;
         opacity: 0 !important;
     }
 
     /* --- Disable external texture + costly mix-blend-mode --- */
     .dash-bg-cubes {
-        background-image: none !important;
         mix-blend-mode: normal !important;
         filter: none !important;
-        opacity: 0 !important;
+        opacity: 0.18 !important;
     }
 
     .dash-bg-stardust {
-        background-image: none !important;
         mix-blend-mode: normal !important;
-        opacity: 0 !important;
+        opacity: 0.18 !important;
+    }
+
+    .dash-body:not(.dark) .dash-bg-cubes {
+        opacity: 0.8 !important;
     }
 
     /* --- Stop SVG wave animations (GPU composite + paint) --- */

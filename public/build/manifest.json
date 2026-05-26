@@ -7,8 +7,14 @@
     "file": "assets/bootstrap-icons-mSm7cUeB.woff2",
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
+  "node_modules/tom-select/dist/esm/tom-select.complete.js": {
+    "file": "assets/tom-select.complete-DLrlVcfz.js",
+    "name": "tom-select.complete",
+    "src": "node_modules/tom-select/dist/esm/tom-select.complete.js",
+    "isDynamicEntry": true
+  },
   "resources/css/app.css": {
-    "file": "assets/app-Bib-aQ_K.css",
+    "file": "assets/app-gbBIC0gz.css",
     "name": "app",
     "names": [
       "app.css"
@@ -17,7 +23,7 @@
     "isEntry": true
   },
   "resources/css/auth.css": {
-    "file": "assets/auth-v_Rl9n4N.css",
+    "file": "assets/auth-BGuwwire.css",
     "name": "auth",
     "names": [
       "auth.css"
@@ -30,10 +36,13 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-BQrFMC9S.js",
+    "file": "assets/app-D9kiZSzt.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "dynamicImports": [
+      "node_modules/tom-select/dist/esm/tom-select.complete.js"
+    ],
     "css": [
       "assets/app-Cb8XXgyA.css"
     ],
@@ -42,20 +51,26 @@
       "assets/bootstrap-icons-BeopsB42.woff"
     ]
   },
+  "resources/js/auth.js": {
+    "file": "assets/auth-DZm7WAP_.js",
+    "name": "auth",
+    "src": "resources/js/auth.js",
+    "isEntry": true
+  },
   "resources/js/bbm-form.js": {
-    "file": "assets/bbm-form-m18LOVb1.js",
+    "file": "assets/bbm-form-Cban4Qyn.js",
     "name": "bbm-form",
     "src": "resources/js/bbm-form.js",
     "isEntry": true
   },
   "resources/js/sppd-form.js": {
-    "file": "assets/sppd-form-DW1rSYpg.js",
+    "file": "assets/sppd-form-CejLulXM.js",
     "name": "sppd-form",
     "src": "resources/js/sppd-form.js",
     "isEntry": true
   },
   "resources/js/vehicle-usage-log.js": {
-    "file": "assets/vehicle-usage-log-CBwkPbjZ.js",
+    "file": "assets/vehicle-usage-log-CQymM_Ec.js",
     "name": "vehicle-usage-log",
     "src": "resources/js/vehicle-usage-log.js",
     "isEntry": true

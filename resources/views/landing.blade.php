@@ -23,7 +23,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <style>
-        /* ── ARMADA SECTION (ringkas; hero & navigasi di app.css agar selaras dashboard) ── */
+        
+        .lp-nav-inner-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
         .lp-section-heading {
             display: flex;
             align-items: flex-end;
@@ -190,8 +195,8 @@
             <img src="{{ asset('images/ADCPM Landscape NEW.png') }}" alt="Logo" class="dash-nav-logo logo-desktop lp-landing-logo" fetchpriority="high">
             <img src="{{ asset('images/ADC PM Logo.png') }}" alt="Logo" class="dash-nav-logo logo-mobile lp-landing-logo" fetchpriority="high">
             <div>
-                <div class="dash-nav-title">Vehicle Management System</div>
-                <span class="dash-nav-sub sub-mobile-only">PT. ARTHA DAYA COALINDO</span>
+                <!-- <div class="dash-nav-title">Vehicle Management System</div> -->
+                <span class="dash-nav-title sub-mobile-only">PT. ARTHA DAYA COALINDO</span>
             </div>
         </a>
 
@@ -209,7 +214,16 @@
                 Laporan Kejadian &amp; Kerusakan
             </a>
         </nav>
-
+        
+        <div class="lp-nav-inner-button">
+            <button type="button" class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Ganti tema terang atau gelap">
+                <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
+            </button>
+            <button type="button" class="dash-mobile-menu-btn lp-mobile-menu-btn" id="lp-mobile-menu-btn" aria-label="Buka menu" aria-expanded="false" aria-controls="lp-nav-actions">
+                <i class="bi bi-list" id="lp-mobile-menu-icon"></i>
+            </button>
+        </div>
+        
         <div class="dash-nav-actions lp-nav-actions" id="lp-nav-actions">
             <div class="lp-nav-links-mobile" aria-label="Menu utama (mobile)">
                 <a href="#landing" class="lp-nav-link lp-nav-link--drawer" onclick="smoothTo('landing',event)">
@@ -226,26 +240,19 @@
                 </a>
             </div>
 
-            <button type="button" class="dash-theme-btn" id="dash-theme-toggle" title="Ganti Tema" aria-label="Ganti tema terang atau gelap">
-                <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
-            </button>
-
+            
             @auth
-                <a href="{{ route('dashboard') }}" class="dash-nav-btn-gold">
-                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                    <span class="dash-nav-btn-label">Dashboard</span>
-                </a>
+            <a href="{{ route('dashboard') }}" class="dash-nav-btn-gold">
+                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                <span class="dash-nav-btn-label">Dashboard</span>
+            </a>
             @else
-                <a href="{{ route('login') }}" class="dash-nav-btn-gold">
-                    <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
-                    <span class="dash-nav-btn-label">Login</span>
-                </a>
+            <a href="{{ route('login') }}" class="dash-nav-btn-gold">
+                <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                <span class="dash-nav-btn-label">Login</span>
+            </a>
             @endauth
         </div>
-
-        <button type="button" class="dash-mobile-menu-btn lp-mobile-menu-btn" id="lp-mobile-menu-btn" aria-label="Buka menu" aria-expanded="false" aria-controls="lp-nav-actions">
-            <i class="bi bi-list" id="lp-mobile-menu-icon"></i>
-        </button>
     </div>
 </nav>
 
@@ -255,27 +262,21 @@
         <div class="lp-hero-dash-grid">
             {{-- LEFT --}}
             <div class="lp-hero-left">
-                <h1 class="dash-hero-name lp-hero-title-large">
-                    Cek Ketersediaan &amp;<br>
-                    <span class="lp-hero-accent">Ajukan Peminjaman Kendaraan</span>
-                </h1>
-                <p class="lp-hero-desc">
-                    Lihat daftar kendaraan operasional, kemudian ajukan permohonan peminjaman.
-                </p>
+                <img src="{{ asset('images/hero_img.png') }}" alt="Hero Image" class="lp-hero-image">
             </div>
 
             {{-- RIGHT: Feature cards --}}
             <div class="lp-hero-right">
-                <div class="lp-feat-card">
+                <a href="#armada" onclick="smoothTo('armada',event)" class="lp-feat-card">
                     <div class="lp-feat-icon lp-feat-icon-yellow">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </div>
                     <div>
-                        <p class="lp-feat-title">Cek Ketersediaan</p>
-                        <p class="lp-feat-desc">Lihat seluruh armada kendaraan operasional yang terdaftar secara real-time.</p>
+                        <p class="lp-feat-title">Daftar Unit Kendaraan</p>
+                        <p class="lp-feat-desc">Lihat seluruh unit kendaraan operasional yang terdaftar secara real-time.</p>
                     </div>
-                </div>
-                <div class="lp-feat-card">
+                </a>
+                <a href="#form-peminjaman" onclick="smoothTo('form-peminjaman',event)" class="lp-feat-card">
                     <div class="lp-feat-icon lp-feat-icon-blue">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 12h.01M12 16h.01M8 12h.01M8 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </div>
@@ -283,16 +284,16 @@
                         <p class="lp-feat-title">Ajukan Permohonan</p>
                         <p class="lp-feat-desc">Isi formulir online dengan detail kebutuhan peminjaman Anda.</p>
                     </div>
-                </div>
-                <div class="lp-feat-card">
-                    <div class="lp-feat-icon lp-feat-icon-green">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2"/></svg>
+                </a>
+                <a href="#form-laporan-kejadian" onclick="smoothTo('form-laporan-kejadian',event)" class="lp-feat-card">
+                    <div class="lp-feat-icon lp-feat-icon-red">
+                        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> 
                     </div>
                     <div>
-                        <p class="lp-feat-title">Menunggu Persetujuan</p>
-                        <p class="lp-feat-desc">Permohonan Anda akan diproses dan disetujui oleh Manager yang berwenang.</p>
+                        <p class="lp-feat-title">Laporkan Kejadian & Kerusakan</p>
+                        <p class="lp-feat-desc">Laporkan kendala, insiden, atau kerusakan kendaraan operasional.</p>
                     </div>
-                </div>
+                </a>
             </div>
 
         </div>

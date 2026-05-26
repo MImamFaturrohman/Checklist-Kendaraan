@@ -177,36 +177,6 @@ Alpine.start();
 
 document.addEventListener('DOMContentLoaded', async () => {
     /* ================================================================
-       LOGIN
-       ================================================================ */
-    const loginForm = document.querySelector('[data-login-form]');
-    if (loginForm) {
-        const passwordInput = loginForm.querySelector('#password');
-        const passwordToggle = loginForm.querySelector('[data-password-toggle]');
-        const passwordIcon = loginForm.querySelector('[data-password-icon]');
-        const submitButton = loginForm.querySelector('[data-login-submit]');
-        if (passwordInput && passwordToggle && passwordIcon) {
-            passwordToggle.addEventListener('click', () => {
-                const show = passwordInput.type === 'password';
-                passwordInput.type = show ? 'text' : 'password';
-                passwordIcon.classList.toggle('bi-eye', !show);
-                passwordIcon.classList.toggle('bi-eye-slash', show);
-            });
-        }
-        if (submitButton) {
-            loginForm.addEventListener('submit', () => {
-                submitButton.classList.add('is-loading');
-                submitButton.disabled = true;
-                submitButton.setAttribute('aria-busy', 'true');
-                loginForm.classList.add('auth-form--loading');
-                submitButton.innerHTML =
-                    '<span class="auth-login-spinner" role="status" aria-label="Memuat"></span>'
-                    + '<span class="auth-btn-text">Memvalidasi…</span>';
-            });
-        }
-    }
-
-    /* ================================================================
        DASHBOARD
        ================================================================ */
     document.querySelectorAll('.dash-pressable').forEach(el => {

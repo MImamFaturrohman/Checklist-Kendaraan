@@ -7,7 +7,7 @@
         <meta name="description" content="Login - VMS Vehicle Management System Portal Kendaraan Operasional">
         <title>Login - {{ config('app.name', 'VMS') }}</title>
         @include('partials.favicon')
-        @vite(['resources/css/auth.css', 'resources/js/app.js'])
+        @vite(['resources/css/auth.css', 'resources/js/auth.js', 'resources/js/app.js'])
         
         <style>
             /* Gradient tokens — diubah JS saat toggle tema */
@@ -22,7 +22,6 @@
                 padding: 0;
                 min-height: 100vh;
                 background: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 50%, var(--grad-3) 100%);
-                overflow: hidden;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -47,7 +46,7 @@
         {{-- Login card --}}
         <div class="auth-card" id="login-card">
             <div class="auth-card-image">
-                <img src="{{ asset('images/VMS.png') }}" alt="VMS - Vehicle Management System" class="auth-hero-img">
+                <img src="{{ asset('images/VMS.png') }}" alt="VMS - Vehicle Management System" class="auth-hero-img" width="300" height="120" decoding="async">
             </div>
 
             <div class="auth-card-body">
@@ -113,35 +112,5 @@
             </div>
         </div>
 
-        <script>
-        /* ── Theme toggle ── */
-        (function () {
-            const btn  = document.getElementById('theme-toggle');
-            const icon = document.getElementById('theme-icon');
-            const body = document.body;
-            const root = document.documentElement;
-
-            const DARK  = { g1: '#0A2342', g2: '#0f172a', g3: '#050B14' };
-            const LIGHT = { g1: '#f1f5f9', g2: '#f8fafc', g3: '#e2e8f0' };
-
-            function applyTheme(isLight) {
-                const g = isLight ? LIGHT : DARK;
-                root.style.setProperty('--grad-1', g.g1);
-                root.style.setProperty('--grad-2', g.g2);
-                root.style.setProperty('--grad-3', g.g3);
-                body.classList.toggle('light-mode', isLight);
-                icon.className = isLight ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
-            }
-
-            /* Restore saved preference */
-            applyTheme(localStorage.getItem('vms-theme') === 'light');
-
-            btn.addEventListener('click', function () {
-                const next = !body.classList.contains('light-mode');
-                applyTheme(next);
-                localStorage.setItem('vms-theme', next ? 'light' : 'dark');
-            });
-        })();
-        </script>
     </body>
 </html>
