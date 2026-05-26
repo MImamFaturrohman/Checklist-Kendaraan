@@ -7,7 +7,7 @@
     $tbIsDriver     = $tbIsDriver     ?? ($tbUser?->role === 'driver' || $tbIsPic);
     $tbUserName     = $tbUserName     ?? ($tbUser?->name ?? $tbUser?->username ?? 'User');
     $tbUserRoleLabel = $tbIsSuperAdmin ? 'SUPERADMIN' : ($tbIsAdmin ? 'ADMIN' : ($tbIsManager ? 'MANAGER' : ($tbIsPic ? 'PIC KENDARAAN' : 'DRIVER')));
-    $tbRoleAvatarClass = $tbRoleAvatarClass ?? (($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-avatar--admin' : ($tbIsManager ? 'dash-avatar--manager' : 'dash-avatar--driver'));
+    $tbRoleChipClass = ($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-chip-admin' : ($tbIsManager ? 'dash-chip-manager' : 'dash-chip-driver');
 
     $tbPageTitle    = $tbPageTitle    ?? null;
     $tbPageSubtitle = $tbPageSubtitle ?? null;
@@ -39,10 +39,9 @@
     </div>
 
     <div class="dash-topbar-right">
-        <div class="dash-topbar-desktop-only dash-topbar-desktop-only--cluster">
         {{-- Notifikasi (superadmin only — desktop ≥992px) --}}
         @if($tbIsSuperAdmin)
-        <div class="dash-notif-wrap" id="dash-notif-wrap">
+        <div class="dash-notif-wrap dash-topbar-desktop-only" id="dash-notif-wrap">
             <button type="button"
                     class="dash-notif-btn dash-topbar-icon-btn"
                     id="dash-notif-toggle"
@@ -88,43 +87,31 @@
                 aria-label="Toggle Tema">
             <i class="bi bi-moon-fill" id="dash-theme-icon"></i>
         </button>
-        {{-- Role chip --}}
-        <span class="dash-chip {{ ($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-chip-admin' : ($tbIsManager ? 'dash-chip-manager' : 'dash-chip-driver') }}">
-            @if ($tbIsAdmin || $tbIsSuperAdmin)
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-            @elseif ($tbIsManager)
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            @else
-                <i class="bi bi-person-check-fill"></i>
-            @endif
-            <span class="dash-nav-chip-label">{{ $tbUserRoleLabel }}</span>
-        </span>
 
         {{-- Profile button --}}
         <button type="button"
-                class="dash-topbar-profile-btn dash-chip {{ ($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-chip-admin' : ($tbIsManager ? 'dash-chip-manager' : 'dash-chip-driver') }}"
+                class="dash-topbar-profile-btn dash-chip {{ $tbRoleChipClass }} dash-topbar-desktop-only"
                 id="profile-open-btn"
                 onclick="openProfileDrawer()"
                 aria-label="Profil Saya"
                 title="Profil Saya">
-                @if ($tbIsAdmin || $tbIsSuperAdmin)
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-                @elseif ($tbIsManager)
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                @else
-                    <i class="bi bi-person-check-fill"></i>
-                @endif
-                <span class="dash-nav-chip-label">{{ $tbUserRoleLabel }}</span>
-            <span class="dash-topbar-username">{{ $tbUserName }}</span>
+            @include('partials.dash-role-icon', [
+                'isAdmin'      => $tbIsAdmin,
+                'isSuperAdmin' => $tbIsSuperAdmin,
+                'isManager'    => $tbIsManager,
+            ])
+            <span class="dash-topbar-profile-meta">
+                <span class="dash-topbar-profile-name">{{ $tbUserName }}</span>
+                <span class="dash-topbar-profile-role">{{ $tbUserRoleLabel }}</span>
+            </span>
         </button>
-        </div>
 
         @if($tbIsDashboard)
-        <form method="POST" action="{{ route('logout') }}" class="dash-topbar-logout-form dash-topbar-logout-desktop-only">
+        <form method="POST" action="{{ route('logout') }}" class="dash-topbar-logout-form dash-topbar-logout-desktop-only js-logout-form">
             @csrf
-            <button type="submit" class="dash-topbar-logout" title="Keluar" aria-label="Keluar">
+            <button type="submit" class="dash-topbar-logout" title="Logout" aria-label="Keluar">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span class="dash-topbar-logout-label">Keluar</span>
+                <span class="dash-topbar-logout-label">Logout</span>
             </button>
         </form>
         @endif

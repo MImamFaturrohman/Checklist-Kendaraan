@@ -10,6 +10,7 @@
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
     <!-- Vite assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -91,7 +92,6 @@
         'tbSuperadminNotifications'  => $layoutNotifications,
         'tbSuperadminUnreadCount'    => $layoutUnreadCount,
         'tbIsDashboard'              => $layoutIsDashboard,
-        'tbRoleAvatarClass'          => $layoutRoleAvatarClass,
     ])
 
     {{-- ── Optional hero section (views can override) ── --}}
@@ -127,11 +127,11 @@
         ])
     </div>
     <div class="dash-nav-drawer-footer">
-        <form method="POST" action="{{ route('logout') }}" class="dash-nav-drawer-logout-form">
+        <form method="POST" action="{{ route('logout') }}" class="dash-nav-drawer-logout-form js-logout-form">
             @csrf
             <button type="submit" class="dash-nav-drawer-logout-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Keluar dari akun
+                Logout
             </button>
         </form>
     </div>
@@ -518,6 +518,37 @@ document.addEventListener('keydown', e => {
         }, 300);
     });
 })();
+
+document.querySelectorAll('.js-logout-form').forEach((form) => {
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Keluar dari akun?',
+            text: 'Anda akan keluar dari sistem.',
+            icon: 'warning',
+
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Logout',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+
+            customClass: {
+                popup: 'dash-logout-swal-popup',
+                title: 'dash-logout-swal-title',
+                htmlContainer: 'dash-logout-swal-text',
+                icon: 'dash-logout-swal-icon',
+                actions: 'dash-logout-swal-actions',
+                confirmButton: 'dash-logout-swal-confirm',
+                cancelButton: 'dash-logout-swal-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
 
 </script>
 @endpush

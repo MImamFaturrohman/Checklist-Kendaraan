@@ -14,7 +14,7 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-gbBIC0gz.css",
+    "file": "assets/app-xSq7ckiu.css",
     "name": "app",
     "names": [
       "app.css"
@@ -23,7 +23,7 @@
     "isEntry": true
   },
   "resources/css/auth.css": {
-    "file": "assets/auth-BGuwwire.css",
+    "file": "assets/auth-DWQpy60D.css",
     "name": "auth",
     "names": [
       "auth.css"
@@ -36,7 +36,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-D9kiZSzt.js",
+    "file": "assets/app-Bq7FaNSn.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

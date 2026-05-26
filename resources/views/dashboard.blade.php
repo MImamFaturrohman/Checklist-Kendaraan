@@ -66,10 +66,12 @@
                 <span class="dash-tag dash-tag-outline">
                     {{ 'ID: ' . str($user?->username ?? 'USER-00') }}
                 </span>
+                @if(!$isDriver)
                 <span class="mgmt-presence mgmt-presence--online" id="dash-presence-status">
                     <span class="mgmt-presence-dot" aria-hidden="true"></span>
                     <span id="dash-presence-label">Online</span>
                 </span>
+                @endif
                 @if($isDriver)
                     <span class="dash-hero-shift dash-clock-shift" id="dash-hero-shift">—</span>
                 @endif

@@ -728,7 +728,7 @@
 }
 
 .dash-hero-tags .mgmt-presence--online {
-    color: #15803d;
+    color: #4ade80;
 }
 
 .dash-hero-tags .mgmt-presence--offline {
@@ -5657,7 +5657,7 @@ body#landing.dash-body.dark .signature-canvas {
     height: 100%;
     width: 420px;
     max-width: 100vw;
-    background: rgba(241, 245, 249, 0.85);
+    background: rgba(241, 245, 249, 0.75);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     box-shadow: -12px 0 60px rgba(0,0,0,0.18);
@@ -8528,19 +8528,9 @@ body.dash-body {
     flex-shrink: 0;
 }
 
-/* ── Responsive: notifikasi / role / profil di topbar hanya desktop (≥992px) ── */
-@media (min-width: 992px) {
-    .dash-topbar-desktop-only--cluster {
-        display: inline-flex;
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 6px;
-        min-width: 0;
-    }
-}
-
+/* ── Responsive: notifikasi / profil di topbar hanya desktop (≥992px) ── */
 @media (max-width: 991px) {
-    .dash-topbar-desktop-only--cluster {
+    .dash-topbar-desktop-only {
         display: none !important;
     }
 
@@ -8737,76 +8727,80 @@ body.dash-body {
     border-color: rgba(255,255,255,0.1);
 }
 
-/* ── Topbar profile button ── */
+/* ── Topbar profile button (merged with role chip) ── */
 .dash-topbar-profile-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 10px 5px 6px;
+    padding: 5.5px 12px;
     border-radius: 10px;
-    border: 1px solid transparent;
-    background: transparent;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    font-size: 0.82rem;
-    font-weight: 600;
-}
-.dash-body:not(.dark) .dash-topbar-profile-btn {
-    color: rgba(255,255,255,0.92);
-    border-color: rgba(255,255,255,0.2);
-}
-.dash-body.dark .dash-topbar-profile-btn {
-    color: rgba(255,255,255,0.85);
-    border-color: rgba(255,255,255,0.12);
+    transition: filter 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    font: inherit;
+    text-align: left;
+    max-width: 200px;
 }
 .dash-topbar-profile-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.32);
+    filter: brightness(1.3);
 }
-.dash-body.dark .dash-topbar-profile-btn:hover {
-    background: rgba(255,255,255,0.07);
-    border-color: rgba(255,255,255,0.2);
+.dash-topbar-profile-btn:active {
+    transform: scale(0.98);
 }
-.dash-topbar-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.18);
-    border: 1.5px solid rgba(255,255,255,0.4);
-    color: #fff;
+.dash-topbar-profile-meta {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.78rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+    line-height: 1;
+}
+.dash-topbar-profile-name {
+    font-size: 0.82rem;
     font-weight: 700;
-    flex-shrink: 0;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.22);
-}
-.dash-topbar-avatar.dash-avatar--admin {
-    background: var(--role-avatar-admin-bg);
-    color: var(--role-avatar-admin-text);
-    border-color: var(--role-avatar-admin-border);
-}
-.dash-topbar-avatar.dash-avatar--driver {
-    background: var(--role-avatar-driver-bg);
-    color: var(--role-avatar-driver-text);
-    border-color: var(--role-avatar-driver-border);
-}
-.dash-topbar-avatar.dash-avatar--manager {
-    background: var(--role-avatar-manager-bg);
-    color: var(--role-avatar-manager-text);
-    border-color: var(--role-avatar-manager-border);
-}
-.dash-topbar-avatar.dash-avatar--default {
-    background: var(--role-avatar-default-bg);
-    color: var(--role-avatar-default-text);
-    border-color: var(--role-avatar-default-border);
-}
-.dash-topbar-username {
-    max-width: 110px;
+    max-width: 130px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.dash-topbar-profile-role {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.88;
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dash-body.dark .dash-logout-swal-popup {
+    color: var(--dash-bg);
+    background: rgba(16, 38, 80, 0.78);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dash-logout-swal-text {
+    color: var(--dash-gold)
+}
+
+.dash-logout-swal-confirm {
+    background: var(--dash-gold);
+    transition:
+        filter .18s ease,
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+.dash-logout-swal-confirm:hover {
+    background: var(--dash-gold);
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(212, 175, 55, 0.28);
+}
+.dash-logout-swal-confirm:active {
+    background: var(--dash-gold);
+    transform: translateY(0) scale(0.98);
+    filter: brightness(0.96);
 }
 
 .dash-nav-overlay {
@@ -8868,11 +8862,6 @@ body.dash-body {
     color: #475569;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-@media (min-width: 992px) {
-    .dash-nav-drawer-close {
-        top: 46px;
-    }
 }
 .dash-nav-drawer-close:hover {
     background: rgba(255, 255, 255, 0.75);
@@ -8944,77 +8933,32 @@ body.dash-body {
 }
 
 .dash-nav-drawer-profile-btn {
-    display: flex;
-    width: 100%;
+    display: inline-flex;
+    flex: 1;
+    min-width: 0;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     padding: 10px 12px;
-    margin-bottom: 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(37, 99, 235, 0.18);
-    background: rgba(255, 255, 255, 0.5);
-    color: #0f2744;
+    margin-bottom: 0;
+    border-radius: 10px;
     cursor: pointer;
     text-align: left;
     font: inherit;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: filter 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-
 .dash-nav-drawer-profile-btn:hover {
-    background: rgba(37, 99, 235, 0.08);
-    border-color: rgba(37, 99, 235, 0.28);
+    filter: brightness(1.08);
+}
+.dash-nav-drawer-profile-btn:active {
+    transform: scale(0.99);
 }
 
-.dash-body.dark .dash-nav-drawer-profile-btn {
-    background: rgba(30, 58, 138, 0.4);
-    border-color: rgba(147, 197, 253, 0.22);
-    color: #e2e8f0;
-}
-
-.dash-body.dark .dash-nav-drawer-profile-btn:hover {
-    background: rgba(37, 99, 235, 0.35);
-}
-
-.dash-nav-drawer-profile-avatar {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 0.98rem;
-    background: rgba(255, 255, 255, 0.95);
-    color: #0e2a52;
-    border: 1.5px solid rgba(212, 175, 55, 0.35);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-}
-.dash-nav-drawer-profile-avatar.dash-avatar--admin {
-    background: var(--role-avatar-admin-bg);
-    color: var(--role-avatar-admin-text);
-    border-color: var(--role-avatar-admin-border);
-}
-.dash-nav-drawer-profile-avatar.dash-avatar--driver {
-    background: var(--role-avatar-driver-bg);
-    color: var(--role-avatar-driver-text);
-    border-color: var(--role-avatar-driver-border);
-}
-.dash-nav-drawer-profile-avatar.dash-avatar--manager {
-    background: var(--role-avatar-manager-bg);
-    color: var(--role-avatar-manager-text);
-    border-color: var(--role-avatar-manager-border);
-}
-.dash-nav-drawer-profile-avatar.dash-avatar--default {
-    background: var(--role-avatar-default-bg);
-    color: var(--role-avatar-default-text);
-    border-color: var(--role-avatar-default-border);
-}
-
-.dash-body.dark .dash-nav-drawer-profile-avatar:not([class*="dash-avatar--"]) {
-    background: rgba(226, 232, 240, 0.12);
-    color: #f1f5f9;
-    border-color: rgba(212, 175, 55, 0.25);
+.dash-nav-drawer-account-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    position: relative;
 }
 
 .dash-nav-drawer-profile-meta {
@@ -9022,70 +8966,41 @@ body.dash-body {
     flex-direction: column;
     gap: 2px;
     min-width: 0;
+    line-height: 1.2;
 }
 
 .dash-nav-drawer-profile-name {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 700;
-    line-height: 1.25;
+    color: inherit;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
-.dash-nav-drawer-profile-hint {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
+.dash-nav-drawer-profile-role {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: rgba(51, 65, 85, 0.55);
-}
-
-.dash-body.dark .dash-nav-drawer-profile-hint {
-    color: rgba(203, 213, 225, 0.45);
-}
-
-.dash-nav-drawer-account-chip-notif-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
-    position: relative;
-    width: fit-content;
-}
-
-.dash-nav-drawer-account-chip.dash-chip {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    max-width: fit-content;
+    opacity: 0.88;
     white-space: nowrap;
-    flex: 0 0 auto;
-}
-
-.dash-body:not(.dark) .dash-nav-drawer-account-chip.dash-chip.dash-chip-admin {
-    background: rgba(180, 132, 0, 0.14);
-    color: #92400e;
-    border-color: rgba(217, 119, 6, 0.45);
-}
-.dash-body:not(.dark) .dash-nav-drawer-account-chip.dash-chip.dash-chip-driver {
-    background: rgba(21, 128, 61, 0.12);
-    color: #15803d;
-    border-color: rgba(34, 197, 94, 0.45);
-}
-.dash-body:not(.dark) .dash-nav-drawer-account-chip.dash-chip.dash-chip-manager {
-    background: rgba(30, 64, 175, 0.12);
-    color: #1e40af;
-    border-color: rgba(59, 130, 246, 0.45);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .dash-nav-notif-in-drawer {
-    width: 100%;
+    flex-shrink: 0;
     position: static;
+    align-self: stretch;
+    display: flex;
+    align-items: stretch;
 }
 
 .dash-nav-notif-in-drawer .dash-notif-btn {
     width: 45px;
+    min-height: 100%;
+    height: auto;
     background: rgba(241, 245, 249, 0.92);
     color: var(--dash-blue);
 }
@@ -9218,7 +9133,7 @@ body.dash-body {
 
 @media (max-width: 640px) {
     .dash-topbar { padding: 0 12px; gap: 8px; }
-    .dash-topbar-username { display: none; }
+    .dash-topbar-profile-meta { display: none; }
     .dash-topbar-title { font-size: 0.9rem; }
     .dash-topbar-left { gap: 8px; }
     .dash-topbar-brand-block {
