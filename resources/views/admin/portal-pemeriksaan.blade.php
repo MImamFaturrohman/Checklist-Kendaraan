@@ -619,25 +619,11 @@
 
         let _chartInstances = {};
 
-        const observer = new MutationObserver(() => {
-            const dark = document.body.classList.contains('dark');
-
-            console.log('Dark mode:', dark);
-        });
-
-        observer.observe(document.body, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-
         function _buildCharts() {
             Object.values(_chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
             _chartInstances = {};
 
-            observer.observe(document.body, {
-                attributes: true, 
-                attributeFilter = {};
-            })
+            const dark  = document.body.classList.contains('dark');
             console.log(dark);
             const blue  = dark ? '#60a5fa' : '#D4AF37';
             const grid  = dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)';
