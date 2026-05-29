@@ -6,6 +6,7 @@
 @section('pageSubtitle', 'Buat Ceklist Baru')
 
 @push('styles')
+<meta name="turbo-cache-control" content="no-cache">
 <style>
     .section-banner {
         display: flex;

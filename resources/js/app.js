@@ -3,124 +3,228 @@ import Alpine from 'alpinejs';
 import SignaturePad from 'signature_pad';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'tom-select/dist/css/tom-select.bootstrap5.css';
+import * as Turbo from '@hotwired/turbo';
+import Swal from 'sweetalert2';
 
-window.Alpine = Alpine;
+window.Alpine    = Alpine;
 window.SignaturePad = SignaturePad;
+window.Swal      = Swal;
+
+Turbo.start();
 Alpine.start();
 
 /* ================================================================
-   VMS DASH CHROME — theme, legacy mobile menu, notifications
-   localStorage keys: 'vms-theme' (canonical) + 'vms-dash-theme' (legacy compat)
+   TURBO BEFORE-CACHE REGISTRY — central cleanup hub
+   Inline scripts call window.registerTurboCleanup(fn) instead of
+   adding their own document.addEventListener('turbo:before-cache').
+   This prevents listener stacking on repeated Turbo visits.
+   ================================================================ */
+const _turboCleanupRegistry = new Set();
+window.registerTurboCleanup = function (fn) { _turboCleanupRegistry.add(fn); };
+document.addEventListener('turbo:before-cache', function () {
+    _turboCleanupRegistry.forEach(function (fn) { try { fn(); } catch (_) {} });
+    _turboCleanupRegistry.clear();
+});
+
+/* ================================================================
+   VMS DASH CHROME — theme, mobile menu, notifications
+   localStorage keys: 'vms-theme' (canonical) + 'vms-dash-theme' (legacy)
    ================================================================ */
 (function initVmsDashChrome() {
-    const body = document.body;
+    const html = document.documentElement;
 
-    /* ── 1. Apply saved theme ASAP (before DOMContentLoaded) ── */
-    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-    const isDark = saved === 'dark';
-    body.classList.toggle('dark', isDark);
-
+    /* ── 1. Apply saved theme immediately (module runs before first paint) ── */
     function applyTheme(dark) {
-        body.classList.toggle('dark', dark);
+        html.classList.toggle('dark', dark);
+        document.body.classList.toggle('dark', dark);
         const icon  = document.getElementById('dash-theme-icon');
         const label = document.getElementById('dash-theme-label');
         if (icon)  icon.className    = dark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
         if (label) label.textContent = dark ? 'Light Mode' : 'Dark Mode';
     }
 
-    /* Re-apply after DOM ready to also update icon/label */
-    document.addEventListener('DOMContentLoaded', function () {
-        applyTheme(body.classList.contains('dark'));
+    const saved  = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
+    applyTheme(saved === 'dark');
 
-        /* ── 2. Theme toggle button ── */
+    /* Preserve dark class on body for JS checks; CSS uses html.dark */
+    document.addEventListener('turbo:before-render', function (e) {
+        if (html.classList.contains('dark')) {
+            e.detail.newBody.classList.add('dark');
+        } else {
+            e.detail.newBody.classList.remove('dark');
+        }
+    });
+
+    /* ── 3. Document-level handlers (registered ONCE; use fresh getElementById) ── */
+
+    // Outside-click: close notification panels + legacy mobile menu
+    document.addEventListener('click', function (e) {
+        // Notification panels
+        [
+            ['dash-notif-wrap',     'dash-notif-panel',     'dash-notif-toggle'],
+            ['dash-nav-notif-wrap', 'dash-nav-notif-panel', 'dash-nav-notif-toggle'],
+        ].forEach(function ([wId, pId, bId]) {
+            const w = document.getElementById(wId);
+            const p = document.getElementById(pId);
+            const b = document.getElementById(bId);
+            if (w && p && b && !w.contains(e.target)) {
+                p.hidden = true;
+                b.setAttribute('aria-expanded', 'false');
+            }
+        });
+        // Legacy mobile menu
+        const navA  = document.getElementById('dash-nav-actions');
+        const menuB = document.getElementById('dash-mobile-menu-btn');
+        if (navA && menuB && !navA.contains(e.target) && !menuB.contains(e.target)) {
+            navA.classList.remove('mobile-open');
+            const menuI = document.getElementById('dash-mobile-menu-icon');
+            if (menuI) menuI.className = 'bi bi-list';
+            menuB.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // Escape key: close drawers/menus/panels
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        // Profile drawer
+        const prof = document.getElementById('profile-drawer');
+        if (prof && prof.classList.contains('open')) {
+            if (typeof closeProfileDrawer === 'function') closeProfileDrawer();
+            return;
+        }
+        // Nav drawer
+        if (typeof closeDashNavDrawer === 'function') closeDashNavDrawer();
+        // Notification panels
+        [
+            ['dash-notif-panel', 'dash-notif-toggle'],
+            ['dash-nav-notif-panel', 'dash-nav-notif-toggle'],
+        ].forEach(function ([pId, bId]) {
+            const p = document.getElementById(pId);
+            const b = document.getElementById(bId);
+            if (p && b) { p.hidden = true; b.setAttribute('aria-expanded', 'false'); }
+        });
+        // Legacy mobile menu
+        const navA  = document.getElementById('dash-nav-actions');
+        const menuI = document.getElementById('dash-mobile-menu-icon');
+        const menuB = document.getElementById('dash-mobile-menu-btn');
+        if (navA) {
+            navA.classList.remove('mobile-open');
+            if (menuI) menuI.className = 'bi bi-list';
+            if (menuB) menuB.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    /* ── 4. Cross-page hash scroll via sessionStorage (works with Turbo) ── */
+    const SCROLL_KEY = 'dash_pending_smooth_scroll';
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    // Notification hash links — same-page scroll or cross-page store
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('a.dash-notif-link');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href) return;
+        let url;
+        try { url = new URL(href, window.location.href); } catch (_) { return; }
+        if (!url.hash) return;
+
+        e.preventDefault();
+
+        const herePath  = window.location.origin + window.location.pathname + window.location.search;
+        const therePath = url.origin + url.pathname + url.search;
+
+        if (therePath === herePath) {
+            // Same page — just scroll
+            _smoothScrollToHash(url.hash);
+        } else {
+            // Different page — store hash and navigate via Turbo (avoids full reload)
+            sessionStorage.setItem(SCROLL_KEY, url.hash);
+            Turbo.visit(therePath);
+        }
+    });
+
+    function _smoothScrollToHash(hash, attempt) {
+        attempt = attempt || 0;
+        const id = decodeURIComponent(hash.replace(/^#/, ''));
+        const el = document.getElementById(id);
+        if (!el) {
+            if (attempt < 20) setTimeout(function () { _smoothScrollToHash(hash, attempt + 1); }, 100);
+            return;
+        }
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', window.location.pathname + window.location.search + hash);
+    }
+
+    /* ── 5. Per-page init: runs on every turbo:load (initial + navigation) ── */
+    document.addEventListener('turbo:load', function () {
+        // Sync icon/label with current theme
+        applyTheme(html.classList.contains('dark'));
+
+        // Theme toggle button — guard: body recreated each nav so new element,
+        // but use _vmsBound just in case it's ever marked permanent
         const themeBtn = document.getElementById('dash-theme-toggle');
-        if (themeBtn) {
+        if (themeBtn && !themeBtn._vmsBound) {
+            themeBtn._vmsBound = true;
             themeBtn.addEventListener('click', function () {
-                const next = !body.classList.contains('dark');
+                const next = !html.classList.contains('dark');
                 applyTheme(next);
                 localStorage.setItem('vms-theme',      next ? 'dark' : 'light');
                 localStorage.setItem('vms-dash-theme', next ? 'dark' : 'light');
             });
         }
 
-        const legacyMenuBtn    = document.getElementById('dash-mobile-menu-btn');
-        const legacyNavActions = document.getElementById('dash-nav-actions');
-        const legacyMenuIcon   = document.getElementById('dash-mobile-menu-icon');
-
-        if (legacyMenuBtn && legacyNavActions) {
-            function closeLegacyMenu() {
-                legacyNavActions.classList.remove('mobile-open');
-                if (legacyMenuIcon) legacyMenuIcon.className = 'bi bi-list';
-                legacyMenuBtn.setAttribute('aria-expanded', 'false');
-            }
+        // Legacy mobile menu toggle button
+        const legacyMenuBtn = document.getElementById('dash-mobile-menu-btn');
+        const legacyNavAct  = document.getElementById('dash-nav-actions');
+        if (legacyMenuBtn && legacyNavAct && !legacyMenuBtn._vmsBound) {
+            legacyMenuBtn._vmsBound = true;
             legacyMenuBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
-                const isOpen = legacyNavActions.classList.toggle('mobile-open');
-                if (legacyMenuIcon) legacyMenuIcon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
+                const icon   = document.getElementById('dash-mobile-menu-icon');
+                const isOpen = legacyNavAct.classList.toggle('mobile-open');
+                if (icon) icon.className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
                 legacyMenuBtn.setAttribute('aria-expanded', String(isOpen));
             });
-            document.addEventListener('click', function (e) {
-                if (!legacyNavActions.contains(e.target) && !legacyMenuBtn.contains(e.target)) {
-                    closeLegacyMenu();
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 992) {
+                    legacyNavAct.classList.remove('mobile-open');
+                    const icon = document.getElementById('dash-mobile-menu-icon');
+                    if (icon) icon.className = 'bi bi-list';
+                    legacyMenuBtn.setAttribute('aria-expanded', 'false');
                 }
-            });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeLegacyMenu();
-            });
+            }, { passive: true });
         }
 
-        /* ── 3. Notification panels (topbar desktop + nav drawer mobile) ── */
-        function dashNormalizePath(path) {
-            if (!path || typeof path !== 'string') return '/';
-            const trimmed = path.replace(/\/+$/, '');
-            return trimmed === '' ? '/' : trimmed;
-        }
-
-        function smoothScrollDashLayoutHashTargetOnce() {
-            const raw = window.location.hash;
-            if (!raw || raw === '#') return;
-            let id = raw.slice(1);
-            try {
-                id = decodeURIComponent(id);
-            } catch (_e) { /* skip */ }
-            if (!id) return;
-            const el = document.getElementById(id);
-            if (!el) return;
-            requestAnimationFrame(function () {
-                window.setTimeout(function () {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 48);
-            });
-        }
-
-        function wireNotificationDropdown(wrapId, toggleId, panelId) {
-            const notifWrap  = document.getElementById(wrapId);
-            const notifBtn   = document.getElementById(toggleId);
-            const notifPanel = document.getElementById(panelId);
-            if (!notifWrap || !notifBtn || !notifPanel) return;
-
-            function closeNotifPanel() {
-                notifPanel.hidden = true;
-                notifBtn.setAttribute('aria-expanded', 'false');
-            }
-            notifBtn.addEventListener('click', function (e) {
+        // Notification toggle buttons
+        [
+            ['dash-notif-toggle',     'dash-notif-panel'],
+            ['dash-nav-notif-toggle', 'dash-nav-notif-panel'],
+        ].forEach(function ([bId, pId]) {
+            const btn   = document.getElementById(bId);
+            const panel = document.getElementById(pId);
+            if (!btn || !panel || btn._vmsBound) return;
+            btn._vmsBound = true;
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
-                const open = notifPanel.hidden;
-                notifPanel.hidden = !open;
-                notifBtn.setAttribute('aria-expanded', String(open));
+                const open  = panel.hidden;
+                panel.hidden = !open;
+                btn.setAttribute('aria-expanded', String(open));
             });
-            document.addEventListener('click', function (e) {
-                if (!notifWrap.contains(e.target)) closeNotifPanel();
-            });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeNotifPanel();
-            });
-            notifPanel.querySelectorAll('.dash-notif-link[data-notification-id]').forEach(function (a) {
+        });
+
+        // Notification read + scroll on link click
+        [
+            ['dash-notif-panel',     'dash-notif-toggle'],
+            ['dash-nav-notif-panel', 'dash-nav-notif-toggle'],
+        ].forEach(function ([pId, bId]) {
+            const panel = document.getElementById(pId);
+            if (!panel || panel._notifLinksBound) return;
+            panel._notifLinksBound = true;
+            panel.querySelectorAll('.dash-notif-link[data-notification-id]').forEach(function (a) {
                 a.addEventListener('click', function (e) {
-                    const nid = a.getAttribute('data-notification-id');
+                    const nid  = a.getAttribute('data-notification-id');
                     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-                    function markNotificationRead() {
-                        if (!nid || !csrf) return;
+                    if (nid && csrf) {
                         fetch('/notifications/' + encodeURIComponent(nid) + '/read', {
                             method: 'POST',
                             headers: {
@@ -134,69 +238,87 @@ Alpine.start();
                         a.closest('.dash-notif-item')?.classList.remove('is-unread');
                     }
 
-                    markNotificationRead();
-
                     const hrefAttr = a.getAttribute('href') || '';
-
-                    /** relative / empty */
                     let targetUrl;
-                    try {
-                        targetUrl = new URL(hrefAttr, window.location.href);
-                    } catch (_err) {
-                        return;
-                    }
+                    try { targetUrl = new URL(hrefAttr, window.location.href); } catch (_) { return; }
+                    if (!targetUrl.hash) return;
 
-                    const herePath = dashNormalizePath(window.location.pathname);
-                    const therePath = dashNormalizePath(targetUrl.pathname);
-                    let scrollId = '';
-                    const fragment = targetUrl.hash;
-                    if (fragment.length > 1) {
-                        scrollId = fragment.slice(1);
-                        try {
-                            scrollId = decodeURIComponent(scrollId);
-                        } catch (_e2) { /* keep */ }
-                    }
+                    const herePath  = window.location.origin + window.location.pathname + window.location.search;
+                    const therePath = targetUrl.origin + targetUrl.pathname + targetUrl.search;
+                    const scrollId  = decodeURIComponent(targetUrl.hash.slice(1));
 
-                    const targetEl = scrollId ? document.getElementById(scrollId) : null;
-                    if (therePath === herePath && scrollId && targetEl) {
+                    if (therePath === herePath) {
                         e.preventDefault();
-                        closeNotifPanel();
-                        requestAnimationFrame(function () {
-                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        });
+                        const btn = document.getElementById(bId);
+                        if (panel) panel.hidden = true;
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                        const el = document.getElementById(scrollId);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
+                    // Cross-page: let anchor navigate; the document.click handler above stores the hash
                 });
             });
-        }
-        wireNotificationDropdown('dash-notif-wrap', 'dash-notif-toggle', 'dash-notif-panel');
-        wireNotificationDropdown('dash-nav-notif-wrap', 'dash-nav-notif-toggle', 'dash-nav-notif-panel');
+        });
 
-        smoothScrollDashLayoutHashTargetOnce();
+        // Hash scroll on page (URL anchor)
+        (function smoothScrollCurrentHash() {
+            const raw = window.location.hash;
+            if (!raw || raw === '#') return;
+            let id = raw.slice(1);
+            try { id = decodeURIComponent(id); } catch (_) {}
+            if (!id) return;
+            const el = document.getElementById(id);
+            if (!el) return;
+            requestAnimationFrame(function () {
+                window.setTimeout(function () {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 48);
+            });
+        }());
+
+        // Pending hash scroll from sessionStorage (cross-page nav)
+        const pendingHash = sessionStorage.getItem(SCROLL_KEY);
+        if (pendingHash) {
+            sessionStorage.removeItem(SCROLL_KEY);
+            if (window.location.hash) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+            window.scrollTo(0, 0);
+            setTimeout(function () { _smoothScrollToHash(pendingHash); }, 300);
+        }
+
+    });
+
+    // Nav drawer close — delegated once at document level, no per-visit re-binding
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('#dash-nav-drawer a.dash-nav-drawer-link')) {
+            if (typeof closeDashNavDrawer === 'function') closeDashNavDrawer();
+        }
     });
 })();
 
+/* ================================================================
+   VMS PRESENCE — heartbeat / online-offline
+   ================================================================ */
 (function initVmsPresence() {
     if (!document.body.classList.contains('dash-body')) return;
+    // Guard: presence timers must not be duplicated across Turbo navigations
+    if (window._vmsPresenceStarted) return;
+    window._vmsPresenceStarted = true;
 
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
     const HEARTBEAT_URL = '/api/presence/heartbeat';
-    const OFFLINE_URL = '/api/presence/offline';
-    const HEARTBEAT_MS = 60000;
-    let heartbeatTimer = null;
+    const OFFLINE_URL   = '/api/presence/offline';
+    const HEARTBEAT_MS  = 60000;
+    let heartbeatTimer  = null;
 
     function updateDashPresenceUI(online) {
         const statusEl = document.getElementById('dash-presence-status');
-        const labelEl = document.getElementById('dash-presence-label');
+        const labelEl  = document.getElementById('dash-presence-label');
         if (!statusEl) return;
-
-        statusEl.classList.toggle('mgmt-presence--online', online);
+        statusEl.classList.toggle('mgmt-presence--online',  online);
         statusEl.classList.toggle('mgmt-presence--offline', !online);
-
         if (labelEl) labelEl.textContent = online ? 'Online' : 'Offline';
-    }
-
-    function syncLocalPresence() {
-        updateDashPresenceUI(navigator.onLine);
     }
 
     function stopHeartbeat() {
@@ -208,36 +330,20 @@ Alpine.start();
 
     function sendHeartbeat() {
         if (!navigator.onLine || !csrf) return;
-
         fetch(HEARTBEAT_URL, {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrf,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-            },
+            headers: { 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
             credentials: 'same-origin',
         }).catch(function () {});
     }
 
     function sendOfflineSignal() {
         if (!csrf) return;
-
         const payload = new URLSearchParams({ _token: csrf });
-
-        if (navigator.sendBeacon) {
-            navigator.sendBeacon(OFFLINE_URL, payload);
-            return;
-        }
-
+        if (navigator.sendBeacon) { navigator.sendBeacon(OFFLINE_URL, payload); return; }
         fetch(OFFLINE_URL, {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrf,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-            },
+            headers: { 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
             credentials: 'same-origin',
             body: payload.toString(),
             keepalive: true,
@@ -250,61 +356,60 @@ Alpine.start();
         sendOfflineSignal();
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        syncLocalPresence();
+    // Restart heartbeat on every turbo:load (covers initial visit and page navigation)
+    document.addEventListener('turbo:load', function () {
+        if (!document.body.classList.contains('dash-body')) return;
+        updateDashPresenceUI(navigator.onLine);
         sendHeartbeat();
-        heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
+        if (heartbeatTimer === null) {
+            heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
+        }
+    });
 
-        window.addEventListener('online', function () {
-            syncLocalPresence();
+    window.addEventListener('online', function () {
+        updateDashPresenceUI(true);
+        sendHeartbeat();
+        if (heartbeatTimer === null) heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
+    });
+    window.addEventListener('offline', function () {
+        stopHeartbeat();
+        updateDashPresenceUI(false);
+    });
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible' && navigator.onLine) {
+            updateDashPresenceUI(true);
             sendHeartbeat();
-            if (heartbeatTimer === null) {
-                heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
-            }
-        });
-
-        window.addEventListener('offline', function () {
-            stopHeartbeat();
-            updateDashPresenceUI(false);
-        });
-
-        document.addEventListener('visibilitychange', function () {
-            if (document.visibilityState === 'visible' && navigator.onLine) {
-                syncLocalPresence();
-                sendHeartbeat();
-                if (heartbeatTimer === null) {
-                    heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
-                }
-            }
-        });
-
-        document.querySelectorAll('form[action*="logout"]').forEach(function (form) {
-            form.addEventListener('submit', function () {
-                markOfflineAndStop();
-            });
-        });
+            if (heartbeatTimer === null) heartbeatTimer = window.setInterval(sendHeartbeat, HEARTBEAT_MS);
+        }
+    });
+    // Only mark offline on actual logout, not on every Turbo navigation
+    document.addEventListener('submit', function (e) {
+        if (e.target.matches('form[action*="logout"]')) markOfflineAndStop();
+    });
+    window.addEventListener('pagehide', function (e) {
+        if (e.persisted) return; // bfcache — tab not really closing
+        markOfflineAndStop();
     });
 })();
 
-document.addEventListener('DOMContentLoaded', async () => {
-    /* ================================================================
-       DASHBOARD
-       ================================================================ */
+/* ================================================================
+   MAIN PAGE FEATURES — runs on every page load / Turbo navigation
+   ================================================================ */
+document.addEventListener('turbo:load', async () => {
+    /* ── Pressable feedback ── */
     document.querySelectorAll('.dash-pressable').forEach(el => {
+        if (el._vmsBound) return;
+        el._vmsBound = true;
         const clear = () => el.classList.remove('dash-pressing');
         el.addEventListener('pointerdown', () => el.classList.add('dash-pressing'));
-        el.addEventListener('pointerup', clear);
+        el.addEventListener('pointerup',     clear);
         el.addEventListener('pointercancel', clear);
-        el.addEventListener('pointerleave', clear);
+        el.addEventListener('pointerleave',  clear);
     });
 
-    /* ================================================================
-       ADMIN REAL-TIME SEARCH & FILTER
-       ================================================================ */
+    /* ── Admin real-time search & filter ── */
     document.querySelectorAll('[data-admin-toolbar]').forEach(toolbar => {
         let searchTimer = null;
-
-        // Debounced search: auto-submit after 400ms pause
         const searchInput = toolbar.querySelector('[data-admin-search]');
         if (searchInput) {
             searchInput.addEventListener('input', () => {
@@ -312,8 +417,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 searchTimer = setTimeout(() => toolbar.submit(), 400);
             });
         }
-
-        // Instant filter: auto-submit on select/date change
         toolbar.querySelectorAll('[data-admin-filter]').forEach(filterEl => {
             filterEl.addEventListener('change', () => {
                 clearTimeout(searchTimer);
@@ -322,450 +425,260 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    /* ================================================================
-       SPPD rekap lists — fetch Blade fragments (driver / admin / manager)
-       ================================================================ */
+    /* ── SPPD live fragment ── */
     document.querySelectorAll('[data-vms-sppd-live]').forEach((root) => {
         const DEBOUNCE_MS = 380;
         const HEADER = 'X-VMS-SPPD-Fragment';
         let timer = null;
 
-        const collectParamsFromForms = () => {
+        const collectParams = () => {
             const params = new URLSearchParams();
             root.querySelectorAll('form').forEach((form) => {
-                const fd = new FormData(form);
-                fd.forEach((v, k) => {
-                    if (typeof v === 'string') params.set(k, v);
-                });
+                new FormData(form).forEach((v, k) => { if (typeof v === 'string') params.set(k, v); });
             });
             return params;
         };
-
-        const resetPagingKeys = (url) => {
+        const resetPaging = (url) => {
             url.searchParams.set('page', '1');
             url.searchParams.delete('pending_page');
             url.searchParams.delete('history_page');
         };
-
         async function fetchFragment(fullUrl) {
             try {
-                const res = await fetch(fullUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        [HEADER]: '1',
-                        Accept: 'text/html',
-                    },
-                    credentials: 'same-origin',
-                });
+                const res = await fetch(fullUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', [HEADER]: '1', Accept: 'text/html' }, credentials: 'same-origin' });
                 if (!res.ok) return;
-                const html = await res.text();
-                root.innerHTML = html;
+                root.innerHTML = await res.text();
                 history.replaceState({}, '', fullUrl);
-            } catch (_) {
-                window.location.href = fullUrl;
-            }
+            } catch (_) { window.location.href = fullUrl; }
         }
-
         root.addEventListener('click', (e) => {
             const a = e.target.closest('.admin-pagination a[href]');
             if (!a || !root.contains(a)) return;
-            e.preventDefault();
-            fetchFragment(a.href);
+            e.preventDefault(); fetchFragment(a.href);
         });
-
         root.addEventListener('submit', (e) => {
             const form = e.target.closest('form');
             if (!form || !root.contains(form)) return;
-            const method = (form.getAttribute('method') || 'get').toLowerCase();
-            if (method !== 'get') return;
+            if ((form.getAttribute('method') || 'get').toLowerCase() !== 'get') return;
             e.preventDefault();
             const url = new URL(form.action || window.location.pathname, window.location.origin);
-            const fd = new FormData(form);
-            fd.forEach((v, k) => {
-                if (typeof v === 'string') url.searchParams.set(k, v);
-            });
-            resetPagingKeys(url);
-            fetchFragment(url.toString());
+            new FormData(form).forEach((v, k) => { if (typeof v === 'string') url.searchParams.set(k, v); });
+            resetPaging(url); fetchFragment(url.toString());
         });
-
         root.addEventListener('change', (e) => {
             const sel = e.target.closest('select[name]');
             if (!sel || !root.contains(sel)) return;
             const url = new URL(window.location.pathname, window.location.origin);
-            collectParamsFromForms().forEach((v, k) => url.searchParams.set(k, v));
-            resetPagingKeys(url);
-            fetchFragment(url.toString());
+            collectParams().forEach((v, k) => url.searchParams.set(k, v));
+            resetPaging(url); fetchFragment(url.toString());
         });
-
         root.addEventListener('input', (e) => {
             const inp = e.target.closest('input[type="search"][name="q"],input[type="text"][name="q"]');
             if (!inp || !root.contains(inp)) return;
             clearTimeout(timer);
             timer = setTimeout(() => {
                 const url = new URL(window.location.pathname, window.location.origin);
-                collectParamsFromForms().forEach((v, k) => url.searchParams.set(k, v));
-                resetPagingKeys(url);
-                fetchFragment(url.toString());
+                collectParams().forEach((v, k) => url.searchParams.set(k, v));
+                resetPaging(url); fetchFragment(url.toString());
             }, DEBOUNCE_MS);
         });
     });
 
-    /* ================================================================
-       Portal BBM — fetch Blade fragments (filter / search / pagination)
-       ================================================================ */
+    /* ── Portal BBM live fragment ── */
     document.querySelectorAll('[data-vms-bbm-portal-live]').forEach((root) => {
         const DEBOUNCE_MS = 380;
         const HEADER = 'X-VMS-BBM-Portal-Fragment';
         let timer = null;
 
-        const collectParamsFromForms = () => {
+        const collectParams = () => {
             const params = new URLSearchParams();
             root.querySelectorAll('form').forEach((form) => {
-                const fd = new FormData(form);
-                fd.forEach((v, k) => {
-                    if (typeof v === 'string') {
-                        params.set(k, v);
-                    }
-                });
+                new FormData(form).forEach((v, k) => { if (typeof v === 'string') params.set(k, v); });
             });
             return params;
         };
-
-        const resetPagingKeys = (url) => {
-            url.searchParams.set('page', '1');
-        };
+        const resetPaging = (url) => url.searchParams.set('page', '1');
 
         async function fetchFragment(fullUrl) {
             try {
-                const res = await fetch(fullUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        [HEADER]: '1',
-                        Accept: 'text/html',
-                    },
-                    credentials: 'same-origin',
-                });
-                if (!res.ok) {
-                    return;
-                }
-                const html = await res.text();
-                root.innerHTML = html;
+                const res = await fetch(fullUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', [HEADER]: '1', Accept: 'text/html' }, credentials: 'same-origin' });
+                if (!res.ok) return;
+                root.innerHTML = await res.text();
                 history.replaceState({}, '', fullUrl);
-            } catch (_) {
-                window.location.href = fullUrl;
-            }
+            } catch (_) { window.location.href = fullUrl; }
         }
-
         function syncFromForms() {
             const url = new URL(window.location.pathname, window.location.origin);
-            collectParamsFromForms().forEach((v, k) => url.searchParams.set(k, v));
-            resetPagingKeys(url);
-            fetchFragment(url.toString());
+            collectParams().forEach((v, k) => url.searchParams.set(k, v));
+            resetPaging(url); fetchFragment(url.toString());
         }
-
         root.addEventListener('click', (e) => {
             const resetBtn = e.target.closest('[data-bbm-portal-reset]');
             if (resetBtn && root.contains(resetBtn)) {
                 e.preventDefault();
                 const form = root.querySelector('#bbm-portal-filter-form');
                 if (form) {
-                    const q = form.querySelector('[name="q"]');
-                    const shift = form.querySelector('[name="shift"]');
-                    const jenis = form.querySelector('[name="jenis_pengisian"]');
-                    const df = form.querySelector('[name="date_from"]');
-                    const dt = form.querySelector('[name="date_to"]');
-                    const pp = form.querySelector('[name="per_page"]');
-                    if (q) {
-                        q.value = '';
-                    }
-                    if (shift) {
-                        shift.value = '';
-                    }
-                    if (jenis) {
-                        jenis.value = '';
-                    }
-                    if (df) {
-                        df.value = '';
-                    }
-                    if (dt) {
-                        dt.value = '';
-                    }
-                    if (pp) {
-                        pp.value = '25';
-                    }
+                    ['q','shift','jenis_pengisian','date_from','date_to'].forEach(n => { const el = form.querySelector(`[name="${n}"]`); if (el) el.value = ''; });
+                    const pp = form.querySelector('[name="per_page"]'); if (pp) pp.value = '25';
                 }
-                syncFromForms();
-                return;
+                syncFromForms(); return;
             }
             const a = e.target.closest('.admin-pagination a[href]');
-            if (!a || !root.contains(a)) {
-                return;
-            }
-            e.preventDefault();
-            fetchFragment(a.href);
+            if (!a || !root.contains(a)) return;
+            e.preventDefault(); fetchFragment(a.href);
         });
-
         root.addEventListener('submit', (e) => {
             const form = e.target.closest('form');
-            if (!form || !root.contains(form)) {
-                return;
-            }
-            const method = (form.getAttribute('method') || 'get').toLowerCase();
-            if (method !== 'get') {
-                return;
-            }
+            if (!form || !root.contains(form)) return;
+            if ((form.getAttribute('method') || 'get').toLowerCase() !== 'get') return;
             e.preventDefault();
             const url = new URL(form.action || window.location.pathname, window.location.origin);
-            const fd = new FormData(form);
-            fd.forEach((v, k) => {
-                if (typeof v === 'string') {
-                    url.searchParams.set(k, v);
-                }
-            });
-            resetPagingKeys(url);
-            fetchFragment(url.toString());
+            new FormData(form).forEach((v, k) => { if (typeof v === 'string') url.searchParams.set(k, v); });
+            resetPaging(url); fetchFragment(url.toString());
         });
-
         root.addEventListener('change', (e) => {
             const t = e.target;
-            if (!root.contains(t)) {
-                return;
-            }
-            if (t.matches('select[name]') || t.matches('input[type="date"][name]')) {
-                syncFromForms();
-            }
+            if (!root.contains(t)) return;
+            if (t.matches('select[name]') || t.matches('input[type="date"][name]')) syncFromForms();
         });
-
         root.addEventListener('input', (e) => {
             const inp = e.target.closest('input[type="search"][name="q"],input[type="text"][name="q"]');
-            if (!inp || !root.contains(inp)) {
-                return;
-            }
-            clearTimeout(timer);
-            timer = setTimeout(syncFromForms, DEBOUNCE_MS);
+            if (!inp || !root.contains(inp)) return;
+            clearTimeout(timer); timer = setTimeout(syncFromForms, DEBOUNCE_MS);
         });
     });
 
-    /* ================================================================
-       Arsip log penggunaan kendaraan — fetch Blade fragments (AJAX)
-       ================================================================ */
+    /* ── Vehicle usage log live fragment ── */
     document.querySelectorAll('[data-vms-vul-logs-live]').forEach((root) => {
         const DEBOUNCE_MS = 380;
         const HEADER = 'X-VMS-VUL-Logs-Fragment';
         let timer = null;
 
-        const collectParamsFromForms = () => {
+        const collectParams = () => {
             const params = new URLSearchParams();
             root.querySelectorAll('form').forEach((form) => {
-                const fd = new FormData(form);
-                fd.forEach((v, k) => {
-                    if (typeof v === 'string') {
-                        params.set(k, v);
-                    }
-                });
+                new FormData(form).forEach((v, k) => { if (typeof v === 'string') params.set(k, v); });
             });
             return params;
         };
-
-        const resetPagingKeys = (url) => {
-            url.searchParams.set('page', '1');
-        };
+        const resetPaging = (url) => url.searchParams.set('page', '1');
 
         async function fetchFragment(fullUrl) {
             try {
-                const res = await fetch(fullUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        [HEADER]: '1',
-                        Accept: 'text/html',
-                    },
-                    credentials: 'same-origin',
-                });
-                if (!res.ok) {
-                    return;
-                }
-                const html = await res.text();
-                root.innerHTML = html;
+                const res = await fetch(fullUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', [HEADER]: '1', Accept: 'text/html' }, credentials: 'same-origin' });
+                if (!res.ok) return;
+                root.innerHTML = await res.text();
                 history.replaceState({}, '', fullUrl);
-            } catch (_) {
-                window.location.href = fullUrl;
-            }
+            } catch (_) { window.location.href = fullUrl; }
         }
-
         function syncFromForms() {
             const url = new URL(window.location.pathname, window.location.origin);
-            collectParamsFromForms().forEach((v, k) => url.searchParams.set(k, v));
-            resetPagingKeys(url);
-            fetchFragment(url.toString());
+            collectParams().forEach((v, k) => url.searchParams.set(k, v));
+            resetPaging(url); fetchFragment(url.toString());
         }
-
         root.addEventListener('click', (e) => {
             const resetBtn = e.target.closest('[data-vul-logs-reset]');
             if (resetBtn && root.contains(resetBtn)) {
                 e.preventDefault();
                 const form = root.querySelector('#vul-logs-filter-form');
                 if (form) {
-                    const q = form.querySelector('[name="q"]');
-                    const df = form.querySelector('[name="date_from"]');
-                    const dt = form.querySelector('[name="date_to"]');
-                    const pp = form.querySelector('[name="per_page"]');
-                    if (q) q.value = '';
-                    if (df) df.value = '';
-                    if (dt) dt.value = '';
-                    if (pp) pp.value = '25';
+                    ['q','date_from','date_to'].forEach(n => { const el = form.querySelector(`[name="${n}"]`); if (el) el.value = ''; });
+                    const pp = form.querySelector('[name="per_page"]'); if (pp) pp.value = '25';
                 }
-                syncFromForms();
-                return;
+                syncFromForms(); return;
             }
             const a = e.target.closest('.admin-pagination a[href]');
-            if (!a || !root.contains(a)) {
-                return;
-            }
-            e.preventDefault();
-            fetchFragment(a.href);
+            if (!a || !root.contains(a)) return;
+            e.preventDefault(); fetchFragment(a.href);
         });
-
         root.addEventListener('submit', (e) => {
             const form = e.target.closest('form');
-            if (!form || !root.contains(form)) {
-                return;
-            }
-            const method = (form.getAttribute('method') || 'get').toLowerCase();
-            if (method !== 'get') {
-                return;
-            }
+            if (!form || !root.contains(form)) return;
+            if ((form.getAttribute('method') || 'get').toLowerCase() !== 'get') return;
             e.preventDefault();
             const url = new URL(form.action || window.location.pathname, window.location.origin);
-            const fd = new FormData(form);
-            fd.forEach((v, k) => {
-                if (typeof v === 'string') {
-                    url.searchParams.set(k, v);
-                }
-            });
-            resetPagingKeys(url);
-            fetchFragment(url.toString());
+            new FormData(form).forEach((v, k) => { if (typeof v === 'string') url.searchParams.set(k, v); });
+            resetPaging(url); fetchFragment(url.toString());
         });
-
         root.addEventListener('change', (e) => {
             const t = e.target;
-            if (!root.contains(t)) {
-                return;
-            }
-            if (t.matches('select[name]') || t.matches('input[type="date"][name]')) {
-                syncFromForms();
-            }
+            if (!root.contains(t)) return;
+            if (t.matches('select[name]') || t.matches('input[type="date"][name]')) syncFromForms();
         });
-
         root.addEventListener('input', (e) => {
             const inp = e.target.closest('input[type="search"][name="q"],input[type="text"][name="q"]');
-            if (!inp || !root.contains(inp)) {
-                return;
-            }
-            clearTimeout(timer);
-            timer = setTimeout(syncFromForms, DEBOUNCE_MS);
+            if (!inp || !root.contains(inp)) return;
+            clearTimeout(timer); timer = setTimeout(syncFromForms, DEBOUNCE_MS);
         });
     });
 
-    /* ================================================================
-       CHECKLIST WIZARD
-       Dynamic import: TomSelect is only loaded on pages that have the
-       wizard, avoiding ~30KB JS parse cost on all other pages.
-       ================================================================ */
+    /* ── Checklist wizard ── */
     const wizardRoot = document.querySelector('[data-checklist-wizard]');
     if (!wizardRoot) return;
 
-    // Load TomSelect only when the wizard page is actually open
     const { default: TomSelect } = await import('tom-select');
 
-    const form = wizardRoot.querySelector('#checklist-form');
-    const steps = Array.from(wizardRoot.querySelectorAll('.wizard-step'));
-    const prevButton = wizardRoot.querySelector('#wizard-prev');
-    const nextButton = wizardRoot.querySelector('#wizard-next');
-    const stepLabel = wizardRoot.querySelector('#checklist-step-label');
+    const form         = wizardRoot.querySelector('#checklist-form');
+    const steps        = Array.from(wizardRoot.querySelectorAll('.wizard-step'));
+    const prevButton   = wizardRoot.querySelector('#wizard-prev');
+    const nextButton   = wizardRoot.querySelector('#wizard-next');
+    const stepLabel    = wizardRoot.querySelector('#checklist-step-label');
     const progressFill = wizardRoot.querySelector('#checklist-progress-fill');
-    const progressPct = wizardRoot.querySelector('#checklist-progress-pct');
+    const progressPct  = wizardRoot.querySelector('#checklist-progress-pct');
     if (!form || !steps.length) return;
 
-    /* ---- Driver Select: paired filtering (serah ↔ terima) ---- */
-    const driverSelectEls = wizardRoot.querySelectorAll('[data-driver-select]');
+    /* Driver select with paired filtering */
+    const driverSelectEls   = wizardRoot.querySelectorAll('[data-driver-select]');
     const tomSelectInstances = {};
-    const allDriverOptions = {};
+    const allDriverOptions   = {};
 
     const tomSelectConfig = (selectEl) => ({
-        allowEmptyOption: false,
-        create: false,
-        maxOptions: 100,
+        allowEmptyOption: false, create: false, maxOptions: 100,
         placeholder: selectEl.dataset.placeholder || 'Pilih Driver',
         closeAfterSelect: true,
         render: {
             option(data, escape) {
                 const iconClass = data.icon || 'bi bi-person';
-                const isActive = data.active === '1';
+                const isActive  = data.active === '1';
                 return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
             },
             item(data, escape) {
                 const iconClass = data.icon || 'bi bi-person';
-                const isActive = data.active === '1';
+                const isActive  = data.active === '1';
                 return `<div class="driver-option-row ${isActive ? 'is-active' : ''}"><i class="${escape(iconClass)}"></i><span>${escape(data.text)}</span></div>`;
             },
         },
-        onInitialize() {
-            this.removeOption('');
-            this.refreshOptions(false);
-        },
-        onItemAdd() {
-            this.close();
-            this.blur();
-        },
+        onInitialize() { this.removeOption(''); this.refreshOptions(false); },
+        onItemAdd()    { this.close(); this.blur(); },
     });
 
     driverSelectEls.forEach(select => {
         const ts = new TomSelect(select, tomSelectConfig(select));
-        const id = select.id;
-        tomSelectInstances[id] = ts;
-        // Backup all original options
-        allDriverOptions[id] = { ...ts.options };
+        tomSelectInstances[select.id] = ts;
+        allDriverOptions[select.id]   = { ...ts.options };
     });
 
-    // Link serah ↔ terima: exclude selected driver from the other dropdown
-    const serahTS = tomSelectInstances['driver_serah'];
+    const serahTS  = tomSelectInstances['driver_serah'];
     const terimaTS = tomSelectInstances['driver_terima'];
-
     if (serahTS && terimaTS) {
         const syncDriverOptions = (changedId, selectedValue, previousValue) => {
             const otherTS = changedId === 'driver_serah' ? terimaTS : serahTS;
             const otherId = changedId === 'driver_serah' ? 'driver_terima' : 'driver_serah';
-
-            // Restore previously excluded option
-            if (previousValue && allDriverOptions[otherId][previousValue]) {
-                otherTS.addOption(allDriverOptions[otherId][previousValue]);
-            }
-            // Remove newly selected option from the other dropdown
+            if (previousValue && allDriverOptions[otherId][previousValue]) otherTS.addOption(allDriverOptions[otherId][previousValue]);
             if (selectedValue && otherTS.options[selectedValue]) {
-                if (otherTS.getValue() === selectedValue) {
-                    otherTS.clear(true);
-                }
+                if (otherTS.getValue() === selectedValue) otherTS.clear(true);
                 otherTS.removeOption(selectedValue);
             }
             otherTS.refreshOptions(false);
         };
-
-        let prevSerah = serahTS.getValue();
-        let prevTerima = terimaTS.getValue();
-
-        serahTS.on('change', (value) => {
-            syncDriverOptions('driver_serah', value, prevSerah);
-            prevSerah = value;
-        });
-        terimaTS.on('change', (value) => {
-            syncDriverOptions('driver_terima', value, prevTerima);
-            prevTerima = value;
-        });
+        let prevSerah = serahTS.getValue(), prevTerima = terimaTS.getValue();
+        serahTS.on('change',  (value) => { syncDriverOptions('driver_serah',  value, prevSerah);  prevSerah  = value; });
+        terimaTS.on('change', (value) => { syncDriverOptions('driver_terima', value, prevTerima); prevTerima = value; });
     }
 
     let currentStep = 1;
     const totalStep = steps.length;
-    let refreshSignaturePads = () => { };
+    let refreshSignaturePads = () => {};
 
     const updateWizardUI = () => {
         steps.forEach(s => s.classList.toggle('active', +s.dataset.step === currentStep));
@@ -775,11 +688,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (progressPct) progressPct.textContent = `${pct}%`;
         prevButton.disabled = currentStep === 1;
         if (currentStep === totalStep) {
-            // Last step = Preview → show Generate PDF
             nextButton.classList.add('final');
             nextButton.innerHTML = `GENERATE PDF <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>`;
         } else if (currentStep === totalStep - 1) {
-            // Step before preview = Konfirmasi → show "Lihat Preview"
             nextButton.classList.remove('final');
             nextButton.innerHTML = `LIHAT PREVIEW <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>`;
         } else {
@@ -792,167 +703,76 @@ document.addEventListener('DOMContentLoaded', async () => {
     const validateCurrentStep = () => {
         const el = steps.find(s => +s.dataset.step === currentStep);
 
-        // VALIDASI RADIO & KETERANGAN (STEP 2,3,4)
         if ([2, 3, 4].includes(currentStep)) {
             const current = steps.find(s => +s.dataset.step === currentStep);
             if (!current) return true;
-
-            const rows = current.querySelectorAll('.checklist-condition-row');
-
-            for (const row of rows) {
-                const radios = row.querySelectorAll('input[type="radio"]');
-                const checked = Array.from(radios).find(r => r.checked);
-
-                // 1. BELUM PILIH RADIO
+            for (const row of current.querySelectorAll('.checklist-condition-row')) {
+                const checked = Array.from(row.querySelectorAll('input[type="radio"]')).find(r => r.checked);
                 if (!checked) {
-                    showModal(
-                        'error',
-                        'Checklist Belum Lengkap',
-                        'Masih ada kondisi yang belum dipilih (OK / NO).',
-                        [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
-                    );
-
-                    row.style.borderColor = '#ef4444';
-                    return false;
+                    showModal('error', 'Checklist Belum Lengkap', 'Masih ada kondisi yang belum dipilih (OK / NO).', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                    row.style.borderColor = '#ef4444'; return false;
                 }
-
-                // 2. JIKA PILIH NO → KETERANGAN WAJIB
                 if (checked.value === 'no') {
                     const note = row.querySelector('.checklist-item-note');
-
                     if (!note || !note.value.trim()) {
-                        showModal(
-                            'error',
-                            'Keterangan Wajib Diisi',
-                            'Item dengan kondisi "NO" harus diberi keterangan.',
-                            [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
-                        );
-
-                        note.style.borderColor = '#ef4444';
-                        return false;
+                        showModal('error', 'Keterangan Wajib Diisi', 'Item dengan kondisi "NO" harus diberi keterangan.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                        note.style.borderColor = '#ef4444'; return false;
                     }
                 }
             }
         }
 
-        // Validasi foto
         if (currentStep === 2 || currentStep === 5) {
-            const requiredPhotos = el.querySelectorAll('[data-required-photo]');
-            let allPhotosValid = true;
-            requiredPhotos.forEach(input => {
+            for (const input of el.querySelectorAll('[data-required-photo]')) {
                 if (!input.files || input.files.length === 0) {
-                    allPhotosValid = false;
-                    input.classList.add('is-invalid');
-                } else {
-                    input.classList.remove('is-invalid');
+                    showModal('error', 'Foto Wajib Diisi', 'Harap unggah semua foto yang diperlukan sebelum melanjutkan.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                    input.classList.add('is-invalid'); return false;
                 }
-            });
-            if (!allPhotosValid) {
-                showModal(
-                    'error',
-                    'Foto Wajib Diisi',
-                    'Harap unggah semua foto yang diperlukan sebelum melanjutkan.',
-                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
-                );
-                return false;
+                input.classList.remove('is-invalid');
             }
         }
 
-        // VALIDASI MINIMAL FOTO (INTERIOR / MESIN)
-        const dynamicContainers = steps
-            .find(s => +s.dataset.step === currentStep)
-            ?.querySelectorAll('[data-dynamic-photos][data-min-photos]');
-
+        const dynamicContainers = steps.find(s => +s.dataset.step === currentStep)?.querySelectorAll('[data-dynamic-photos][data-min-photos]');
         if (dynamicContainers && dynamicContainers.length) {
             for (const container of dynamicContainers) {
                 const minPhotos = +(container.dataset.minPhotos) || 1;
-
-                const inputs = container.querySelectorAll('input[type="file"]');
-
                 let filled = 0;
-                inputs.forEach(input => {
-                    if (input.files && input.files.length > 0) {
-                        filled++;
-                    }
-                });
-
+                container.querySelectorAll('input[type="file"]').forEach(input => { if (input.files && input.files.length > 0) filled++; });
                 if (filled < minPhotos) {
-                    showModal(
-                        'error',
-                        'Foto Belum Cukup',
-                        `Minimal ${minPhotos} foto harus diupload pada bagian ini.`,
-                        [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
-                    );
+                    showModal('error', 'Foto Belum Cukup', `Minimal ${minPhotos} foto harus diupload pada bagian ini.`, [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
                     return false;
                 }
             }
         }
 
-        // Validasi khusus step KM (Step 5)
         if (currentStep === 5) {
             if (!isKmAwalValid || !isKmAkhirValid) {
-                showModal(
-                    'error',
-                    'Data Tidak Valid',
-                    'Periksa kembali KM Awal dan KM Akhir. Data masih belum sesuai.',
-                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
-                );
+                showModal('error', 'Data Tidak Valid', 'Periksa kembali KM Awal dan KM Akhir.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
                 return false;
             }
         }
 
-        // Validasi (step 7)
         if (currentStep === 7) {
-            const sigSerah = window._sigPadSerah;
-            const sigTerima = window._sigPadTerima;
-
-            if (!sigSerah || sigSerah.isEmpty()) {
-                showModal(
-                    'error',
-                    'Tanda Tangan Diperlukan',
-                    'Tanda tangan driver yang menyerahkan belum diisi.',
-                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
-                );
-                return false;
+            if (!window._sigPadSerah || window._sigPadSerah.isEmpty()) {
+                showModal('error', 'Tanda Tangan Diperlukan', 'Tanda tangan driver yang menyerahkan belum diisi.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]); return false;
             }
-
-            if (!sigTerima || sigTerima.isEmpty()) {
-                showModal(
-                    'error',
-                    'Tanda Tangan Diperlukan',
-                    'Tanda tangan driver yang menerima belum diisi.',
-                    [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]
-                );
-                return false;
+            if (!window._sigPadTerima || window._sigPadTerima.isEmpty()) {
+                showModal('error', 'Tanda Tangan Diperlukan', 'Tanda tangan driver yang menerima belum diisi.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]); return false;
             }
-
         }
 
         if (!el) return true;
-        const fields = el.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([data-no-validate]), select, textarea');
-        for (const f of fields) {
+        for (const f of el.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([data-no-validate]), select, textarea')) {
             if (f.closest('.dynamic-photo-container') && !f.hasAttribute('required')) continue;
             if (!f.checkValidity()) { f.reportValidity(); return false; }
         }
         return true;
     };
 
-    // RESET ERROR STYLE SAAT INTERAKSI
     document.querySelectorAll('.checklist-condition-row').forEach(row => {
-        const radios = row.querySelectorAll('input[type="radio"]');
+        row.querySelectorAll('input[type="radio"]').forEach(radio => { radio.addEventListener('change', () => { row.style.borderColor = ''; }); });
         const note = row.querySelector('.checklist-item-note');
-
-        radios.forEach(radio => {
-            radio.addEventListener('change', () => {
-                row.style.borderColor = '';
-            });
-        });
-
-        if (note) {
-            note.addEventListener('input', () => {
-                note.style.borderColor = '';
-            });
-        }
+        if (note) note.addEventListener('input', () => { note.style.borderColor = ''; });
     });
 
     prevButton.addEventListener('click', () => {
@@ -961,79 +781,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     nextButton.addEventListener('click', async () => {
         if (!validateCurrentStep()) return;
-
         if (currentStep === totalStep - 1) {
-            // Step 7 (Konfirmasi) → validate checkbox, then populate and show preview
             const konfirmasi = document.getElementById('konfirmasi_data');
             if (konfirmasi && !konfirmasi.checked) {
-                showModal('error', 'Konfirmasi Diperlukan', 'Anda harus mencentang checkbox konfirmasi data sebelum dapat melihat preview.', [
-                    { label: 'OK, Saya Mengerti', class: 'modal-btn-secondary', action: 'close' }
-                ]);
+                showModal('error', 'Konfirmasi Diperlukan', 'Anda harus mencentang checkbox konfirmasi data sebelum dapat melihat preview.', [{ label: 'OK, Saya Mengerti', class: 'modal-btn-secondary', action: 'close' }]);
                 return;
             }
-            populatePreview();
-            currentStep++;
-            updateWizardUI();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
+            populatePreview(); currentStep++; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); return;
         }
-
-        if (currentStep < totalStep) {
-            currentStep++;
-            updateWizardUI();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
-
-        // Final step (Preview) → submit to DB + generate PDF
+        if (currentStep < totalStep) { currentStep++; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
         await submitChecklist();
     });
 
-    /* ---- Modal System ---- */
     const showModal = (type, title, message, buttons = []) => {
-        const modal = document.getElementById('pdf-modal');
-        const iconEl = document.getElementById('pdf-modal-icon');
-        const titleEl = document.getElementById('pdf-modal-title');
-        const msgEl = document.getElementById('pdf-modal-message');
+        const modal    = document.getElementById('pdf-modal');
+        const iconEl   = document.getElementById('pdf-modal-icon');
+        const titleEl  = document.getElementById('pdf-modal-title');
+        const msgEl    = document.getElementById('pdf-modal-message');
         const actionsEl = document.getElementById('pdf-modal-actions');
-
         iconEl.className = 'modal-icon ' + type;
         iconEl.innerHTML = type === 'success'
             ? '<svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>'
             : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-        titleEl.textContent = title;
-        msgEl.textContent = message;
-        actionsEl.innerHTML = '';
-
+        titleEl.textContent = title; msgEl.textContent = message; actionsEl.innerHTML = '';
         buttons.forEach(btn => {
             if (btn.href) {
-                const a = document.createElement('a');
-                a.href = btn.href;
-                a.target = btn.target || '_blank';
-                a.className = `modal-btn ${btn.class}`;
-                a.textContent = btn.label;
-                actionsEl.appendChild(a);
+                const a = document.createElement('a'); a.href = btn.href; a.target = btn.target || '_blank'; a.className = `modal-btn ${btn.class}`; a.textContent = btn.label; actionsEl.appendChild(a);
             } else {
-                const b = document.createElement('button');
-                b.className = `modal-btn ${btn.class}`;
-                b.textContent = btn.label;
-                if (btn.action === 'close') b.onclick = () => modal.style.display = 'none';
+                const b = document.createElement('button'); b.className = `modal-btn ${btn.class}`; b.textContent = btn.label;
+                if (btn.action === 'close')      b.onclick = () => modal.style.display = 'none';
                 else if (btn.action === 'dashboard') b.onclick = () => window.location.href = '/dashboard';
                 actionsEl.appendChild(b);
             }
         });
-
         modal.style.display = 'flex';
     };
 
-    /* ================================================================
-       PREVIEW POPULATION
-       ================================================================ */
     const populatePreview = () => {
         const container = document.getElementById('preview-content');
         if (!container) return;
-
-        /* ── helpers ── */
         const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         const fv  = name => form.querySelector(`[name="${name}"]`)?.value?.trim() || '—';
         const rv  = name => { const r = form.querySelector(`[name="${name}"]:checked`); return r?.value?.toUpperCase() || '—'; };
@@ -1047,146 +833,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         const sigSerahUrl  = window._sigPadSerah  && !window._sigPadSerah.isEmpty()  ? window._sigPadSerah.toDataURL()  : null;
         const sigTerimaUrl = window._sigPadTerima && !window._sigPadTerima.isEmpty() ? window._sigPadTerima.toDataURL() : null;
-
-        /* ── ui components ── */
-        const badge = v => v === 'OK'
-            ? `<span class="pvw-badge pvw-ok">OK</span>`
-            : v === 'NO' ? `<span class="pvw-badge pvw-no">NO</span>`
-            : `<span class="pvw-badge">—</span>`;
-
-        const pvwRow = (label, value) =>
-            `<div class="pvw-row"><span class="pvw-label">${esc(label)}</span><span class="pvw-value">${value}</span></div>`;
-
-        const pvwSection = (title, body) => `
-            <div class="pvw-section">
-                <div class="pvw-section-head"><span>${esc(title)}</span></div>
-                <div class="pvw-section-body">${body}</div>
-            </div>`;
-
+        const badge = v => v === 'OK' ? `<span class="pvw-badge pvw-ok">OK</span>` : v === 'NO' ? `<span class="pvw-badge pvw-no">NO</span>` : `<span class="pvw-badge">—</span>`;
+        const pvwRow = (label, value) => `<div class="pvw-row"><span class="pvw-label">${esc(label)}</span><span class="pvw-value">${value}</span></div>`;
+        const pvwSection = (title, body) => `<div class="pvw-section"><div class="pvw-section-head"><span>${esc(title)}</span></div><div class="pvw-section-body">${body}</div></div>`;
         const pvwTable = (items, labels, prefix) => {
-            const rows = items.map(k => {
-                const val  = rv(`${prefix}_${k}`);
-                const note = nv(`${prefix}_${k}_catatan`);
-                return `<tr>
-                    <td>${esc(labels[k] || k)}</td>
-                    <td>${badge(val)}</td>
-                    <td class="pvw-note-cell">${note ? esc(note) : '<span class="pvw-none">—</span>'}</td>
-                </tr>`;
-            }).join('');
-            return `<table class="pvw-table">
-                <thead><tr><th>Item</th><th>Status</th><th>Keterangan</th></tr></thead>
-                <tbody>${rows}</tbody>
-            </table>`;
+            const rows = items.map(k => { const val = rv(`${prefix}_${k}`); const note = nv(`${prefix}_${k}_catatan`); return `<tr><td>${esc(labels[k]||k)}</td><td>${badge(val)}</td><td class="pvw-note-cell">${note ? esc(note) : '<span class="pvw-none">—</span>'}</td></tr>`; }).join('');
+            return `<table class="pvw-table"><thead><tr><th>Item</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>${rows}</tbody></table>`;
         };
-
-        const pvwPhotos = sources => {
-            const imgs = sources.filter(p => p.src).map(p =>
-                `<div class="pvw-photo-slot"><img src="${p.src}" alt="${esc(p.label)}"><span>${esc(p.label)}</span></div>`
-            ).join('');
-            return imgs ? `<div class="pvw-photo-grid">${imgs}</div>` : '';
-        };
-
-        /* ── A. Identitas ── */
-        const sA = `
-            ${pvwRow('Tanggal', esc(fv('tanggal')))}
-            ${pvwRow('Shift', esc(fv('shift')))}
-            ${pvwRow('Jam Serah Terima', esc(fv('jam_serah_terima')))}
-            ${pvwRow('Nomor Kendaraan', `<strong>${esc(fv('nomor_kendaraan'))}</strong>`)}
-            ${pvwRow('Jenis Kendaraan', esc(fv('jenis_kendaraan')))}
-            ${pvwRow('Driver Menyerahkan', esc(fv('driver_serah')))}
-            ${pvwRow('Driver Menerima', esc(fv('driver_terima')))}
-        `;
-
-        /* ── B. Eksterior ── */
-        const extItems  = ['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'];
+        const pvwPhotos = sources => { const imgs = sources.filter(p => p.src).map(p => `<div class="pvw-photo-slot"><img src="${p.src}" alt="${esc(p.label)}"><span>${esc(p.label)}</span></div>`).join(''); return imgs ? `<div class="pvw-photo-grid">${imgs}</div>` : ''; };
+        const extItems = ['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'];
         const extLabels = {body_kendaraan:'Body Kendaraan',kaca:'Kaca',spion:'Spion',lampu_utama:'Lampu Utama',lampu_sein:'Lampu Sein',ban:'Ban',velg:'Velg',wiper:'Wiper'};
-        const extPhotos = ['depan','kanan','kiri','belakang'].map(s => ({label: s.toUpperCase(), src: photoSrc(`exterior_foto_${s}`)}));
-        const sB = pvwTable(extItems, extLabels, 'exterior') + pvwPhotos(extPhotos);
-
-        /* ── C. Interior ── */
         const intItems  = ['jok','dashboard','ac','sabuk_pengaman','audio','kebersihan'];
         const intLabels = {jok:'Jok / Kursi',dashboard:'Dashboard',ac:'AC',sabuk_pengaman:'Sabuk Pengaman',audio:'Audio / Head Unit',kebersihan:'Kebersihan Interior'};
-        const intPhotos = [1,2,3].map(i => ({label:`Foto ${i}`, src: photoSrc(`interior_foto_${i}`)}));
-        const sC = pvwTable(intItems, intLabels, 'interior') + pvwPhotos(intPhotos);
-
-        /* ── D. Mesin ── */
         const msnItems  = ['mesin','oli','radiator','rem','kopling','transmisi','indikator'];
         const msnLabels = {mesin:'Mesin (Suara Normal)',oli:'Oli Mesin',radiator:'Air Radiator',rem:'Rem',kopling:'Kopling (Manual)',transmisi:'Transmisi',indikator:'Indikator Panel'};
-        const msnPhotos = [1,2,3].map(i => ({label:`Foto ${i}`, src: photoSrc(`mesin_foto_${i}`)}));
-        const sD = pvwTable(msnItems, msnLabels, 'mesin') + pvwPhotos(msnPhotos);
-
-        /* ── E. BBM & KM ── */
-        const bbmDate = fv('bbm_terakhir_date');
-        const bbmTime = fv('bbm_terakhir_time');
-        const bbmTerakhir = [bbmDate, bbmTime].filter(v => v !== '—').join(' ') || '—';
+        const bbmDate = fv('bbm_terakhir_date'), bbmTime = fv('bbm_terakhir_time');
+        const bbmTerakhir = [bbmDate,bbmTime].filter(v=>v!=='—').join(' ')||'—';
         const bbmPhotoSrc = photoSrc('foto_bbm_dashboard');
-        const sE = `
-            ${pvwRow('Level BBM', `<strong>${esc(fv('level_bbm'))}%</strong>`)}
-            ${pvwRow('Pengisian BBM Terakhir', esc(bbmTerakhir))}
-            ${pvwRow('KM Awal', esc(fv('km_awal')))}
-            ${pvwRow('KM Akhir', esc(fv('km_akhir')))}
-            ${bbmPhotoSrc ? `<div class="pvw-photo-grid"><div class="pvw-photo-slot"><img src="${bbmPhotoSrc}" alt="Dashboard BBM"><span>Dashboard BBM</span></div></div>` : ''}
-        `;
-
-        /* ── F. Perlengkapan ── */
-        const plItems = {stnk:'STNK', kir:'Kartu KIR & QR BBM', dongkrak:'Dongkrak', toolkit:'Toolkit', segitiga:'Segitiga Pengaman', apar:'APAR', ban_cadangan:'Ban Cadangan'};
-        const sF = `<div class="pvw-perlengkapan-grid">` +
-            Object.entries(plItems).map(([k, label]) => {
-                const ada = cbv(`perlengkapan[${k}]`);
-                return `<div class="pvw-perlengkapan-item ${ada ? 'ada' : 'tidak'}">
-                    <span class="pvw-pl-icon">${ada ? '✓' : '✗'}</span>
-                    <span>${esc(label)}</span>
-                </div>`;
-            }).join('') + `</div>`;
-
-        /* ── G. Catatan & TTD ── */
+        const plItems = {stnk:'STNK',kir:'Kartu KIR & QR BBM',dongkrak:'Dongkrak',toolkit:'Toolkit',segitiga:'Segitiga Pengaman',apar:'APAR',ban_cadangan:'Ban Cadangan'};
         const catatanVal = nv('catatan_khusus');
-        const sG = `
-            <div style="margin-bottom:14px">
-                <span class="pvw-label" style="display:block;margin-bottom:6px">Catatan Tambahan</span>
-                ${catatanVal
-                    ? `<div class="pvw-catatan">${esc(catatanVal)}</div>`
-                    : '<span class="pvw-none">Tidak ada catatan tambahan.</span>'}
-            </div>
-            <div class="pvw-sig-grid">
-                <div class="pvw-sig-block">
-                    <div class="pvw-sig-label">TTD Driver Menyerahkan</div>
-                    ${sigSerahUrl
-                        ? `<img src="${sigSerahUrl}" class="pvw-sig-img" alt="TTD Serah">`
-                        : '<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}
-                </div>
-                <div class="pvw-sig-block">
-                    <div class="pvw-sig-label">TTD Driver Menerima</div>
-                    ${sigTerimaUrl
-                        ? `<img src="${sigTerimaUrl}" class="pvw-sig-img" alt="TTD Terima">`
-                        : '<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}
-                </div>
-            </div>
-        `;
-
         container.innerHTML = `
-            <div class="pvw-notice">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span>Periksa semua data di bawah ini. Klik <strong>GENERATE PDF</strong> untuk menyimpan dan membuat laporan.</span>
-            </div>
-            ${pvwSection('A. Identitas Unit', sA)}
-            ${pvwSection('B. Kondisi Eksterior', sB)}
-            ${pvwSection('C. Kondisi Interior', sC)}
-            ${pvwSection('D. Kondisi Mesin', sD)}
-            ${pvwSection('E. BBM & Kilometer', sE)}
-            ${pvwSection('F. Perlengkapan Unit', sF)}
-            ${pvwSection('G. Catatan & Tanda Tangan', sG)}
+            <div class="pvw-notice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Periksa semua data di bawah ini. Klik <strong>GENERATE PDF</strong> untuk menyimpan dan membuat laporan.</span></div>
+            ${pvwSection('A. Identitas Unit', `${pvwRow('Tanggal',esc(fv('tanggal')))}${pvwRow('Shift',esc(fv('shift')))}${pvwRow('Jam Serah Terima',esc(fv('jam_serah_terima')))}${pvwRow('Nomor Kendaraan',`<strong>${esc(fv('nomor_kendaraan'))}</strong>`)}${pvwRow('Jenis Kendaraan',esc(fv('jenis_kendaraan')))}${pvwRow('Driver Menyerahkan',esc(fv('driver_serah')))}${pvwRow('Driver Menerima',esc(fv('driver_terima')))}`)}
+            ${pvwSection('B. Kondisi Eksterior', pvwTable(extItems,extLabels,'exterior')+pvwPhotos(['depan','kanan','kiri','belakang'].map(s=>({label:s.toUpperCase(),src:photoSrc(`exterior_foto_${s}`)}))))}
+            ${pvwSection('C. Kondisi Interior', pvwTable(intItems,intLabels,'interior')+pvwPhotos([1,2,3].map(i=>({label:`Foto ${i}`,src:photoSrc(`interior_foto_${i}`)})))) }
+            ${pvwSection('D. Kondisi Mesin',    pvwTable(msnItems,msnLabels,'mesin')+pvwPhotos([1,2,3].map(i=>({label:`Foto ${i}`,src:photoSrc(`mesin_foto_${i}`)})))) }
+            ${pvwSection('E. BBM & Kilometer', `${pvwRow('Level BBM',`<strong>${esc(fv('level_bbm'))}%</strong>`)}${pvwRow('Pengisian BBM Terakhir',esc(bbmTerakhir))}${pvwRow('KM Awal',esc(fv('km_awal')))}${pvwRow('KM Akhir',esc(fv('km_akhir')))}${bbmPhotoSrc?`<div class="pvw-photo-grid"><div class="pvw-photo-slot"><img src="${bbmPhotoSrc}" alt="Dashboard BBM"><span>Dashboard BBM</span></div></div>`:''}`)}
+            ${pvwSection('F. Perlengkapan Unit', `<div class="pvw-perlengkapan-grid">${Object.entries(plItems).map(([k,label])=>{const ada=cbv(`perlengkapan[${k}]`);return `<div class="pvw-perlengkapan-item ${ada?'ada':'tidak'}"><span class="pvw-pl-icon">${ada?'✓':'✗'}</span><span>${esc(label)}</span></div>`;}).join('')}</div>`)}
+            ${pvwSection('G. Catatan & Tanda Tangan', `<div style="margin-bottom:14px"><span class="pvw-label" style="display:block;margin-bottom:6px">Catatan Tambahan</span>${catatanVal?`<div class="pvw-catatan">${esc(catatanVal)}</div>`:'<span class="pvw-none">Tidak ada catatan tambahan.</span>'}</div><div class="pvw-sig-grid"><div class="pvw-sig-block"><div class="pvw-sig-label">TTD Driver Menyerahkan</div>${sigSerahUrl?`<img src="${sigSerahUrl}" class="pvw-sig-img" alt="TTD Serah">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div><div class="pvw-sig-block"><div class="pvw-sig-label">TTD Driver Menerima</div>${sigTerimaUrl?`<img src="${sigTerimaUrl}" class="pvw-sig-img" alt="TTD Terima">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div></div>`)}
         `;
     };
 
-    /* ---- Form Submit ---- */
     const submitChecklist = async () => {
-        if (window._sigPadSerah && !window._sigPadSerah.isEmpty()) {
-            document.getElementById('sig-data-serah').value = window._sigPadSerah.toDataURL();
-        }
-        if (window._sigPadTerima && !window._sigPadTerima.isEmpty()) {
-            document.getElementById('sig-data-terima').value = window._sigPadTerima.toDataURL();
-        }
+        if (window._sigPadSerah  && !window._sigPadSerah.isEmpty())  document.getElementById('sig-data-serah').value  = window._sigPadSerah.toDataURL();
+        if (window._sigPadTerima && !window._sigPadTerima.isEmpty()) document.getElementById('sig-data-terima').value = window._sigPadTerima.toDataURL();
         const bbmDate = form.querySelector('[name="bbm_terakhir_date"]');
         const bbmTime = form.querySelector('[name="bbm_terakhir_time"]');
         if (bbmDate && bbmDate.value) {
@@ -1194,102 +874,51 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!hidden) { hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = 'bbm_terakhir'; form.appendChild(hidden); }
             hidden.value = bbmDate.value + (bbmTime?.value ? ' ' + bbmTime.value : '');
         }
-
         const formData = new FormData(form);
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
         nextButton.disabled = true;
         nextButton.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px"><svg class="spin-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="31" stroke-linecap="round"></circle></svg> MEMPROSES...</span>';
-
         try {
-            const res = await fetch(form.action, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }, body: formData });
+            const res  = await fetch(form.action, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' }, body: formData });
             const data = await res.json();
             if (data.success) {
-                // Clear signature canvases — server has already discarded the image files.
-                [
-                    { pad: window._sigPadSerah,  hidden: 'sig-data-serah',  hint: 'serah' },
-                    { pad: window._sigPadTerima, hidden: 'sig-data-terima', hint: 'terima' },
-                ].forEach(({ pad, hidden, hint }) => {
-                    if (pad) { pad.clear(); }
-                    const hiddenEl = document.getElementById(hidden);
-                    if (hiddenEl) hiddenEl.value = '';
-                    const hintEl = wizardRoot.querySelector(`[data-sig-hint="${hint}"]`);
-                    if (hintEl) hintEl.classList.remove('hidden');
+                [{ pad: window._sigPadSerah, hidden: 'sig-data-serah', hint: 'serah' }, { pad: window._sigPadTerima, hidden: 'sig-data-terima', hint: 'terima' }].forEach(({ pad, hidden, hint }) => {
+                    if (pad) pad.clear();
+                    const hiddenEl = document.getElementById(hidden); if (hiddenEl) hiddenEl.value = '';
+                    const hintEl = wizardRoot.querySelector(`[data-sig-hint="${hint}"]`); if (hintEl) hintEl.classList.remove('hidden');
                 });
-
                 showModal('success', 'PDF Berhasil Dibuat!', 'Laporan checklist kendaraan telah berhasil di-generate dan disimpan.', [
                     { label: '📄 Lihat PDF', class: 'modal-btn-success', href: data.pdf_url, target: '_blank' },
                     { label: '← Kembali ke Dashboard', class: 'modal-btn-secondary', action: 'dashboard' }
                 ]);
             } else {
-                showModal('error', 'Gagal Membuat PDF', data.message || 'Terjadi kesalahan saat menyimpan data.', [
-                    { label: 'Coba Lagi', class: 'modal-btn-secondary', action: 'close' }
-                ]);
-                nextButton.disabled = false;
-                updateWizardUI();
+                showModal('error', 'Gagal Membuat PDF', data.message || 'Terjadi kesalahan saat menyimpan data.', [{ label: 'Coba Lagi', class: 'modal-btn-secondary', action: 'close' }]);
+                nextButton.disabled = false; updateWizardUI();
             }
         } catch (err) {
             console.error(err);
-            showModal('error', 'Koneksi Bermasalah', 'Terjadi kesalahan jaringan. Silakan periksa koneksi dan coba lagi.', [
-                { label: 'OK', class: 'modal-btn-secondary', action: 'close' }
-            ]);
-            nextButton.disabled = false;
-            updateWizardUI();
+            showModal('error', 'Koneksi Bermasalah', 'Terjadi kesalahan jaringan. Silakan periksa koneksi dan coba lagi.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+            nextButton.disabled = false; updateWizardUI();
         }
     };
 
     form.addEventListener('submit', e => e.preventDefault());
 
-    /* ================================================================
-       PHOTO PREVIEW
-       ================================================================ */
+    /* Photo preview & compression */
     async function compressImage(file, quality = 0.75, maxWidth = 1280) {
         return new Promise((resolve) => {
             const img = new Image();
-            // Use createObjectURL instead of FileReader.readAsDataURL — no base64 overhead,
-            // binary blob stays in native memory and is released via revokeObjectURL.
             const objectUrl = URL.createObjectURL(file);
-
             img.onload = () => {
-                URL.revokeObjectURL(objectUrl); // release as soon as image is decoded
-
-                let width = img.width;
-                let height = img.height;
-
-                if (width > maxWidth) {
-                    height = Math.round(height * maxWidth / width);
-                    width = maxWidth;
-                }
-
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                canvas.toBlob(
-                    blob => {
-                        const compressedFile = new File(
-                            [blob],
-                            file.name.replace(/\.\w+$/, '.jpg'),
-                            {
-                                type: 'image/jpeg',
-                                lastModified: Date.now()
-                            }
-                        );
-
-                        resolve(compressedFile);
-                    },
-                    'image/jpeg',
-                    quality
-                );
-            };
-
-            img.onerror = () => {
                 URL.revokeObjectURL(objectUrl);
-                resolve(file); // fallback: return original if decode fails
+                let width = img.width, height = img.height;
+                if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
+                const canvas = document.createElement('canvas');
+                canvas.width = width; canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                canvas.toBlob(blob => resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg', lastModified: Date.now() })), 'image/jpeg', quality);
             };
-
+            img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file); };
             img.src = objectUrl;
         });
     }
@@ -1300,49 +929,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const placeholder = slot.querySelector('.photo-slot-placeholder');
         const removeBtn = slot.querySelector('.photo-slot-remove');
         if (!input || !preview) return;
-        input.setAttribute('capture', 'environment');
-        input.setAttribute('accept', 'image/*');
-
+        input.setAttribute('capture', 'environment'); input.setAttribute('accept', 'image/*');
         input.addEventListener('change', async () => {
             if (!input.files?.[0]) return;
-
-            const originalFile = input.files[0];
-
-            const compressedFile = await compressImage(originalFile);
-
-            const dt = new DataTransfer();
-            dt.items.add(compressedFile);
-            input.files = dt.files;
-
-            // Revoke previous object URL to free memory before creating a new one
+            const compressed = await compressImage(input.files[0]);
+            const dt = new DataTransfer(); dt.items.add(compressed); input.files = dt.files;
             if (preview._blobUrl) URL.revokeObjectURL(preview._blobUrl);
-            preview._blobUrl = URL.createObjectURL(compressedFile);
-            preview.src = preview._blobUrl;
-            preview.style.display = 'block';
-
+            preview._blobUrl = URL.createObjectURL(compressed);
+            preview.src = preview._blobUrl; preview.style.display = 'block';
             if (placeholder) placeholder.style.display = 'none';
             if (removeBtn) removeBtn.style.display = 'flex';
-
             slot.classList.add('has-file');
         });
         if (removeBtn) removeBtn.addEventListener('click', e => {
-            e.preventDefault();
-            e.stopPropagation();
+            e.preventDefault(); e.stopPropagation();
             input.value = '';
-            // Revoke blob URL to free memory
             if (preview._blobUrl) { URL.revokeObjectURL(preview._blobUrl); preview._blobUrl = null; }
-            preview.style.display = 'none';
-            preview.src = '';
+            preview.style.display = 'none'; preview.src = '';
             if (placeholder) placeholder.style.display = 'flex';
-            removeBtn.style.display = 'none';
-            slot.classList.remove('has-file');
+            removeBtn.style.display = 'none'; slot.classList.remove('has-file');
         });
     };
     wizardRoot.querySelectorAll('[data-photo-preview-slot]').forEach(initPhotoSlot);
 
-    /* ================================================================
-       DYNAMIC PHOTO SLOTS
-       ================================================================ */
     wizardRoot.querySelectorAll('[data-dynamic-photos]').forEach(container => {
         const grid = container.querySelector('.dynamic-photo-grid');
         const addBtn = container.querySelector('[data-add-photo-btn]');
@@ -1363,117 +972,74 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    /* ================================================================
-       NOMOR KENDARAAN → AUTO-FILL
-       ================================================================ */
+    /* Nomor kendaraan auto-fill */
     const nomorSelect = document.getElementById('nomor_kendaraan');
-    const jenisInput = document.getElementById('jenis_kendaraan');
+    const jenisInput  = document.getElementById('jenis_kendaraan');
     const kmAwalInput = document.getElementById('km_awal');
     if (nomorSelect && jenisInput) {
         nomorSelect.addEventListener('change', async () => {
-            const sel = nomorSelect.options[nomorSelect.selectedIndex];
-            jenisInput.value = sel?.dataset?.jenis || '';
+            jenisInput.value = nomorSelect.options[nomorSelect.selectedIndex]?.dataset?.jenis || '';
             if (nomorSelect.value && kmAwalInput) {
                 try {
                     const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`);
                     const d = await r.json();
-                    const newKm = d.km || 0;
-                    // kmAwalInput.value = newKm;
-                    lastKmDatabase = newKm;
+                    lastKmDatabase = d.km || 0;
                     kmAwalInput.dispatchEvent(new Event('input'));
-                } catch {
-                    kmAwalInput.value = 0;
-                    lastKmDatabase = 0;
-                    kmAwalInput.dispatchEvent(new Event('input'));
-                }
+                } catch { kmAwalInput.value = 0; lastKmDatabase = 0; kmAwalInput.dispatchEvent(new Event('input')); }
             }
         });
     }
 
-    /* ================================================================
-       KM VALIDATION
-       ================================================================ */
+    /* KM validation */
+    const kmAwalError  = document.getElementById('km-awal-error');
+    const kmAwalErrTxt = document.getElementById('km-awal-error-text');
+    let lastKmDatabase = 0, isKmAwalValid = false, isKmAkhirValid = true;
 
-    const kmAwalError = document.getElementById('km-awal-error');
-    const kmAwalErrorText = document.getElementById('km-awal-error-text');
-
-    let lastKmDatabase = 0;
-    let isKmAwalValid = false;
-    let isKmAkhirValid = true;
-
-    // Ambil KM terakhir dari DB saat pilih kendaraan (sudah dilakukan di atas)
-
-    // VALIDASI KM AWAL
     if (kmAwalInput && kmAwalError) {
         kmAwalInput.addEventListener('input', () => {
-            const rawVal = kmAwalInput.value;
-            const val = Number(rawVal);
-
+            const rawVal = kmAwalInput.value, val = Number(rawVal);
             if (rawVal === '') {
-                kmAwalError.style.display = 'flex';
-                kmAwalErrorText.textContent = `Isi KM Awal`;
-                kmAwalInput.style.borderColor = '#2563eb';
-                kmAwalError.classList.remove('km-error-danger');
-                kmAwalError.classList.add('km-error-primary');
-                isKmAwalValid = false;
+                kmAwalError.style.display = 'flex'; kmAwalErrTxt.textContent = 'Isi KM Awal';
+                kmAwalInput.style.borderColor = '#2563eb'; kmAwalError.classList.replace('km-error-danger','km-error-primary'); isKmAwalValid = false;
             } else if (val !== lastKmDatabase) {
-                kmAwalError.style.display = 'flex';
-                kmAwalErrorText.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir.`;
-                kmAwalInput.style.borderColor = '#ef4444';
-                kmAwalError.classList.remove('km-error-primary');
-                kmAwalError.classList.add('km-error-danger');
-                isKmAwalValid = false;
+                kmAwalError.style.display = 'flex'; kmAwalErrTxt.textContent = `KM Awal (${val}) tidak sesuai dengan data terakhir.`;
+                kmAwalInput.style.borderColor = '#ef4444'; kmAwalError.classList.replace('km-error-primary','km-error-danger'); isKmAwalValid = false;
             } else {
-                kmAwalError.style.display = 'none';
-                kmAwalInput.style.borderColor = '';
-                kmAwalError.classList.remove('km-error-danger');
-                kmAwalError.classList.remove('km-error-primary');
-                isKmAwalValid = true;
+                kmAwalError.style.display = 'none'; kmAwalInput.style.borderColor = '';
+                kmAwalError.classList.remove('km-error-danger','km-error-primary'); isKmAwalValid = true;
             }
         });
     }
 
     const kmAkhirInput = document.getElementById('km_akhir');
-    const kmError = document.getElementById('km-error');
-    const kmErrorText = document.getElementById('km-error-text');
+    const kmError      = document.getElementById('km-error');
+    const kmErrTxt     = document.getElementById('km-error-text');
     if (kmAkhirInput && kmAwalInput && kmError) {
         kmAkhirInput.addEventListener('input', () => {
-            const awal = +(kmAwalInput.value) || 0;
-            const akhir = +(kmAkhirInput.value) || 0;
-
+            const awal = +(kmAwalInput.value)||0, akhir = +(kmAkhirInput.value)||0;
             if (akhir > 0 && akhir < awal) {
-                kmError.style.display = 'flex';
-                kmErrorText.textContent = `KM Akhir (${akhir}) tidak boleh lebih kecil dari KM Awal (${awal}).`;
-                kmAkhirInput.style.borderColor = '#ef4444';
-                kmError.classList.add('km-error-danger');
-                isKmAkhirValid = false;
+                kmError.style.display = 'flex'; kmErrTxt.textContent = `KM Akhir (${akhir}) tidak boleh lebih kecil dari KM Awal (${awal}).`;
+                kmAkhirInput.style.borderColor = '#ef4444'; kmError.classList.add('km-error-danger'); isKmAkhirValid = false;
             } else {
-                kmError.style.display = 'none';
-                kmAkhirInput.style.borderColor = '';
-                kmError.classList.remove('km-error-danger');
-                isKmAkhirValid = true;
+                kmError.style.display = 'none'; kmAkhirInput.style.borderColor = '';
+                kmError.classList.remove('km-error-danger'); isKmAkhirValid = true;
             }
         });
     }
 
-    /* ================================================================
-       SIGNATURE PADS
-       ================================================================ */
+    /* Signature pads */
     const initSigPad = (canvasId, hintSel, clearSel, dataId) => {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return null;
-        const hint = wizardRoot.querySelector(`[data-sig-hint="${hintSel}"]`);
+        const hint    = wizardRoot.querySelector(`[data-sig-hint="${hintSel}"]`);
         const clearBtn = wizardRoot.querySelector(`[data-clear-sig="${clearSel}"]`);
-        const resize = () => {
+        const resize  = () => {
             const rect = canvas.getBoundingClientRect();
             if (!rect.width || !rect.height) return false;
             const r = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = rect.width * r;
-            canvas.height = rect.height * r;
-            const context = canvas.getContext('2d');
-            context.setTransform(1, 0, 0, 1, 0, 0);
-            context.scale(r, r);
-            return true;
+            canvas.width = rect.width * r; canvas.height = rect.height * r;
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(1,0,0,1,0,0); ctx.scale(r,r); return true;
         };
         resize();
         const pad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,0)', penColor: '#0f172a', minWidth: 1.5, maxWidth: 3 });
@@ -1481,57 +1047,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (clearBtn) clearBtn.addEventListener('click', () => { pad.clear(); if (hint) hint.classList.remove('hidden'); const di = document.getElementById(dataId); if (di) di.value = ''; });
         pad._refreshCanvas = () => {
             const data = pad.isEmpty() ? [] : pad.toData();
-            if (!resize()) return;
-            pad.clear();
-            if (data.length) {
-                pad.fromData(data);
-            } else if (hint) {
-                hint.classList.remove('hidden');
-            }
+            if (!resize()) return; pad.clear();
+            if (data.length) pad.fromData(data); else if (hint) hint.classList.remove('hidden');
         };
-        let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { pad._refreshCanvas(); }, 200); }, { passive: true });
+        let rt;
+        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => pad._refreshCanvas(), 200); }, { passive: true });
         return pad;
     };
-    window._sigPadSerah = initSigPad('sig-pad-serah', 'serah', 'serah', 'sig-data-serah');
+    window._sigPadSerah  = initSigPad('sig-pad-serah',  'serah',  'serah',  'sig-data-serah');
     window._sigPadTerima = initSigPad('sig-pad-terima', 'terima', 'terima', 'sig-data-terima');
-    refreshSignaturePads = () => {
-        window._sigPadSerah?._refreshCanvas?.();
-        window._sigPadTerima?._refreshCanvas?.();
-    };
+    refreshSignaturePads = () => { window._sigPadSerah?._refreshCanvas?.(); window._sigPadTerima?._refreshCanvas?.(); };
 
-    /* ================================================================
-       FORM COMPLETENESS CHECK
-       ================================================================ */
     const completeAlert = document.getElementById('form-complete-alert');
-    const konfirmasi = document.getElementById('konfirmasi_data');
-    if (konfirmasi && completeAlert) {
-        konfirmasi.addEventListener('change', () => { completeAlert.style.display = konfirmasi.checked ? 'flex' : 'none'; });
-    }
+    const konfirmasiCb  = document.getElementById('konfirmasi_data');
+    if (konfirmasiCb && completeAlert) konfirmasiCb.addEventListener('change', () => { completeAlert.style.display = konfirmasiCb.checked ? 'flex' : 'none'; });
 
     updateWizardUI();
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-    const slider = document.getElementById("bbm-range");
-    const display = document.getElementById("bbm-value-display");
-
+/* ================================================================
+   BBM RANGE SLIDER — runs on every page load / Turbo navigation
+   ================================================================ */
+document.addEventListener('turbo:load', function () {
+    const slider  = document.getElementById('bbm-range');
+    const display = document.getElementById('bbm-value-display');
     if (!slider) return;
 
     function updateSlider() {
         const value = slider.value;
-
-        // update text
-        if (display) {
-            display.innerHTML = value + "<small>%</small>";
-        }
-
-        // FORCE warna (ini kuncinya)
+        if (display) display.innerHTML = value + '<small>%</small>';
         slider.style.background = `linear-gradient(to right, #facc15 ${value}%, #e5e7eb ${value}%)`;
     }
-
-    // init pertama
     updateSlider();
-
-    // saat digeser
-    slider.addEventListener("input", updateSlider);
+    slider.addEventListener('input', updateSlider);
 });

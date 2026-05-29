@@ -1,17 +1,9 @@
 /**
  * Form laporan BBM (driver): wizard 3 langkah, preview foto, kalkulasi total, AJAX submit.
  */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('turbo:load', () => {
     const root = document.querySelector('[data-bbm-form]');
     if (!root) return;
-
-    const applyTheme = (isDark) => {
-        document.body.classList.toggle('dark', isDark);
-        const themeIcon = document.getElementById('dash-theme-icon');
-        const themeLabel = document.getElementById('dash-theme-label');
-        if (themeIcon) themeIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-        if (themeLabel) themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    };
 
     async function compressImage(file, quality = 0.8, maxWidth = 1920) {
         return new Promise((resolve) => {
@@ -138,31 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hplInp?.addEventListener('input', recalcTotal);
     recalcTotal();
 
-    const body = document.body;
-    const navActions = document.getElementById('dash-nav-actions');
-    const menuBtn = document.getElementById('dash-mobile-menu-btn');
-    const menuIcon = document.getElementById('dash-mobile-menu-icon');
-
-    const saved = localStorage.getItem('vms-theme') || localStorage.getItem('vms-dash-theme');
-    applyTheme(saved === 'dark');
-
-    const closeMobileMenu = () => {
-        navActions?.classList.remove('mobile-open');
-        if (menuIcon) menuIcon.className = 'bi bi-list';
-        menuBtn?.setAttribute('aria-expanded', 'false');
-    };
-    menuBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const opened = navActions?.classList.toggle('mobile-open');
-        if (menuIcon) menuIcon.className = opened ? 'bi bi-x-lg' : 'bi bi-list';
-        menuBtn?.setAttribute('aria-expanded', String(!!opened));
-    });
-    document.addEventListener('click', (e) => {
-        if (!navActions?.contains(e.target) && !menuBtn?.contains(e.target)) closeMobileMenu();
-    });
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 992) closeMobileMenu();
-    }, { passive: true });
+    /* Theme and mobile menu are managed globally by app.js initVmsDashChrome */
 
     const bbmForm = document.getElementById('bbm-report-form');
     const bbmSubmitBtn = document.getElementById('bbm-submit');

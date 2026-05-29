@@ -4,6 +4,10 @@
 @section('pageTitle', 'Log Penggunaan Kendaraan')
 @section('pageSubtitle', 'Isi log pemakaian kendaraan')
 
+@push('styles')
+<meta name="turbo-cache-control" content="no-cache">
+@endpush
+
 @php
     $bbmAwalOld = old('level_bbm_awal');
     $bbmAwalNum = is_numeric($bbmAwalOld) ? max(0, min(100, (int) $bbmAwalOld)) : 50;

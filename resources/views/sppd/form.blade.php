@@ -5,6 +5,10 @@
 @section('pageTitle', 'TransDinas')
 @section('pageSubtitle', 'Buat Rekap SPPD')
 
+@push('styles')
+<meta name="turbo-cache-control" content="no-cache">
+@endpush
+
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @vite(['resources/js/sppd-form.js'])

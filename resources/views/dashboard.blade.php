@@ -361,22 +361,20 @@
 @push('scripts')
 
 <script>
-/* ── Pressable feedback ── */
-document.querySelectorAll('.dash-pressable').forEach(el => {
-    const clear = () => el.classList.remove('dash-pressing');
-    el.addEventListener('pointerdown', () => el.classList.add('dash-pressing'));
-    el.addEventListener('pointerup', clear);
-    el.addEventListener('pointercancel', clear);
-    el.addEventListener('pointerleave', clear);
-});
+/* Pressable feedback is handled by app.js (turbo:load) */
 
 @if($isDriver)
 /* ── Live clock (driver / PIC) ── */
 (function () {
+    /* Guard against multiple intervals on Turbo back-navigation */
+    if (window._dashClockInterval) {
+        clearInterval(window._dashClockInterval);
+        window._dashClockInterval = null;
+    }
     const DAYS   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
     const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
     function getShift(hour) {
-        if (hour >= 7 && hour < 12)  return { label: 'Shift Pagi',  cls: 'shift-pagi' };
+        if (hour >= 7  && hour < 12) return { label: 'Shift Pagi',  cls: 'shift-pagi' };
         if (hour >= 12 && hour < 16) return { label: 'Shift Siang', cls: 'shift-siang' };
         return { label: 'Di Luar Shift', cls: 'shift-none' };
     }
@@ -390,19 +388,30 @@ document.querySelectorAll('.dash-pressable').forEach(el => {
         const shiftEl = document.getElementById('dash-hero-shift');
         if (dateEl) dateEl.textContent = `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
         if (timeEl) timeEl.textContent = `${hh}:${mm} WIB`;
-        if (shiftEl) {
-            shiftEl.textContent = shift.label;
-            shiftEl.className   = 'dash-hero-shift dash-clock-shift ' + shift.cls;
-        }
+        if (shiftEl) { shiftEl.textContent = shift.label; shiftEl.className = 'dash-hero-shift dash-clock-shift ' + shift.cls; }
     }
     tick();
-    setInterval(tick, 1000);
+    window._dashClockInterval = setInterval(tick, 1000);
+
+    /* Clean up before Turbo caches this page — use central registry to avoid stacking */
+    if (typeof window.registerTurboCleanup === 'function') {
+        window.registerTurboCleanup(function () {
+            if (window._dashClockInterval) { clearInterval(window._dashClockInterval); window._dashClockInterval = null; }
+        });
+    } else {
+        document.addEventListener('turbo:before-cache', function () {
+            if (window._dashClockInterval) { clearInterval(window._dashClockInterval); window._dashClockInterval = null; }
+        }, { once: true });
+    }
 })();
 @endif
 
-/* ── Spin icon keyframe ── */
-const _st = document.createElement('style');
-_st.textContent = '@keyframes spinIcon{to{transform:rotate(360deg)}}.spin-icon{animation:spinIcon 1s linear infinite}';
-document.head.appendChild(_st);
+/* ── Spin icon keyframe (injected once) ── */
+if (!document.getElementById('vms-spin-style')) {
+    const _st = document.createElement('style');
+    _st.id = 'vms-spin-style';
+    _st.textContent = '@keyframes spinIcon{to{transform:rotate(360deg)}}.spin-icon{animation:spinIcon 1s linear infinite}';
+    document.head.appendChild(_st);
+}
 </script>
 @endpush

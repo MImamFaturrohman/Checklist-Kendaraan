@@ -6,6 +6,10 @@
 
 @php $premiumBgId = 'portal_pemeriksaan'; @endphp
 
+@push('head')
+<meta name="turbo-cache-control" content="no-cache">
+@endpush
+
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
@@ -62,22 +66,34 @@
         {{-- ============================================================
              CHARTS  (3 small + 1 wide BBM horizontal)
         ============================================================ --}}
-        <div class="portal-charts-grid">
+        <div class="portal-charts-grid" id="portal-charts-pemeriksaan" data-portal-charts="pemeriksaan">
             <div class="portal-chart-card">
                 <div class="portal-chart-title">Ceklist per Bulan</div>
-                <div class="portal-chart-container"><canvas id="chartBulan"></canvas></div>
+                <div class="portal-chart-container">
+                    <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                    <canvas id="chartBulan"></canvas>
+                </div>
             </div>
             <div class="portal-chart-card">
                 <div class="portal-chart-title">Ceklist per Kendaraan</div>
-                <div class="portal-chart-container"><canvas id="chartKendaraan"></canvas></div>
+                <div class="portal-chart-container">
+                    <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                    <canvas id="chartKendaraan"></canvas>
+                </div>
             </div>
             <div class="portal-chart-card">
                 <div class="portal-chart-title">Distribusi Shift</div>
-                <div class="portal-chart-container portal-chart-container--doughnut"><canvas id="chartShift"></canvas></div>
+                <div class="portal-chart-container portal-chart-container--doughnut">
+                    <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                    <canvas id="chartShift"></canvas>
+                </div>
             </div>
             <div class="portal-chart-card portal-chart-card--wide">
                 <div class="portal-chart-title">Rata-rata Level BBM per Kendaraan (%)</div>
-                <div class="portal-chart-container portal-chart-container--bbm"><canvas id="chartBbm"></canvas></div>
+                <div class="portal-chart-container portal-chart-container--bbm">
+                    <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                    <canvas id="chartBbm"></canvas>
+                </div>
             </div>
         </div>
 
@@ -611,7 +627,7 @@
         /* ================================================================
         CHARTS — dark-mode aware, rebuilds on theme toggle
         ================================================================ */
-        const YELLOW = '#ffd700';
+        const YELLOW = '#D4AF37';
         const GREEN  = '#16a34a';
         const RED    = '#dc2626';
         const SLATE  = '#94a3b8';
@@ -619,17 +635,30 @@
 
         let _chartInstances = {};
 
+        function _isDarkTheme() {
+            return document.documentElement.classList.contains('dark')
+                || document.body.classList.contains('dark');
+        }
+
+        function _chartAccentColor() {
+            return _isDarkTheme() ? '#D4AF37' : '#0e2a52';
+        }
+
+        function _chartAccentFill() {
+            return _isDarkTheme() ? 'rgba(212, 175, 55, 0.15)' : 'rgba(10, 35, 66, 0.08)';
+        }
+
         function _buildCharts() {
             Object.values(_chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
             _chartInstances = {};
 
-            const dark  = document.body.classList.contains('dark');
-            console.log(dark);
-            const blue  = dark ? '#60a5fa' : '#D4AF37';
-            const grid  = dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)';
-            const tick  = dark ? 'rgba(200,218,255,0.65)' : '#64748b';
-            const lgnd  = dark ? 'rgba(200,218,255,0.75)' : '#475569';
-            const bdr   = dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)';
+            const dark   = _isDarkTheme();
+            const accent = _chartAccentColor();
+            const blue   = dark ? '#1a3a72' : '#0e2a52';
+            const grid   = dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)';
+            const tick   = dark ? 'rgba(200,218,255,0.65)' : '#64748b';
+            const lgnd   = dark ? 'rgba(200,218,255,0.75)' : '#475569';
+            const bdr    = dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)';
 
             const commonOpts = {
                 responsive: true,
@@ -650,13 +679,13 @@
                         labels: CHART_DATA.perBulan.labels,
                         datasets: [{
                             data: CHART_DATA.perBulan.data,
-                            borderColor: blue,
-                            backgroundColor: dark ? 'rgba(96,165,250,0.1)' : 'rgba(0,42,122,0.08)',
+                            borderColor: accent,
+                            backgroundColor: _chartAccentFill(),
                             borderWidth: 2,
                             tension: 0.4,
                             fill: true,
                             pointRadius: 4,
-                            pointBackgroundColor: blue,
+                            pointBackgroundColor: accent,
                         }],
                     },
                     options: { ...commonOpts, scales: xyScales },
@@ -672,7 +701,7 @@
                         labels: CHART_DATA.perKendaraan.labels,
                         datasets: [{
                             data: CHART_DATA.perKendaraan.data,
-                            backgroundColor: blue,
+                            backgroundColor: accent,
                             borderRadius: 4,
                         }],
                     },
@@ -741,19 +770,51 @@
             }
         }
 
-        // Lazy-render charts using IntersectionObserver — defers canvas paint
-        // until the chart grid enters the viewport, reducing initial load freeze.
-        const chartsGrid = document.querySelector('.portal-charts-grid');
-        if (chartsGrid && 'IntersectionObserver' in window) {
-            const chartObserver = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    _buildCharts();
-                    chartObserver.disconnect();
-                }
-            }, { threshold: 0.05, rootMargin: '100px' });
-            chartObserver.observe(chartsGrid);
-        } else {
-            _buildCharts(); // Fallback for older browsers
+        // Build charts immediately — data is already server-rendered, no need to defer
+        (function () {
+            if (typeof Chart === 'undefined') {
+                // Chart.js CDN not yet loaded — wait for it
+                const waitForChart = setInterval(function () {
+                    if (typeof Chart !== 'undefined') {
+                        clearInterval(waitForChart);
+                        _buildChartsAndReveal();
+                    }
+                }, 30);
+            } else {
+                _buildChartsAndReveal();
+            }
+        })();
+
+        function _buildChartsAndReveal() {
+            _buildCharts();
+            // Hide loading overlays after canvas paint
+            requestAnimationFrame(function () {
+                document.querySelectorAll('#portal-charts-pemeriksaan .portal-chart-container').forEach(function (c) {
+                    c.classList.add('is-ready');
+                });
+            });
+        }
+
+        /* Rebuild charts on theme toggle — delegated once at document level */
+        if (!document._portalPemeriksaanThemeBound) {
+            document._portalPemeriksaanThemeBound = true;
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('#dash-theme-toggle')) return;
+                if (!document.getElementById('portal-charts-pemeriksaan')) return;
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(_buildChartsAndReveal);
+                });
+            });
+        }
+
+        /* Register chart destroy with central Turbo cleanup registry */
+        if (typeof window.registerTurboCleanup === 'function') {
+            window.registerTurboCleanup(function () {
+                Object.values(_chartInstances).forEach(function (c) {
+                    try { c.destroy(); } catch (_) {}
+                });
+                _chartInstances = {};
+            });
         }
 
         if (!CAN_ACCESS_DATABASE) return;
@@ -1351,12 +1412,5 @@
         }
 
         })();
-    </script>
-
-    <script>
-        /* Rebuild charts when theme changes */
-        document.getElementById('dash-theme-toggle')?.addEventListener('click', function () {
-            setTimeout(_buildCharts, 60);
-        });
     </script>
 @endpush

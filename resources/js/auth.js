@@ -3,7 +3,7 @@
     const btn  = document.getElementById('theme-toggle');
     const icon = document.getElementById('theme-icon');
     const body = document.body;
-    const root = document.documentElement;
+    const html = document.documentElement;
 
     if (!btn || !icon) return;
 
@@ -12,10 +12,12 @@
 
     function applyTheme(isLight) {
         const g = isLight ? LIGHT : DARK;
-        root.style.setProperty('--grad-1', g.g1);
-        root.style.setProperty('--grad-2', g.g2);
-        root.style.setProperty('--grad-3', g.g3);
+        html.style.setProperty('--grad-1', g.g1);
+        html.style.setProperty('--grad-2', g.g2);
+        html.style.setProperty('--grad-3', g.g3);
         body.classList.toggle('light-mode', isLight);
+        /* sync html.dark so the FOUC rule stays consistent */
+        html.classList.toggle('dark', !isLight);
         icon.className = isLight ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
     }
 

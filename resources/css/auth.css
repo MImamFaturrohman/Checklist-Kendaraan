@@ -19,7 +19,7 @@
     --auth-text-muted: rgba(200, 218, 255, 0.85);
     --auth-input-bg: rgba(255, 255, 255, 0.15);
     --auth-input-border: rgba(255, 255, 255, 0.25);
-    --auth-input-border-focus: rgba(120, 170, 255, 0.8);
+    --auth-input-border-focus: rgba(255, 255, 255, 0.35);
     --auth-label: rgba(190, 210, 255, 0.9);
     --auth-card-radius: 1.4rem;
     --auth-transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
@@ -361,9 +361,9 @@
 }
 
 .auth-input-group:focus-within {
-    border-color: rgba(120, 170, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.35);
     background: rgba(255, 255, 255, 0.22);
-    box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.18);
+    box-shadow: none;
 }
 
 .auth-input-group.has-error {
@@ -384,7 +384,7 @@
 }
 
 .auth-input-group:focus-within .auth-input-icon {
-    color: #93c5fd;
+    color: var(--auth-gold-light);
 }
 
 .auth-input {
@@ -434,7 +434,7 @@
 
 .auth-password-toggle:hover,
 .auth-password-toggle:focus {
-    color: #93c5fd;
+    color: var(--auth-gold-light);
     outline: none;
 }
 
@@ -870,9 +870,9 @@
 }
 
 .light-mode .auth-input-group:focus-within {
-    border-color: rgba(59, 95, 192, 0.70);
+    border-color: rgba(100, 140, 210, 0.45);
     background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 0 0 3px rgba(59, 95, 192, 0.12);
+    box-shadow: none;
 }
 
 .light-mode .auth-input-group.has-error {
@@ -885,7 +885,7 @@
 }
 
 .light-mode .auth-input-group:focus-within .auth-input-icon {
-    color: #2d5fcc;
+    color: var(--auth-gold);
 }
 
 .light-mode .auth-input {
@@ -909,7 +909,7 @@
 
 .light-mode .auth-password-toggle:hover,
 .light-mode .auth-password-toggle:focus {
-    color: #2d5fcc;
+    color: var(--auth-gold);
 }
 
 /* ================================================================

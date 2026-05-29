@@ -4,6 +4,10 @@
 @section('bodyClass', 'bbm-form-page')
 @section('pageTitle', 'Form Pengisian BBM')
 
+@push('styles')
+<meta name="turbo-cache-control" content="no-cache">
+@endpush
+
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>

@@ -12,6 +12,10 @@
 
 @php $premiumBgId = 'bbm_operational'; @endphp
 
+@push('head')
+<meta name="turbo-cache-control" content="no-cache">
+@endpush
+
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 @endpush
@@ -416,20 +420,29 @@
                 </div>
             </div>
 
-            <div class="portal-charts-grid portal-charts-grid--bbm">
+            <div class="portal-charts-grid portal-charts-grid--bbm" id="portal-charts-bbm">
                 <div class="portal-chart-card portal-chart-card--wide">
                     <div class="portal-chart-title-row">
                         <div class="portal-chart-title">Pengeluaran BBM per bulan (Jan–Des)</div>
                     </div>
-                    <div class="portal-chart-container" style="height:260px"><canvas id="bbmChartRupiahYear"></canvas></div>
+                    <div class="portal-chart-container" style="height:260px">
+                        <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                        <canvas id="bbmChartRupiahYear"></canvas>
+                    </div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--wide">
                     <div class="portal-chart-title">Total liter BBM per bulan (Jan–Des)</div>
-                    <div class="portal-chart-container" style="height:280px"><canvas id="bbmChartLiterMonthly"></canvas></div>
+                    <div class="portal-chart-container" style="height:280px">
+                        <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                        <canvas id="bbmChartLiterMonthly"></canvas>
+                    </div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--bbm-driver-col">
                     <div class="portal-chart-title">Top driver — frekuensi pengisian (bulan berjalan)</div>
-                    <div class="portal-chart-container portal-chart-container--bbm-driver-pie"><canvas id="bbmChartDriverFreq"></canvas></div>
+                    <div class="portal-chart-container portal-chart-container--bbm-driver-pie">
+                        <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                        <canvas id="bbmChartDriverFreq"></canvas>
+                    </div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--bbm-log-col bbm-activity-log-card" id="bbm-activity-log-card">
                     <div class="bbm-activity-log-head">
@@ -616,8 +629,13 @@
                 return 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + alpha + ')';
             }
 
+            function isDarkTheme() {
+                return document.documentElement.classList.contains('dark')
+                    || document.body.classList.contains('dark');
+            }
+
             function chartCommonSkin() {
-                const dark = document.body.classList.contains('dark');
+                const dark = isDarkTheme();
                 return {
                     dark,
                     grid: dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)',
@@ -776,6 +794,13 @@
                     lastComparisonPayload = data;
                     renderComparisonCharts(data);
                     updateYearHint(data.year, data.year_previous);
+                    // Reveal loading overlays after AJAX charts are rendered
+                    requestAnimationFrame(function () {
+                        ['bbmChartRupiahYear', 'bbmChartLiterMonthly'].forEach(function (id) {
+                            const c = document.getElementById(id)?.closest('.portal-chart-container');
+                            if (c) c.classList.add('is-ready');
+                        });
+                    });
                 } catch (_) {}
             }
 
@@ -785,7 +810,7 @@
                 const { tick, bdr, common } = chartCommonSkin();
                 const elD = document.getElementById('bbmChartDriverFreq');
                 if (!elD || !TOP_DRIVERS_MONTH.length) return;
-                const dark = document.body.classList.contains('dark');
+                const dark = isDarkTheme();
                 const pieFill = dark ? 0.88 : 0.92;
                 const drvLabels = TOP_DRIVERS_MONTH.map((d) => d.name || d.username || 'Driver');
                 const drvData = TOP_DRIVERS_MONTH.map((d) => Number(d.cnt));
@@ -979,31 +1004,20 @@
             document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
             document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });
 
-            // Lazy-init charts using IntersectionObserver for faster initial render
-            const bbmChartSection = document.getElementById('bbmChartRupiahYear')?.closest('.portal-chart-card, .portal-charts-grid, [class*="chart"]') || document.getElementById('bbmChartRupiahYear');
-            let chartsInitialized = false;
+            // Init charts immediately — no deferred IntersectionObserver
+            buildDriverPieChart();
+            // Show spinner on AJAX chart containers until data arrives
+            // (fetchComparisonCharts will call revealBbmCharts when done)
+            fetchComparisonCharts();
+            fetchActivityLog();
+            chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
+            logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
 
-            function initBbmCharts() {
-                if (chartsInitialized) return;
-                chartsInitialized = true;
-                buildDriverPieChart();
-                fetchComparisonCharts();
-                fetchActivityLog();
-                chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
-                logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
-            }
-
-            if (bbmChartSection && 'IntersectionObserver' in window) {
-                const bbmChartObserver = new IntersectionObserver((entries) => {
-                    if (entries[0].isIntersecting) {
-                        initBbmCharts();
-                        bbmChartObserver.disconnect();
-                    }
-                }, { threshold: 0.05, rootMargin: '150px' });
-                bbmChartObserver.observe(bbmChartSection);
-            } else {
-                initBbmCharts();
-            }
+            // Reveal pie chart loading overlay immediately after sync build
+            requestAnimationFrame(function () {
+                const pieContainer = document.getElementById('bbmChartDriverFreq')?.closest('.portal-chart-container');
+                if (pieContainer) pieContainer.classList.add('is-ready');
+            });
 
             // Pause polling when tab is not visible — saves battery and network on mobile
             document.addEventListener('visibilitychange', () => {
@@ -1012,7 +1026,7 @@
                     clearInterval(logPollTimer);
                     chartPollTimer = null;
                     logPollTimer = null;
-                } else if (chartsInitialized) {
+                } else {
                     fetchComparisonCharts();
                     fetchActivityLog();
                     chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
@@ -1025,6 +1039,43 @@
                 clearTimeout(bbmPieResizeTimer);
                 bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(), 200);
             }, { passive: true });
+
+            /* Expose rebuild fn so the single document-level theme listener always calls the latest closure */
+            window._bbmPortalRebuildCharts = function () {
+                buildDriverPieChart();
+                redrawComparisonFromCache();
+            };
+
+            /* Rebuild charts on theme toggle */
+            if (!document._bbmPortalThemeBound) {
+                document._bbmPortalThemeBound = true;
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('#dash-theme-toggle')) return;
+                    if (!document.getElementById('portal-charts-bbm')) return;
+                    requestAnimationFrame(function () {
+                        requestAnimationFrame(function () {
+                            if (typeof window._bbmPortalRebuildCharts === 'function') {
+                                window._bbmPortalRebuildCharts();
+                            }
+                        });
+                    });
+                });
+            }
+
+            /* Register cleanup with central Turbo before-cache registry */
+            if (typeof window.registerTurboCleanup === 'function') {
+                window.registerTurboCleanup(function () {
+                    window._bbmPortalRebuildCharts = null;
+                    if (chartPollTimer) { clearInterval(chartPollTimer); chartPollTimer = null; }
+                    if (logPollTimer) { clearInterval(logPollTimer); logPollTimer = null; }
+                    try { chartDrvFreq?.destroy(); } catch (_) {}
+                    chartDrvFreq = null;
+                    try { chartRupiah?.destroy(); } catch (_) {}
+                    chartRupiah = null;
+                    try { chartLiterMonthly?.destroy(); } catch (_) {}
+                    chartLiterMonthly = null;
+                });
+            }
 
         })();
 

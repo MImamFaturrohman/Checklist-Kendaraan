@@ -6,16 +6,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@hasSection('title')@yield('title') — @endif{{ config('app.name', 'VMS') }}</title>
     @include('partials.favicon')
+    @include('partials.theme-init')
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
-    <!-- Vite assets -->
+    <!-- Vite assets (SweetAlert2 is bundled via npm — no CDN needed) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')
+    @stack('head')
 </head>
 
 <body class="dash-body @yield('bodyClass')">
@@ -127,7 +128,7 @@
         ])
     </div>
     <div class="dash-nav-drawer-footer">
-        <form method="POST" action="{{ route('logout') }}" class="dash-nav-drawer-logout-form js-logout-form">
+        <form method="POST" action="{{ route('logout') }}" class="dash-nav-drawer-logout-form js-logout-form" data-turbo="false">
             @csrf
             <button type="submit" class="dash-nav-drawer-logout-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -285,15 +286,6 @@ function openDashNavDrawer() {
     document.body.style.overflow = 'hidden';
     if (openBtn) openBtn.setAttribute('aria-expanded', 'true');
 }
-document.addEventListener('DOMContentLoaded', function () {
-    const drawer = document.getElementById('dash-nav-drawer');
-    if (!drawer) return;
-    drawer.querySelectorAll('a.dash-nav-drawer-link').forEach(function (link) {
-        link.addEventListener('click', function () {
-            closeDashNavDrawer();
-        });
-    });
-});
 
 /* ── Profile Drawer (global) ── */
 function openProfileDrawer() {
@@ -412,127 +404,22 @@ function showProfileAlert(type, msg) {
     el.style.display = 'flex';
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    const prof = document.getElementById('profile-drawer');
-    if (prof && prof.classList.contains('open')) {
-        closeProfileDrawer();
-        return;
-    }
-    closeDashNavDrawer();
-});
+/* Escape key handler and smooth-scroll cross-page logic are registered once in
+   app.js (initVmsDashChrome) to prevent document listener accumulation on
+   Turbo navigations. Logout handler is safe here — attaches to body elements
+   that are recreated on each navigation. */
 
-/* ── SMOOTH SCROLL ── */
-(function () {
-    const STORAGE_KEY = 'dash_pending_smooth_scroll';
-
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
-
-    function currentPageUrl() {
-        return window.location.origin + window.location.pathname + window.location.search;
-    }
-
-    function pageUrlWithoutHash(url) {
-        return url.origin + url.pathname + url.search;
-    }
-
-    function getTargetId(hash) {
-        return decodeURIComponent(hash.replace(/^#/, ''));
-    }
-
-    function smoothScrollToHash(hash, attempt = 0) {
-        const id = getTargetId(hash);
-        const target = document.getElementById(id);
-
-        if (!target) {
-            if (attempt < 20) {
-                setTimeout(() => {
-                    smoothScrollToHash(hash, attempt + 1);
-                }, 100);
-            }
-
-            return;
-        }
-
-        target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-
-        history.replaceState(
-            null,
-            '',
-            window.location.pathname + window.location.search + hash
-        );
-    }
-
-    document.addEventListener('click', function (e) {
-        const link = e.target.closest('a.dash-notif-link');
-
-        if (!link) return;
-
-        const href = link.getAttribute('href');
-
-        if (!href) return;
-
-        const url = new URL(href, window.location.href);
-
-        if (!url.hash) return;
-
-        e.preventDefault();
-
-        const targetPage = pageUrlWithoutHash(url);
-        const activePage = currentPageUrl();
-
-        if (targetPage === activePage) {
-            smoothScrollToHash(url.hash);
-            return;
-        }
-
-        sessionStorage.setItem(STORAGE_KEY, url.hash);
-
-        window.location.href = targetPage;
-    });
-
-    window.addEventListener('load', function () {
-        const pendingHash = sessionStorage.getItem(STORAGE_KEY);
-
-        if (!pendingHash) return;
-
-        sessionStorage.removeItem(STORAGE_KEY);
-
-        if (window.location.hash) {
-            history.replaceState(
-                null,
-                '',
-                window.location.pathname + window.location.search
-            );
-        }
-
-        window.scrollTo(0, 0);
-
-        setTimeout(() => {
-            smoothScrollToHash(pendingHash);
-        }, 300);
-    });
-})();
-
-document.querySelectorAll('.js-logout-form').forEach((form) => {
+document.querySelectorAll('.js-logout-form').forEach(function (form) {
     form.addEventListener('submit', function (event) {
         event.preventDefault();
-
         Swal.fire({
             title: 'Keluar dari akun?',
             text: 'Anda akan keluar dari sistem.',
             icon: 'warning',
-
             showCancelButton: true,
             confirmButtonText: 'Ya, Logout',
             cancelButtonText: 'Batal',
             reverseButtons: true,
-
             customClass: {
                 popup: 'dash-logout-swal-popup',
                 title: 'dash-logout-swal-title',
@@ -542,10 +429,8 @@ document.querySelectorAll('.js-logout-form').forEach((form) => {
                 confirmButton: 'dash-logout-swal-confirm',
                 cancelButton: 'dash-logout-swal-cancel'
             }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
+        }).then(function (result) {
+            if (result.isConfirmed) form.submit();
         });
     });
 });

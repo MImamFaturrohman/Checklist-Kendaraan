@@ -7,7 +7,7 @@
         <meta name="description" content="Login - VMS Vehicle Management System Portal Kendaraan Operasional">
         <title>Login - {{ config('app.name', 'VMS') }}</title>
         @include('partials.favicon')
-        @vite(['resources/css/auth.css', 'resources/js/auth.js', 'resources/js/app.js'])
+        @vite(['resources/css/auth.css', 'resources/js/auth.js'])
         
         <style>
             /* Gradient tokens — diubah JS saat toggle tema */
@@ -66,7 +66,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('login') }}" class="auth-form" data-login-form id="login-form">
+                <form method="POST" action="{{ route('login') }}" class="auth-form" data-login-form id="login-form" data-turbo="false">
                     @csrf
                     {{-- Username --}}
                     <div class="auth-field">
