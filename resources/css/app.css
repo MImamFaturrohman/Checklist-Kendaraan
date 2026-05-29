@@ -8773,6 +8773,9 @@ body.dash-body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.dash-logout-swal-popup {
+    background: rgba(255, 255, 255, 0.93);
+}
 
 .dash-body.dark .dash-logout-swal-popup {
     color: var(--dash-bg);
@@ -8781,24 +8784,26 @@ body.dash-body {
 }
 
 .dash-logout-swal-text {
-    color: var(--dash-gold)
+    color: var(--dash-gold);
 }
 
 .dash-logout-swal-confirm {
-    background: var(--dash-gold);
+    background: #DC3545;
     transition:
         filter .18s ease,
         transform .18s ease,
         box-shadow .18s ease;
 }
 .dash-logout-swal-confirm:hover {
-    background: var(--dash-gold);
+    background: #DC3545;
     filter: brightness(1.1);
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(212, 175, 55, 0.28);
+    box-shadow:
+        0 4px 10px rgba(220, 53, 69, 0.25),
+        0 0 20px rgba(220, 53, 69, 0.15);
 }
 .dash-logout-swal-confirm:active {
-    background: var(--dash-gold);
+    background: #DC3545;
     transform: translateY(0) scale(0.98);
     filter: brightness(0.96);
 }
