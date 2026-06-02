@@ -8,6 +8,7 @@ use App\Models\Kendaraan;
 use App\Support\AdminTablePagination;
 use App\Models\LaporanKejadian;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -226,11 +227,8 @@ class LaporanKejadianController extends Controller
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
-        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 20);
-
-        $laporans = LaporanKejadian::query()
-            ->with(['bidang.parent'])
-            ->orderByDesc('created_at')
+        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'));
+        $laporans = $this->adminLaporanQuery($request)
             ->paginate($perPage)
             ->onEachSide(0)
             ->withQueryString();
@@ -241,7 +239,47 @@ class LaporanKejadianController extends Controller
             'nearmiss' => LaporanKejadian::where('kategori', 'Nearmiss')->count(),
         ];
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'tbody' => view('admin.partials.laporan-kejadian-rows', compact('laporans'))->render(),
+                'pagination_html' => AdminTablePagination::linksHtml($laporans, route('admin.laporan-kejadian.index')),
+                'per_page' => $laporans->perPage(),
+            ]);
+        }
+
         return view('admin.laporan-kejadian.index', compact('laporans', 'stats'));
+    }
+
+    /**
+     * @return Builder<LaporanKejadian>
+     */
+    private function adminLaporanQuery(Request $request): Builder
+    {
+        $query = LaporanKejadian::query()
+            ->with(['bidang.parent'])
+            ->orderByDesc('created_at');
+
+        if ($search = trim((string) $request->input('search'))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('jabatan', 'like', "%{$search}%")
+                    ->orWhere('lokasi_kejadian', 'like', "%{$search}%")
+                    ->orWhere('nomor_kendaraan', 'like', "%{$search}%")
+                    ->orWhere('jenis_kendaraan', 'like', "%{$search}%")
+                    ->orWhereHas('bidang', function ($bq) use ($search) {
+                        $bq->where('nama', 'like', "%{$search}%")
+                            ->orWhereHas('parent', fn ($p) => $p->where('nama', 'like', "%{$search}%"));
+                    });
+            });
+        }
+
+        $kategori = $request->input('kategori');
+        if (in_array($kategori, ['Incident', 'Nearmiss'], true)) {
+            $query->where('kategori', $kategori);
+        }
+
+        return $query;
     }
 
     public function downloadPdf(LaporanKejadian $laporanKejadian)
@@ -254,10 +292,12 @@ class LaporanKejadianController extends Controller
 
         $laporanKejadian->load(['bidang.parent']);
 
+        $filename = 'Laporan_Kejadian_'.$laporanKejadian->id.'.pdf';
+
         if ($laporanKejadian->pdf_path && Storage::disk('public')->exists($laporanKejadian->pdf_path)) {
-            return response()->download(
+            return $this->inlinePdfResponse(
                 Storage::disk('public')->path($laporanKejadian->pdf_path),
-                'Laporan_Kejadian_'.$laporanKejadian->id.'.pdf'
+                $filename
             );
         }
 
@@ -276,10 +316,18 @@ class LaporanKejadianController extends Controller
             abort(503, 'PDF tidak dapat dibuat.');
         }
 
-        return response()->download(
+        return $this->inlinePdfResponse(
             Storage::disk('public')->path($laporanKejadian->pdf_path),
-            'Laporan_Kejadian_'.$laporanKejadian->id.'.pdf'
+            $filename
         );
+    }
+
+    private function inlinePdfResponse(string $absolutePath, string $filename)
+    {
+        return response()->file($absolutePath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
+        ]);
     }
 
     private function buildAndStorePdf(LaporanKejadian $laporan): ?string

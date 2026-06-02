@@ -174,7 +174,7 @@
                 <span class="dash-sidebar-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
                 </span>
-                <span class="dash-sidebar-label">Log Kendaraan</span>
+                <span class="dash-sidebar-label">Pemakaian Kendaraan</span>
             </a>
 
             <a href="{{ route('admin.portal-manajemen') }}"
