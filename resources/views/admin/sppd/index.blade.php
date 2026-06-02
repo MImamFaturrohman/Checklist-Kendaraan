@@ -42,15 +42,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="portal-perpage-wrap sppd-per-page-wrap">
-                        <span class="portal-perpage-label" id="admin-sppd-per-page-label">Per halaman</span>
-                        <label class="sr-only" for="admin-sppd-per-page">Jumlah data per halaman</label>
-                        <select name="per_page" id="admin-sppd-per-page" class="admin-filter-input sppd-per-page-select" aria-labelledby="admin-sppd-per-page-label">
-                            @foreach([5, 10, 25, 50, 100] as $n)
-                                <option value="{{ $n }}" @selected($sppds->perPage() === $n)>{{ $n }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-admin-per-page-select id="admin-sppd-per-page" name="per_page" :selected="$sppds->perPage()" />
                 </form>
 
                 <div class="admin-table-wrap">
@@ -120,9 +112,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="sppd-pagination-scroll">
-                    <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $sppds->links() }}</div>
-                </div>
+                <x-admin-pagination :paginator="$sppds" />
                 @endfragment
                 </div>
             </div>

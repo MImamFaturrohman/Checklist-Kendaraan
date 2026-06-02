@@ -54,15 +54,7 @@
                             <label class="sr-only" for="vul-arch-date-to">Tanggal akhir</label>
                             <input type="date" name="date_to" id="vul-arch-date-to" class="admin-filter-input" value="{{ $filters['date_to'] ?? '' }}" title="Sampai tanggal" aria-label="Sampai tanggal">
                         </div>
-                        <div class="portal-perpage-wrap sppd-per-page-wrap">
-                            <span class="portal-perpage-label" id="vul-arch-per-label">Per halaman</span>
-                            <label class="sr-only" for="vul-arch-per">Per halaman</label>
-                            <select name="per_page" id="vul-arch-per" class="admin-filter-input sppd-per-page-select" aria-labelledby="vul-arch-per-label">
-                                @foreach($perPageOpts as $n)
-                                    <option value="{{ $n }}" @selected(($logs->perPage() ?? 25) === $n)>{{ $n }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <x-admin-per-page-select id="vul-arch-per" name="per_page" :selected="$logs->perPage() ?? 25" />
                         <div class="ppm-status-wrap bbm-portal-filter-actions">
                             <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" data-vul-logs-reset title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
                         </div>
@@ -157,9 +149,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="sppd-pagination-scroll" style="margin-top: 12px">
-                        <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $logs->links() }}</div>
-                    </div>
+                    <x-admin-pagination :paginator="$logs" />
                 </div>
                 @endfragment
             </div>

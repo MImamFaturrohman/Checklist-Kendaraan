@@ -81,9 +81,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="sppd-pagination-scroll">
-                    <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $pendingRequests->links() }}</div>
-                </div>
+                <x-admin-pagination :paginator="$pendingRequests" />
 
                 <div class="portal-section-header" style="margin:28px 0 12px">
                     <div class="portal-section-title">Riwayat</div>
@@ -158,9 +156,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="sppd-pagination-scroll">
-                    <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $historyRequests->appends(['pending_page' => request('pending_page')])->links() }}</div>
-                </div>
+                <x-admin-pagination :paginator="$historyRequests" />
 
             </div>
         </div>

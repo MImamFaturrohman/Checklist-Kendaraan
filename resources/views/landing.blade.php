@@ -94,24 +94,14 @@
         html.dark .dash-body .lp-status-maint { background: rgba(120, 53, 15, 0.55); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.38); }
         html.dark .dash-body .lp-status-off { background: rgba(127, 29, 29, 0.58); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.4); }
 
-        /* Client-side pagination */
-        .lp-pagination { display: flex; justify-content: center; gap: 5px; margin-top: 16px; flex-wrap: wrap; }
-        .lp-page-btn {
-            min-width: 36px; height: 36px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            color: #475569;
-            border-radius: 10px;
-            font-size: .82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .15s;
-            padding: 0 10px;
-            display: inline-flex; align-items: center; justify-content: center;
+        .lp-armada-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            justify-content: flex-end;
+            flex-wrap: wrap;
         }
-        .lp-page-btn:hover:not(.active):not(:disabled) { background: #e0e7ff; color: var(--dash-blue); border-color: #c7d2fe; }
-        .lp-page-btn.active { background: var(--dash-blue); color: #fff; border-color: var(--dash-blue); box-shadow: 0 3px 10px rgba(0,42,122,.2); }
-        .lp-page-btn:disabled { opacity: .4; cursor: not-allowed; }
 
         /* ── FORM SECTION ── */
         .lp-form-grid {
@@ -129,6 +119,7 @@
         @media (max-width: 768px) {
             .lp-form-grid { grid-template-columns: 1fr; }
             .lp-section-heading { flex-direction: column; align-items: flex-start; }
+            .lp-armada-controls { width: 100%; justify-content: stretch; }
             .lp-search-wrap { max-width: 100%; width: 100%; }
         }
         @media (max-width: 480px) {
@@ -310,15 +301,18 @@
                 <h2 class="landing-section-title">Daftar Kendaraan</h2>
                 <p class="landing-section-sub">Total <span id="armada-count">{{ $kendaraans->count() }}</span> kendaraan terdaftar</p>
             </div>
-            <div class="lp-search-wrap">
-                <svg class="lp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                    <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <input type="text" id="armada-search" class="lp-search-input"
-                    placeholder="Cari nomor polisi atau jenis kendaraan..."
-                    autocomplete="off">
-                <button type="button" class="lp-search-clear" id="search-clear-btn" style="display:none" onclick="clearSearch()">&#x2715;</button>
+            <div class="lp-armada-controls">
+                <div class="lp-search-wrap">
+                    <svg class="lp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" id="armada-search" class="lp-search-input"
+                        placeholder="Cari nomor polisi atau jenis kendaraan..."
+                        autocomplete="off">
+                    <button type="button" class="lp-search-clear" id="search-clear-btn" style="display:none" onclick="clearSearch()">&#x2715;</button>
+                </div>
+                <x-admin-per-page-select id="armada-per-page" :selected="10" />
             </div>
         </div>
 
@@ -339,7 +333,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="lp-pagination" id="armada-pagination"></div>
+            <div id="armada-pagination"></div>
             <p id="armada-empty" class="lp-armada-empty" style="display:none">
                 Tidak ada kendaraan yang cocok dengan pencarian.
             </p>
@@ -717,7 +711,7 @@ function landingSwalOpts(opts) {
 
 /* ── DATA ── */
 const KENDARAANS = @json($kendaraans);
-const PER_PAGE   = 10;
+let perPage      = 10;
 let currentPage  = 1;
 let filtered     = [...KENDARAANS];
 
@@ -758,11 +752,11 @@ function renderTable() {
     }
     emptyMsg.style.display = 'none';
 
-    const totalPages = Math.ceil(filtered.length / PER_PAGE);
+    const totalPages = Math.ceil(filtered.length / perPage);
     if (currentPage > totalPages) currentPage = totalPages;
 
-    const start  = (currentPage - 1) * PER_PAGE;
-    const pageData = filtered.slice(start, start + PER_PAGE);
+    const start  = (currentPage - 1) * perPage;
+    const pageData = filtered.slice(start, start + perPage);
 
     tbody.innerHTML = pageData.map((k, i) => `
         <tr>
@@ -775,42 +769,18 @@ function renderTable() {
     `).join('');
 
     /* pagination */
-    pgWrap.innerHTML = buildPagination(totalPages);
-}
-
-function buildPagination(total) {
-    if (total <= 1) return '';
-    let html = '';
-
-    html += `<button class="lp-page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&#8592;</button>`;
-
-    const range = pageRange(currentPage, total);
-    let prev = null;
-    for (const p of range) {
-        if (p === '…') { html += `<span class="lp-page-btn" style="cursor:default;opacity:.5">…</span>`; }
-        else {
-            html += `<button class="lp-page-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
-        }
-        prev = p;
+    if (window.AdminPagination) {
+        window.AdminPagination.mountPagination(
+            pgWrap,
+            window.AdminPagination.buildClientPagination({ currentPage, lastPage: totalPages })
+        );
+    } else {
+        pgWrap.innerHTML = '';
     }
-
-    html += `<button class="lp-page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === total ? 'disabled' : ''}>&#8594;</button>`;
-    return html;
-}
-
-function pageRange(cur, total) {
-    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
-    const pages = [];
-    pages.push(1);
-    if (cur > 3) pages.push('…');
-    for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) pages.push(i);
-    if (cur < total - 2) pages.push('…');
-    pages.push(total);
-    return pages;
 }
 
 function goPage(p) {
-    const total = Math.ceil(filtered.length / PER_PAGE);
+    const total = Math.ceil(filtered.length / perPage);
     if (p < 1 || p > total) return;
     currentPage = p;
     renderTable();
@@ -846,6 +816,20 @@ function clearSearch() {
     currentPage = 1;
     renderTable();
     document.getElementById('armada-search').focus();
+}
+
+const armadaPerPageEl = document.getElementById('armada-per-page');
+if (armadaPerPageEl) {
+    armadaPerPageEl.addEventListener('change', function () {
+        perPage = parseInt(this.value, 10) || 10;
+        currentPage = 1;
+        renderTable();
+    });
+}
+
+const armadaPaginationEl = document.getElementById('armada-pagination');
+if (armadaPaginationEl && window.AdminPagination) {
+    window.AdminPagination.bindClientPagination(armadaPaginationEl, goPage);
 }
 
 /* ── SMOOTH SCROLL ── */

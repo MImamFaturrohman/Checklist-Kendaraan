@@ -8,6 +8,7 @@ use App\Models\ChecklistInterior;
 use App\Models\ChecklistMesin;
 use App\Models\ChecklistPerlengkapan;
 use App\Models\Kendaraan;
+use App\Support\AdminTablePagination;
 use App\Support\SuperAdminNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Google\Client as GoogleClient;
@@ -344,11 +345,21 @@ class ChecklistController extends Controller
         $fotoMeta = $canAccessDatabase ? ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()] : null;
         $pdfMeta = $canAccessDatabase ? ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()] : null;
 
+        $dbPaginationHtml = $canAccessDatabase
+            ? AdminTablePagination::linksHtml($dbChecklists, route('api.admin.portal.database-sheet'))
+            : '';
+        $fotoPaginationHtml = $canAccessDatabase
+            ? AdminTablePagination::linksHtml($fotoChecklists, route('api.admin.portal.log-foto'))
+            : '';
+        $pdfPaginationHtml = $canAccessDatabase
+            ? AdminTablePagination::linksHtml($pdfChecklists, route('api.admin.portal.arsip-pdf'))
+            : '';
+
         return view('admin.portal-pemeriksaan', compact(
             'nopolList', 'dbStats', 'pdfStats', 'chartData', 'chartYear', 'yearsAvailable',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
-            'dbMeta', 'fotoMeta', 'pdfMeta', 'canAccessDatabase',
-            'pemeriksaanInsightOnlyManager'
+            'dbMeta', 'fotoMeta', 'pdfMeta', 'dbPaginationHtml', 'fotoPaginationHtml', 'pdfPaginationHtml',
+            'canAccessDatabase', 'pemeriksaanInsightOnlyManager'
         ));
     }
 
@@ -359,7 +370,7 @@ class ChecklistController extends Controller
     {
         abort_unless($this->canAccessFullPortalDatabase(), 403);
 
-        $perPage = min((int) $request->input('per_page', 10), 100);
+        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 10);
         $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
         $this->applyChecklistFilters($request, $query);
         $rows = $query->paginate($perPage)->withQueryString();
@@ -404,13 +415,21 @@ class ChecklistController extends Controller
             ] : null,
         ]);
 
-        return response()->json([
-            'data' => $data,
-            'current_page' => $rows->currentPage(),
-            'last_page' => $rows->lastPage(),
-            'total' => $rows->total(),
-            'per_page' => $rows->perPage(),
-        ]);
+        return response()->json(array_merge(
+            ['data' => $data],
+            AdminTablePagination::jsonMeta($rows, route('api.admin.portal.database-sheet'))
+        ));
+    }
+
+    /**
+     * @param  mixed  $data
+     */
+    private function paginatedPortalJson($rows, $data, string $routeName): JsonResponse
+    {
+        return response()->json(array_merge(
+            ['data' => $data],
+            AdminTablePagination::jsonMeta($rows, route($routeName))
+        ));
     }
 
     /**
@@ -501,7 +520,7 @@ class ChecklistController extends Controller
     {
         abort_unless($this->canAccessFullPortalDatabase(), 403);
 
-        $perPage = min((int) $request->input('per_page', 10), 100);
+        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 10);
         $baseUrl = url('/');
         $resolveUrl = function (?string $path) use ($baseUrl) {
             if (! $path) {
@@ -547,13 +566,7 @@ class ChecklistController extends Controller
             ] : null,
         ]);
 
-        return response()->json([
-            'data' => $data,
-            'current_page' => $rows->currentPage(),
-            'last_page' => $rows->lastPage(),
-            'total' => $rows->total(),
-            'per_page' => $rows->perPage(),
-        ]);
+        return $this->paginatedPortalJson($rows, $data, 'api.admin.portal.log-foto');
     }
 
     /**
@@ -563,7 +576,7 @@ class ChecklistController extends Controller
     {
         abort_unless($this->canAccessFullPortalDatabase(), 403);
 
-        $perPage = min((int) $request->input('per_page', 10), 100);
+        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 10);
         $baseUrl = url('/');
         $resolveUrl = function (?string $path) use ($baseUrl) {
             if (! $path) {
@@ -596,13 +609,7 @@ class ChecklistController extends Controller
             'pdf_url' => $resolveUrl($c->pdf_path),
         ]);
 
-        return response()->json([
-            'data' => $data,
-            'current_page' => $rows->currentPage(),
-            'last_page' => $rows->lastPage(),
-            'total' => $rows->total(),
-            'per_page' => $rows->perPage(),
-        ]);
+        return $this->paginatedPortalJson($rows, $data, 'api.admin.portal.arsip-pdf');
     }
 
     /**

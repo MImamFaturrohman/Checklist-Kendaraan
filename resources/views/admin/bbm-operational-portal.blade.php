@@ -457,15 +457,11 @@
                             <label class="sr-only" for="bbm-portal-date-to">Tanggal akhir</label>
                             <input type="date" name="date_to" id="bbm-portal-date-to" class="admin-filter-input" value="{{ $bbmPortalDateTo ?? '' }}" title="Sampai tanggal" aria-label="Sampai tanggal">
                         </div>
-                        <div class="portal-perpage-wrap sppd-per-page-wrap">
-                            <span class="portal-perpage-label" id="bbm-portal-per-page-label">Per halaman</span>
-                            <label class="sr-only" for="bbm-portal-per-page">Jumlah data per halaman</label>
-                            <select name="per_page" id="bbm-portal-per-page" class="admin-filter-input sppd-per-page-select" aria-labelledby="bbm-portal-per-page-label">
-                                @foreach([5, 10, 25, 50, 100] as $n)
-                                    <option value="{{ $n }}" @selected(($reports->perPage() ?? 25) === $n)>{{ $n }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <x-admin-per-page-select
+                            id="bbm-portal-per-page"
+                            name="per_page"
+                            :selected="$reports->perPage()"
+                        />
                         <div class="ppm-status-wrap bbm-portal-filter-actions">
                             <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" data-bbm-portal-reset title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
                         </div>
@@ -528,9 +524,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="sppd-pagination-scroll">
-                        <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">{{ $reports->links() }}</div>
-                    </div>
+                    <x-admin-pagination :paginator="$reports" />
                 </div>
                 @endfragment
             </div>

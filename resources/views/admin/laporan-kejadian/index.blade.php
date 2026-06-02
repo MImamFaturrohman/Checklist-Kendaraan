@@ -81,6 +81,10 @@
                     </div>
                 </div>
 
+                <form method="get" class="portal-local-filters" style="margin-top: 16px">
+                    <x-admin-per-page-select id="lk-per-page" name="per_page" :selected="$laporans->perPage()" />
+                </form>
+
                 <div class="admin-table-wrap" style="margin-top: 16px">
                     <table class="admin-table">
                         <thead>
@@ -138,13 +142,7 @@
                     </table>
                 </div>
 
-                @if($laporans->hasPages())
-                    <div class="sppd-pagination-scroll">
-                        <div class="admin-pagination portal-pagination-wrap sppd-pagination--unified">
-                            {{ $laporans->links() }}
-                        </div>
-                    </div>
-                @endif
+                <x-admin-pagination :paginator="$laporans" />
             </div>
         </div>
     </div>

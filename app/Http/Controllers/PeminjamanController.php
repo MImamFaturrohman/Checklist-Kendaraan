@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\AdminTablePagination;
 use App\Models\Bidang;
 use App\Models\Kendaraan;
 use App\Models\PeminjamanRequest;
@@ -81,12 +82,14 @@ class PeminjamanController extends Controller
             ->with('bidang.parent')
             ->orderByDesc('created_at')
             ->paginate(10, ['*'], 'pending_page')
+            ->onEachSide(0)
             ->withQueryString();
 
         $historyRequests = PeminjamanRequest::whereIn('status', ['approved', 'rejected', 'expired'])
             ->with(['approver', 'bidang.parent'])
             ->orderByDesc('updated_at')
             ->paginate(10, ['*'], 'history_page')
+            ->onEachSide(0)
             ->withQueryString();
 
         return view('manager.peminjaman', compact('pendingRequests', 'historyRequests'));
@@ -209,7 +212,8 @@ class PeminjamanController extends Controller
         PeminjamanRequest::expirePendingPastBorrowDate();
 
         $query = $this->adminPeminjamanRequestsQuery($request);
-        $requests = $query->paginate(15)->withQueryString();
+        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 15);
+        $requests = $query->paginate($perPage)->onEachSide(0)->withQueryString();
 
         $stats = [
             'total'   => PeminjamanRequest::count(),
@@ -228,9 +232,7 @@ class PeminjamanController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'tbody' => view('admin.partials.peminjaman-request-rows', compact('requests'))->render(),
-                'pagination' => $requests->hasPages()
-                    ? (string) $requests->withQueryString()->links()
-                    : '',
+                'pagination_html' => AdminTablePagination::linksHtml($requests, route('admin.peminjaman')),
             ]);
         }
 

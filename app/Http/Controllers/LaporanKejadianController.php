@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\LaporanKejadianApprovalMail;
 use App\Models\Bidang;
 use App\Models\Kendaraan;
+use App\Support\AdminTablePagination;
 use App\Models\LaporanKejadian;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -225,10 +226,13 @@ class LaporanKejadianController extends Controller
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
+        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 20);
+
         $laporans = LaporanKejadian::query()
             ->with(['bidang.parent'])
             ->orderByDesc('created_at')
-            ->paginate(20)
+            ->paginate($perPage)
+            ->onEachSide(0)
             ->withQueryString();
 
         $stats = [

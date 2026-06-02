@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\AdminTablePagination;
 use App\Models\Kendaraan;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -27,7 +28,7 @@ class UserManagementController extends Controller
                   ->orWhere('jenis_kendaraan', 'like', "%{$ks}%");
             });
         }
-        $kendaraans = $kQuery->paginate(10, ['*'], 'kp')->withQueryString();
+        $kendaraans = $kQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10), ['*'], 'kp')->onEachSide(0)->withQueryString();
 
         // --- Users (semua selain superadmin dalam MANAGED_ROLES) ---
         $uQuery = User::query()->whereIn('role', self::MANAGED_ROLES)->orderBy('name');
@@ -40,7 +41,7 @@ class UserManagementController extends Controller
         if (($rf = $request->input('role_filter')) && in_array($rf, self::MANAGED_ROLES, true)) {
             $uQuery->where('role', $rf);
         }
-        $users = $uQuery->paginate(15, ['*'], 'up')->withQueryString();
+        $users = $uQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10), ['*'], 'up')->onEachSide(0)->withQueryString();
 
         $stats = [
             'total_kendaraan' => Kendaraan::count(),
@@ -70,16 +71,12 @@ class UserManagementController extends Controller
                   ->orWhere('jenis_kendaraan', 'like', "%{$s}%");
             });
         }
-        $pp   = min((int) ($request->input('per_page', 10)), 100);
-        $page = $q->paginate($pp);
+        $page = $q->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10));
 
-        return response()->json([
-            'data'         => $page->items(),
-            'current_page' => $page->currentPage(),
-            'last_page'    => $page->lastPage(),
-            'total'        => $page->total(),
-            'per_page'     => $page->perPage(),
-        ]);
+        return response()->json(array_merge(
+            ['data' => $page->items()],
+            AdminTablePagination::jsonMeta($page, route('api.admin.portal.kendaraan'))
+        ));
     }
 
     /* ── API: AJAX list users ─────────────────────────────────────────── */
@@ -97,8 +94,7 @@ class UserManagementController extends Controller
         if (($rf = $request->input('role_filter')) && in_array($rf, self::MANAGED_ROLES, true)) {
             $q->where('role', $rf);
         }
-        $pp   = min((int) ($request->input('per_page', 15)), 100);
-        $page = $q->paginate($pp);
+        $page = $q->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10));
 
         $data = collect($page->items())->map(function (User $user) {
             return [
@@ -111,13 +107,10 @@ class UserManagementController extends Controller
             ];
         })->values();
 
-        return response()->json([
-            'data'         => $data,
-            'current_page' => $page->currentPage(),
-            'last_page'    => $page->lastPage(),
-            'total'        => $page->total(),
-            'per_page'     => $page->perPage(),
-        ]);
+        return response()->json(array_merge(
+            ['data' => $data],
+            AdminTablePagination::jsonMeta($page, route('api.admin.portal.users'))
+        ));
     }
 
     /* ── Create user ──────────────────────────────────────────────────── */

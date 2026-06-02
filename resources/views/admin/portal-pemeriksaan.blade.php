@@ -224,16 +224,7 @@
                     <option value="Pagi">Pagi</option>
                     <option value="Siang">Siang</option>
                 </select>
-                <div class="portal-perpage-wrap">
-                    <label class="portal-perpage-label">Tampilkan</label>
-                    <select id="db-perpage" class="admin-filter-input portal-perpage-select">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
+                <x-admin-per-page-select id="db-perpage" name="per_page" :selected="10" />
                 <button type="button" class="portal-local-reset" data-section-reset="db">Reset</button>
             </div>
 
@@ -348,7 +339,7 @@
                 </div>
             </div>
 
-            <div id="db-pagination" class="portal-pagination-wrap"></div>
+            <div id="db-pagination" class="tbl-pagination-mount"></div>
         </div>
 
         {{-- ============================================================
@@ -374,16 +365,7 @@
                     <option value="">Semua Nopol</option>
                     @foreach($nopolList as $n)<option value="{{ $n }}">{{ $n }}</option>@endforeach
                 </select>
-                <div class="portal-perpage-wrap">
-                    <label class="portal-perpage-label">Tampilkan</label>
-                    <select id="foto-perpage" class="admin-filter-input portal-perpage-select">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
+                <x-admin-per-page-select id="foto-perpage" name="per_page" :selected="10" />
                 <button type="button" class="portal-local-reset" data-section-reset="foto">Reset</button>
             </div>
 
@@ -526,7 +508,7 @@
                 </div>
             </div>
 
-            <div id="foto-pagination" class="portal-pagination-wrap"></div>
+            <div id="foto-pagination" class="tbl-pagination-mount"></div>
         </div>
 
         {{-- ============================================================
@@ -557,16 +539,7 @@
                     <option value="Pagi">Pagi</option>
                     <option value="Siang">Siang</option>
                 </select>
-                <div class="portal-perpage-wrap">
-                    <label class="portal-perpage-label">Tampilkan</label>
-                    <select id="pdf-perpage" class="admin-filter-input portal-perpage-select">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
+                <x-admin-per-page-select id="pdf-perpage" name="per_page" :selected="10" />
                 <button type="button" class="portal-local-reset" data-section-reset="pdf">Reset</button>
             </div>
 
@@ -612,7 +585,7 @@
                     </tbody>
                 </table>
             </div>
-            <div id="pdf-pagination" class="portal-pagination-wrap"></div>
+            <div id="pdf-pagination" class="tbl-pagination-mount"></div>
         </div>
         @endif
     </div>{{-- end portal-wrapper --}}
@@ -646,13 +619,18 @@
         const DEFAULT_CHART_YEAR = {{ (int) $chartYear }};
         const CHART_DATA = @json($chartData);
         const CAN_ACCESS_DATABASE = @json($canAccessDatabase);
-        const INIT_META  = CAN_ACCESS_DATABASE
+        const INIT_PAGINATION = CAN_ACCESS_DATABASE
             ? {
-                db:   @json($dbMeta),
-                foto: @json($fotoMeta),
-                pdf:  @json($pdfMeta),
+                db: @json($dbPaginationHtml ?? ''),
+                foto: @json($fotoPaginationHtml ?? ''),
+                pdf: @json($pdfPaginationHtml ?? ''),
             }
             : null;
+        const PORTAL_API_PATHS = {
+            db: '/api/admin/portal/database-sheet',
+            foto: '/api/admin/portal/log-foto',
+            pdf: '/api/admin/portal/arsip-pdf',
+        };
 
         let dbPage   = 1, dbPerPage   = 10;
         let fotoPage = 1, fotoPerPage = 10;
@@ -1089,42 +1067,23 @@
             let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
         }
 
-        /* ================================================================
-        PAGINATION BUILDER
-        ================================================================ */
-        function buildPagination(wrap, meta, onPage) {
-            if (!wrap) return;
-            if (!meta || meta.last_page <= 1) {
-                wrap.innerHTML = meta
-                    ? `<div class="portal-page-info">${meta.total} data ditemukan</div>`
-                    : '';
-                return;
+        function mountPortalPagination(section, html) {
+            const el = document.getElementById(section + '-pagination');
+            if (!el) return;
+            if (window.AdminPagination) {
+                window.AdminPagination.mountPagination(el, html || '');
+                if (!el.dataset.paginationBound) {
+                    el.dataset.paginationBound = '1';
+                    window.AdminPagination.bindPaginationLinks(el, (url) => {
+                        const page = parseInt(url.searchParams.get('page') || '1', 10);
+                        if (section === 'db') { dbPage = page; fetchDb(true); }
+                        else if (section === 'foto') { fotoPage = page; fetchFoto(true); }
+                        else { pdfPage = page; fetchPdf(true); }
+                    }, { pathname: new URL(BASE_URL + PORTAL_API_PATHS[section]).pathname });
+                }
+            } else {
+                el.innerHTML = html || '';
             }
-            const { current_page: cur, last_page: last, total, per_page } = meta;
-
-            const pages = new Set();
-            for (let i = 1; i <= Math.min(2, last); i++) pages.add(i);
-            for (let i = Math.max(1, cur - 1); i <= Math.min(last, cur + 1); i++) pages.add(i);
-            for (let i = Math.max(last - 1, 1); i <= last; i++) pages.add(i);
-            const sorted = [...pages].sort((a, b) => a - b);
-
-            let html = '<div class="portal-page-btns">';
-            if (cur > 1) html += `<button class="portal-page-btn" data-p="${cur - 1}" title="Prev">‹</button>`;
-
-            let prev = 0;
-            sorted.forEach(p => {
-                if (prev && p - prev > 1) html += `<span class="portal-page-dots">…</span>`;
-                html += `<button class="portal-page-btn${p === cur ? ' active' : ''}" data-p="${p}">${p}</button>`;
-                prev = p;
-            });
-
-            if (cur < last) html += `<button class="portal-page-btn" data-p="${cur + 1}" title="Next">›</button>`;
-            html += `</div><div class="portal-page-info">Hal. ${cur}/${last} · ${total} data · ${per_page}/hal</div>`;
-
-            wrap.innerHTML = html;
-            wrap.querySelectorAll('[data-p]').forEach(btn => {
-                btn.addEventListener('click', () => onPage(parseInt(btn.dataset.p)));
-            });
         }
 
         /* ================================================================
@@ -1161,11 +1120,7 @@
                 renderDbExterior(json);
                 renderDbInterior(json);
                 renderDbMesin(json);
-                buildPagination(
-                    document.getElementById('db-pagination'),
-                    { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
-                    p => { dbPage = p; fetchDb(true); }
-                );
+                mountPortalPagination('db', json.pagination_html);
                 if (scroll) scrollToSection('section-db');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchDb error', e);
@@ -1282,11 +1237,7 @@
                     ? bbmRows.map(c => `<tr><td>${c.waktu}</td><td><strong>${c.nomor_kendaraan}</strong></td><td>${thumbHtml(c.foto_bbm, 'BBM')}</td></tr>`).join('')
                     : '<tr><td colspan="3" class="portal-empty">Belum ada foto BBM.</td></tr>';
 
-                buildPagination(
-                    document.getElementById('foto-pagination'),
-                    { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
-                    p => { fotoPage = p; fetchFoto(true); }
-                );
+                mountPortalPagination('foto', json.pagination_html);
                 if (scroll) scrollToSection('section-foto');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchFoto error', e);
@@ -1335,11 +1286,7 @@
                         </tr>`).join('')
                         : '<tr><td colspan="7" class="portal-empty">Belum ada laporan PDF.</td></tr>';
                 }
-                buildPagination(
-                    document.getElementById('pdf-pagination'),
-                    { current_page: json.current_page, last_page: json.last_page, total: json.total, per_page: json.per_page },
-                    p => { pdfPage = p; fetchPdf(true); }
-                );
+                mountPortalPagination('pdf', json.pagination_html);
                 if (scroll) scrollToSection('section-pdf');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchPdf error', e);
@@ -1490,22 +1437,10 @@
         /* ================================================================
         INITIAL PAGINATION RENDER (from server-provided meta)
         ================================================================ */
-        if (INIT_META) {
-            buildPagination(
-                document.getElementById('db-pagination'),
-                INIT_META.db,
-                p => { dbPage = p; fetchDb(true); }
-            );
-            buildPagination(
-                document.getElementById('foto-pagination'),
-                INIT_META.foto,
-                p => { fotoPage = p; fetchFoto(true); }
-            );
-            buildPagination(
-                document.getElementById('pdf-pagination'),
-                INIT_META.pdf,
-                p => { pdfPage = p; fetchPdf(true); }
-            );
+        if (INIT_PAGINATION) {
+            mountPortalPagination('db', INIT_PAGINATION.db);
+            mountPortalPagination('foto', INIT_PAGINATION.foto);
+            mountPortalPagination('pdf', INIT_PAGINATION.pdf);
         }
 
         if (CAN_ACCESS_DATABASE) {

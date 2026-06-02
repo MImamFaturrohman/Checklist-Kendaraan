@@ -270,6 +270,7 @@
                                 <option value="expired"  {{ request('status') === 'expired'  ? 'selected' : '' }}>Expired</option>
                             </select>
                         </div>
+                        <x-admin-per-page-select id="ppm-per-page" name="per_page" :selected="$requests->perPage()" />
                         <button type="button" class="portal-local-reset ppm-filter-reset" id="ppm-filter-reset" title="Reset filter" style="display: none">Reset</button>
                     </div>
 
@@ -294,7 +295,9 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="admin-pagination mt-4" id="ppm-requests-pagination">{{ $requests->links() }}</div>
+                    <div id="ppm-requests-pagination" class="tbl-pagination-mount">
+                        <x-admin-pagination :paginator="$requests" />
+                    </div>
                 </div>
             </div>
 
@@ -750,7 +753,11 @@
                 return;
             }
             tbody.innerHTML = data.tbody || '';
-            pagEl.innerHTML = data.pagination || '';
+            if (window.AdminPagination) {
+                window.AdminPagination.mountPagination(pagEl, data.pagination_html || '');
+            } else {
+                pagEl.innerHTML = data.pagination_html || '';
+            }
             searchEl.value = u.searchParams.get('search') || '';
             statusEl.value = u.searchParams.get('status') || '';
             try {
@@ -764,8 +771,11 @@
             const u = new URL(listUrl, location.origin);
             const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
             const status = overrides.status !== undefined ? overrides.status : statusEl.value;
+            const perPageEl = document.getElementById('ppm-per-page');
+            const perPage = overrides.per_page !== undefined ? overrides.per_page : (perPageEl ? perPageEl.value : '');
             if (search) u.searchParams.set('search', search); else u.searchParams.delete('search');
             if (status) u.searchParams.set('status', status); else u.searchParams.delete('status');
+            if (perPage) u.searchParams.set('per_page', String(perPage)); else u.searchParams.delete('per_page');
             const page = overrides.page;
             if (page) u.searchParams.set('page', String(page)); else u.searchParams.delete('page');
             return u;
@@ -784,6 +794,25 @@
             fetchRequestsFromUrl(buildListUrl({ page: null }));
         });
 
+        document.getElementById('ppm-per-page')?.addEventListener('change', () => {
+            fetchRequestsFromUrl(buildListUrl({ page: null }));
+        });
+
+        if (window.AdminPagination) {
+            window.AdminPagination.bindPaginationLinks(pagEl, fetchRequestsFromUrl, {
+                pathname: new URL(listUrl, location.origin).pathname,
+            });
+        } else {
+            pagEl.addEventListener('click', e => {
+                const a = e.target.closest('a[href]');
+                if (!a) return;
+                const u = new URL(a.getAttribute('href'), location.origin);
+                if (u.pathname !== new URL(listUrl, location.origin).pathname) return;
+                e.preventDefault();
+                fetchRequestsFromUrl(u);
+            });
+        }
+
         if (clearBtn) {
             clearBtn.addEventListener('click', () => {
                 searchEl.value = '';
@@ -795,18 +824,11 @@
             resetBtn.addEventListener('click', () => {
                 searchEl.value = '';
                 statusEl.value = '';
+                const pp = document.getElementById('ppm-per-page');
+                if (pp) pp.value = '10';
                 fetchRequestsFromUrl(new URL(listUrl, location.origin));
             });
         }
-
-        pagEl.addEventListener('click', e => {
-            const a = e.target.closest('a[href]');
-            if (!a) return;
-            const u = new URL(a.getAttribute('href'), location.origin);
-            if (u.pathname !== new URL(listUrl, location.origin).pathname) return;
-            e.preventDefault();
-            fetchRequestsFromUrl(u);
-        });
 
         updateFilterChrome();
     })();

@@ -5,10 +5,12 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'tom-select/dist/css/tom-select.bootstrap5.css';
 import * as Turbo from '@hotwired/turbo';
 import Swal from 'sweetalert2';
+import * as AdminPagination from './admin-pagination';
 
 window.Alpine    = Alpine;
 window.SignaturePad = SignaturePad;
 window.Swal      = Swal;
+window.AdminPagination = AdminPagination;
 
 Turbo.start();
 Alpine.start();
@@ -452,7 +454,7 @@ document.addEventListener('turbo:load', async () => {
             } catch (_) { window.location.href = fullUrl; }
         }
         root.addEventListener('click', (e) => {
-            const a = e.target.closest('.admin-pagination a[href]');
+            const a = e.target.closest('.tbl-pagination a[href]');
             if (!a || !root.contains(a)) return;
             e.preventDefault(); fetchFragment(a.href);
         });
@@ -523,7 +525,7 @@ document.addEventListener('turbo:load', async () => {
                 }
                 syncFromForms(); return;
             }
-            const a = e.target.closest('.admin-pagination a[href]');
+            const a = e.target.closest('.tbl-pagination a[href]');
             if (!a || !root.contains(a)) return;
             e.preventDefault(); fetchFragment(a.href);
         });
@@ -587,7 +589,7 @@ document.addEventListener('turbo:load', async () => {
                 }
                 syncFromForms(); return;
             }
-            const a = e.target.closest('.admin-pagination a[href]');
+            const a = e.target.closest('.tbl-pagination a[href]');
             if (!a || !root.contains(a)) return;
             e.preventDefault(); fetchFragment(a.href);
         });

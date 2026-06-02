@@ -90,17 +90,7 @@
                     <svg class="mgmt-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <input type="text" id="armada-search" class="mgmt-search-input" placeholder="Cari nomor atau jenis kendaraan…">
                 </div>
-                <div class="mgmt-perpage-wrap">
-                    <span class="mgmt-perpage-label">Tampilkan</span>
-                    <select id="armada-perpage" class="mgmt-perpage-select">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <span class="mgmt-perpage-label">data</span>
-                </div>
+                <x-admin-per-page-select id="armada-perpage" name="per_page" :selected="$kendaraans->perPage()" />
                 <button type="button" class="mgmt-reset-btn" onclick="resetArmadaFilters()">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9 9 9 0 00-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Reset
@@ -178,7 +168,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mgmt-pagination" id="armada-pagination" style="display: flex; justify-content: center;"></div>
+            <div id="armada-pagination" class="tbl-pagination-mount"></div>
         </div>
     </div>
 
@@ -223,17 +213,7 @@
                         <option value="admin">Admin</option>
                     </select>
                 </div>
-                <div class="mgmt-perpage-wrap">
-                    <span class="mgmt-perpage-label">Tampilkan</span>
-                    <select id="user-perpage" class="mgmt-perpage-select">
-                        <option value="5">5</option>
-                        <option value="15" selected>15</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <span class="mgmt-perpage-label">data</span>
-                </div>
+                <x-admin-per-page-select id="user-perpage" name="per_page" :selected="$users->perPage()" />
                 <button type="button" class="mgmt-reset-btn" onclick="resetUserFilters()">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9 9 9 0 00-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Reset
@@ -331,7 +311,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mgmt-pagination" id="user-pagination"></div>
+            <div id="user-pagination" class="tbl-pagination-mount"></div>
         </div>
     </div>
 
@@ -563,6 +543,33 @@ const BASE = window.location.origin;
 const ARMADA_STORE_URL = @json(route('admin.portal-manajemen.kendaraan.store'));
 const ARMADA_UPDATE_URL_TMPL = @json(url('/admin/portal-manajemen-administrasi/kendaraan/__ID__'));
 
+const INIT_MGMT_PAGINATION = {
+    armada: @json(\App\Support\AdminTablePagination::linksHtml($kendaraans, route('api.admin.portal.kendaraan'))),
+    users: @json(\App\Support\AdminTablePagination::linksHtml($users, route('api.admin.portal.users'))),
+};
+const MGMT_API_PATHS = {
+    armada: @json(route('api.admin.portal.kendaraan')),
+    users: @json(route('api.admin.portal.users')),
+};
+
+function mountMgmtPagination(section, html) {
+    const el = document.getElementById(section + '-pagination');
+    if (!el) return;
+    if (window.AdminPagination) {
+        window.AdminPagination.mountPagination(el, html || '');
+        if (!el.dataset.paginationBound) {
+            el.dataset.paginationBound = '1';
+            window.AdminPagination.bindPaginationLinks(el, (url) => {
+                const page = parseInt(url.searchParams.get('page') || '1', 10);
+                if (section === 'armada') { armadaPage = page; fetchArmada(true); }
+                else { userPage = page; fetchUsers(true); }
+            }, { pathname: new URL(MGMT_API_PATHS[section]).pathname });
+        }
+    } else {
+        el.innerHTML = html || '';
+    }
+}
+
 /* ─── Helpers ──────────────────────────────────────────────────────────── */
 function escHtml(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escJs(s)   { return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
@@ -671,32 +678,6 @@ window.closeUserAddModal = function() {
     refreshMgmtModalOverflow();
 };
 
-/* ─── Pagination builder ───────────────────────────────────────────────── */
-function buildPagination(wrap, meta, onPage) {
-    if (!wrap) return;
-    wrap.innerHTML = '';
-    if (meta.last_page <= 1) return;
-    const add = (label, page, disabled, active) => {
-        const btn = document.createElement('button');
-        btn.className = 'mgmt-pag-btn' + (active ? ' active' : '');
-        btn.disabled  = disabled;
-        btn.innerHTML = label;
-        btn.addEventListener('click', () => { if (!disabled) onPage(page); });
-        wrap.appendChild(btn);
-    };
-    add('‹', meta.current_page - 1, meta.current_page === 1, false);
-    for (let p = 1; p <= meta.last_page; p++) {
-        if (p === 1 || p === meta.last_page || Math.abs(p - meta.current_page) <= 2) {
-            add(p, p, false, p === meta.current_page);
-        } else if (Math.abs(p - meta.current_page) === 3) {
-            const s = document.createElement('span');
-            s.textContent = '…'; s.style.cssText = 'padding:0 6px;color:#94a3b8;align-self:center;font-size:0.85rem';
-            wrap.appendChild(s);
-        }
-    }
-    add('›', meta.current_page + 1, meta.current_page === meta.last_page, false);
-}
-
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* SECTION TABS                                                            */
 /* ═══════════════════════════════════════════════════════════════════════ */
@@ -723,7 +704,7 @@ async function fetchArmada(scroll = false) {
     try {
         const json = await fetch(`${BASE}/api/admin/portal/kendaraan?${params}`).then(r => r.json());
         renderArmadaTable(json.data, json.current_page, json.per_page);
-        buildPagination(document.getElementById('armada-pagination'), json, p => { armadaPage = p; fetchArmada(true); });
+        mountMgmtPagination('armada', json.pagination_html);
         document.getElementById('tc-armada').textContent = json.total;
         if (scroll) document.getElementById('section-armada').scrollIntoView({behavior:'smooth', block:'start'});
     } catch(e) { console.error(e); }
@@ -909,7 +890,7 @@ async function fetchUsers(scroll = false) {
     try {
         const json = await fetch(`${BASE}/api/admin/portal/users?${params}`).then(r => r.json());
         renderUserTable(json.data, json.current_page, json.per_page);
-        buildPagination(document.getElementById('user-pagination'), json, p => { userPage = p; fetchUsers(true); });
+        mountMgmtPagination('users', json.pagination_html);
         document.getElementById('tc-users').textContent = json.total;
         if (scroll) document.getElementById('section-users').scrollIntoView({behavior:'smooth', block:'start'});
     } catch(e) { console.error(e); }
@@ -1073,13 +1054,8 @@ window.deleteUser = function(id, nama) {
 };
 
 /* ─── Init pagination ────────────────────────────────────────────────── */
-buildPagination(document.getElementById('armada-pagination'),
-    { current_page:{{ $kendaraans->currentPage() }}, last_page:{{ $kendaraans->lastPage() }}, total:{{ $kendaraans->total() }}, per_page:{{ $kendaraans->perPage() }} },
-    p => { armadaPage = p; fetchArmada(true); });
-
-buildPagination(document.getElementById('user-pagination'),
-    { current_page:{{ $users->currentPage() }}, last_page:{{ $users->lastPage() }}, total:{{ $users->total() }}, per_page:{{ $users->perPage() }} },
-    p => { userPage = p; fetchUsers(true); });
+mountMgmtPagination('armada', INIT_MGMT_PAGINATION.armada);
+mountMgmtPagination('users', INIT_MGMT_PAGINATION.users);
 
 setInterval(() => {
     if (document.getElementById('user-tbody')) fetchUsers();

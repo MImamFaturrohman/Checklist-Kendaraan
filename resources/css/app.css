@@ -2611,26 +2611,24 @@ select.admin-filter-input {
 }
 
 /* ===================================================================
-   ADMIN PAGINATION
+   TABLE PAGINATION (tbl-* namespace)
    =================================================================== */
-.admin-pagination {
+.tbl-pagination {
     margin-top: 18px;
     display: flex;
     justify-content: center;
 }
 
-.admin-pagination nav {
+.tbl-pagination nav {
     display: flex;
     align-items: center;
     gap: 2px;
 }
 
-/* Laravel default: row 1 = simple Prev/Next (sm only), row 2 = summary + numbered links.
-   Rekap SPPD: hide row 1 and force row 2 so mobile matches desktop controls + admin-pagination styles. */
-.admin-pagination.sppd-pagination--unified nav > div:first-child {
+.tbl-pagination.tbl-pagination--unified nav > div:first-child {
     display: none !important;
 }
-.admin-pagination.sppd-pagination--unified nav > div:nth-child(2) {
+.tbl-pagination.tbl-pagination--unified nav > div:nth-child(2) {
     display: flex !important;
     flex-direction: column;
     align-items: stretch;
@@ -2640,15 +2638,14 @@ select.admin-filter-input {
     box-sizing: border-box;
 }
 @media (min-width: 640px) {
-    .admin-pagination.sppd-pagination--unified nav > div:nth-child(2) {
+    .tbl-pagination.tbl-pagination--unified nav > div:nth-child(2) {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
     }
 }
 
-/* Panjang bar pagination: scroll horizontal jika perlu; blok pagination diluruskan ke tengah. */
-.sppd-pagination-scroll {
+.tbl-pagination-scroll {
     display: flex;
     justify-content: center;
     max-width: 100%;
@@ -2659,7 +2656,7 @@ select.admin-filter-input {
     margin-top: 16px;
 }
 
-.sppd-pagination-scroll .admin-pagination {
+.tbl-pagination-scroll .tbl-pagination {
     margin-top: 0;
     justify-content: center;
     width: max-content;
@@ -2669,34 +2666,32 @@ select.admin-filter-input {
     margin-right: auto;
 }
 
-.sppd-pagination-scroll .admin-pagination nav {
+.tbl-pagination-scroll .tbl-pagination nav {
     flex-wrap: nowrap;
 }
 
-/* Di area scroll SPPD: rangkaian nomor halaman & ringkasan hasil dirapatkan ke tengah */
-.sppd-pagination-scroll .admin-pagination.sppd-pagination--unified nav > div:nth-child(2) {
+.tbl-pagination-scroll .tbl-pagination.tbl-pagination--unified nav > div:nth-child(2) {
     justify-content: center;
     align-items: center;
 }
 
 @media (min-width: 640px) {
-    .sppd-pagination-scroll .admin-pagination.sppd-pagination--unified nav > div:nth-child(2) {
+    .tbl-pagination-scroll .tbl-pagination.tbl-pagination--unified nav > div:nth-child(2) {
         justify-content: center;
         flex-wrap: wrap;
         gap: 12px;
     }
 }
 
-/* SPPD unified pagination on narrow screens: smaller controls + tighter wrap (onEachSide in backend reduces link count). */
 @media (max-width: 639px) {
-    .admin-pagination.sppd-pagination--unified nav > div:nth-child(2) > div:last-child {
+    .tbl-pagination.tbl-pagination--unified nav > div:nth-child(2) > div:last-child {
         justify-content: center;
         row-gap: 8px;
         column-gap: 3px;
     }
 
-    .admin-pagination.sppd-pagination--unified span[aria-current='page'] > span,
-    .admin-pagination.sppd-pagination--unified a {
+    .tbl-pagination.tbl-pagination--unified span[aria-current='page'] > span,
+    .tbl-pagination.tbl-pagination--unified a {
         min-width: 30px;
         height: 32px;
         padding: 0 6px;
@@ -2704,7 +2699,7 @@ select.admin-filter-input {
         border-radius: 8px;
     }
 
-    .admin-pagination.sppd-pagination--unified span:not([aria-current]) > span {
+    .tbl-pagination.tbl-pagination--unified span:not([aria-current]) > span {
         min-width: 30px;
         height: 32px;
         padding: 0 6px;
@@ -2713,12 +2708,12 @@ select.admin-filter-input {
     }
 }
 
-.admin-pagination nav>div:last-child {
+.tbl-pagination nav>div:last-child {
     width: 100%;
 }
 
-.admin-pagination nav>div:last-child>span,
-.admin-pagination nav>div:last-child>div {
+.tbl-pagination nav>div:last-child>span,
+.tbl-pagination nav>div:last-child>div {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2726,9 +2721,8 @@ select.admin-filter-input {
     flex-wrap: wrap;
 }
 
-/* Pagination links */
-.admin-pagination span[aria-current="page"]>span,
-.admin-pagination a {
+.tbl-pagination span[aria-current="page"]>span,
+.tbl-pagination a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2742,29 +2736,26 @@ select.admin-filter-input {
     transition: all 0.2s ease;
 }
 
-/* Active page */
-.admin-pagination span[aria-current="page"]>span {
+.tbl-pagination span[aria-current="page"]>span {
     background: var(--dash-blue);
     color: #fff;
     box-shadow: 0 3px 10px rgba(0, 42, 122, 0.2);
 }
 
-/* Inactive page links */
-.admin-pagination a {
+.tbl-pagination a {
     background: #f8fafc;
     color: #475569;
     border: 1px solid #e2e8f0;
 }
 
-.admin-pagination a:hover {
+.tbl-pagination a:hover {
     background: #e0e7ff;
     color: var(--dash-blue);
     border-color: #c7d2fe;
     transform: translateY(-1px);
 }
 
-/* Disabled (prev/next when at boundary) */
-.admin-pagination span:not([aria-current])>span {
+.tbl-pagination span:not([aria-current])>span {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2780,16 +2771,14 @@ select.admin-filter-input {
     cursor: not-allowed;
 }
 
-/* Dots separator */
-.admin-pagination span.relative>span {
+.tbl-pagination span.relative>span {
     background: transparent;
     border: none;
     color: #94a3b8;
     cursor: default;
 }
 
-/* Results info */
-.admin-pagination p {
+.tbl-pagination p {
     font-size: 0.78rem;
     color: #64748b;
     text-align: center;
@@ -2797,16 +2786,105 @@ select.admin-filter-input {
 }
 
 @media (max-width: 500px) {
-
-    .admin-pagination span[aria-current="page"]>span,
-    .admin-pagination a,
-    .admin-pagination span:not([aria-current])>span {
+    .tbl-pagination span[aria-current="page"]>span,
+    .tbl-pagination a,
+    .tbl-pagination span:not([aria-current])>span {
         min-width: 32px;
         height: 32px;
         font-size: 0.76rem;
         padding: 0 6px;
         border-radius: 8px;
     }
+}
+
+/* Per-page selector (filter bar) */
+.tbl-per-page {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.tbl-per-page__label {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tbl-per-page__select {
+    min-width: 4.25rem;
+    width: auto !important;
+    max-width: 6.5rem;
+}
+
+.sppd-live-filter-bar .tbl-per-page,
+.bbm-portal-live-filter-bar .tbl-per-page {
+    margin-left: auto;
+}
+
+@media (max-width: 640px) {
+    .sppd-live-filter-bar.portal-local-filters,
+    .bbm-portal-live-filter-bar.portal-local-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .sppd-live-filter-bar .admin-search-wrap.portal-search-full,
+    .bbm-portal-live-filter-bar .admin-search-wrap.portal-search-full {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    .sppd-live-filter-bar .ppm-status-wrap,
+    .bbm-portal-live-filter-bar .ppm-status-wrap,
+    .bbm-portal-live-filter-bar .bbm-portal-date-range {
+        width: 100%;
+    }
+    .sppd-live-filter-bar .ppm-status-wrap .admin-filter-input,
+    .bbm-portal-live-filter-bar .ppm-status-wrap .admin-filter-input,
+    .bbm-portal-live-filter-bar .bbm-portal-date-range .admin-filter-input {
+        width: 100%;
+        max-width: none;
+    }
+    .sppd-live-filter-bar .tbl-per-page,
+    .bbm-portal-live-filter-bar .tbl-per-page {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+        padding-top: 2px;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    html.dark .dash-body .sppd-live-filter-bar .tbl-per-page,
+    html.dark .dash-body .bbm-portal-live-filter-bar .tbl-per-page {
+        border-top-color: rgba(255, 255, 255, 0.08);
+    }
+    .bbm-portal-live-filter-bar .bbm-portal-filter-actions {
+        width: 100%;
+    }
+    .bbm-portal-live-filter-bar .bbm-portal-filter-actions .btn {
+        width: 100%;
+    }
+}
+
+html.dark .dash-body .tbl-per-page__label {
+    color: rgba(200, 218, 255, 0.5);
+}
+
+html.dark .dash-body .tbl-pagination a,
+html.dark .dash-body .tbl-pagination span {
+    color: rgba(200, 218, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(8, 20, 50, 0.5);
+}
+html.dark .dash-body .tbl-pagination .page-item.active .page-link,
+html.dark .dash-body .tbl-pagination [aria-current="page"] span {
+    background: #1e4080;
+    border-color: #D4AF37;
+    color: #D4AF37;
+}
+
+.tbl-pagination-mount {
+    margin-top: 14px;
 }
 
 /* ===================================================================
@@ -3520,25 +3598,6 @@ html.dark .dash-body .lp-search-clear {
 
 html.dark .dash-body .lp-search-clear:hover {
     background: #475569;
-}
-
-html.dark .dash-body .lp-page-btn {
-    background: #1e293b;
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    color: #cbd5e1;
-}
-
-html.dark .dash-body .lp-page-btn:hover:not(.active):not(:disabled) {
-    background: #334155;
-    color: #e2e8f0;
-    border-color: rgba(59, 130, 246, 0.4);
-}
-
-html.dark .dash-body .lp-page-btn.active {
-    background: var(--dash-blue);
-    color: #fff;
-    border-color: var(--dash-blue);
-    box-shadow: 0 3px 10px rgba(0, 42, 122, 0.35);
 }
 
 html.dark .dash-body .lp-lk-photo-preview {
@@ -4631,22 +4690,6 @@ html.dark .portal-chart-loading {
 
 .portal-search-full { flex: 1 1 180px; }
 
-.portal-perpage-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.portal-perpage-label {
-    font-size: 0.78rem;
-    color: #64748b;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.portal-perpage-select { width: 62px !important; min-width: 30px !important; }
-
 .portal-local-reset {
     padding: 8px 14px;
     border-radius: 8px;
@@ -4861,37 +4904,6 @@ html.dark .dash-body .portal-detail-catatan {
     0%, 80%, 100% { opacity: .15; transform: scale(.8); }
     40%            { opacity: 1;   transform: scale(1); }
 }
-
-/* ---- Custom Pagination ---- */
-.portal-pagination-wrap { margin-top: 14px; }
-
-.portal-page-btns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 6px;
-}
-
-.portal-page-btn {
-    min-width: 34px;
-    height: 32px;
-    padding: 0 9px;
-    border-radius: 7px;
-    border: 1.5px solid #e2e8f0;
-    background: #fff;
-    color: #334155;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color .15s, background .15s, color .15s;
-}
-.portal-page-btn:hover { border-color: #002a7a; color: #002a7a; }
-.portal-page-btn.active { background: #002a7a; border-color: #002a7a; color: #fff; }
-
-.portal-page-dots { color: #94a3b8; font-size: .9rem; padding: 0 3px; }
-.portal-page-info { text-align: center; font-size: .72rem; color: #94a3b8; }
 
 /* ---- Misc ---- */
 .portal-empty {
@@ -5356,20 +5368,6 @@ html.dark .dash-body .portal-detail-catatan {
     appearance: none;
 }
 .mgmt-filter-select:focus { border-color: #3b82f6; }
-.mgmt-perpage-wrap { display: flex; align-items: center; gap: 6px; }
-.mgmt-perpage-label { font-size: 0.75rem; color: #94a3b8; white-space: nowrap; }
-.mgmt-perpage-select {
-    padding: 7px 10px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.82rem;
-    color: #475569;
-    background: #fff;
-    outline: none;
-    cursor: pointer;
-    transition: border-color .18s;
-}
-.mgmt-perpage-select:focus { border-color: #3b82f6; }
 .mgmt-reset-btn {
     display: inline-flex;
     align-items: center;
@@ -5563,32 +5561,6 @@ html.dark .dash-body .portal-detail-catatan {
 .mgmt-act-save:hover { background: #dcfce7; }
 .mgmt-act-cancel { background: #f1f5f9; color: #64748b; }
 .mgmt-act-cancel:hover { background: #e2e8f0; }
-
-/* Pagination */
-.mgmt-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 4px;
-    padding: 14px 20px;
-    flex-wrap: wrap;
-}
-.mgmt-pag-btn {
-    min-width: 34px;
-    height: 34px;
-    padding: 0 10px;
-    border-radius: 8px;
-    border: 1.5px solid #e2e8f0;
-    background: #fff;
-    color: #475569;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-}
-.mgmt-pag-btn:hover:not(:disabled) { border-color: #3b82f6; color: #2563eb; background: #eff6ff; }
-.mgmt-pag-btn.active { background: #002a7a; color: #fff; border-color: #002a7a; }
-.mgmt-pag-btn:disabled { opacity: .4; cursor: not-allowed; }
 
 /* Input with icon (modal) */
 .mgmt-input-icon-wrap { position: relative; }
@@ -7317,12 +7289,6 @@ html.dark .dash-body .mgmt-filter-select:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
-html.dark .dash-body .mgmt-perpage-label { color: rgba(200, 218, 255, 0.5); }
-html.dark .dash-body .mgmt-perpage-select {
-    background-color: rgba(8, 20, 50, 0.7);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: #e8f0fe;
-}
 html.dark .dash-body .mgmt-reset-btn {
     background-color: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.1);
@@ -7370,22 +7336,6 @@ html.dark .dash-body .mgmt-act-del    { background: rgba(127, 29, 29, 0.35); col
 html.dark .dash-body .mgmt-act-del:hover  { background: rgba(127, 29, 29, 0.5); }
 html.dark .dash-body .mgmt-act-save   { background: rgba(22, 101, 52, 0.25); color: #86efac; }
 html.dark .dash-body .mgmt-act-cancel { background: rgba(255, 255, 255, 0.06); color: rgba(200, 218, 255, 0.65); }
-
-html.dark .dash-body .mgmt-pag-btn {
-    background-color: rgba(8, 20, 50, 0.6);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: rgba(200, 218, 255, 0.75);
-}
-html.dark .dash-body .mgmt-pag-btn:hover:not(:disabled) {
-    background: rgba(30, 64, 128, 0.5);
-    border-color: #3b82f6;
-    color: #e8f0fe;
-}
-html.dark .dash-body .mgmt-pag-btn.active {
-    background: #1e4080;
-    border-color: #D4AF37;
-    color: #D4AF37;
-}
 
 /* ── Manager request cards ── */
 html.dark .dash-body .manager-request-card {
@@ -7469,7 +7419,6 @@ html.dark .dash-body .portal-local-filters {
     background: rgba(5, 11, 20, 0.45);
     border-color: rgba(255, 255, 255, 0.07);
 }
-html.dark .dash-body .portal-perpage-label { color: rgba(200, 218, 255, 0.5); }
 html.dark .dash-body .portal-local-reset {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.1);
@@ -7575,20 +7524,6 @@ html.dark .dash-body .manager-vehicle-block {
     border-color: rgba(255, 255, 255, 0.07);
 }
 
-/* Admin pagination links */
-html.dark .dash-body .admin-pagination a,
-html.dark .dash-body .admin-pagination span {
-    color: rgba(200, 218, 255, 0.7);
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(8, 20, 50, 0.5);
-}
-html.dark .dash-body .admin-pagination .page-item.active .page-link,
-html.dark .dash-body .admin-pagination [aria-current="page"] span {
-    background: #1e4080;
-    border-color: #D4AF37;
-    color: #D4AF37;
-}
-
 /* ── Override hardcoded inline colours on <td> elements (not status colours) ── */
 /* Targets dark/grey text values that are hard to read on dark backgrounds */
 html.dark .dash-body .admin-table td[style*="#64748b"],
@@ -7628,78 +7563,6 @@ html.dark .dash-body .portal-section-header .sppd-btn-create-rekap:hover {
     box-shadow: 0 6px 22px rgba(37, 99, 235, 0.42), 0 0 0 1px rgba(212, 175, 55, 0.22);
     transform: translateY(-2px);
     filter: none;
-}
-
-.sppd-live-filter-bar .sppd-per-page-wrap { margin-left: auto; }
-.sppd-per-page-select { min-width: 4.25rem; width: auto !important; max-width: 6.5rem; }
-
-@media (max-width: 640px) {
-    .sppd-live-filter-bar.portal-local-filters {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-    .sppd-live-filter-bar .admin-search-wrap.portal-search-full {
-        flex: 0 0 auto;
-        width: 100%;
-    }
-    .sppd-live-filter-bar .ppm-status-wrap {
-        width: 100%;
-    }
-    .sppd-live-filter-bar .ppm-status-wrap .admin-filter-input {
-        width: 100%;
-        max-width: none;
-    }
-    .sppd-live-filter-bar .sppd-per-page-wrap {
-        margin-left: 0;
-        width: 100%;
-        justify-content: space-between;
-        padding-top: 2px;
-        border-top: 1px solid rgba(148, 163, 184, 0.18);
-    }
-    html.dark .dash-body .sppd-live-filter-bar .sppd-per-page-wrap {
-        border-top-color: rgba(255, 255, 255, 0.08);
-    }
-}
-
-.bbm-portal-live-filter-bar .sppd-per-page-wrap {
-    margin-left: auto;
-}
-@media (max-width: 640px) {
-    .bbm-portal-live-filter-bar.portal-local-filters {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-    .bbm-portal-live-filter-bar .admin-search-wrap.portal-search-full {
-        flex: 0 0 auto;
-        width: 100%;
-    }
-    .bbm-portal-live-filter-bar .ppm-status-wrap,
-    .bbm-portal-live-filter-bar .bbm-portal-date-range {
-        width: 100%;
-    }
-    .bbm-portal-live-filter-bar .ppm-status-wrap .admin-filter-input,
-    .bbm-portal-live-filter-bar .bbm-portal-date-range .admin-filter-input {
-        width: 100%;
-        max-width: none;
-    }
-    .bbm-portal-live-filter-bar .sppd-per-page-wrap {
-        margin-left: 0;
-        width: 100%;
-        justify-content: space-between;
-        padding-top: 2px;
-        border-top: 1px solid rgba(148, 163, 184, 0.18);
-    }
-    html.dark .dash-body .bbm-portal-live-filter-bar .sppd-per-page-wrap {
-        border-top-color: rgba(255, 255, 255, 0.08);
-    }
-    .bbm-portal-live-filter-bar .bbm-portal-filter-actions {
-        width: 100%;
-    }
-    .bbm-portal-live-filter-bar .bbm-portal-filter-actions .btn {
-        width: 100%;
-    }
 }
 
 .checklist-field-span2 { grid-column: 1 / -1; }

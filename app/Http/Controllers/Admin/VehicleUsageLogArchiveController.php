@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\AdminTablePagination;
 use App\Models\VehicleUsageLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -18,10 +19,7 @@ class VehicleUsageLogArchiveController extends Controller
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
-        $perPage = (int) $request->query('per_page', 25);
-        if (! in_array($perPage, self::PER_PAGE_OPTIONS, true)) {
-            $perPage = 25;
-        }
+        $perPage = AdminTablePagination::resolvePerPage($request->query('per_page'), 25);
 
         $search = $request->input('q');
         $dateFrom = $request->input('date_from');
@@ -63,6 +61,7 @@ class VehicleUsageLogArchiveController extends Controller
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->paginate($perPage)
+            ->onEachSide(0)
             ->withQueryString();
 
         $totalAll = VehicleUsageLog::query()->count();
