@@ -25,7 +25,7 @@
 
             <div class="portal-section" id="section-sppd-admin">
                 <div class="portal-section-header">
-                    <div class="portal-section-title"><i class="bi bi-table"></i> Daftar Rekap SPPD</div>
+                    <div class="portal-section-title"><i class="bi bi-table"></i> Daftar Rekap Biaya Dinas</div>
                 </div>
                 <div id="sppd-admin-live-root" data-vms-sppd-live>
                 @fragment('sppd-admin-body')
@@ -80,14 +80,17 @@
                                             @if($admPdfOk)
                                                 <a
                                                     href="{{ route('admin.sppd.pdf', $s) }}"
-                                                    class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite"
+                                                    class="btn-view-pdf"
                                                     target="_blank"
-                                                    rel="noopener"
-                                                    title="Unduh PDF"
-                                                    aria-label="Unduh PDF"
-                                                ><i class="bi bi-file-earmark-pdf-fill"></i></a>
+                                                    rel="noopener noreferrer"
+                                                    title="View PDF"
+                                                    aria-label="View PDF"
+                                                >
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                                                    View PDF
+                                                </a>
                                             @endif
-                                            @if($s->status === Sppd::STATUS_PENDING)
+                                            @if(($canVerifySppd ?? false) && $s->status === Sppd::STATUS_PENDING)
                                                 <button
                                                     type="button"
                                                     class="btn btn-sm sppd-icon-btn sppd-btn-success admin-sppd-ok"
@@ -137,6 +140,7 @@
     <script>
         (function () {
             const BASE = @json(url('/'));
+            const CAN_VERIFY_SPPD = @json($canVerifySppd ?? false);
             const csrf = document.querySelector('meta[name="csrf-token"]').content;
             const detailUrl = (id) => BASE + '/admin/rekap-sppd/' + id;
             const approveUrl = (id) => BASE + '/admin/rekap-sppd/' + id + '/verify-approve';
@@ -191,7 +195,10 @@
 
             function renderAdminPdfActions(d) {
                 if (d.pdf_download_url && d.pdf_available) {
-                    return `<a href="${qaAttr(d.pdf_download_url)}" class="btn btn-sm sppd-btn-modal-pdf" target="_blank" rel="noopener" title="Unduh PDF"><i class="bi bi-file-earmark-arrow-down"></i> Unduh PDF</a>`;
+                    return `<a href="${qaAttr(d.pdf_download_url)}" class="btn-view-pdf" target="_blank" rel="noopener noreferrer" title="View PDF">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                        View PDF
+                    </a>`;
                 }
                 return '';
             }
@@ -222,6 +229,7 @@
                 }
                 const okBtn = e.target.closest('.admin-sppd-ok');
                 if (okBtn) {
+                    if (!CAN_VERIFY_SPPD) return;
                     const id = okBtn.dataset.id;
                     const c = await Swal.fire({ title: 'Verifikasi?', text: 'Laporan akan diteruskan ke Manager.', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, setujui' });
                     if (!c.isConfirmed) return;
@@ -233,6 +241,7 @@
                 }
                 const rejBtn = e.target.closest('.admin-sppd-reject');
                 if (rejBtn) {
+                    if (!CAN_VERIFY_SPPD) return;
                     const id = rejBtn.dataset.id;
                     const { value: note } = await Swal.fire({
                         title: 'Alasan revisi',

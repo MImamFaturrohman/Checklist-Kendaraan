@@ -22,6 +22,11 @@ class SppdAdminController extends Controller
         abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin'], true), 403);
     }
 
+    private function authorizeVerifier(): void
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
+    }
+
     private function resolveAdminSppdPerPage(Request $request): int
     {
         $n = (int) $request->query('per_page', 15);
@@ -72,6 +77,7 @@ class SppdAdminController extends Controller
             'currentStatus' => $status,
             'search' => $search,
             'statusMeta' => fn (?string $s) => SppdStatus::meta($s),
+            'canVerifySppd' => auth()->user()?->role === 'admin',
         ];
 
         $view = view('admin.sppd.index', $payload);
@@ -99,15 +105,17 @@ class SppdAdminController extends Controller
         $this->authorizeAdmin();
         abort_unless($sppd->pdf_path && Storage::disk('public')->exists($sppd->pdf_path), 404);
 
-        return response()->download(
-            Storage::disk('public')->path($sppd->pdf_path),
-            'Rekap_SPPD_'.$sppd->id.'.pdf'
-        );
+        $path = Storage::disk('public')->path($sppd->pdf_path);
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="Rekap_SPPD_'.$sppd->id.'.pdf"',
+        ]);
     }
 
     public function verifyApprove(Sppd $sppd): JsonResponse
     {
-        $this->authorizeAdmin();
+        $this->authorizeVerifier();
         abort_unless($sppd->status === Sppd::STATUS_PENDING, 422);
 
         $sppd->update([
@@ -124,7 +132,7 @@ class SppdAdminController extends Controller
 
     public function verifyReject(Request $request, Sppd $sppd): JsonResponse
     {
-        $this->authorizeAdmin();
+        $this->authorizeVerifier();
         abort_unless($sppd->status === Sppd::STATUS_PENDING, 422);
 
         $data = $request->validate([
