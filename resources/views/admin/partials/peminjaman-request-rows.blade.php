@@ -1,3 +1,4 @@
+@php use App\Support\PublicStorageUrl; @endphp
 @forelse($requests as $req)
     <tr>
         <td>{{ ($requests->currentPage() - 1) * $requests->perPage() + $loop->iteration }}</td>
@@ -68,13 +69,14 @@
         </td>
         <td style="white-space:nowrap">
             @if($req->isApproved())
-                <a href="{{ route('admin.peminjaman.pdf', $req) }}" target="_blank" class="peminj-pdf">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 3v12"></path>
-                        <path d="M7 10l5 5 5-5"></path>
-                        <path d="M5 21h14"></path>
-                    </svg>
-                    {{ $req->pdf_path ? 'Download' : 'Cetak PDF' }}
+                @php
+                    $ppmPdfUrl = $req->pdf_path
+                        ? PublicStorageUrl::resolve($req->pdf_path)
+                        : route('admin.peminjaman.pdf', $req);
+                @endphp
+                <a href="{{ $ppmPdfUrl }}" target="_blank" rel="noopener noreferrer" class="btn-view-pdf">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                    View PDF
                 </a>
             @else
                 <span class="peminj-meta" style="opacity:0.45">—</span>

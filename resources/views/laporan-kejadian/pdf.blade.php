@@ -37,10 +37,10 @@
         .header-table td { vertical-align: middle; }
         .header-left  { width: 40%; }
         .header-right { width: 60%; text-align: right; }
-        .header-logo  { width: 240px; height: auto; max-height: 78px; object-fit: contain; }
-        .header-title { font-size: 13pt; font-weight: bold; color: #002a7a; letter-spacing: 0.4px; }
-        .header-pm    { font-size: 11pt; font-weight: bold; color: #3d4654; margin-top: 1px; }
-        .header-no    { font-size: 10pt; font-weight: bold; color: #002a7a; margin-top: 1px; }
+        .header-logo  { width: 290px; height: auto; max-height: 78px; object-fit: contain; margin-top: -4mm; margin-left: -2mm; }
+        .header-title { font-size: 14pt; font-weight: bold; color: #002a7a; letter-spacing: 0.4px; }
+        .header-pm    { font-size: 12pt; font-weight: bold; color: #3d4654; margin-top: 1px; }
+        .header-no    { font-size: 11px; font-weight: bold; color: #002a7a; margin-top: 1px; }
 
         /* Styling Kategori & Checkbox */
         .lk-cat-container {

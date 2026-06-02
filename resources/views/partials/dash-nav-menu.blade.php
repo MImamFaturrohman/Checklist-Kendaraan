@@ -117,7 +117,7 @@
             <span class="dash-sidebar-icon">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </span>
-            <span class="dash-sidebar-label">Peminjaman</span>
+            <span class="dash-sidebar-label">Peminjaman Kendaraan</span>
             @if($sbPendingCount > 0)
                 <span class="dash-sidebar-badge">{{ $sbPendingCount > 99 ? '99+' : $sbPendingCount }}</span>
             @endif
@@ -206,7 +206,7 @@
             <span class="dash-sidebar-icon">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="dash-sidebar-label">Persetujuan Peminjaman</span>
+            <span class="dash-sidebar-label">Persetujuan Peminjaman Kendaraan</span>
             @if($sbPendingCount > 0)
                 <span class="dash-sidebar-badge">{{ $sbPendingCount > 99 ? '99+' : $sbPendingCount }}</span>
             @endif

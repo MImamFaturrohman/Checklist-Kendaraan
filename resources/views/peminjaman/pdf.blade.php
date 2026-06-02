@@ -34,13 +34,13 @@
         .pdf-body { padding-left: 10mm; padding-right: 10mm; margin-top: -3mm; }
         .header { width: 100%; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid #002a7a; }
         .header-table { width: 100%; border-collapse: collapse; }
-        .header-table td { vertical-align: middle; }
+        /* .header-table td { vertical-align: top; } */
         .header-left  { width: 40%; }
         .header-right { width: 60%; text-align: right; }
-        .header-logo  { width: 240px; height: auto; max-height: 80px; object-fit: contain; }
-        .header-title { font-size: 13pt; font-weight: bold; color: #002a7a; letter-spacing: 0.4px; }
-        .header-pm    { font-size: 12pt; font-weight: bold; color: #3d4654; margin-top: 1px; }
-        .header-no    { font-size: 11pt; font-weight: bold; color: #002a7a; margin-top: 1px; }
+        .header-logo  { width: 290px; height: auto; max-height: 80px; object-fit: contain; margin-top: -4mm; margin-left: -2mm; }
+        .header-title { font-size: 13pt; font-weight: 700; color: #002a7a; letter-spacing: 0.4px; }
+        .header-pm    { font-size: 12pt; font-weight: 700; color: #3d4654; margin-top: 1px; }
+        .header-no    { font-size: 11px; font-weight: 700; color: #002a7a; margin-top: 1px; }
 
         .body-text { font-size: 10pt; color: #1a1a2e; margin: 14px 0 10px; }
 

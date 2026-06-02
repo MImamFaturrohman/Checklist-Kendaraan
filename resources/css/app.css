@@ -2433,6 +2433,15 @@ html.dark .dash-body .stat-card .stat-label {
     background: #bfdbfe;
 }
 
+html.dark .dash-body .btn-view-pdf {
+    background: rgba(59, 130, 246, 0.16);
+    color: #93c5fd;
+}
+
+html.dark .dash-body .btn-view-pdf:hover {
+    background: rgba(59, 130, 246, 0.26);
+}
+
 /* ===================================================================
    ADMIN TOOLBAR — Search & Filter
    =================================================================== */

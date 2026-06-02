@@ -27,7 +27,7 @@
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { vertical-align: middle; }
         .header-left { width: 40%; text-align: middle; }
-        .header-logo { width: 250px; height: auto; max-height: 250px; object-fit: contain; }
+        .header-logo { width: 290px; height: auto; max-height: 250px; object-fit: contain; margin-top: -4mm; margin-left: -2mm; }
         .header-title-main { font-family: 'Arial', sans-serif; font-size: 14pt; color: #002a7a; font-weight: 700; letter-spacing: 0.5px; }
         .header-pm {
             font-size: 12pt;

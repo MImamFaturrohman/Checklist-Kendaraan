@@ -2,7 +2,7 @@
 
 @section('title', 'Peminjaman Kendaraan')
 @section('pageTitle', 'Peminjaman Kendaraan')
-@section('pageSubtitle', 'Daftar permohonan & unduh PDF')
+@section('pageSubtitle', 'Daftar permohonan & lihat PDF')
 
 @php $premiumBgId = 'admin_peminjaman'; @endphp
 
@@ -16,18 +16,27 @@
         .peminj-meta { font-size: 0.76rem; opacity: 0.85; }
         .peminj-meta-sm { font-size: 0.72rem; opacity: 0.8; }
         .peminj-bidang-nama { font-weight: 600; }
-        .peminj-pdf {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 5px 10px; background: #002a7a; color: #fff !important;
-            border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-decoration: none;
-            transition: background 0.15s;
+        /* Status badge — dark mode: latar lebih transparan, warna lebih tipis */
+        html.dark .dash-body .ppm-requests-table .status-pending {
+            background: rgba(234, 179, 8, 0.1);
+            color: rgba(251, 191, 36, 0.88);
+            border-color: rgba(251, 191, 36, 0.22);
         }
-        .peminj-pdf:hover { background: #0038a8; color: #fff !important; }
-        .dash-body.dark .peminj-pdf {
-            background: rgba(30, 64, 128, 0.95);
-            border: 1px solid rgba(212, 175, 55, 0.28);
+        html.dark .dash-body .ppm-requests-table .status-approved {
+            background: rgba(34, 197, 94, 0.1);
+            color: rgba(134, 239, 172, 0.9);
+            border-color: rgba(34, 197, 94, 0.22);
         }
-        .dash-body.dark .peminj-pdf:hover { background: rgba(40, 80, 150, 0.98); }
+        html.dark .dash-body .ppm-requests-table .status-rejected {
+            background: rgba(248, 113, 113, 0.1);
+            color: rgba(252, 165, 165, 0.9);
+            border-color: rgba(248, 113, 113, 0.22);
+        }
+        html.dark .dash-body .ppm-requests-table .status-expired {
+            background: rgba(148, 163, 184, 0.08);
+            color: rgba(200, 218, 255, 0.55);
+            border-color: rgba(148, 163, 184, 0.18);
+        }
         .peminj-empty { text-align: center; color: #9ca3af; padding: 40px 12px; }
         .dash-body.dark .peminj-empty { color: rgba(200, 218, 255, 0.45); }
 
@@ -239,7 +248,7 @@
             </div>
 
             {{-- Daftar permohonan --}}
-            <div id="ppm-section-daftar" class="ppm-tab-panel" style="display: block">
+            <div id="ppm-section-daftar" class="ppm-tab-panel" data-ppm-daftar-live style="display: block">
                 <div class="portal-section" style="margin-top: 14px">
                     <div class="portal-section-header" style="margin-bottom: 0">
                         <div class="portal-section-title">
@@ -275,7 +284,7 @@
                     </div>
 
                     <div class="admin-table-wrap" style="margin-top: 8px">
-                        <table class="admin-table">
+                        <table class="admin-table ppm-requests-table">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -721,116 +730,158 @@
         loadPernyataans();
     })();
 
-    /* ── Daftar permohonan: filter & halaman real-time ── */
+    /* ── Daftar permohonan: filter & halaman real-time (AJAX, tanpa reload) ── */
     (function () {
         const listUrl = window.PPM_LIST_URL;
-        const searchEl = document.getElementById('ppm-search-live');
-        const statusEl = document.getElementById('ppm-status-live');
-        const tbody = document.getElementById('ppm-requests-tbody');
-        const pagEl = document.getElementById('ppm-requests-pagination');
-        const clearBtn = document.getElementById('ppm-search-clear');
-        const resetBtn = document.getElementById('ppm-filter-reset');
-        if (!searchEl || !statusEl || !tbody || !pagEl) return;
+        const DEFAULT_PER_PAGE = '10';
+        let liveAbort = null;
 
-        function updateFilterChrome() {
-            const hasSearch = searchEl.value.trim().length > 0;
-            if (clearBtn) clearBtn.style.display = hasSearch ? 'flex' : 'none';
-            const showReset = hasSearch || (statusEl.value && statusEl.value !== '');
-            if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
-        }
-
-        async function fetchRequestsFromUrl(url) {
-            const u = url instanceof URL ? url : new URL(url, location.origin);
-            const res = await fetch(u.toString(), {
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin',
-                cache: 'no-store',
-            });
-            let data = {};
-            try { data = await res.json(); } catch (e) { /* ignore */ }
-            if (!res.ok) {
-                Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
-                return;
+        function initPpmDaftarLive() {
+            if (liveAbort) {
+                liveAbort.abort();
             }
-            tbody.innerHTML = data.tbody || '';
-            if (window.AdminPagination) {
-                window.AdminPagination.mountPagination(pagEl, data.pagination_html || '');
-            } else {
-                pagEl.innerHTML = data.pagination_html || '';
-            }
-            searchEl.value = u.searchParams.get('search') || '';
-            statusEl.value = u.searchParams.get('status') || '';
-            try {
-                const keepHash = location.hash || '#daftar';
-                history.replaceState(null, '', u.pathname + u.search + keepHash);
-            } catch (e) { /* ignore */ }
-            updateFilterChrome();
-        }
+            liveAbort = new AbortController();
+            const { signal } = liveAbort;
 
-        function buildListUrl(overrides = {}) {
-            const u = new URL(listUrl, location.origin);
-            const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
-            const status = overrides.status !== undefined ? overrides.status : statusEl.value;
+            const root = document.querySelector('[data-ppm-daftar-live]');
+            if (!root) return;
+
+            const searchEl = document.getElementById('ppm-search-live');
+            const statusEl = document.getElementById('ppm-status-live');
             const perPageEl = document.getElementById('ppm-per-page');
-            const perPage = overrides.per_page !== undefined ? overrides.per_page : (perPageEl ? perPageEl.value : '');
-            if (search) u.searchParams.set('search', search); else u.searchParams.delete('search');
-            if (status) u.searchParams.set('status', status); else u.searchParams.delete('status');
-            if (perPage) u.searchParams.set('per_page', String(perPage)); else u.searchParams.delete('per_page');
-            const page = overrides.page;
-            if (page) u.searchParams.set('page', String(page)); else u.searchParams.delete('page');
-            return u;
-        }
+            const tbody = document.getElementById('ppm-requests-tbody');
+            const pagEl = document.getElementById('ppm-requests-pagination');
+            const clearBtn = document.getElementById('ppm-search-clear');
+            const resetBtn = document.getElementById('ppm-filter-reset');
+            if (!searchEl || !statusEl || !perPageEl || !tbody || !pagEl) return;
 
-        let debounceT;
-        searchEl.addEventListener('input', () => {
-            updateFilterChrome();
-            clearTimeout(debounceT);
-            debounceT = setTimeout(() => {
+            function updateFilterChrome() {
+                const hasSearch = searchEl.value.trim().length > 0;
+                if (clearBtn) clearBtn.style.display = hasSearch ? 'flex' : 'none';
+                const showReset = hasSearch
+                    || (statusEl.value && statusEl.value !== '')
+                    || perPageEl.value !== DEFAULT_PER_PAGE;
+                if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
+            }
+
+            function syncFiltersFromUrl(u, data) {
+                searchEl.value = u.searchParams.get('search') || '';
+                statusEl.value = u.searchParams.get('status') || '';
+                const pp = data?.per_page ?? u.searchParams.get('per_page');
+                if (pp) perPageEl.value = String(pp);
+            }
+
+            async function fetchRequestsFromUrl(url) {
+                const u = url instanceof URL ? url : new URL(url, location.origin);
+                try {
+                    const res = await fetch(u.toString(), {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                        signal,
+                    });
+                    let data = {};
+                    try { data = await res.json(); } catch (e) { /* ignore */ }
+                    if (!res.ok) {
+                        Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
+                        return;
+                    }
+                    tbody.innerHTML = data.tbody || '';
+                    if (window.AdminPagination) {
+                        window.AdminPagination.mountPagination(pagEl, data.pagination_html || '');
+                    } else {
+                        pagEl.innerHTML = data.pagination_html || '';
+                    }
+                    syncFiltersFromUrl(u, data);
+                    try {
+                        const keepHash = location.hash || '#daftar';
+                        history.replaceState(null, '', u.pathname + u.search + keepHash);
+                    } catch (e) { /* ignore */ }
+                    updateFilterChrome();
+                } catch (err) {
+                    if (err?.name === 'AbortError') return;
+                    throw err;
+                }
+            }
+
+            function buildListUrl(overrides = {}) {
+                const u = new URL(listUrl, location.origin);
+                const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
+                const status = overrides.status !== undefined ? overrides.status : statusEl.value;
+                const perPage = overrides.per_page !== undefined ? overrides.per_page : perPageEl.value;
+                if (search) u.searchParams.set('search', search); else u.searchParams.delete('search');
+                if (status) u.searchParams.set('status', status); else u.searchParams.delete('status');
+                if (perPage) u.searchParams.set('per_page', String(perPage)); else u.searchParams.delete('per_page');
+                if (Object.prototype.hasOwnProperty.call(overrides, 'page')) {
+                    if (overrides.page) u.searchParams.set('page', String(overrides.page));
+                    else u.searchParams.delete('page');
+                } else {
+                    u.searchParams.delete('page');
+                }
+                return u;
+            }
+
+            let debounceT;
+            searchEl.addEventListener('input', () => {
+                updateFilterChrome();
+                clearTimeout(debounceT);
+                debounceT = setTimeout(() => {
+                    fetchRequestsFromUrl(buildListUrl({ page: null }));
+                }, 320);
+            }, { signal });
+
+            statusEl.addEventListener('change', () => {
                 fetchRequestsFromUrl(buildListUrl({ page: null }));
-            }, 320);
-        });
+            }, { signal });
 
-        statusEl.addEventListener('change', () => {
-            fetchRequestsFromUrl(buildListUrl({ page: null }));
-        });
+            perPageEl.addEventListener('change', () => {
+                fetchRequestsFromUrl(buildListUrl({ page: null }));
+            }, { signal });
 
-        document.getElementById('ppm-per-page')?.addEventListener('change', () => {
-            fetchRequestsFromUrl(buildListUrl({ page: null }));
-        });
-
-        if (window.AdminPagination) {
-            window.AdminPagination.bindPaginationLinks(pagEl, fetchRequestsFromUrl, {
-                pathname: new URL(listUrl, location.origin).pathname,
-            });
-        } else {
-            pagEl.addEventListener('click', e => {
-                const a = e.target.closest('a[href]');
-                if (!a) return;
+            pagEl.addEventListener('click', (e) => {
+                const a = e.target.closest('.tbl-pagination a[href], a[href]');
+                if (!a || !pagEl.contains(a)) return;
                 const u = new URL(a.getAttribute('href'), location.origin);
                 if (u.pathname !== new URL(listUrl, location.origin).pathname) return;
                 e.preventDefault();
                 fetchRequestsFromUrl(u);
-            });
+            }, { signal });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchEl.value = '';
+                    fetchRequestsFromUrl(buildListUrl({ search: '', page: null }));
+                }, { signal });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    searchEl.value = '';
+                    statusEl.value = '';
+                    perPageEl.value = DEFAULT_PER_PAGE;
+                    fetchRequestsFromUrl(buildListUrl({ search: '', status: '', per_page: DEFAULT_PER_PAGE, page: null }));
+                }, { signal });
+            }
+
+            updateFilterChrome();
         }
 
-        if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-                searchEl.value = '';
-                fetchRequestsFromUrl(buildListUrl({ search: '', page: null }));
-            });
+        function schedulePpmDaftarInit() {
+            requestAnimationFrame(initPpmDaftarLive);
         }
 
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-                searchEl.value = '';
-                statusEl.value = '';
-                const pp = document.getElementById('ppm-per-page');
-                if (pp) pp.value = '10';
-                fetchRequestsFromUrl(new URL(listUrl, location.origin));
-            });
+        document.addEventListener('turbo:load', schedulePpmDaftarInit);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', schedulePpmDaftarInit);
+        } else {
+            schedulePpmDaftarInit();
         }
 
-        updateFilterChrome();
+        if (typeof window.registerTurboCleanup === 'function') {
+            window.registerTurboCleanup(function () {
+                if (liveAbort) liveAbort.abort();
+            });
+        }
     })();
 
     </script>

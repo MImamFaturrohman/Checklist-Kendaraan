@@ -187,11 +187,13 @@ class PeminjamanController extends Controller
 
         $peminjaman->load(['approver', 'bidang.parent']);
 
-        // If PDF already exists, stream it
+        $filename = 'Berita_Acara_Peminjaman_'.$peminjaman->id.'.pdf';
+
+        // If PDF already exists, stream inline for browser preview
         if ($peminjaman->pdf_path && Storage::disk('public')->exists($peminjaman->pdf_path)) {
-            return response()->download(
+            return $this->inlinePdfResponse(
                 Storage::disk('public')->path($peminjaman->pdf_path),
-                'Berita_Acara_Peminjaman_'.$peminjaman->id.'.pdf'
+                $filename
             );
         }
 
@@ -199,10 +201,18 @@ class PeminjamanController extends Controller
         $path = $this->buildAndStorePdf($peminjaman);
         $peminjaman->update(['pdf_path' => $path, 'tanda_tangan' => null]);
 
-        return response()->download(
+        return $this->inlinePdfResponse(
             Storage::disk('public')->path($path),
-            'Berita_Acara_Peminjaman_'.$peminjaman->id.'.pdf'
+            $filename
         );
+    }
+
+    private function inlinePdfResponse(string $absolutePath, string $filename)
+    {
+        return response()->file($absolutePath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
+        ]);
     }
 
     public function adminIndex(Request $request)
@@ -212,7 +222,7 @@ class PeminjamanController extends Controller
         PeminjamanRequest::expirePendingPastBorrowDate();
 
         $query = $this->adminPeminjamanRequestsQuery($request);
-        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 15);
+        $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'));
         $requests = $query->paginate($perPage)->onEachSide(0)->withQueryString();
 
         $stats = [
@@ -233,6 +243,7 @@ class PeminjamanController extends Controller
             return response()->json([
                 'tbody' => view('admin.partials.peminjaman-request-rows', compact('requests'))->render(),
                 'pagination_html' => AdminTablePagination::linksHtml($requests, route('admin.peminjaman')),
+                'per_page' => $requests->perPage(),
             ]);
         }
 
