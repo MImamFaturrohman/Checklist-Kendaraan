@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BbmReport;
+use App\Models\Kendaraan;
 use App\Support\DriverShift;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -47,6 +48,38 @@ class BbmOperationalPortalController extends Controller
         return ['liter' => $liter, 'rupiah' => $rupiah];
     }
 
+    /**
+     * @return list<array{name: string|null, username: string|null, cnt: int}>
+     */
+    private function topDriversForYear(int $year, ?string $nomorKendaraan): array
+    {
+        $query = BbmReport::query()
+            ->join('users', 'users.id', '=', 'bbm_reports.user_id')
+            ->whereYear('bbm_reports.tanggal', $year);
+
+        if ($nomorKendaraan !== null && $nomorKendaraan !== '') {
+            $query->where('bbm_reports.nomor_kendaraan', $nomorKendaraan);
+        }
+
+        return $query
+            ->select([
+                'users.name',
+                'users.username',
+                DB::raw('COUNT(*) as cnt'),
+            ])
+            ->groupBy('users.id', 'users.name', 'users.username')
+            ->orderByDesc('cnt')
+            ->limit(12)
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->name,
+                'username' => $row->username,
+                'cnt' => (int) $row->cnt,
+            ])
+            ->values()
+            ->all();
+    }
+
     public function chartSeries(Request $request): JsonResponse
     {
         $this->authorizePortalAccess();
@@ -63,19 +96,21 @@ class BbmOperationalPortalController extends Controller
             abort(422, 'Nomor kendaraan tidak ditemukan pada data BBM.');
         }
 
+        $vehicleFilter = $nopol === '' ? null : $nopol;
         $prevYear = $year - 1;
-        $current = $this->monthlyTotalsForYear($year, $nopol === '' ? null : $nopol);
-        $previous = $this->monthlyTotalsForYear($prevYear, $nopol === '' ? null : $nopol);
+        $current = $this->monthlyTotalsForYear($year, $vehicleFilter);
+        $previous = $this->monthlyTotalsForYear($prevYear, $vehicleFilter);
 
         return response()->json([
             'year' => $year,
             'year_previous' => $prevYear,
-            'nomor_kendaraan' => $nopol === '' ? null : $nopol,
+            'nomor_kendaraan' => $vehicleFilter,
             'month_labels' => self::MONTH_SHORT_ID,
             'rupiah_current' => $current['rupiah'],
             'rupiah_previous' => $previous['rupiah'],
             'liter_current' => $current['liter'],
             'liter_previous' => $previous['liter'],
+            'top_drivers' => $this->topDriversForYear($year, $vehicleFilter),
         ]);
     }
 
@@ -127,7 +162,7 @@ class BbmOperationalPortalController extends Controller
     /**
      * @return array{show: bool, direction: 'up'|'down'|'flat', pct_display: string}
      */
-    private function portalMonthMomMeta(float $current, float $previous): array
+    private function portalCompareMeta(float $current, float $previous): array
     {
         $epsilon = 0.0001;
         if ($previous <= $epsilon && $current <= $epsilon) {
@@ -152,6 +187,95 @@ class BbmOperationalPortalController extends Controller
         }
 
         return ['show' => true, 'direction' => 'flat', 'pct_display' => $absFmt.'%'];
+    }
+
+    /**
+     * Kendaraan aktif dengan pengisian BBM paling lama (atau belum pernah isi).
+     *
+     * @return object{nomor_kendaraan: string, jenis_kendaraan: string, never_filled: bool, days_since: int|null, last_fill_label: string}|null
+     */
+    private function vehicleLongestWithoutBbm(): ?object
+    {
+        $activeVehicles = Kendaraan::query()
+            ->where('status_kendaraan', 'Aktif')
+            ->orderBy('nomor_kendaraan')
+            ->get(['nomor_kendaraan', 'jenis_kendaraan']);
+
+        if ($activeVehicles->isEmpty()) {
+            $activeVehicles = BbmReport::query()
+                ->selectRaw('nomor_kendaraan, MAX(jenis_kendaraan) as jenis_kendaraan')
+                ->groupBy('nomor_kendaraan')
+                ->orderBy('nomor_kendaraan')
+                ->get();
+        }
+
+        if ($activeVehicles->isEmpty()) {
+            return null;
+        }
+
+        $lastFillRows = BbmReport::query()
+            ->selectRaw('nomor_kendaraan, MAX(tanggal) as last_date')
+            ->groupBy('nomor_kendaraan')
+            ->pluck('last_date', 'nomor_kendaraan');
+
+        $worst = null;
+        $worstScore = -1;
+
+        foreach ($activeVehicles as $vehicle) {
+            $nopol = (string) $vehicle->nomor_kendaraan;
+            $lastRaw = $lastFillRows[$nopol] ?? null;
+
+            if ($lastRaw === null) {
+                $score = PHP_INT_MAX;
+                $meta = $this->lastFillMeta(null);
+            } else {
+                $lastAt = Carbon::parse($lastRaw)->startOfDay();
+                $days = (int) $lastAt->diffInDays(now()->startOfDay());
+                $score = $days;
+                $meta = $this->lastFillMeta($lastAt);
+            }
+
+            if ($score > $worstScore) {
+                $worstScore = $score;
+                $worst = (object) [
+                    'nomor_kendaraan' => $nopol,
+                    'jenis_kendaraan' => (string) ($vehicle->jenis_kendaraan ?? ''),
+                    'never_filled' => $meta['never_filled'],
+                    'days_since' => $meta['days_since'],
+                    'last_fill_label' => $meta['label'],
+                ];
+            }
+        }
+
+        return $worst;
+    }
+
+    /**
+     * @return array{never_filled: bool, days_since: int|null, label: string}
+     */
+    private function lastFillMeta(?Carbon $lastFillAt): array
+    {
+        if ($lastFillAt === null) {
+            return [
+                'never_filled' => true,
+                'days_since' => null,
+                'label' => 'Belum pernah isi BBM',
+            ];
+        }
+
+        $days = (int) $lastFillAt->diffInDays(now()->startOfDay());
+        $dateLabel = $lastFillAt->translatedFormat('j F Y');
+        $ago = match (true) {
+            $days === 0 => 'hari ini',
+            $days === 1 => '1 hari lalu',
+            default => $days.' hari lalu',
+        };
+
+        return [
+            'never_filled' => false,
+            'days_since' => $days,
+            'label' => 'Terakhir isi pada '.$dateLabel.' ('.$ago.')',
+        ];
     }
 
     /**
@@ -199,29 +323,25 @@ class BbmOperationalPortalController extends Controller
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
 
-        $monthStart = now()->startOfMonth()->toDateString();
-        $monthEnd = now()->endOfMonth()->toDateString();
-
-        $prevMonthRef = now()->copy()->subMonth();
-        $prevMonthStart = $prevMonthRef->copy()->startOfMonth()->toDateString();
-        $prevMonthEnd = $prevMonthRef->copy()->endOfMonth()->toDateString();
+        $year = (int) now()->year;
+        $prevYear = $year - 1;
 
         $totalReportsAll = BbmReport::query()->count();
-        $monthReports = BbmReport::query()->whereBetween('tanggal', [$monthStart, $monthEnd])->count();
-        $monthLiter = (float) BbmReport::query()->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('liter');
-        $monthRupiah = (float) BbmReport::query()->whereBetween('tanggal', [$monthStart, $monthEnd])->sum('total_harga');
+        $yearReports = BbmReport::query()->whereYear('tanggal', $year)->count();
+        $prevYearReports = BbmReport::query()->whereYear('tanggal', $prevYear)->count();
+        $yearLiter = (float) BbmReport::query()->whereYear('tanggal', $year)->sum('liter');
+        $yearRupiah = (float) BbmReport::query()->whereYear('tanggal', $year)->sum('total_harga');
+        $prevYearLiter = (float) BbmReport::query()->whereYear('tanggal', $prevYear)->sum('liter');
+        $prevYearRupiah = (float) BbmReport::query()->whereYear('tanggal', $prevYear)->sum('total_harga');
 
-        $prevMonthLiter = (float) BbmReport::query()->whereBetween('tanggal', [$prevMonthStart, $prevMonthEnd])->sum('liter');
-        $prevMonthRupiah = (float) BbmReport::query()->whereBetween('tanggal', [$prevMonthStart, $prevMonthEnd])->sum('total_harga');
-
-        $vehMonthAgg = BbmReport::query()
-            ->whereBetween('tanggal', [$monthStart, $monthEnd])
+        $vehYearAgg = BbmReport::query()
+            ->whereYear('tanggal', $year)
             ->selectRaw('nomor_kendaraan, jenis_kendaraan, COALESCE(SUM(liter), 0) as liters, COALESCE(SUM(total_harga), 0) as rupiah')
             ->groupBy('nomor_kendaraan', 'jenis_kendaraan')
             ->get();
 
-        $boros = $vehMonthAgg->sortByDesc('liters')->first();
-        $efisien = $vehMonthAgg->filter(fn ($v) => (float) $v->liters > 0)->sortBy('liters')->first();
+        $boros = $vehYearAgg->sortByDesc('liters')->first();
+        $overdueVehicle = $this->vehicleLongestWithoutBbm();
 
         $maxYear = (int) (BbmReport::query()->max(DB::raw('YEAR(tanggal)')) ?? now()->year);
         $minYear = (int) (BbmReport::query()->min(DB::raw('YEAR(tanggal)')) ?? $maxYear);
@@ -235,19 +355,6 @@ class BbmOperationalPortalController extends Controller
             ->filter()
             ->values()
             ->all();
-
-        $topDriversMonth = BbmReport::query()
-            ->join('users', 'users.id', '=', 'bbm_reports.user_id')
-            ->whereBetween('bbm_reports.tanggal', [$monthStart, $monthEnd])
-            ->select([
-                'users.name',
-                'users.username',
-                DB::raw('COUNT(*) as cnt'),
-            ])
-            ->groupBy('users.id', 'users.name', 'users.username')
-            ->orderByDesc('cnt')
-            ->limit(12)
-            ->get();
 
         $reportsQuery = BbmReport::query()->with(['user:id,name,username']);
 
@@ -305,19 +412,19 @@ class BbmOperationalPortalController extends Controller
         $payload = [
             'stats' => [
                 'total_reports_all' => $totalReportsAll,
-                'month_reports' => $monthReports,
-                'month_liter' => $monthLiter,
-                'month_rupiah' => $monthRupiah,
+                'year_reports' => $yearReports,
+                'year_liter' => $yearLiter,
+                'year_rupiah' => $yearRupiah,
                 'boros' => $boros,
-                'efisien' => $efisien,
-                'month_label' => now()->translatedFormat('F Y'),
-                'mom_month_liter' => $this->portalMonthMomMeta($monthLiter, $prevMonthLiter),
-                'mom_month_rupiah' => $this->portalMonthMomMeta($monthRupiah, $prevMonthRupiah),
+                'overdue_vehicle' => $overdueVehicle,
+                'year_label' => (string) $year,
+                'yoy_year_reports' => $this->portalCompareMeta((float) $yearReports, (float) $prevYearReports),
+                'yoy_year_liter' => $this->portalCompareMeta($yearLiter, $prevYearLiter),
+                'yoy_year_rupiah' => $this->portalCompareMeta($yearRupiah, $prevYearRupiah),
             ],
             'yearsAvailable' => $yearsRange,
             'bbmVehicleNopolList' => $bbmVehicleNopolList,
             'bbmDefaultChartYear' => $bbmDefaultChartYear,
-            'topDriversMonth' => $topDriversMonth,
             'reports' => $reports,
             'bbmPortalChartsOnly' => $chartsOnly,
             'bbmPortalSearch' => $search,
@@ -359,7 +466,7 @@ class BbmOperationalPortalController extends Controller
                 'tanggal' => $bbmReport->tanggal->format('d/m/Y'),
                 'waktu' => $waktuStr,
                 'shift_code' => $shiftCode,
-                'shift_label' => DriverShift::labelFromCode($shiftCode),
+                'shift_label' => DriverShift::tableLabelFromCode($shiftCode),
                 'shift_badge_class' => DriverShift::badgeClassFromCode($shiftCode),
                 'odometer_sebelum' => (string) (int) $bbmReport->odometer_sebelum,
                 'odometer_sesudah' => (string) (int) $bbmReport->odometer_sesudah,

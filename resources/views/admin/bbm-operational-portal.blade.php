@@ -22,23 +22,82 @@
 
 @push('styles')
     <style>
-        .bbm-chart-global-filters.portal-local-filters {
-            align-items: flex-end;
+        .bbm-chart-title-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
             gap: 12px 16px;
-            margin-top: 18px;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+        }
+        .bbm-chart-title-row .portal-chart-title {
+            flex: 1 1 200px;
+            min-width: 0;
+            margin-bottom: 0;
+        }
+        .bbm-chart-inline-filters {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+        .bbm-chart-inline-filters .ppm-status-wrap {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 0 0 auto;
+        }
+        .bbm-chart-inline-filters .bbm-chart-year-wrap {
+            flex: 0 0 auto;
+        }
+        .bbm-chart-inline-filters .bbm-chart-vehicle-wrap {
+            flex: 0 1 auto;
+            min-width: 140px;
+            max-width: 200px;
+        }
+        .bbm-chart-inline-filters .admin-filter-input {
+            width: auto;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+        .bbm-chart-inline-filters .bbm-chart-year-wrap .admin-filter-input {
+            width: 5.5rem;
+            flex: 0 0 5.5rem;
+        }
+        @media (max-width: 640px) {
+            .bbm-chart-title-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .bbm-chart-inline-filters {
+                justify-content: flex-end;
+                margin-left: 0;
+                flex-wrap: nowrap;
+            }
+            .bbm-chart-inline-filters .bbm-chart-vehicle-wrap {
+                min-width: 0;
+                max-width: none;
+                flex: 1 1 auto;
+            }
         }
         .bbm-filter-inline-label {
-            display: block;
+            display: inline;
             font-size: 0.72rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             color: #64748b;
-            margin-bottom: 4px;
+            margin-bottom: 0;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .dash-body.dark .bbm-filter-inline-label { color: rgba(200, 218, 255, 0.55); }
-        .bbm-chart-vehicle-wrap { min-width: min(100%, 220px); flex: 1 1 180px; }
         .bbm-chart-filters-hint {
             flex: 1 1 200px;
             margin: 0;
@@ -181,7 +240,6 @@
             font-size: 0.88rem;
         }
         .dash-body.dark .bbm-activity-placeholder { color: rgba(226, 232, 240, 0.55); }
-        .portal-chart-title-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
         .bbm-portal-date-range { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
         .bbm-portal-date-range .admin-filter-input { min-width: 0; flex: 1 1 8rem; }
         .bbm-portal-filter-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -245,16 +303,149 @@
             color: rgba(226, 232, 240, 0.8);
             border-color: rgba(148, 163, 184, 0.25);
         }
+
+        .bbm-detail-photos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .bbm-detail-photos figure {
+            margin: 0;
+        }
+        .bbm-detail-photos figcaption {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .dash-body.dark .bbm-detail-photos figcaption { color: rgba(200, 218, 255, 0.55); }
+        .bbm-photo-thumb-btn {
+            display: block;
+            width: 100%;
+            padding: 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .bbm-photo-thumb-btn:focus-visible {
+            outline: 2px solid #002a7a;
+            outline-offset: 2px;
+        }
+        .bbm-photo-thumb-btn img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .bbm-photo-thumb-btn:hover img {
+            transform: scale(1.02);
+            box-shadow: 0 4px 14px rgba(0,0,0,.15);
+        }
+        @media (max-width: 560px) {
+            .bbm-detail-photos { grid-template-columns: 1fr; }
+        }
+
+        .bbm-photo-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 10050;
+            background: rgba(15, 23, 42, 0.92);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            box-sizing: border-box;
+            pointer-events: auto;
+        }
+        .bbm-photo-lightbox[hidden] {
+            display: none !important;
+        }
+        .bbm-photo-lightbox-viewport {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+            position: relative;
+        }
+        .bbm-photo-lightbox-viewport.is-dragging {
+            cursor: grabbing;
+        }
+        #bbm-photo-lightbox-img {
+            max-width: none;
+            max-height: none;
+            transform-origin: center center;
+            will-change: transform;
+            border-radius: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.45);
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        .bbm-photo-lightbox-toolbar {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+        .bbm-photo-lightbox-toolbar button {
+            min-width: 40px;
+            height: 40px;
+            padding: 0 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .bbm-photo-lightbox-toolbar button:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        .bbm-photo-lightbox-toolbar button[data-bbm-zoom="reset"] {
+            min-width: 56px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .bbm-photo-lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        }
+        .bbm-photo-lightbox-close:hover { background: rgba(255,255,255,0.25); }
     </style>
 @endpush
 
 @section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
-            <p class="bbm-portal-month-kicker">
-                Data bulan: <span class="bbm-portal-month-kicker__highlight">{{ $stats['month_label'] }}</span>
-            </p>
-
             <div class="portal-stats-row portal-stats-row--bbm">
                 <x-admin-stat-card
                     title="Total Laporan BBM"
@@ -264,50 +455,70 @@
                     icon="bi bi-clipboard-data-fill"
                 />
                 <x-admin-stat-card
-                    title="Laporan BBM Bulanan"
-                    :value="$stats['month_reports']"
+                    title="Laporan BBM Tahunan"
+                    :value="$stats['year_reports']"
                     unit="laporan"
-                    description="Laporan pengisian bulan {{ $stats['month_label'] }}"
+                    description="Laporan pengisian tahun {{ $stats['year_label'] }}"
                     icon="bi bi-calendar-week-fill"
-                />
-                <x-admin-stat-card
-                    title="Total Liter"
-                    :value="$fmtLiter($stats['month_liter'])"
-                    unit="L"
-                    description="Volume BBM bulan berjalan"
-                    icon="bi bi-droplet-fill"
                 >
-                    @if(!empty($stats['mom_month_liter']['show']))
+                    @if(!empty($stats['yoy_year_reports']['show']))
                         @php
-                            $mdir = $stats['mom_month_liter']['direction'] ?? 'flat';
-                            $mpct = $stats['mom_month_liter']['pct_display'] ?? '';
+                            $ydir = $stats['yoy_year_reports']['direction'] ?? 'flat';
+                            $ypct = $stats['yoy_year_reports']['pct_display'] ?? '';
                         @endphp
                         <div class="bbm-portal-stat-mom" role="presentation">
-                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $mdir }}">
-                                @if ($mdir === 'up')
+                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $ydir }}">
+                                @if ($ydir === 'up')
                                     <i class="bi bi-graph-up-arrow"></i>
-                                @elseif ($mdir === 'down')
+                                @elseif ($ydir === 'down')
                                     <i class="bi bi-graph-down-arrow"></i>
                                 @else
                                     <i class="bi bi-dash-lg"></i>
                                 @endif
-                                {{ $mpct }}
+                                {{ $ypct }}
                             </span>
-                            <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
+                            <span class="bbm-portal-stat-mom-vs">vs Tahun Lalu</span>
+                        </div>
+                    @endif
+                </x-admin-stat-card>
+                <x-admin-stat-card
+                    title="Total Liter"
+                    :value="$fmtLiter($stats['year_liter'])"
+                    unit="L"
+                    description="Volume BBM tahun berjalan"
+                    icon="bi bi-droplet-fill"
+                >
+                    @if(!empty($stats['yoy_year_liter']['show']))
+                        @php
+                            $ldir = $stats['yoy_year_liter']['direction'] ?? 'flat';
+                            $lpct = $stats['yoy_year_liter']['pct_display'] ?? '';
+                        @endphp
+                        <div class="bbm-portal-stat-mom" role="presentation">
+                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $ldir }}">
+                                @if ($ldir === 'up')
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                @elseif ($ldir === 'down')
+                                    <i class="bi bi-graph-down-arrow"></i>
+                                @else
+                                    <i class="bi bi-dash-lg"></i>
+                                @endif
+                                {{ $lpct }}
+                            </span>
+                            <span class="bbm-portal-stat-mom-vs">vs Tahun Lalu</span>
                         </div>
                     @endif
                 </x-admin-stat-card>
                 <x-admin-stat-card
                     title="Total Biaya BBM"
-                    :value="number_format((float) $stats['month_rupiah'], 0, ',', '.')"
+                    :value="number_format((float) $stats['year_rupiah'], 0, ',', '.')"
                     unitBefore="Rp"
-                    description="Pengeluaran BBM bulan berjalan"
+                    description="Pengeluaran BBM tahun berjalan"
                     icon="bi bi-cash-stack"
                 >
-                    @if(!empty($stats['mom_month_rupiah']['show']))
+                    @if(!empty($stats['yoy_year_rupiah']['show']))
                         @php
-                            $rdir = $stats['mom_month_rupiah']['direction'] ?? 'flat';
-                            $rpct = $stats['mom_month_rupiah']['pct_display'] ?? '';
+                            $rdir = $stats['yoy_year_rupiah']['direction'] ?? 'flat';
+                            $rpct = $stats['yoy_year_rupiah']['pct_display'] ?? '';
                         @endphp
                         <div class="bbm-portal-stat-mom" role="presentation">
                             <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $rdir }}">
@@ -320,14 +531,14 @@
                                 @endif
                                 {{ $rpct }}
                             </span>
-                            <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
+                            <span class="bbm-portal-stat-mom-vs">vs Tahun Lalu</span>
                         </div>
                     @endif
                 </x-admin-stat-card>
                 <x-admin-stat-card
                     title="Kendaraan Boros"
                     icon="bi bi-arrow-up-circle-fill"
-                    description="Liter tertinggi bulan ini"
+                    description="Liter tertinggi tahun ini"
                 >
                     <x-slot:statValue>
                         <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
@@ -341,15 +552,15 @@
                     </x-slot:statValue>
                 </x-admin-stat-card>
                 <x-admin-stat-card
-                    title="Kendaraan Efisien"
-                    icon="bi bi-arrow-down-circle-fill"
-                    description="Liter terendah bulan ini"
+                    title="Peringatan Pengisian BBM"
+                    icon="bi bi-exclamation-triangle-fill"
+                    description="Kendaraan dengan pengisian BBM paling lama"
                 >
                     <x-slot:statValue>
                         <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
-                            @if($stats['efisien'])
-                                <strong>{{ $stats['efisien']->nomor_kendaraan }}</strong>
-                                <span class="portal-stat-sublabel">{{ $fmtLiter($stats['efisien']->liters) }} L · {{ $fmtRp($stats['efisien']->rupiah) }}</span>
+                            @if($stats['overdue_vehicle'])
+                                <strong>{{ $stats['overdue_vehicle']->nomor_kendaraan }}</strong>
+                                <span class="portal-stat-sublabel">{{ $stats['overdue_vehicle']->last_fill_label }}</span>
                             @else
                                 —
                             @endif
@@ -358,45 +569,37 @@
                 </x-admin-stat-card>
             </div>
 
-            <div class="bbm-chart-global-filters portal-local-filters" id="bbm-chart-global-filters">
-                <div class="ppm-status-wrap">
-                    <label class="bbm-filter-inline-label" for="bbm-chart-year">Tahun</label>
-                    <select id="bbm-chart-year" class="admin-filter-input" aria-label="Tahun perbandingan">
-                        @foreach($yearsAvailable as $y)
-                            <option value="{{ $y }}" @selected((int) ($bbmDefaultChartYear ?? now()->year) === (int) $y)>{{ $y }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="ppm-status-wrap bbm-chart-vehicle-wrap">
-                    <label class="bbm-filter-inline-label" for="bbm-chart-vehicle">Kendaraan</label>
-                    <select id="bbm-chart-vehicle" class="admin-filter-input" aria-label="Filter kendaraan di grafik">
-                        <option value="">Semua kendaraan</option>
-                        @foreach($bbmVehicleNopolList ?? [] as $nopol)
-                            <option value="{{ $nopol }}">{{ $nopol }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
             <div class="portal-charts-grid portal-charts-grid--bbm" id="portal-charts-bbm">
                 <div class="portal-chart-card portal-chart-card--wide">
-                    <div class="portal-chart-title-row">
-                        <div class="portal-chart-title">Pengeluaran BBM per bulan (Jan–Des)</div>
+                    <div class="bbm-chart-title-row portal-chart-title-row">
+                        <div class="portal-chart-title" id="bbm-combined-chart-title">Pengeluaran BBM &amp; liter per bulan</div>
+                        <div class="bbm-chart-inline-filters" id="bbm-chart-global-filters">
+                            <div class="ppm-status-wrap bbm-chart-year-wrap">
+                                <label class="bbm-filter-inline-label" for="bbm-chart-year">Tahun</label>
+                                <select id="bbm-chart-year" class="admin-filter-input" aria-label="Tahun perbandingan">
+                                    @foreach($yearsAvailable as $y)
+                                        <option value="{{ $y }}" @selected((int) ($bbmDefaultChartYear ?? now()->year) === (int) $y)>{{ $y }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="ppm-status-wrap bbm-chart-vehicle-wrap">
+                                <label class="bbm-filter-inline-label" for="bbm-chart-vehicle">Kendaraan</label>
+                                <select id="bbm-chart-vehicle" class="admin-filter-input" aria-label="Filter kendaraan di grafik">
+                                    <option value="">Semua kendaraan</option>
+                                    @foreach($bbmVehicleNopolList ?? [] as $nopol)
+                                        <option value="{{ $nopol }}">{{ $nopol }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="portal-chart-container" style="height:260px">
+                    <div class="portal-chart-container" style="height:300px">
                         <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
-                        <canvas id="bbmChartRupiahYear"></canvas>
-                    </div>
-                </div>
-                <div class="portal-chart-card portal-chart-card--wide">
-                    <div class="portal-chart-title">Total liter BBM per bulan (Jan–Des)</div>
-                    <div class="portal-chart-container" style="height:280px">
-                        <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
-                        <canvas id="bbmChartLiterMonthly"></canvas>
+                        <canvas id="bbmChartCombined"></canvas>
                     </div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--bbm-driver-col">
-                    <div class="portal-chart-title">Top driver — frekuensi pengisian (bulan berjalan)</div>
+                    <div class="portal-chart-title" id="bbm-driver-pie-title">Top driver — frekuensi pengisian (tahun {{ $stats['year_label'] }})</div>
                     <div class="portal-chart-container portal-chart-container--bbm-driver-pie">
                         <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
                         <canvas id="bbmChartDriverFreq"></canvas>
@@ -497,7 +700,7 @@
                                         <td>{{ $waktuStr }}</td>
                                         <td>
                                             <span class="bbm-shift-badge {{ \App\Support\DriverShift::badgeClassFromCode($r->shift) }}">
-                                                {{ \App\Support\DriverShift::labelFromCode($r->shift) }}
+                                                {{ \App\Support\DriverShift::tableLabelFromCode($r->shift) }}
                                             </span>
                                         </td>
                                         <td><span class="bbm-jenis-pengisian-cell">{{ $r->jenis_pengisian ?: 'Operasional' }}</span></td>
@@ -545,6 +748,17 @@
                 </div>
             </div>
         </div>
+        <div id="bbm-photo-lightbox" class="bbm-photo-lightbox" hidden role="dialog" aria-modal="true" aria-label="Pratinjau foto">
+            <button type="button" class="bbm-photo-lightbox-close" data-close-bbm-lightbox aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
+            <div class="bbm-photo-lightbox-toolbar">
+                <button type="button" data-bbm-zoom="out" aria-label="Perkecil">−</button>
+                <button type="button" data-bbm-zoom="reset" aria-label="Reset zoom">100%</button>
+                <button type="button" data-bbm-zoom="in" aria-label="Perbesar">+</button>
+            </div>
+            <div class="bbm-photo-lightbox-viewport" id="bbm-photo-lightbox-viewport">
+                <img id="bbm-photo-lightbox-img" src="" alt="Pratinjau foto BBM" draggable="false">
+            </div>
+        </div>
     @endunless
 @endsection
 
@@ -554,14 +768,14 @@
             const BBM_PORTAL_CHARTS_ONLY = @json($bbmPortalChartsOnly ?? false);
             const BBM_CHART_SERIES_URL = @json(route('admin.portal-bbm-operasional.charts'));
             const BBM_ACTIVITY_LOG_URL = @json(route('admin.portal-bbm-operasional.activity-log'));
-            const TOP_DRIVERS_MONTH = @json($topDriversMonth);
 
             const MONTH_LABELS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
             const CHART_POLL_MS = 66000;
             const LOG_POLL_MS = 28000;
 
-            let chartRupiah, chartLiterMonthly, chartDrvFreq;
+            let chartCombined, chartDrvFreq;
             let lastComparisonPayload = null;
+            let lastTopDrivers = [];
             let chartPollTimer = null;
             let logPollTimer = null;
 
@@ -573,18 +787,25 @@
                 return String(Math.round(x));
             }
 
-            const palette = ['#002a7a', '#16a34a', '#d97706', '#7c3aed', '#dc2626', '#0891b2', '#ca8a04', '#64748b'];
-
-            function barFill(hex, alpha) {
-                const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                if (!m) return hex;
-                return 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + alpha + ')';
-            }
-
+            
             function isDarkTheme() {
                 return document.documentElement.classList.contains('dark')
-                    || document.body.classList.contains('dark');
+                || document.body.classList.contains('dark');
             }
+            
+            function getBBMChartBlue() {
+                return isDarkTheme()
+                    ? '#1248a4'
+                    : '#0e2a52';
+            }
+            const BBM_CHART_GOLD = '#D4AF37';
+            const BBM_CHART_CURRENT_LINE = '#0891B2';
+            const BBM_CHART_PREV_LINE = '#64748B';
+            const BBM_PIE_PALETTE = [
+                '#1248a4', '#D4AF37', '#1e3a5f', '#b8942e',
+                '#2d4a6f', '#c9a227', '#4a6278', '#8f7620',
+                '#5c7389', '#a68922', '#74899c', '#7a6518',
+            ];
 
             function chartCommonSkin() {
                 const dark = isDarkTheme();
@@ -597,136 +818,185 @@
                 };
             }
 
-            function updateYearHint(y, yPrev) {
-                const a = document.getElementById('bbm-chart-year-label');
-                const b = document.getElementById('bbm-chart-prev-year-label');
-                if (a) a.textContent = String(y);
-                if (b) b.textContent = String(yPrev);
+            function updateDriverPieTitle(year) {
+                const el = document.getElementById('bbm-driver-pie-title');
+                if (el) el.textContent = 'Top driver — frekuensi pengisian (tahun ' + String(year) + ')';
+            }
+
+            function updateCombinedChartTitle(year, yearPrev) {
+                const el = document.getElementById('bbm-combined-chart-title');
+                if (el) {
+                    el.textContent = 'Pengeluaran BBM & liter per bulan';
+                }
             }
 
             function renderComparisonCharts(data) {
                 if (!data || !Array.isArray(data.month_labels)) return;
-                try { chartRupiah?.destroy(); } catch (_) {}
-                try { chartLiterMonthly?.destroy(); } catch (_) {}
-                chartRupiah = chartLiterMonthly = null;
+                try { chartCombined?.destroy(); } catch (_) {}
+                chartCombined = null;
 
-                const { dark, grid, tick, common } = chartCommonSkin();
-                const fillA = dark ? 0.62 : 0.78;
-                const colCur = palette[0];
-                const colPrev = palette[1];
+                const { grid, tick, common } = chartCommonSkin();
+                const colRp = getBBMChartBlue();
+                const colRpPrev = BBM_CHART_GOLD;
+                const colLiter = BBM_CHART_CURRENT_LINE;
+                const colLiterPrev = BBM_CHART_PREV_LINE;
                 const yCur = data.year;
                 const yPrev = data.year_previous;
                 const labels = data.month_labels.length ? data.month_labels : MONTH_LABELS;
 
-                const elR = document.getElementById('bbmChartRupiahYear');
-                if (elR) {
-                    chartRupiah = new Chart(elR, {
+                const el = document.getElementById('bbmChartCombined');
+                if (el) {
+                    chartCombined = new Chart(el, {
                         type: 'bar',
                         data: {
                             labels,
                             datasets: [
                                 {
-                                    label: String(yCur),
+                                    type: 'bar',
+                                    label: 'Biaya (' + String(yCur) + ')',
                                     data: (data.rupiah_current || []).map((v) => Math.round(Number(v) / 1000)),
-                                    backgroundColor: barFill(colCur, fillA),
-                                    borderColor: colCur,
+                                    backgroundColor: colRp,
+                                    borderColor: colRp,
                                     borderWidth: 1,
                                     borderRadius: 5,
                                     borderSkipped: false,
+                                    yAxisID: 'y',
+                                    bbmSeries: 'rupiah_current',
+                                    order: 2,
                                 },
                                 {
-                                    label: String(yPrev),
+                                    type: 'bar',
+                                    label: 'Biaya (' + String(yPrev) + ')',
                                     data: (data.rupiah_previous || []).map((v) => Math.round(Number(v) / 1000)),
-                                    backgroundColor: barFill(colPrev, fillA),
-                                    borderColor: colPrev,
+                                    backgroundColor: colRpPrev,
+                                    borderColor: colRpPrev,
                                     borderWidth: 1,
                                     borderRadius: 5,
                                     borderSkipped: false,
+                                    yAxisID: 'y',
+                                    bbmSeries: 'rupiah_previous',
+                                    order: 2,
+                                },
+                                {
+                                    type: 'line',
+                                    label: 'Liter (' + String(yCur) + ')',
+                                    data: (data.liter_current || []).map((v) => Number(v)),
+                                    borderColor: colLiter,
+                                    backgroundColor: colLiter,
+                                    pointBackgroundColor: colLiter,
+                                    pointBorderColor: colLiter,
+                                    borderWidth: 2,
+                                    pointRadius: 3,
+                                    pointHoverRadius: 5,
+                                    tension: 0.25,
+                                    fill: false,
+                                    yAxisID: 'y1',
+                                    bbmSeries: 'liter_current',
+                                    order: 1,
+                                },
+                                {
+                                    type: 'line',
+                                    label: 'Liter (' + String(yPrev) + ')',
+                                    data: (data.liter_previous || []).map((v) => Number(v)),
+                                    borderColor: colLiterPrev,
+                                    backgroundColor: colLiterPrev,
+                                    pointBackgroundColor: colLiterPrev,
+                                    pointBorderColor: colLiterPrev,
+                                    borderWidth: 2,
+                                    borderDash: [6, 4],
+                                    pointRadius: 2,
+                                    pointHoverRadius: 4,
+                                    tension: 0.25,
+                                    fill: false,
+                                    yAxisID: 'y1',
+                                    bbmSeries: 'liter_previous',
+                                    order: 1,
                                 },
                             ],
                         },
                         options: {
                             ...common,
                             interaction: { mode: 'index', intersect: false },
-                            datasets: { bar: { maxBarThickness: 26 } },
+                            datasets: { bar: { maxBarThickness: 22 } },
                             plugins: {
-                                legend: { display: true, position: 'top', labels: { color: tick, boxWidth: 12 } },
+                                legend: { 
+                                    display: true,
+                                    position: 'top',
+                                    labels: {
+                                        color: tick,
+                                        boxWidth: 12,
+                                        generateLabels(chart) {
+                                            const labels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+
+                                            labels.forEach(label => {
+                                                const ds = chart.data.datasets[label.datasetIndex];
+
+                                                if (ds.bbmSeries === 'liter_previous') {
+                                                    label.fillStyle = 'transparent';
+                                                    label.strokeStyle = ds.borderColor;
+                                                    label.lineWidth = 1.5;
+                                                    label.lineDash = [4, 2];
+                                                }
+                                            });
+
+                                            return labels;
+                                        }
+                                    } 
+                                },
                                 tooltip: {
                                     callbacks: {
                                         label(ctx) {
-                                            const arr = ctx.datasetIndex === 0 ? data.rupiah_current : data.rupiah_previous;
-                                            const raw = (arr || [])[ctx.dataIndex] || 0;
+                                            const key = ctx.dataset.bbmSeries || '';
+                                            const raw = (data[key] || [])[ctx.dataIndex] || 0;
+                                            if (key.startsWith('liter_')) {
+                                                return ' ' + ctx.dataset.label + ': ' + Number(raw).toLocaleString('id-ID', { maximumFractionDigits: 3 }) + ' L';
+                                            }
                                             return ' ' + ctx.dataset.label + ': Rp ' + Number(raw).toLocaleString('id-ID');
                                         },
+                                        labelColor(ctx) {
+                                            const ds = ctx.dataset;
+
+                                            if (ds.bbmSeries === 'liter_previous') {
+                                                return {
+                                                    borderColor: BBM_CHART_PREV_LINE,
+                                                    backgroundColor: '#0F172A',
+                                                    borderWidth: 2,
+                                                    borderDash: [4, 3],
+                                                };
+                                            }
+
+                                            return {
+                                                borderColor: ds.borderColor,
+                                                backgroundColor: ds.backgroundColor,
+                                                borderWidth: 1,
+                                            };
+                                        }
                                     },
                                 },
                             },
                             scales: {
                                 y: {
+                                    type: 'linear',
+                                    position: 'left',
                                     beginAtZero: true,
                                     title: { display: true, text: 'Rp (÷1000)', color: tick },
                                     ticks: { color: tick, callback: (v) => fmtRpShort(v * 1000) },
                                     grid: { color: grid },
                                 },
-                                x: { ticks: { color: tick, font: { size: 11 } }, grid: { color: grid } },
-                            },
-                        },
-                    });
-                }
-
-                const elL = document.getElementById('bbmChartLiterMonthly');
-                if (elL) {
-                    chartLiterMonthly = new Chart(elL, {
-                        type: 'bar',
-                        data: {
-                            labels,
-                            datasets: [
-                                {
-                                    label: String(yCur) + ' (L)',
-                                    data: (data.liter_current || []).map((v) => Number(v)),
-                                    backgroundColor: barFill(colCur, fillA),
-                                    borderColor: colCur,
-                                    borderWidth: 1,
-                                    borderRadius: 5,
-                                    borderSkipped: false,
-                                },
-                                {
-                                    label: String(yPrev) + ' (L)',
-                                    data: (data.liter_previous || []).map((v) => Number(v)),
-                                    backgroundColor: barFill(colPrev, fillA),
-                                    borderColor: colPrev,
-                                    borderWidth: 1,
-                                    borderRadius: 5,
-                                    borderSkipped: false,
-                                },
-                            ],
-                        },
-                        options: {
-                            ...common,
-                            interaction: { mode: 'index', intersect: false },
-                            datasets: { bar: { maxBarThickness: 26 } },
-                            plugins: {
-                                legend: { display: true, position: 'top', labels: { color: tick, boxWidth: 12 } },
-                                tooltip: {
-                                    callbacks: {
-                                        label(ctx) {
-                                            return ' ' + ctx.dataset.label + ': ' + Number(ctx.raw).toLocaleString('id-ID', { maximumFractionDigits: 3 }) + ' L';
-                                        },
-                                    },
-                                },
-                            },
-                            scales: {
-                                y: {
+                                y1: {
+                                    type: 'linear',
+                                    position: 'right',
                                     beginAtZero: true,
                                     title: { display: true, text: 'Liter', color: tick },
                                     ticks: { color: tick },
-                                    grid: { color: grid },
+                                    grid: { drawOnChartArea: false },
                                 },
                                 x: { ticks: { color: tick, font: { size: 11 } }, grid: { color: grid } },
                             },
                         },
                     });
                 }
+                updateCombinedChartTitle(yCur, yPrev);
             }
 
             async function fetchComparisonCharts() {
@@ -744,28 +1014,34 @@
                     if (!res.ok) return;
                     const data = await res.json();
                     lastComparisonPayload = data;
+                    lastTopDrivers = Array.isArray(data.top_drivers) ? data.top_drivers : [];
                     renderComparisonCharts(data);
-                    updateYearHint(data.year, data.year_previous);
-                    // Reveal loading overlays after AJAX charts are rendered
+                    buildDriverPieChart(lastTopDrivers);
+                    updateDriverPieTitle(data.year);
                     requestAnimationFrame(function () {
-                        ['bbmChartRupiahYear', 'bbmChartLiterMonthly'].forEach(function (id) {
-                            const c = document.getElementById(id)?.closest('.portal-chart-container');
-                            if (c) c.classList.add('is-ready');
-                        });
+                        const c = document.getElementById('bbmChartCombined')?.closest('.portal-chart-container');
+                        if (c) c.classList.add('is-ready');
+                        const pieContainer = document.getElementById('bbmChartDriverFreq')?.closest('.portal-chart-container');
+                        if (pieContainer) pieContainer.classList.add('is-ready');
                     });
                 } catch (_) {}
             }
 
-            function buildDriverPieChart() {
+            function buildDriverPieChart(topDrivers) {
                 try { chartDrvFreq?.destroy(); } catch (_) {}
                 chartDrvFreq = null;
-                const { tick, bdr, common } = chartCommonSkin();
+                const { tick, common } = chartCommonSkin();
                 const elD = document.getElementById('bbmChartDriverFreq');
-                if (!elD || !TOP_DRIVERS_MONTH.length) return;
+                const drivers = Array.isArray(topDrivers) ? topDrivers : [];
+                if (!elD) return;
+                if (!drivers.length) {
+                    const container = elD.closest('.portal-chart-container');
+                    if (container) container.classList.add('is-ready');
+                    return;
+                }
                 const dark = isDarkTheme();
-                const pieFill = dark ? 0.88 : 0.92;
-                const drvLabels = TOP_DRIVERS_MONTH.map((d) => d.name || d.username || 'Driver');
-                const drvData = TOP_DRIVERS_MONTH.map((d) => Number(d.cnt));
+                const drvLabels = drivers.map((d) => d.name || d.username || 'Driver');
+                const drvData = drivers.map((d) => Number(d.cnt));
                 const narrow = typeof window !== 'undefined' && window.innerWidth <= 640;
                 chartDrvFreq = new Chart(elD, {
                     type: 'pie',
@@ -773,8 +1049,8 @@
                         labels: drvLabels,
                         datasets: [{
                             data: drvData,
-                            backgroundColor: TOP_DRIVERS_MONTH.map((_, i) => barFill(palette[i % palette.length], pieFill)),
-                            borderColor: bdr,
+                            backgroundColor: drivers.map((_, i) => BBM_PIE_PALETTE[i % BBM_PIE_PALETTE.length]),
+                            borderColor: dark ? '#1e293b' : '#ffffff',
                             borderWidth: 2,
                             hoverOffset: 6,
                         }],
@@ -877,12 +1153,13 @@
             function renderBbmDetail(d) {
                 const badgeCls = (d.shift_badge_class && String(d.shift_badge_class).replace(/[^a-z0-9_-]/gi, '')) || 'bbm-shift-luar';
                 const shiftHtml = `<span class="bbm-shift-badge ${esc(badgeCls)}">${esc(d.shift_label || '—')}</span>`;
-                const odo = d.odometer_photo_url
-                    ? `<a href="${String(d.odometer_photo_url).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(d.odometer_photo_url).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Odometer"></a>`
-                    : '<p class="portal-empty" style="padding:8px">—</p>';
-                const struk = d.struk_photo_url
-                    ? `<a href="${String(d.struk_photo_url).replace(/"/g, '&quot;')}" target="_blank" rel="noopener"><img src="${String(d.struk_photo_url).replace(/"/g, '&quot;')}" class="sppd-photo-thumb" alt="Struk"></a>`
-                    : '<p class="portal-empty" style="padding:8px">—</p>';
+                function photoThumb(url, alt) {
+                    if (!url) return '<p class="portal-empty" style="padding:8px">—</p>';
+                    const safe = String(url).replace(/"/g, '&quot;');
+                    return `<button type="button" class="bbm-photo-thumb-btn" data-full-url="${safe}" aria-label="Perbesar ${esc(alt)}"><img src="${safe}" class="sppd-photo-thumb" alt="${esc(alt)}"></button>`;
+                }
+                const odo = photoThumb(d.odometer_photo_url, 'Odometer');
+                const struk = photoThumb(d.struk_photo_url, 'Struk');
                 return `
                     <table class="info-table sppd-mini-table">
                         <tr><td class="label">Driver</td><td>${esc(d.driver_name)} (${esc(d.driver_username || '—')})</td></tr>
@@ -898,22 +1175,312 @@
                         <tr><td class="label">Harga / L</td><td>${formatRp(d.harga_per_liter)}</td></tr>
                         <tr><td class="label">Total biaya</td><td><strong>${formatRp(d.total_harga)}</strong></td></tr>
                     </table>
-                    <p class="sppd-detail-sub">Foto odometer</p>
-                    <div class="sppd-photo-grid">${odo}</div>
-                    <p class="sppd-detail-sub">Foto struk</p>
-                    <div class="sppd-photo-grid">${struk}</div>
+                    <div class="bbm-detail-photos">
+                        <figure><figcaption>Foto odometer</figcaption>${odo}</figure>
+                        <figure><figcaption>Foto struk</figcaption>${struk}</figure>
+                    </div>
                 `;
             }
 
+            const bbmPhotoZoom = {
+                scale: 1,
+                fitScale: 1,
+                translateX: 0,
+                translateY: 0,
+                dragging: false,
+                dragStartX: 0,
+                dragStartY: 0,
+                dragOriginX: 0,
+                dragOriginY: 0,
+                pinchStartDist: 0,
+                pinchStartScale: 1,
+                lastTap: 0,
+            };
+
+            function bbmPhotoEls() {
+                return {
+                    lb: document.getElementById('bbm-photo-lightbox'),
+                    viewport: document.getElementById('bbm-photo-lightbox-viewport'),
+                    img: document.getElementById('bbm-photo-lightbox-img'),
+                };
+            }
+
+            function bbmPhotoIsOpen() {
+                const { lb } = bbmPhotoEls();
+                return lb && !lb.hidden;
+            }
+
+            function applyBbmPhotoTransform() {
+                const { img } = bbmPhotoEls();
+                if (!img) return;
+                const z = bbmPhotoZoom;
+                img.style.transform = 'translate(' + z.translateX + 'px,' + z.translateY + 'px) scale(' + z.scale + ')';
+            }
+
+            function bbmPhotoResetTransform() {
+                bbmPhotoZoom.scale = bbmPhotoZoom.fitScale;
+                bbmPhotoZoom.translateX = 0;
+                bbmPhotoZoom.translateY = 0;
+                applyBbmPhotoTransform();
+                bbmPhotoUpdateResetLabel();
+            }
+
+            function bbmPhotoUpdateResetLabel() {
+                const btn = document.querySelector('[data-bbm-zoom="reset"]');
+                if (!btn) return;
+                const pct = Math.round((bbmPhotoZoom.scale / bbmPhotoZoom.fitScale) * 100);
+                btn.textContent = pct + '%';
+            }
+
+            function bbmPhotoComputeFitScale() {
+                const { viewport, img } = bbmPhotoEls();
+                if (!viewport || !img || !img.naturalWidth) return 1;
+                const pad = 24;
+                const vw = Math.max(1, viewport.clientWidth - pad);
+                const vh = Math.max(1, viewport.clientHeight - pad);
+                return Math.min(vw / img.naturalWidth, vh / img.naturalHeight, 1);
+            }
+
+            function bbmPhotoZoomAt(factor, clientX, clientY) {
+                const { viewport } = bbmPhotoEls();
+                if (!viewport) return;
+                const z = bbmPhotoZoom;
+                const rect = viewport.getBoundingClientRect();
+                const cx = clientX - rect.left - rect.width / 2;
+                const cy = clientY - rect.top - rect.height / 2;
+                const prev = z.scale;
+                const next = Math.min(Math.max(prev * factor, z.fitScale * 0.5), z.fitScale * 6);
+                const ratio = next / prev;
+                z.translateX = cx - (cx - z.translateX) * ratio;
+                z.translateY = cy - (cy - z.translateY) * ratio;
+                z.scale = next;
+                applyBbmPhotoTransform();
+                bbmPhotoUpdateResetLabel();
+            }
+
+            function bbmPhotoStepZoom(direction) {
+                const { viewport } = bbmPhotoEls();
+                if (!viewport) return;
+                const rect = viewport.getBoundingClientRect();
+                bbmPhotoZoomAt(direction > 0 ? 1.25 : 0.8, rect.left + rect.width / 2, rect.top + rect.height / 2);
+            }
+
+            function bbmDetailModalIsOpen() {
+                const m = document.getElementById('bbm-modal-detail');
+                if (!m) return false;
+                return window.getComputedStyle(m).display !== 'none';
+            }
+
+            function bbmSyncBodyScrollLock() {
+                const lock = bbmPhotoIsOpen() || bbmDetailModalIsOpen();
+                document.body.style.overflow = lock ? 'hidden' : '';
+            }
+
+            function closeBbmDetailModal() {
+                if (bbmPhotoIsOpen()) closeBbmPhotoLightbox();
+                const m = document.getElementById('bbm-modal-detail');
+                if (m) m.style.display = 'none';
+                bbmSyncBodyScrollLock();
+            }
+
+            function openBbmDetailModal() {
+                const m = document.getElementById('bbm-modal-detail');
+                if (m) m.style.display = 'flex';
+                bbmSyncBodyScrollLock();
+            }
+
+            function bbmPhotoMountToBody() {
+                const { lb } = bbmPhotoEls();
+                if (lb && lb.parentElement !== document.body) {
+                    document.body.appendChild(lb);
+                }
+            }
+
+            function openBbmPhotoLightbox(url) {
+                const { lb, img } = bbmPhotoEls();
+                if (!lb || !img || !url) return;
+                bbmPhotoMountToBody();
+                bbmPhotoZoom.scale = 1;
+                bbmPhotoZoom.fitScale = 1;
+                bbmPhotoZoom.translateX = 0;
+                bbmPhotoZoom.translateY = 0;
+                img.onload = function () {
+                    bbmPhotoZoom.fitScale = bbmPhotoComputeFitScale();
+                    bbmPhotoResetTransform();
+                };
+                img.src = url;
+                if (img.complete && img.naturalWidth) {
+                    bbmPhotoZoom.fitScale = bbmPhotoComputeFitScale();
+                    bbmPhotoResetTransform();
+                }
+                lb.hidden = false;
+                bbmSyncBodyScrollLock();
+            }
+
+            function closeBbmPhotoLightbox() {
+                const { lb, img } = bbmPhotoEls();
+                if (lb) lb.hidden = true;
+                if (img) {
+                    img.onload = null;
+                    img.src = '';
+                    img.style.transform = '';
+                }
+                bbmPhotoZoom.dragging = false;
+                bbmSyncBodyScrollLock();
+            }
+
+            function initBbmPhotoLightboxZoom() {
+                const { lb, viewport, img } = bbmPhotoEls();
+                if (!lb || !viewport || !img || lb.dataset.bbmZoomBound === '1') return;
+                lb.dataset.bbmZoomBound = '1';
+
+                lb.querySelector('[data-close-bbm-lightbox]')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeBbmPhotoLightbox();
+                });
+
+                lb.querySelectorAll('[data-bbm-zoom]').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const action = btn.getAttribute('data-bbm-zoom');
+                        if (action === 'in') bbmPhotoStepZoom(1);
+                        else if (action === 'out') bbmPhotoStepZoom(-1);
+                        else bbmPhotoResetTransform();
+                    });
+                });
+
+                viewport.addEventListener('wheel', (e) => {
+                    if (!bbmPhotoIsOpen()) return;
+                    e.preventDefault();
+                    const factor = e.deltaY < 0 ? 1.12 : 0.88;
+                    bbmPhotoZoomAt(factor, e.clientX, e.clientY);
+                }, { passive: false });
+
+                viewport.addEventListener('mousedown', (e) => {
+                    if (!bbmPhotoIsOpen() || e.button !== 0) return;
+                    if (e.target.closest('.bbm-photo-lightbox-toolbar')) return;
+                    e.preventDefault();
+                    bbmPhotoZoom.dragging = true;
+                    bbmPhotoZoom.dragStartX = e.clientX;
+                    bbmPhotoZoom.dragStartY = e.clientY;
+                    bbmPhotoZoom.dragOriginX = bbmPhotoZoom.translateX;
+                    bbmPhotoZoom.dragOriginY = bbmPhotoZoom.translateY;
+                    viewport.classList.add('is-dragging');
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (!bbmPhotoZoom.dragging) return;
+                    bbmPhotoZoom.translateX = bbmPhotoZoom.dragOriginX + (e.clientX - bbmPhotoZoom.dragStartX);
+                    bbmPhotoZoom.translateY = bbmPhotoZoom.dragOriginY + (e.clientY - bbmPhotoZoom.dragStartY);
+                    applyBbmPhotoTransform();
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (!bbmPhotoZoom.dragging) return;
+                    bbmPhotoZoom.dragging = false;
+                    viewport.classList.remove('is-dragging');
+                });
+
+                viewport.addEventListener('dblclick', (e) => {
+                    if (!bbmPhotoIsOpen()) return;
+                    e.preventDefault();
+                    const z = bbmPhotoZoom;
+                    if (z.scale > z.fitScale * 1.05) {
+                        bbmPhotoResetTransform();
+                    } else {
+                        bbmPhotoZoomAt(2, e.clientX, e.clientY);
+                    }
+                });
+
+                viewport.addEventListener('touchstart', (e) => {
+                    if (!bbmPhotoIsOpen()) return;
+                    if (e.touches.length === 2) {
+                        const t = e.touches;
+                        bbmPhotoZoom.pinchStartDist = Math.hypot(t[1].clientX - t[0].clientX, t[1].clientY - t[0].clientY);
+                        bbmPhotoZoom.pinchStartScale = bbmPhotoZoom.scale;
+                    } else if (e.touches.length === 1) {
+                        const now = Date.now();
+                        if (now - bbmPhotoZoom.lastTap < 300) {
+                            e.preventDefault();
+                            const t = e.touches[0];
+                            const z = bbmPhotoZoom;
+                            if (z.scale > z.fitScale * 1.05) bbmPhotoResetTransform();
+                            else bbmPhotoZoomAt(2, t.clientX, t.clientY);
+                            bbmPhotoZoom.lastTap = 0;
+                        } else {
+                            bbmPhotoZoom.lastTap = now;
+                            bbmPhotoZoom.dragging = true;
+                            bbmPhotoZoom.dragStartX = e.touches[0].clientX;
+                            bbmPhotoZoom.dragStartY = e.touches[0].clientY;
+                            bbmPhotoZoom.dragOriginX = bbmPhotoZoom.translateX;
+                            bbmPhotoZoom.dragOriginY = bbmPhotoZoom.translateY;
+                            viewport.classList.add('is-dragging');
+                        }
+                    }
+                }, { passive: false });
+
+                viewport.addEventListener('touchmove', (e) => {
+                    if (!bbmPhotoIsOpen()) return;
+                    if (e.touches.length === 2) {
+                        e.preventDefault();
+                        const t = e.touches;
+                        const dist = Math.hypot(t[1].clientX - t[0].clientX, t[1].clientY - t[0].clientY);
+                        if (bbmPhotoZoom.pinchStartDist > 0) {
+                            const cx = (t[0].clientX + t[1].clientX) / 2;
+                            const cy = (t[0].clientY + t[1].clientY) / 2;
+                            const target = bbmPhotoZoom.pinchStartScale * (dist / bbmPhotoZoom.pinchStartDist);
+                            const z = bbmPhotoZoom;
+                            const clamped = Math.min(Math.max(target, z.fitScale * 0.5), z.fitScale * 6);
+                            const factor = clamped / z.scale;
+                            bbmPhotoZoomAt(factor, cx, cy);
+                        }
+                    } else if (e.touches.length === 1 && bbmPhotoZoom.dragging) {
+                        e.preventDefault();
+                        bbmPhotoZoom.translateX = bbmPhotoZoom.dragOriginX + (e.touches[0].clientX - bbmPhotoZoom.dragStartX);
+                        bbmPhotoZoom.translateY = bbmPhotoZoom.dragOriginY + (e.touches[0].clientY - bbmPhotoZoom.dragStartY);
+                        applyBbmPhotoTransform();
+                    }
+                }, { passive: false });
+
+                viewport.addEventListener('touchend', () => {
+                    bbmPhotoZoom.dragging = false;
+                    bbmPhotoZoom.pinchStartDist = 0;
+                    viewport.classList.remove('is-dragging');
+                });
+
+                lb.addEventListener('click', (e) => {
+                    if (e.target === lb) closeBbmPhotoLightbox();
+                });
+            }
+
+            initBbmPhotoLightboxZoom();
+            bbmPhotoMountToBody();
+
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('[data-close-bbm-lightbox]')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeBbmPhotoLightbox();
+                    return;
+                }
+                const thumbBtn = e.target.closest('.bbm-photo-thumb-btn[data-full-url]');
+                if (thumbBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openBbmPhotoLightbox(thumbBtn.getAttribute('data-full-url'));
+                }
+            });
+
             document.querySelector('.admin-shell')?.addEventListener('click', async (e) => {
+                if (e.target.closest('.bbm-photo-thumb-btn[data-full-url]')) return;
                 const act = e.target.closest('.bbm-activity-row[data-json-url]');
                 if (act) {
                     if (!document.getElementById('bbm-modal-detail')) return;
                     const url = act.getAttribute('data-json-url');
-                    const modal = document.getElementById('bbm-modal-detail');
                     const bodyEl = document.getElementById('bbm-detail-body');
                     bodyEl.innerHTML = '<p>Memuat…</p>';
-                    modal.style.display = 'flex';
+                    openBbmDetailModal();
                     try {
                         const res = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -929,10 +1496,9 @@
                 const btn = e.target.closest('.bbm-btn-detail');
                 if (!btn) return;
                 const url = btn.getAttribute('data-json-url');
-                const modal = document.getElementById('bbm-modal-detail');
                 const bodyEl = document.getElementById('bbm-detail-body');
                 bodyEl.innerHTML = '<p>Memuat…</p>';
-                modal.style.display = 'flex';
+                openBbmDetailModal();
                 try {
                     const res = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -944,32 +1510,33 @@
                 }
             });
             document.querySelectorAll('[data-close-bbm-modal]').forEach((el) => {
-                el.addEventListener('click', () => {
-                    const m = document.getElementById('bbm-modal-detail');
-                    if (m) m.style.display = 'none';
-                });
+                el.addEventListener('click', () => closeBbmDetailModal());
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape') return;
+                if (bbmPhotoIsOpen()) {
+                    e.stopPropagation();
+                    closeBbmPhotoLightbox();
+                    return;
+                }
+                if (bbmDetailModalIsOpen()) {
+                    closeBbmDetailModal();
+                }
             });
             document.getElementById('bbm-modal-detail')?.addEventListener('click', (e) => {
-                if (e.target.id === 'bbm-modal-detail') e.currentTarget.style.display = 'none';
+                if (e.target.id === 'bbm-modal-detail') closeBbmDetailModal();
             });
 
             document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
             document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });
 
             // Init charts immediately — no deferred IntersectionObserver
-            buildDriverPieChart();
-            // Show spinner on AJAX chart containers until data arrives
-            // (fetchComparisonCharts will call revealBbmCharts when done)
             fetchComparisonCharts();
             fetchActivityLog();
             chartPollTimer = setInterval(fetchComparisonCharts, CHART_POLL_MS);
             logPollTimer = setInterval(fetchActivityLog, LOG_POLL_MS);
 
-            // Reveal pie chart loading overlay immediately after sync build
-            requestAnimationFrame(function () {
-                const pieContainer = document.getElementById('bbmChartDriverFreq')?.closest('.portal-chart-container');
-                if (pieContainer) pieContainer.classList.add('is-ready');
-            });
+            // Reveal pie chart loading overlay is handled in fetchComparisonCharts
 
             // Pause polling when tab is not visible — saves battery and network on mobile
             document.addEventListener('visibilitychange', () => {
@@ -989,12 +1556,12 @@
             let bbmPieResizeTimer = null;
             window.addEventListener('resize', () => {
                 clearTimeout(bbmPieResizeTimer);
-                bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(), 200);
+                bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(lastTopDrivers), 200);
             }, { passive: true });
 
             /* Expose rebuild fn so the single document-level theme listener always calls the latest closure */
             window._bbmPortalRebuildCharts = function () {
-                buildDriverPieChart();
+                buildDriverPieChart(lastTopDrivers);
                 redrawComparisonFromCache();
             };
 
@@ -1017,15 +1584,14 @@
             /* Register cleanup with central Turbo before-cache registry */
             if (typeof window.registerTurboCleanup === 'function') {
                 window.registerTurboCleanup(function () {
+                    document.body.style.overflow = '';
                     window._bbmPortalRebuildCharts = null;
                     if (chartPollTimer) { clearInterval(chartPollTimer); chartPollTimer = null; }
                     if (logPollTimer) { clearInterval(logPollTimer); logPollTimer = null; }
                     try { chartDrvFreq?.destroy(); } catch (_) {}
                     chartDrvFreq = null;
-                    try { chartRupiah?.destroy(); } catch (_) {}
-                    chartRupiah = null;
-                    try { chartLiterMonthly?.destroy(); } catch (_) {}
-                    chartLiterMonthly = null;
+                    try { chartCombined?.destroy(); } catch (_) {}
+                    chartCombined = null;
                 });
             }
 

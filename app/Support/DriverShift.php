@@ -52,6 +52,16 @@ final class DriverShift
         return self::fromCode($code)['label'];
     }
 
+    /** Label pendek untuk tabel portal admin (tanpa kata "Shift" di pagi/siang). */
+    public static function tableLabelFromCode(?string $code): string
+    {
+        return match ($code) {
+            'pagi' => 'Pagi',
+            'siang' => 'Siang',
+            default => self::fromCode($code)['label'],
+        };
+    }
+
     public static function badgeClassFromCode(?string $code): string
     {
         return self::fromCode($code)['badge_class'];

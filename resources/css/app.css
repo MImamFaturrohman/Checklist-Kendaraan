@@ -4377,20 +4377,6 @@ html.dark .dash-body .lp-armada-empty {
     }
 }
 
-/* BBM portal — bulan headline */
-.bbm-portal-month-kicker {
-    margin: 0 0 10px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-.bbm-portal-month-kicker__highlight {
-    color: #002a7a;
-    font-weight: 800;
-}
-
 /* ---- Charts grid ---- */
 .portal-charts-grid {
     display: grid;
