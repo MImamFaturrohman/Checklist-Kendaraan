@@ -4342,6 +4342,23 @@ html.dark .dash-body .lp-armada-empty {
     grid-column: 1 / -1;
 }
 
+/* Portal pemeriksaan: BBM + Shift atas, Ceklist duo bawah */
+.portal-charts-grid--pemeriksaan {
+    grid-template-columns: repeat(6, 1fr);
+}
+.portal-charts-grid--pemeriksaan .portal-chart-card--bbm-slot {
+    grid-column: span 4;
+    min-width: 0;
+}
+.portal-charts-grid--pemeriksaan .portal-chart-card--shift-slot {
+    grid-column: span 2;
+    min-width: 0;
+}
+.portal-charts-grid--pemeriksaan .portal-chart-card--ceklist-duo {
+    grid-column: span 3;
+    min-width: 0;
+}
+
 /* BBM portal: Top driver (1) + Log (2) pada grid 3 kolom */
 .portal-charts-grid--bbm .portal-chart-card--bbm-driver-col {
     grid-column: span 1;
@@ -4367,6 +4384,43 @@ html.dark .dash-body .lp-armada-empty {
     color: #475569;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.portal-chart-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.portal-chart-head .portal-chart-title {
+    margin-bottom: 0;
+    flex: 1 1 140px;
+    min-width: 0;
+}
+.portal-chart-year-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.portal-chart-year-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    white-space: nowrap;
+}
+.portal-chart-year-select {
+    min-width: 72px;
+    padding: 4px 8px !important;
+    font-size: 0.78rem !important;
+    height: auto !important;
+}
+
+.portal-chart-card > .portal-chart-title {
     margin-bottom: 12px;
 }
 
@@ -4866,6 +4920,14 @@ html.dark .dash-body .portal-detail-catatan {
 /* Tablet (≤ 1024px): charts 2-col */
 @media (max-width: 1024px) {
     .portal-charts-grid { grid-template-columns: repeat(2, 1fr); }
+    .portal-charts-grid--pemeriksaan {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .portal-charts-grid--pemeriksaan .portal-chart-card--bbm-slot,
+    .portal-charts-grid--pemeriksaan .portal-chart-card--shift-slot,
+    .portal-charts-grid--pemeriksaan .portal-chart-card--ceklist-duo {
+        grid-column: span 1;
+    }
     /* BBM: pada grid 2 kolom, driver + log sama lebar agar tidak overflow */
     .portal-charts-grid--bbm .portal-chart-card--bbm-driver-col,
     .portal-charts-grid--bbm .portal-chart-card--bbm-log-col {
@@ -4945,6 +5007,11 @@ html.dark .dash-body .portal-detail-catatan {
 
     /* Charts: 1 column */
     .portal-charts-grid { grid-template-columns: 1fr; gap: 12px; }
+    .portal-charts-grid--pemeriksaan .portal-chart-card--bbm-slot,
+    .portal-charts-grid--pemeriksaan .portal-chart-card--shift-slot,
+    .portal-charts-grid--pemeriksaan .portal-chart-card--ceklist-duo {
+        grid-column: 1 / -1;
+    }
     .portal-charts-grid--bbm .portal-chart-card--bbm-driver-col,
     .portal-charts-grid--bbm .portal-chart-card--bbm-log-col {
         grid-column: 1 / -1;
@@ -7359,6 +7426,7 @@ html:not(.dark) .dash-body .portal-stat-card {
 
 /* Chart card title (fix selector — HTML uses .portal-chart-title) */
 html.dark .dash-body .portal-chart-title { color: rgba(200, 218, 255, 0.72); }
+html.dark .dash-body .portal-chart-year-label { color: rgba(200, 218, 255, 0.55); }
 
 /* Section wrapper */
 html.dark .dash-body .portal-section {

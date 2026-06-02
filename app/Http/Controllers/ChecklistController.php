@@ -297,14 +297,19 @@ class ChecklistController extends Controller
 
         $nopolList = Checklist::select('nomor_kendaraan')->distinct()->orderBy('nomor_kendaraan')->pluck('nomor_kendaraan');
 
-        // Database Sheet stats (unfiltered)
-        $allChecklists = Checklist::all();
+        $chartYear = (int) now()->year;
+        $yearScope = Checklist::query()->whereYear('tanggal', $chartYear);
+
         $dbStats = [
-            'total' => $allChecklists->count(),
-            'kendaraan_unik' => $allChecklists->unique('nomor_kendaraan')->count(),
-            'driver_aktif' => $allChecklists->unique('driver_serah')->count(),
-            'bulan_ini' => $allChecklists->where('tanggal', '>=', now()->startOfMonth())->count(),
+            'total' => Checklist::query()->count(),
+            'kendaraan_unik' => (clone $yearScope)->distinct()->count('nomor_kendaraan'),
+            'driver_aktif' => (clone $yearScope)->distinct()->count('driver_serah'),
+            'tahun_ini' => (clone $yearScope)->count(),
         ];
+
+        $minYear = (int) (Checklist::query()->min(DB::raw('YEAR(tanggal)')) ?? $chartYear);
+        $maxYear = (int) (Checklist::query()->max(DB::raw('YEAR(tanggal)')) ?? $chartYear);
+        $yearsAvailable = $minYear <= $maxYear ? range($minYear, $maxYear) : [$chartYear];
 
         // Arsip PDF stats (unfiltered)
         $allPdf = Checklist::whereNotNull('pdf_path');
@@ -314,7 +319,7 @@ class ChecklistController extends Controller
         ];
 
         // Chart data
-        $chartData = $this->buildChartData();
+        $chartData = $this->buildChartData($chartYear);
 
         // Initial paginated data (superadmin & admin).
         if ($canAccessDatabase) {
@@ -340,7 +345,7 @@ class ChecklistController extends Controller
         $pdfMeta = $canAccessDatabase ? ['current_page' => $pdfChecklists->currentPage(),  'last_page' => $pdfChecklists->lastPage(),  'total' => $pdfChecklists->total(),  'per_page' => $pdfChecklists->perPage()] : null;
 
         return view('admin.portal-pemeriksaan', compact(
-            'nopolList', 'dbStats', 'pdfStats', 'chartData',
+            'nopolList', 'dbStats', 'pdfStats', 'chartData', 'chartYear', 'yearsAvailable',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
             'dbMeta', 'fotoMeta', 'pdfMeta', 'canAccessDatabase',
             'pemeriksaanInsightOnlyManager'
@@ -607,43 +612,64 @@ class ChecklistController extends Controller
     {
         abort_unless($this->canAccessInspectionPortal(), 403);
 
-        return response()->json($this->buildChartData());
+        $year = (int) $request->input('year', now()->year);
+
+        return response()->json($this->buildChartData($year));
     }
+
+    /** @var list<string> */
+    private const MONTH_SHORT_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
     /**
      * Build chart data arrays for the portal page.
      */
-    private function buildChartData(): array
+    private function buildChartData(?int $year = null): array
     {
-        // Ceklist per kendaraan (top 10)
-        $perKendaraan = Checklist::select('nomor_kendaraan', DB::raw('count(*) as total'))
+        $year = $year ?? (int) now()->year;
+        $yearScope = fn () => Checklist::query()->whereYear('tanggal', $year);
+
+        // Ceklist per kendaraan (top 10, tahun berjalan)
+        $perKendaraan = $yearScope()
+            ->select('nomor_kendaraan', DB::raw('count(*) as total'))
             ->groupBy('nomor_kendaraan')
             ->orderByDesc('total')
             ->limit(10)
             ->get();
 
-        // Ceklist per shift
-        $perShift = Checklist::select('shift', DB::raw('count(*) as total'))
+        // Ceklist per shift (tahun berjalan)
+        $perShift = $yearScope()
+            ->select('shift', DB::raw('count(*) as total'))
             ->groupBy('shift')
             ->orderByDesc('total')
             ->get();
 
-        // Ceklist per bulan (12 bulan terakhir)
-        $perBulan = Checklist::select(
-            DB::raw("DATE_FORMAT(tanggal, '%Y-%m') as bulan"),
-            DB::raw('count(*) as total')
-        )
-            ->where('tanggal', '>=', now()->subMonths(11)->startOfMonth())
-            ->groupBy('bulan')
-            ->orderBy('bulan')
-            ->get();
+        // Ceklist per bulan (Jan–Des tahun berjalan, zero-fill)
+        $perBulanRaw = $yearScope()
+            ->select(
+                DB::raw('MONTH(tanggal) as bulan_num'),
+                DB::raw('count(*) as total')
+            )
+            ->groupBy('bulan_num')
+            ->orderBy('bulan_num')
+            ->pluck('total', 'bulan_num');
 
-        // Kondisi kendaraan: ok vs tidak_ok (exterior body_kendaraan)
-        $exteriorOk = ChecklistExterior::where('body_kendaraan', 'ok')->count();
-        $exteriorNok = ChecklistExterior::whereIn('body_kendaraan', ['no', 'tidak_ok'])->count();
+        $perBulanLabels = [];
+        $perBulanData = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $perBulanLabels[] = self::MONTH_SHORT_ID[$m - 1];
+            $perBulanData[] = (int) ($perBulanRaw[$m] ?? 0);
+        }
 
-        // Rata-rata BBM level per kendaraan
-        $bbmPerKendaraan = Checklist::select('nomor_kendaraan', DB::raw('avg(level_bbm) as avg_bbm'))
+        // Kondisi kendaraan: ok vs tidak_ok (exterior body_kendaraan, tahun berjalan)
+        $exteriorYearScope = fn ($q) => $q->whereYear('tanggal', $year);
+        $exteriorOk = ChecklistExterior::where('body_kendaraan', 'ok')
+            ->whereHas('checklist', $exteriorYearScope)->count();
+        $exteriorNok = ChecklistExterior::whereIn('body_kendaraan', ['no', 'tidak_ok'])
+            ->whereHas('checklist', $exteriorYearScope)->count();
+
+        // Rata-rata BBM level per kendaraan (tahun berjalan)
+        $bbmPerKendaraan = $yearScope()
+            ->select('nomor_kendaraan', DB::raw('avg(level_bbm) as avg_bbm'))
             ->groupBy('nomor_kendaraan')
             ->orderByDesc('avg_bbm')
             ->limit(8)
@@ -659,8 +685,8 @@ class ChecklistController extends Controller
                 'data' => $perShift->pluck('total')->toArray(),
             ],
             'perBulan' => [
-                'labels' => $perBulan->pluck('bulan')->toArray(),
-                'data' => $perBulan->pluck('total')->toArray(),
+                'labels' => $perBulanLabels,
+                'data' => $perBulanData,
             ],
             'kondisi' => [
                 'ok' => $exteriorOk,

@@ -34,5 +34,9 @@
         <div class="portal-stat-icon" aria-hidden="true">
             <i class="{{ $icon }}"></i>
         </div>
+    @elseif(isset($iconSlot))
+        <div class="portal-stat-icon" aria-hidden="true">
+            {{ $iconSlot }}
+        </div>
     @endif
 </div>

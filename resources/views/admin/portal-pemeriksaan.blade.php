@@ -33,6 +33,13 @@
                 icon="bi bi-clipboard-data-fill"
             />
             <x-admin-stat-card
+                title="Ceklist Tahun Ini"
+                :value="$dbStats['tahun_ini']"
+                unit="laporan"
+                :description="'Laporan pemeriksaan tahun ' . $chartYear"
+                icon="bi bi-calendar-check-fill"
+            />
+            <x-admin-stat-card
                 title="Kendaraan"
                 :value="$dbStats['kendaraan_unik']"
                 unit="unit kendaraan"
@@ -46,45 +53,78 @@
                 description="Driver dengan aktivitas checklist"
                 icon="bi bi-person-fill-check"
             />
-            <x-admin-stat-card
-                title="Ceklist Bulan Ini"
-                :value="$dbStats['bulan_ini']"
-                unit="laporan"
-                description="Laporan pemeriksaan bulan berjalan"
-                icon="bi bi-calendar-check-fill"
-            />
         </div>
 
         {{-- ============================================================
-             CHARTS  (3 small + 1 wide BBM horizontal)
+             CHARTS  (BBM + Shift atas, Ceklist Bulan + Kendaraan bawah)
         ============================================================ --}}
-        <div class="portal-charts-grid" id="portal-charts-pemeriksaan" data-portal-charts="pemeriksaan">
-            <div class="portal-chart-card">
-                <div class="portal-chart-title">Ceklist per Bulan</div>
-                <div class="portal-chart-container">
+        <div class="portal-charts-grid portal-charts-grid--pemeriksaan" id="portal-charts-pemeriksaan" data-portal-charts="pemeriksaan">
+            <div class="portal-chart-card portal-chart-card--bbm-slot">
+                <div class="portal-chart-head">
+                    <div class="portal-chart-title">Rata-rata Level BBM per Kendaraan (%)</div>
+                    <div class="portal-chart-year-wrap">
+                        <label class="portal-chart-year-label" for="chart-year-bbm">Tahun</label>
+                        <select id="chart-year-bbm" class="portal-chart-year-select admin-filter-input" data-chart-key="bbm" aria-label="Tahun grafik BBM">
+                            @foreach($yearsAvailable as $y)
+                                <option value="{{ $y }}" @selected((int) $chartYear === (int) $y)>{{ $y }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="portal-chart-container portal-chart-container--bbm">
                     <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
-                    <canvas id="chartBulan"></canvas>
+                    <canvas id="chartBbm"></canvas>
                 </div>
             </div>
-            <div class="portal-chart-card">
-                <div class="portal-chart-title">Ceklist per Kendaraan</div>
-                <div class="portal-chart-container">
-                    <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
-                    <canvas id="chartKendaraan"></canvas>
+            <div class="portal-chart-card portal-chart-card--shift-slot">
+                <div class="portal-chart-head">
+                    <div class="portal-chart-title">Distribusi Shift</div>
+                    <div class="portal-chart-year-wrap">
+                        <label class="portal-chart-year-label" for="chart-year-shift">Tahun</label>
+                        <select id="chart-year-shift" class="portal-chart-year-select admin-filter-input" data-chart-key="shift" aria-label="Tahun grafik shift">
+                            @foreach($yearsAvailable as $y)
+                                <option value="{{ $y }}" @selected((int) $chartYear === (int) $y)>{{ $y }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="portal-chart-card">
-                <div class="portal-chart-title">Distribusi Shift</div>
                 <div class="portal-chart-container portal-chart-container--doughnut">
                     <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
                     <canvas id="chartShift"></canvas>
                 </div>
             </div>
-            <div class="portal-chart-card portal-chart-card--wide">
-                <div class="portal-chart-title">Rata-rata Level BBM per Kendaraan (%)</div>
-                <div class="portal-chart-container portal-chart-container--bbm">
+            <div class="portal-chart-card portal-chart-card--ceklist-duo">
+                <div class="portal-chart-head">
+                    <div class="portal-chart-title">Ceklist per Bulan</div>
+                    <div class="portal-chart-year-wrap">
+                        <label class="portal-chart-year-label" for="chart-year-bulan">Tahun</label>
+                        <select id="chart-year-bulan" class="portal-chart-year-select admin-filter-input" data-chart-key="bulan" aria-label="Tahun grafik ceklist per bulan">
+                            @foreach($yearsAvailable as $y)
+                                <option value="{{ $y }}" @selected((int) $chartYear === (int) $y)>{{ $y }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="portal-chart-container">
                     <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
-                    <canvas id="chartBbm"></canvas>
+                    <canvas id="chartBulan"></canvas>
+                </div>
+            </div>
+            <div class="portal-chart-card portal-chart-card--ceklist-duo">
+                <div class="portal-chart-head">
+                    <div class="portal-chart-title">Ceklist per Kendaraan</div>
+                    <div class="portal-chart-year-wrap">
+                        <label class="portal-chart-year-label" for="chart-year-kendaraan">Tahun</label>
+                        <select id="chart-year-kendaraan" class="portal-chart-year-select admin-filter-input" data-chart-key="kendaraan" aria-label="Tahun grafik ceklist per kendaraan">
+                            @foreach($yearsAvailable as $y)
+                                <option value="{{ $y }}" @selected((int) $chartYear === (int) $y)>{{ $y }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="portal-chart-container">
+                    <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
+                    <canvas id="chartKendaraan"></canvas>
                 </div>
             </div>
         </div>
@@ -602,6 +642,8 @@
         CONFIG & STATE
         ================================================================ */
         const BASE_URL   = '{{ url("/") }}';
+        const CHARTS_API_URL = @json(route('api.admin.portal.charts'));
+        const DEFAULT_CHART_YEAR = {{ (int) $chartYear }};
         const CHART_DATA = @json($chartData);
         const CAN_ACCESS_DATABASE = @json($canAccessDatabase);
         const INIT_META  = CAN_ACCESS_DATABASE
@@ -626,6 +668,7 @@
         const INDIGO = '#818cf8';
 
         let _chartInstances = {};
+        let _chartDataCache = { [DEFAULT_CHART_YEAR]: CHART_DATA };
 
         function _isDarkTheme() {
             return document.documentElement.classList.contains('dark')
@@ -640,85 +683,134 @@
             return _isDarkTheme() ? 'rgba(212, 175, 55, 0.15)' : 'rgba(10, 35, 66, 0.08)';
         }
 
-        function _buildCharts() {
-            Object.values(_chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
-            _chartInstances = {};
+        function _getChartYear(key) {
+            const el = document.querySelector('.portal-chart-year-select[data-chart-key="' + key + '"]');
+            const year = el ? parseInt(el.value, 10) : DEFAULT_CHART_YEAR;
+            return Number.isNaN(year) ? DEFAULT_CHART_YEAR : year;
+        }
 
-            const dark   = _isDarkTheme();
-            const accent = _chartAccentColor();
-            const blue   = dark ? '#1a3a72' : '#0e2a52';
-            const grid   = dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)';
-            const tick   = dark ? 'rgba(200,218,255,0.65)' : '#64748b';
-            const lgnd   = dark ? 'rgba(200,218,255,0.75)' : '#475569';
-            const bdr    = dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)';
+        function _chartContainerForKey(key) {
+            const map = {
+                bbm: '#chartBbm',
+                shift: '#chartShift',
+                bulan: '#chartBulan',
+                kendaraan: '#chartKendaraan',
+            };
+            const canvas = document.querySelector(map[key]);
+            return canvas ? canvas.closest('.portal-chart-container') : null;
+        }
 
+        function _setChartLoading(key, loading) {
+            const container = _chartContainerForKey(key);
+            if (!container) return;
+            if (loading) container.classList.remove('is-ready');
+            else container.classList.add('is-ready');
+        }
+
+        async function _fetchChartData(year) {
+            if (_chartDataCache[year]) return _chartDataCache[year];
+            const url = new URL(CHARTS_API_URL, window.location.origin);
+            url.searchParams.set('year', String(year));
+            const res = await fetch(url.toString(), {
+                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!res.ok) throw new Error('Gagal memuat data grafik');
+            const data = await res.json();
+            _chartDataCache[year] = data;
+            return data;
+        }
+
+        function _destroyChart(key) {
+            if (_chartInstances[key]) {
+                try { _chartInstances[key].destroy(); } catch (_) {}
+                delete _chartInstances[key];
+            }
+        }
+
+        function _chartTheme() {
+            const dark = _isDarkTheme();
+            return {
+                dark,
+                accent: _chartAccentColor(),
+                blue: dark ? '#1a3a72' : '#0e2a52',
+                grid: dark ? 'rgba(200,218,255,0.1)' : 'rgba(0,0,0,0.08)',
+                tick: dark ? 'rgba(200,218,255,0.65)' : '#64748b',
+                lgnd: dark ? 'rgba(200,218,255,0.75)' : '#475569',
+                bdr: dark ? 'rgba(200,218,255,0.12)' : 'rgba(255,255,255,0.8)',
+            };
+        }
+
+        function _buildSingleChart(key, data) {
+            const t = _chartTheme();
             const commonOpts = {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
             };
             const xyScales = {
-                y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
-                x: { ticks: { maxRotation: 45, font: { size: 11 }, color: tick }, grid: { color: grid } },
+                y: { beginAtZero: true, ticks: { stepSize: 1, color: t.tick }, grid: { color: t.grid } },
+                x: { ticks: { maxRotation: 45, font: { size: 11 }, color: t.tick }, grid: { color: t.grid } },
             };
 
-            // Ceklist per bulan — line
-            const ctxBulan = document.getElementById('chartBulan');
-            if (ctxBulan) {
-                _chartInstances.bulan = new Chart(ctxBulan, {
+            if (key === 'bulan') {
+                const ctx = document.getElementById('chartBulan');
+                if (!ctx) return;
+                _chartInstances.bulan = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: CHART_DATA.perBulan.labels,
+                        labels: data.perBulan.labels,
                         datasets: [{
-                            data: CHART_DATA.perBulan.data,
-                            borderColor: accent,
+                            data: data.perBulan.data,
+                            borderColor: t.accent,
                             backgroundColor: _chartAccentFill(),
                             borderWidth: 2,
                             tension: 0.4,
                             fill: true,
                             pointRadius: 4,
-                            pointBackgroundColor: accent,
+                            pointBackgroundColor: t.accent,
                         }],
                     },
                     options: { ...commonOpts, scales: xyScales },
                 });
+                return;
             }
 
-            // Ceklist per kendaraan — bar
-            const ctxKendaraan = document.getElementById('chartKendaraan');
-            if (ctxKendaraan) {
-                _chartInstances.kendaraan = new Chart(ctxKendaraan, {
+            if (key === 'kendaraan') {
+                const ctx = document.getElementById('chartKendaraan');
+                if (!ctx) return;
+                _chartInstances.kendaraan = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: CHART_DATA.perKendaraan.labels,
+                        labels: data.perKendaraan.labels,
                         datasets: [{
-                            data: CHART_DATA.perKendaraan.data,
-                            backgroundColor: accent,
+                            data: data.perKendaraan.data,
+                            backgroundColor: t.accent,
                             borderRadius: 4,
                         }],
                     },
                     options: {
                         ...commonOpts,
                         scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
-                            x: { ticks: { maxRotation: 45, font: { size: 10 }, color: tick }, grid: { color: grid } },
+                            y: { beginAtZero: true, ticks: { stepSize: 1, color: t.tick }, grid: { color: t.grid } },
+                            x: { ticks: { maxRotation: 45, font: { size: 10 }, color: t.tick }, grid: { color: t.grid } },
                         },
                     },
                 });
+                return;
             }
 
-            // Distribusi shift — doughnut
-            const ctxShift = document.getElementById('chartShift');
-            if (ctxShift) {
-                _chartInstances.shift = new Chart(ctxShift, {
+            if (key === 'shift') {
+                const ctx = document.getElementById('chartShift');
+                if (!ctx) return;
+                _chartInstances.shift = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
-                        labels: CHART_DATA.perShift.labels,
+                        labels: data.perShift.labels,
                         datasets: [{
-                            data: CHART_DATA.perShift.data,
-                            backgroundColor: [blue, YELLOW, SLATE, GREEN, INDIGO],
+                            data: data.perShift.data,
+                            backgroundColor: [t.blue, YELLOW, SLATE, GREEN, INDIGO],
                             borderWidth: 2,
-                            borderColor: bdr,
+                            borderColor: t.bdr,
                         }],
                     },
                     options: {
@@ -727,24 +819,25 @@
                             legend: {
                                 display: true,
                                 position: 'bottom',
-                                labels: { font: { size: 11 }, padding: 10, color: lgnd },
+                                labels: { font: { size: 11 }, padding: 10, color: t.lgnd },
                             },
                         },
                         cutout: '58%',
                     },
                 });
+                return;
             }
 
-            // Rata-rata BBM — horizontal bar
-            const ctxBbm = document.getElementById('chartBbm');
-            if (ctxBbm) {
-                _chartInstances.bbm = new Chart(ctxBbm, {
+            if (key === 'bbm') {
+                const ctx = document.getElementById('chartBbm');
+                if (!ctx) return;
+                _chartInstances.bbm = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: CHART_DATA.bbmPerKendaraan.labels,
+                        labels: data.bbmPerKendaraan.labels,
                         datasets: [{
-                            data: CHART_DATA.bbmPerKendaraan.data,
-                            backgroundColor: CHART_DATA.bbmPerKendaraan.data.map(v =>
+                            data: data.bbmPerKendaraan.data,
+                            backgroundColor: data.bbmPerKendaraan.data.map(v =>
                                 v >= 70 ? GREEN : v >= 40 ? YELLOW : RED
                             ),
                             borderRadius: 4,
@@ -754,12 +847,36 @@
                         ...commonOpts,
                         indexAxis: 'y',
                         scales: {
-                            x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { size: 11 }, color: tick }, grid: { color: grid } },
-                            y: { ticks: { font: { size: 11 }, color: tick }, grid: { color: grid } },
+                            x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { size: 11 }, color: t.tick }, grid: { color: t.grid } },
+                            y: { ticks: { font: { size: 11 }, color: t.tick }, grid: { color: t.grid } },
                         },
                     },
                 });
             }
+        }
+
+        async function _refreshChart(key) {
+            const year = _getChartYear(key);
+            _setChartLoading(key, true);
+            try {
+                const data = await _fetchChartData(year);
+                _destroyChart(key);
+                _buildSingleChart(key, data);
+            } catch (_) {
+                /* keep previous chart if fetch fails */
+            } finally {
+                requestAnimationFrame(function () { _setChartLoading(key, false); });
+            }
+        }
+
+        function _buildCharts() {
+            Object.keys(_chartInstances).forEach(_destroyChart);
+            _chartInstances = {};
+            ['bbm', 'shift', 'bulan', 'kendaraan'].forEach(function (key) {
+                const year = _getChartYear(key);
+                const data = _chartDataCache[year] || CHART_DATA;
+                _buildSingleChart(key, data);
+            });
         }
 
         // Build charts immediately — data is already server-rendered, no need to defer
@@ -779,13 +896,19 @@
 
         function _buildChartsAndReveal() {
             _buildCharts();
-            // Hide loading overlays after canvas paint
             requestAnimationFrame(function () {
                 document.querySelectorAll('#portal-charts-pemeriksaan .portal-chart-container').forEach(function (c) {
                     c.classList.add('is-ready');
                 });
             });
         }
+
+        document.querySelectorAll('.portal-chart-year-select').forEach(function (sel) {
+            sel.addEventListener('change', function () {
+                const key = sel.dataset.chartKey;
+                if (key) _refreshChart(key);
+            });
+        });
 
         /* Rebuild charts on theme toggle — delegated once at document level */
         if (!document._portalPemeriksaanThemeBound) {
