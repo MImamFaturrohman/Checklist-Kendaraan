@@ -134,52 +134,46 @@
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
 
-            <div class="portal-stats-row">
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value">{{ $stats['total'] }}</div>
-                        <div class="portal-stat-label">Total</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value" style="color:#b45309">{{ $stats['pending'] }}</div>
-                        <div class="portal-stat-label">Menunggu</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value" style="color:#15803d">{{ $stats['approved'] }}</div>
-                        <div class="portal-stat-label">Disetujui</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value" style="color:#b91c1c">{{ $stats['rejected'] }}</div>
-                        <div class="portal-stat-label">Ditolak</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value" style="color:#6b7280">{{ $stats['expired'] }}</div>
-                        <div class="portal-stat-label">Expired</div>
-                    </div>
-                </div>
+            <div class="portal-stats-row" data-stat-count="4">
+                <x-admin-stat-card
+                    title="Total"
+                    :value="$stats['total']"
+                    unit="permohonan"
+                    description="Seluruh permohonan peminjaman kendaraan"
+                    icon="bi bi-clipboard-data-fill"
+                />
+                <x-admin-stat-card
+                    title="Menunggu"
+                    :value="$stats['pending']"
+                    unit="permohonan"
+                    description="Menunggu persetujuan"
+                    icon="bi bi-hourglass-split"
+                    valueStyle="color:#b45309"
+                />
+                <x-admin-stat-card
+                    title="Disetujui"
+                    :value="$stats['approved']"
+                    unit="permohonan"
+                    description="Permohonan yang disetujui"
+                    icon="bi bi-check-circle-fill"
+                    valueStyle="color:#15803d"
+                />
+                <x-admin-stat-card
+                    title="Ditolak"
+                    :value="$stats['rejected']"
+                    unit="permohonan"
+                    description="Permohonan yang ditolak"
+                    icon="bi bi-x-circle-fill"
+                    valueStyle="color:#b91c1c"
+                />
+                <x-admin-stat-card
+                    title="Expired"
+                    :value="$stats['expired']"
+                    unit="permohonan"
+                    description="Melewati batas waktu berlaku"
+                    icon="bi bi-clock-fill"
+                    valueStyle="color:#6b7280"
+                />
             </div>
 
             <div class="mgmt-tab-bar" style="margin-top: 4px">

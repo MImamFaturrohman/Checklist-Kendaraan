@@ -48,34 +48,30 @@
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
 
-            <div class="portal-stats-row">
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <i class="bi bi-clipboard-data"></i>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value">{{ $stats['total'] }}</div>
-                        <div class="portal-stat-label">Total Laporan</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value" style="color:#b91c1c">{{ $stats['incident'] }}</div>
-                        <div class="portal-stat-label">Incident</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon">
-                        <i class="bi bi-shield-exclamation"></i>
-                    </div>
-                    <div>
-                        <div class="portal-stat-value" style="color:#b45309">{{ $stats['nearmiss'] }}</div>
-                        <div class="portal-stat-label">Near Miss</div>
-                    </div>
-                </div>
+            <div class="portal-stats-row" data-stat-count="3">
+                <x-admin-stat-card
+                    title="Total Laporan"
+                    :value="$stats['total']"
+                    unit="laporan"
+                    description="Seluruh laporan kejadian tercatat"
+                    icon="bi bi-clipboard-data-fill"
+                />
+                <x-admin-stat-card
+                    title="Incident"
+                    :value="$stats['incident']"
+                    unit="kejadian"
+                    description="Laporan insiden yang terjadi"
+                    icon="bi bi-exclamation-triangle-fill"
+                    valueStyle="color:#b91c1c"
+                />
+                <x-admin-stat-card
+                    title="Near Miss"
+                    :value="$stats['nearmiss']"
+                    unit="kejadian"
+                    description="Hampir terjadi insiden (near miss)"
+                    icon="bi bi-shield-fill-exclamation"
+                    valueStyle="color:#b45309"
+                />
             </div>
 
             <div class="portal-section" style="margin-top: 4px">

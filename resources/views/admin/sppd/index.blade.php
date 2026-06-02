@@ -16,11 +16,11 @@
 
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
-            <div class="portal-stats-row">
-                <div class="portal-stat-card"><div class="portal-stat-icon"><i class="bi bi-files"></i></div><div><div class="portal-stat-value">{{ $counts['all'] }}</div><div class="portal-stat-label">Total</div></div></div>
-                <div class="portal-stat-card"><div class="portal-stat-icon"><i class="bi bi-hourglass-split"></i></div><div><div class="portal-stat-value">{{ $counts['pending'] }}</div><div class="portal-stat-label">Menunggu Verifikasi</div></div></div>
-                <div class="portal-stat-card"><div class="portal-stat-icon"><i class="bi bi-pencil-square"></i></div><div><div class="portal-stat-value">{{ $counts['revision'] }}</div><div class="portal-stat-label">Revisi</div></div></div>
-                <div class="portal-stat-card"><div class="portal-stat-icon"><i class="bi bi-person-check"></i></div><div><div class="portal-stat-value">{{ $counts['pending_manager'] }}</div><div class="portal-stat-label">Menunggu Disetujui</div></div></div>
+            <div class="portal-stats-row" data-stat-count="4">
+                <x-admin-stat-card title="Total" :value="$counts['all']" unit="SPPD" description="Semua dokumen perjalanan dinas" icon="bi bi-folder-fill" />
+                <x-admin-stat-card title="Menunggu Verifikasi" :value="$counts['pending']" unit="dokumen" description="Belum diverifikasi admin" icon="bi bi-hourglass-top" />
+                <x-admin-stat-card title="Revisi" :value="$counts['revision']" unit="dokumen" description="Perlu perbaikan data driver" icon="bi bi-pencil-fill" />
+                <x-admin-stat-card title="Menunggu Disetujui" :value="$counts['pending_manager']" unit="dokumen" description="Menunggu persetujuan manager" icon="bi bi-person-check-fill" />
             </div>
 
             <div class="portal-section" id="section-sppd-admin">

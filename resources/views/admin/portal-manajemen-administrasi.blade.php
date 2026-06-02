@@ -14,62 +14,35 @@
 <div class="armada-shell" style="position:relative;z-index:1">
 
     {{-- ── STATS ROW ─────────────────────────────────────────────────────── --}}
-    <div class="mgmt-stats-strip">
-        <div class="mgmt-stat-card">
-            <div class="mgmt-stat-icon">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
-            </div>
-            <div class="mgmt-stat-body">
-                <span class="mgmt-stat-value">{{ $stats['total_kendaraan'] }}</span>
-                <span class="mgmt-stat-label">Total Kendaraan</span>
-            </div>
-        </div>
-
-        <div class="mgmt-stat-card">
-            <div class="mgmt-stat-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                </svg>
-            </div>
-            <div class="mgmt-stat-body">
-                <span class="mgmt-stat-value">{{ $stats['total_driver'] }}</span>
-                <span class="mgmt-stat-label">Total Driver</span>
-            </div>
-        </div>
-
-        <div class="mgmt-stat-card">
-            <div class="mgmt-stat-icon">
-                <svg class="stat-icon stat-icon-pic" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M10.5 11.5C12.433 11.5 14 9.933 14 8C14 6.067 12.433 4.5 10.5 4.5C8.567 4.5 7 6.067 7 8C7 9.933 8.567 11.5 10.5 11.5Z"
-                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M4.5 19.5C5.05 16.55 7.35 14.5 10.5 14.5C11.65 14.5 12.7 14.8 13.55 15.35"
-                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M17.2 20.2C19.1882 20.2 20.8 18.5882 20.8 16.6C20.8 14.6118 19.1882 13 17.2 13C15.2118 13 13.6 14.6118 13.6 16.6C13.6 18.5882 15.2118 20.2 17.2 20.2Z"
-                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M15.7 16.65L16.75 17.65L18.85 15.55"
-                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-            <div class="mgmt-stat-body">
-                <span class="mgmt-stat-value">{{ $stats['total_pic'] }}</span>
-                <span class="mgmt-stat-label">PIC Kendaraan</span>
-            </div>
-        </div>
-
-        <div class="mgmt-stat-card">
-            <div class="mgmt-stat-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </div>
-            <div class="mgmt-stat-body">
-                <span class="mgmt-stat-value">{{ $stats['total_portal_users'] }}</span>
-                <span class="mgmt-stat-label">Total User</span>
-            </div>
-        </div>
+    <div class="portal-stats-row mgmt-stats-strip" data-stat-count="4">
+        <x-admin-stat-card
+            title="Total Kendaraan"
+            :value="$stats['total_kendaraan']"
+            unit="unit"
+            description="Armada kendaraan terdaftar"
+            icon="bi bi-truck-front-fill"
+        />
+        <x-admin-stat-card
+            title="Total Driver"
+            :value="$stats['total_driver']"
+            unit="orang"
+            description="Driver aktif dalam sistem"
+            icon="bi bi-person-fill"
+        />
+        <x-admin-stat-card
+            title="PIC Kendaraan"
+            :value="$stats['total_pic']"
+            unit="orang"
+            description="Person in charge kendaraan"
+            icon="bi bi-person-badge-fill"
+        />
+        <x-admin-stat-card
+            title="Total User"
+            :value="$stats['total_portal_users']"
+            unit="akun"
+            description="Pengguna portal administrasi"
+            icon="bi bi-people-fill"
+        />
     </div>
 
     {{-- ── TAB BAR ───────────────────────────────────────────────────────── --}}

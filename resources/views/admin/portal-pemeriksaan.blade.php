@@ -24,43 +24,35 @@
         {{-- ============================================================
              STATS ROW  (PM FuelLog–style premium cards)
         ============================================================ --}}
-        <div class="portal-stats-row">
-            <div class="portal-stat-card">
-                <div class="portal-stat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
-                </div>
-                <div>
-                    <div class="portal-stat-value">{{ $dbStats['total'] }}</div>
-                    <div class="portal-stat-label">Total Ceklist</div>
-                </div>
-            </div>
-            <div class="portal-stat-card">
-                <div class="portal-stat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
-                </div>
-                <div>
-                    <div class="portal-stat-value">{{ $dbStats['kendaraan_unik'] }}</div>
-                    <div class="portal-stat-label">Kendaraan</div>
-                </div>
-            </div>
-            <div class="portal-stat-card">
-                <div class="portal-stat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="2"/></svg>
-                </div>
-                <div>
-                    <div class="portal-stat-value">{{ $dbStats['driver_aktif'] }}</div>
-                    <div class="portal-stat-label">Driver Aktif</div>
-                </div>
-            </div>
-            <div class="portal-stat-card">
-                <div class="portal-stat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </div>
-                <div>
-                    <div class="portal-stat-value">{{ $dbStats['bulan_ini'] }}</div>
-                    <div class="portal-stat-label">Ceklist Bulan Ini</div>
-                </div>
-            </div>
+        <div class="portal-stats-row" data-stat-count="4">
+            <x-admin-stat-card
+                title="Total Ceklist"
+                :value="$dbStats['total']"
+                unit="laporan"
+                description="Seluruh laporan pemeriksaan tercatat"
+                icon="bi bi-clipboard-data-fill"
+            />
+            <x-admin-stat-card
+                title="Kendaraan"
+                :value="$dbStats['kendaraan_unik']"
+                unit="unit kendaraan"
+                description="Unit kendaraan terdaftar"
+                icon="bi bi-truck-front-fill"
+            />
+            <x-admin-stat-card
+                title="Driver Aktif"
+                :value="$dbStats['driver_aktif']"
+                unit="personel"
+                description="Driver dengan aktivitas checklist"
+                icon="bi bi-person-fill-check"
+            />
+            <x-admin-stat-card
+                title="Ceklist Bulan Ini"
+                :value="$dbStats['bulan_ini']"
+                unit="laporan"
+                description="Laporan pemeriksaan bulan berjalan"
+                icon="bi bi-calendar-check-fill"
+            />
         </div>
 
         {{-- ============================================================

@@ -256,148 +256,106 @@
             </p>
 
             <div class="portal-stats-row portal-stats-row--bbm">
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon"><i class="bi bi-clipboard-data"></i></div>
-                    <div><div class="portal-stat-value">{{ $stats['total_reports_all'] }}</div><div class="portal-stat-label">Total Laporan BBM (keseluruhan)</div></div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon"><i class="bi bi-calendar-week"></i></div>
-                    <div><div class="portal-stat-value">{{ $stats['month_reports'] }}</div><div class="portal-stat-label">Total Laporan BBM (bulanan)</div></div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon"><i class="bi bi-droplet-half"></i></div>
-                    <div>
-                        <div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtLiter($stats['month_liter']) }} L</div>
-                        @if(!empty($stats['mom_month_liter']['show']))
-                            @php
-                                $mdir = $stats['mom_month_liter']['direction'] ?? 'flat';
-                                $mpct = $stats['mom_month_liter']['pct_display'] ?? '';
-                            @endphp
-                            <div class="bbm-portal-stat-mom" role="presentation">
-                                <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $mdir }}">
-                                    @if ($mdir === 'up')
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                            <path d="M3 17L9 11L13 15L21 7"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                            <path d="M21 7H15M21 7V13"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                        </svg>
-                                    @elseif ($mdir === 'down')
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                            <path d="M3 7L9 13L13 9L21 17"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                            <path d="M21 17H15M21 17V11"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                        </svg>
-                                    @else
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                            <path d="M5 12H19"
-                                                stroke="currentColor"
-                                                stroke-width="2.2"
-                                                stroke-linecap="round"/>
-                                        </svg>
-                                    @endif
-                                    {{ $mpct }}
-                                </span>
-                                <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
-                            </div>
-                        @endif
-                        <div class="portal-stat-label">Total Liter (bulanan)</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon"><i class="bi bi-currency-exchange"></i></div>
-                    <div>
-                        <div class="portal-stat-value" style="font-size: 0.89rem;">{{ $fmtRp($stats['month_rupiah']) }}</div>
-                        @if(!empty($stats['mom_month_rupiah']['show']))
-                            @php
-                                $rdir = $stats['mom_month_rupiah']['direction'] ?? 'flat';
-                                $rpct = $stats['mom_month_rupiah']['pct_display'] ?? '';
-                            @endphp
-                            <div class="bbm-portal-stat-mom" role="presentation">
-                                <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $rdir }}">
+                <x-admin-stat-card
+                    title="Total Laporan BBM"
+                    :value="$stats['total_reports_all']"
+                    unit="laporan"
+                    description="Akumulasi seluruh waktu"
+                    icon="bi bi-clipboard-data-fill"
+                />
+                <x-admin-stat-card
+                    title="Laporan BBM Bulanan"
+                    :value="$stats['month_reports']"
+                    unit="laporan"
+                    description="Laporan pengisian bulan {{ $stats['month_label'] }}"
+                    icon="bi bi-calendar-week-fill"
+                />
+                <x-admin-stat-card
+                    title="Total Liter"
+                    :value="$fmtLiter($stats['month_liter'])"
+                    unit="L"
+                    description="Volume BBM bulan berjalan"
+                    icon="bi bi-droplet-fill"
+                >
+                    @if(!empty($stats['mom_month_liter']['show']))
+                        @php
+                            $mdir = $stats['mom_month_liter']['direction'] ?? 'flat';
+                            $mpct = $stats['mom_month_liter']['pct_display'] ?? '';
+                        @endphp
+                        <div class="bbm-portal-stat-mom" role="presentation">
+                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $mdir }}">
                                 @if ($mdir === 'up')
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                            <path d="M3 17L9 11L13 15L21 7"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                            <path d="M21 7H15M21 7V13"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                        </svg>
-                                    @elseif ($mdir === 'down')
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                            <path d="M3 7L9 13L13 9L21 17"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                            <path d="M21 17H15M21 17V11"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                        </svg>
-                                    @else
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                            <path d="M5 12H19"
-                                                stroke="currentColor"
-                                                stroke-width="2.2"
-                                                stroke-linecap="round"/>
-                                        </svg>
-                                    @endif
-                                    {{ $rpct }}
-                                </span>
-                                <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
-                            </div>
-                        @endif
-                        <div class="portal-stat-label">Total Biaya BBM (bulanan)</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon"><i class="bi bi-arrow-up-circle"></i></div>
-                    <div>
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                @elseif ($mdir === 'down')
+                                    <i class="bi bi-graph-down-arrow"></i>
+                                @else
+                                    <i class="bi bi-dash-lg"></i>
+                                @endif
+                                {{ $mpct }}
+                            </span>
+                            <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
+                        </div>
+                    @endif
+                </x-admin-stat-card>
+                <x-admin-stat-card
+                    title="Total Biaya BBM"
+                    :value="number_format((float) $stats['month_rupiah'], 0, ',', '.')"
+                    unitBefore="Rp"
+                    description="Pengeluaran BBM bulan berjalan"
+                    icon="bi bi-cash-stack"
+                >
+                    @if(!empty($stats['mom_month_rupiah']['show']))
+                        @php
+                            $rdir = $stats['mom_month_rupiah']['direction'] ?? 'flat';
+                            $rpct = $stats['mom_month_rupiah']['pct_display'] ?? '';
+                        @endphp
+                        <div class="bbm-portal-stat-mom" role="presentation">
+                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $rdir }}">
+                                @if ($rdir === 'up')
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                @elseif ($rdir === 'down')
+                                    <i class="bi bi-graph-down-arrow"></i>
+                                @else
+                                    <i class="bi bi-dash-lg"></i>
+                                @endif
+                                {{ $rpct }}
+                            </span>
+                            <span class="bbm-portal-stat-mom-vs">vs Bulan Lalu</span>
+                        </div>
+                    @endif
+                </x-admin-stat-card>
+                <x-admin-stat-card
+                    title="Kendaraan Boros"
+                    icon="bi bi-arrow-up-circle-fill"
+                    description="Liter tertinggi bulan ini"
+                >
+                    <x-slot:statValue>
                         <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
                             @if($stats['boros'])
-                                <strong>{{ $stats['boros']->nomor_kendaraan }}</strong><br>
+                                <strong>{{ $stats['boros']->nomor_kendaraan }}</strong>
                                 <span class="portal-stat-sublabel">{{ $fmtLiter($stats['boros']->liters) }} L · {{ $fmtRp($stats['boros']->rupiah) }}</span>
                             @else
                                 —
                             @endif
                         </div>
-                        <div class="portal-stat-label">Kendaraan paling boros (Jumlah liter tertinggi, bulan ini)</div>
-                    </div>
-                </div>
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon"><i class="bi bi-arrow-down-circle"></i></div>
-                    <div>
+                    </x-slot:statValue>
+                </x-admin-stat-card>
+                <x-admin-stat-card
+                    title="Kendaraan Efisien"
+                    icon="bi bi-arrow-down-circle-fill"
+                    description="Liter terendah bulan ini"
+                >
+                    <x-slot:statValue>
                         <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
                             @if($stats['efisien'])
-                                <strong>{{ $stats['efisien']->nomor_kendaraan }}</strong><br>
+                                <strong>{{ $stats['efisien']->nomor_kendaraan }}</strong>
                                 <span class="portal-stat-sublabel">{{ $fmtLiter($stats['efisien']->liters) }} L · {{ $fmtRp($stats['efisien']->rupiah) }}</span>
                             @else
                                 —
                             @endif
                         </div>
-                        <div class="portal-stat-label">Kendaraan paling efisien (Jumlah liter terendah, bulan ini)</div>
-                    </div>
-                </div>
+                    </x-slot:statValue>
+                </x-admin-stat-card>
             </div>
 
             <div class="bbm-chart-global-filters portal-local-filters" id="bbm-chart-global-filters">

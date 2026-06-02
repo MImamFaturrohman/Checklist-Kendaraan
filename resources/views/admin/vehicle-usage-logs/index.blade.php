@@ -23,14 +23,14 @@
 @section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
-            <div class="portal-stats-row">
-                <div class="portal-stat-card">
-                    <div class="portal-stat-icon"><i class="bi bi-journal-text"></i></div>
-                    <div>
-                        <div class="portal-stat-value">{{ $totalAll }}</div>
-                        <div class="portal-stat-label">Total entri log</div>
-                    </div>
-                </div>
+            <div class="portal-stats-row" data-stat-count="1">
+                <x-admin-stat-card
+                    title="Total Entri Log"
+                    :value="$totalAll"
+                    unit="entri"
+                    description="Seluruh catatan pemakaian kendaraan"
+                    icon="bi bi-journal-bookmark-fill"
+                />
             </div>
 
             <div id="vul-logs-live-root" data-vms-vul-logs-live>
