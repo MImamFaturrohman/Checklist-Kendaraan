@@ -49,6 +49,11 @@
     }
     .bbm-form-page .section-banner-icon { color: #facc15; flex-shrink: 0; position: relative; z-index: 1; }
     .bbm-form-page .section-banner span { position: relative; z-index: 1; }
+    .bbm-form-page .wizard-step .section-banner:not(:first-child) { margin-top: 28px; }
+    .bbm-photo-pair--struk { grid-template-columns: 1fr; }
+    @media (min-width: 600px) { .bbm-photo-pair--struk { max-width: 50%; } }
+    .bbm-review-photos--struk { grid-template-columns: 1fr !important; margin-top: 8px; }
+    @media (min-width: 600px) { .bbm-review-photos--struk { max-width: 50%; } }
     .bbm-form-page .bbm-page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
     .bbm-form-page .bbm-page-head-icon {
         width: 48px; height: 48px;
@@ -169,8 +174,8 @@
 
             <div class="checklist-progress-head">
                 <div class="checklist-progress-info">
-                    <span id="bbm-step-label">LANGKAH 1 DARI 3</span>
-                    <span id="bbm-progress-pct">33%</span>
+                    <span id="bbm-step-label">LANGKAH 1 DARI 2</span>
+                    <span id="bbm-progress-pct">50%</span>
                 </div>
                 <div class="checklist-progress-track">
                     <span id="bbm-progress-fill"></span>
@@ -180,7 +185,7 @@
             <section class="wizard-step active" data-step="1">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17h1l1-4h10l1 4h1a1 1 0 011 1v1H4v-1a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 13l1.5-5h7L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>1. Data Kendaraan</span>
+                    <span>Data Kendaraan</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
@@ -231,12 +236,10 @@
                         </div>
                     </label>
                 </div>
-            </section>
 
-            <section class="wizard-step" data-step="2">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><path d="M4 10h16v6H4z" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 118 0v2" stroke="currentColor" stroke-width="2"/></svg>
-                    <span>2. Data Pengisian BBM</span>
+                    <span>Data Pengisian BBM</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
@@ -274,11 +277,19 @@
                 </div>
                 <div class="bbm-photo-pair">
                     <label class="checklist-photo-slot" data-photo-preview-slot>
-                        <input type="file" name="foto_odometer" id="bbm-foto-odometer" accept="image/*" data-photo-single required>
-                        <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-camera"></i></span><strong>Foto Odometer</strong></div>
+                        <input type="file" name="foto_odometer_sebelum" id="bbm-foto-odometer-sebelum" accept="image/*" data-photo-single required>
+                        <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-speedometer2"></i></span><strong>Odometer Sebelum</strong></div>
                         <img class="photo-slot-preview" alt="" style="display:none" src="">
                         <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus">×</button>
                     </label>
+                    <label class="checklist-photo-slot" data-photo-preview-slot>
+                        <input type="file" name="foto_odometer_sesudah" id="bbm-foto-odometer-sesudah" accept="image/*" data-photo-single required>
+                        <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-speedometer"></i></span><strong>Odometer Sesudah</strong></div>
+                        <img class="photo-slot-preview" alt="" style="display:none" src="">
+                        <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus">×</button>
+                    </label>
+                </div>
+                <div class="bbm-photo-pair bbm-photo-pair--struk">
                     <label class="checklist-photo-slot" data-photo-preview-slot>
                         <input type="file" name="foto_struk" id="bbm-foto-struk" accept="image/*" data-photo-single required>
                         <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><i class="bi bi-receipt"></i></span><strong>Foto Struk</strong></div>
@@ -289,10 +300,10 @@
                 <p style="margin:8px 0 0;font-size:0.78rem;line-height:1.45;color:#b45309;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);padding:10px 12px;border-radius:10px;">Pastikan mengambil foto dengan kamera landscape (horizontal).</p>
             </section>
 
-            <section class="wizard-step" data-step="3">
+            <section class="wizard-step" data-step="2">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
-                    <span>3. Ringkasan</span>
+                    <span>Ringkasan</span>
                 </div>
                 <p class="bbm-step3-hint">Periksa kembali semua data. Tekan <strong>Kirim Laporan BBM</strong> di bawah jika data sudah sesuai.</p>
                 <div class="bbm-review" id="bbm-review-root" aria-live="polite"></div>

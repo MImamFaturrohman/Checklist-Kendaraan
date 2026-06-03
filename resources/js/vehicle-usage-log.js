@@ -1,7 +1,14 @@
-document.addEventListener('turbo:load', () => {
-    const root = document.querySelector('[data-vehicle-usage-form]');
-    if (!root) return;
+/**
+ * Log Penggunaan Kendaraan — wizard 2 langkah.
+ * Menggunakan initVulForm() + guard double-bind agar aman dengan Turbo Drive.
+ */
 
+function initVulForm() {
+    const root = document.querySelector('[data-vehicle-usage-form]');
+    if (!root || root.dataset.vulBound) return;
+    root.dataset.vulBound = '1';
+
+    /* ── Jenis kendaraan auto-fill ── */
     const nomorSel = document.getElementById('vul-nopol');
     const jenisInp = document.getElementById('vul-jenis');
     if (nomorSel && jenisInp) {
@@ -12,8 +19,6 @@ document.addEventListener('turbo:load', () => {
         nomorSel.addEventListener('change', syncJenis);
         syncJenis();
     }
-
-    /* Theme and mobile menu are managed globally by app.js initVmsDashChrome */
 
     const form = document.getElementById('vehicle-usage-log-form');
     if (!form) return;
@@ -34,6 +39,7 @@ document.addEventListener('turbo:load', () => {
         buttonsStyling: false,
     });
 
+    /* ── Slider BBM ── */
     const bindBbmPctSlider = (sliderId, hiddenId, displayId) => {
         const slider = document.getElementById(sliderId);
         const hidden = document.getElementById(hiddenId);
@@ -51,6 +57,7 @@ document.addEventListener('turbo:load', () => {
     bindBbmPctSlider('vul-bbm-slider-awal', 'vul-bbm-awal', 'vul-bbm-display-awal');
     bindBbmPctSlider('vul-bbm-slider-akhir', 'vul-bbm-akhir', 'vul-bbm-display-akhir');
 
+    /* ── Wizard ── */
     const steps = Array.from(form.querySelectorAll('.wizard-step[data-step]'));
     const btnPrev = document.getElementById('vul-prev');
     const btnNext = document.getElementById('vul-next');
@@ -62,60 +69,31 @@ document.addEventListener('turbo:load', () => {
     const progressPct = document.getElementById('vul-progress-pct');
 
     let currentStep = 1;
-    const totalSteps = steps.length || 4;
-
-    const showStep = (n) => {
-        currentStep = n;
-        steps.forEach((s) => {
-            s.classList.toggle('active', +s.dataset.step === n);
-        });
-        const pct = Math.round((n / totalSteps) * 100);
-        if (progressFill) progressFill.style.width = `${pct}%`;
-        if (stepLabel) stepLabel.textContent = `LANGKAH ${n} DARI ${totalSteps}`;
-        if (progressPct) progressPct.textContent = `${pct}%`;
-        if (btnPrev) btnPrev.disabled = n <= 1;
-        if (btnNext) {
-            const hideNext = n >= totalSteps;
-            btnNext.classList.toggle('vul-next--hidden', hideNext);
-            btnNext.setAttribute('aria-hidden', hideNext ? 'true' : 'false');
-        }
-        if (submitBtn) {
-            const hideSubmit = n !== totalSteps;
-            submitBtn.classList.toggle('vul-submit--hidden', hideSubmit);
-            submitBtn.setAttribute('aria-hidden', hideSubmit ? 'true' : 'false');
-        }
-        if (n === totalSteps) refreshReview();
-    };
+    const totalSteps = steps.length || 2;
 
     const val = (id) => {
         const el = document.getElementById(id);
         return el && 'value' in el ? String(el.value ?? '').trim() : '';
     };
 
+    /* Semua field input ada di step 1, validasi sekaligus sebelum lanjut ke ringkasan */
     const validateStep1 = () => {
         const errors = [];
+
+        /* Data Penggunaan */
         if (!nomorSel?.value) errors.push('Pilih nomor kendaraan.');
         const ja = val('vul-jam-awal');
         const jb = val('vul-jam-akhir');
         if (!ja) errors.push('Jam awal wajib diisi.');
         if (!jb) errors.push('Jam selesai wajib diisi.');
         if (ja && jb && ja >= jb) errors.push('Jam selesai harus setelah jam awal (hari yang sama).');
-        const kep = val('vul-keperluan');
-        if (!kep) errors.push('Keperluan wajib diisi.');
-        return errors;
-    };
+        if (!val('vul-keperluan')) errors.push('Keperluan wajib diisi.');
 
-    const validateStep2 = () => {
-        const errors = [];
-        const pct = (id) => {
-            const raw = val(id);
-            const n = parseInt(raw, 10);
-            return Number.isNaN(n) ? null : n;
-        };
-        const a = pct('vul-bbm-awal');
-        const b = pct('vul-bbm-akhir');
-        if (a === null || a < 0 || a > 100) errors.push('Level BBM awal wajib antara 0% dan 100%.');
-        if (b === null || b < 0 || b > 100) errors.push('Level BBM akhir wajib antara 0% dan 100%.');
+        /* Level BBM & KM */
+        const a = parseInt(val('vul-bbm-awal'), 10);
+        const b = parseInt(val('vul-bbm-akhir'), 10);
+        if (Number.isNaN(a) || a < 0 || a > 100) errors.push('Level BBM awal wajib antara 0% dan 100%.');
+        if (Number.isNaN(b) || b < 0 || b > 100) errors.push('Level BBM akhir wajib antara 0% dan 100%.');
         const kmAwal = parseInt(val('vul-km-awal'), 10);
         const kmAkhir = parseInt(val('vul-km-akhir'), 10);
         if (Number.isNaN(kmAwal) || kmAwal < 0) errors.push('KM awal wajib diisi (angka valid).');
@@ -123,15 +101,15 @@ document.addEventListener('turbo:load', () => {
         if (!Number.isNaN(kmAwal) && !Number.isNaN(kmAkhir) && kmAkhir < kmAwal) {
             errors.push('KM akhir harus lebih besar atau sama dengan KM awal.');
         }
+
+        /* Kondisi Kendaraan */
+        if (!val('vul-kondisi-sebelum')) errors.push('Kondisi sebelum penggunaan wajib diisi.');
+        if (!val('vul-kondisi-sesudah')) errors.push('Kondisi setelah penggunaan wajib diisi.');
+
         return errors;
     };
 
-    const validateStep3 = () => {
-        const errors = [];
-        if (!val('vul-kondisi-sebelum')) errors.push('Kondisi sebelum penggunaan wajib diisi.');
-        if (!val('vul-kondisi-sesudah')) errors.push('Kondisi setelah penggunaan wajib diisi.');
-        return errors;
-    };
+    const validateAll = () => validateStep1();
 
     const buildReviewHtml = () => {
         const nopol = nomorSel?.options[nomorSel.selectedIndex]?.text?.trim() || '—';
@@ -170,6 +148,29 @@ document.addEventListener('turbo:load', () => {
         if (reviewRoot) reviewRoot.innerHTML = buildReviewHtml();
     };
 
+    const showStep = (n) => {
+        currentStep = n;
+        steps.forEach((s) => {
+            s.classList.toggle('active', +s.dataset.step === n);
+        });
+        const pct = Math.round((n / totalSteps) * 100);
+        if (progressFill) progressFill.style.width = `${pct}%`;
+        if (stepLabel) stepLabel.textContent = `LANGKAH ${n} DARI ${totalSteps}`;
+        if (progressPct) progressPct.textContent = `${pct}%`;
+        if (btnPrev) btnPrev.disabled = n <= 1;
+        if (btnNext) {
+            const hideNext = n >= totalSteps;
+            btnNext.classList.toggle('vul-next--hidden', hideNext);
+            btnNext.setAttribute('aria-hidden', hideNext ? 'true' : 'false');
+        }
+        if (submitBtn) {
+            const hideSubmit = n !== totalSteps;
+            submitBtn.classList.toggle('vul-submit--hidden', hideSubmit);
+            submitBtn.setAttribute('aria-hidden', hideSubmit ? 'true' : 'false');
+        }
+        if (n === totalSteps) refreshReview();
+    };
+
     const showErrors = (messages) => {
         const list = (Array.isArray(messages) ? messages : [messages]).filter(Boolean);
         if (typeof Swal === 'undefined') {
@@ -193,10 +194,7 @@ document.addEventListener('turbo:load', () => {
     };
 
     btnNext?.addEventListener('click', async () => {
-        let err = [];
-        if (currentStep === 1) err = validateStep1();
-        else if (currentStep === 2) err = validateStep2();
-        else if (currentStep === 3) err = validateStep3();
+        const err = validateStep1();
         if (err.length) {
             await showErrors(err);
             return;
@@ -212,7 +210,7 @@ document.addEventListener('turbo:load', () => {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const allErr = [...validateStep1(), ...validateStep2(), ...validateStep3()];
+        const allErr = validateAll();
         if (allErr.length) {
             await showErrors(allErr);
             return;
@@ -259,11 +257,7 @@ document.addEventListener('turbo:load', () => {
             });
 
             let data = {};
-            try {
-                data = await res.json();
-            } catch {
-                data = {};
-            }
+            try { data = await res.json(); } catch { data = {}; }
 
             if (res.status === 422 && data.errors) {
                 const msgs = Object.values(data.errors).flat();
@@ -312,4 +306,7 @@ document.addEventListener('turbo:load', () => {
             }
         }
     });
-});
+}
+
+document.addEventListener('turbo:load', initVulForm);
+initVulForm();

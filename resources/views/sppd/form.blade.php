@@ -44,6 +44,7 @@
     }
     .sppd-form-page .section-banner-icon { color: #facc15; flex-shrink: 0; }
     .sppd-form-page .section-banner span { position: relative; z-index: 1; }
+    .sppd-form-page .wizard-step .section-banner:not(:first-child) { margin-top: 28px; }
 
     .sppd-checklist-footer .sppd-footer-right {
         display: flex;
@@ -121,11 +122,11 @@
 
             <div class="checklist-progress-head">
                 <div class="checklist-progress-info">
-                    <span id="sppd-step-label">LANGKAH 1 DARI 4</span>
-                    <span id="sppd-progress-pct">25%</span>
+                    <span id="sppd-step-label">LANGKAH 1 DARI 2</span>
+                    <span id="sppd-progress-pct">50%</span>
                 </div>
                 <div class="checklist-progress-track">
-                    <span id="sppd-progress-fill" style="width:25%"></span>
+                    <span id="sppd-progress-fill" style="width:50%"></span>
                 </div>
             </div>
 
@@ -170,9 +171,7 @@
                         <div class="checklist-control-wrap"><textarea name="tujuan" rows="2" required maxlength="2000" placeholder="Alamat / lokasi tujuan">{{ old('tujuan', $sppd?->tujuan) }}</textarea></div>
                     </label>
                 </div>
-            </section>
 
-            <section class="wizard-step" data-sppd-step="2">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 17h16M6 13l3-8h6l3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span>Biaya Tol</span>
@@ -195,7 +194,7 @@
                     if (! is_array($tollsKem) || $tollsKem === []) { $tollsKem = [$tollEmpty]; }
                 @endphp
                 <div class="sppd-toll-leg-block">
-                    <h3 class="sppd-toll-leg-title">Biaya tol berangkat</h3>
+                    <h3 class="sppd-toll-leg-title">Berangkat</h3>
                     <div id="sppd-tolls-berangkat-wrap" class="sppd-dynamic-wrap" data-tolls-leg="berangkat">
                         @foreach($tollsBer as $ti => $tr)
                         <div class="sppd-toll-line" data-toll-row>
@@ -213,7 +212,7 @@
                     <button type="button" class="sppd-add-row" id="sppd-add-toll-berangkat">+ Tambah tol berangkat</button>
                 </div>
                 <div class="sppd-toll-leg-block">
-                    <h3 class="sppd-toll-leg-title">Biaya tol kembali</h3>
+                    <h3 class="sppd-toll-leg-title">Kembali</h3>
                     <div id="sppd-tolls-kembali-wrap" class="sppd-dynamic-wrap" data-tolls-leg="kembali">
                         @foreach($tollsKem as $ti => $tr)
                         <div class="sppd-toll-line" data-toll-row>
@@ -230,9 +229,7 @@
                     </div>
                     <button type="button" class="sppd-add-row" id="sppd-add-toll-kembali">+ Tambah tol kembali</button>
                 </div>
-            </section>
 
-            <section class="wizard-step" data-sppd-step="3">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 10h16v8H4z" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 118 0v2" stroke="currentColor" stroke-width="2"/></svg>
                     <span>BBM</span>
@@ -260,12 +257,12 @@
                 <button type="button" class="sppd-add-row" id="sppd-add-fuel">+ Tambah baris BBM</button>
             </section>
 
-            <section class="wizard-step" data-sppd-step="4">
+            <section class="wizard-step" data-sppd-step="2">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span>Ringkasan</span>
                 </div>
-                <p class="sppd-step4-lead">Periksa kembali seluruh data berikut. Jika sudah benar, kirim rekap SPPD.</p>
+                <p class="sppd-step4-lead">Periksa kembali seluruh data berikut. Jika sudah benar, submit laporan.</p>
                 <div id="sppd-step4-summary" class="sppd-step4-summary" aria-live="polite"></div>
                 <div class="sppd-summary-grid sppd-summary-grid--step4">
                     <div><span class="sppd-sum-label">Total Tol</span><strong id="sppd-sum-tol">Rp 0</strong></div>
@@ -288,7 +285,7 @@
                 </button>
                 <button type="submit" form="sppd-form" class="checklist-nav-btn checklist-nav-next final bbm-submit-btn sppd-submit--hidden" id="sppd-submit" aria-hidden="true">
                     <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
-                    Kirim Rekap SPPD
+                    Submit Laporan
                 </button>
             </div>
         </div>

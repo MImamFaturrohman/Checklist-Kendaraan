@@ -546,6 +546,11 @@ html:not(.dark) .dash-body .dash-section-title { color: rgba(30, 58, 138, 0.5); 
 
 /* ── Clock widget (driver) — flex-positioned in hero-inner ── */
 .dash-clock-widget {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 28px;
     text-align: right;
     flex-shrink: 0;
     background: transparent;
@@ -754,30 +759,41 @@ html:not(.dark) .dash-body .dash-section-title { color: rgba(30, 58, 138, 0.5); 
 .dash-clock-date-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     color: rgba(200, 220, 255, 0.85);
-    margin-bottom: 4px;
+    margin-bottom: 0;
+}
+
+.dash-clock-date-row svg,
+.dash-clock-time-row svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
 }
 
 .dash-clock-date {
-    font-size: 0.78rem;
+    font-size: 1.45rem;
     font-weight: 700;
     letter-spacing: 0.4px;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .dash-clock-time-row {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 10px;
     color: #ffffff;
 }
 
 .dash-clock-time {
-    font-size: 1.05rem;
+    font-size: 1.45rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     letter-spacing: 1px;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .dash-clock-divider {
@@ -1657,12 +1673,12 @@ html:not(.dark) .dash-body .dash-section-title { color: rgba(30, 58, 138, 0.5); 
 
 .bbm-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-    border: 3px solid var(--dash-blue);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    border: 2.5px solid var(--dash-blue);
     cursor: pointer;
     transition: transform 0.15s ease;
 }

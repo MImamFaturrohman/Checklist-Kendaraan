@@ -1,9 +1,12 @@
 /**
- * Form laporan BBM (driver): wizard 3 langkah, preview foto, kalkulasi total, AJAX submit.
+ * Form laporan BBM (driver): wizard 2 langkah, preview foto, kalkulasi total, AJAX submit.
+ * Menggunakan initBbmForm() + guard double-bind agar aman dengan Turbo Drive.
  */
-document.addEventListener('turbo:load', () => {
+
+function initBbmForm() {
     const root = document.querySelector('[data-bbm-form]');
-    if (!root) return;
+    if (!root || root.dataset.bbmBound) return;
+    root.dataset.bbmBound = '1';
 
     async function compressImage(file, quality = 0.8, maxWidth = 1920) {
         return new Promise((resolve) => {
@@ -35,12 +38,51 @@ document.addEventListener('turbo:load', () => {
                         const compressedFile = new File(
                             [blob],
                             file.name.replace(/\.\w+$/, '.jpg'),
-                            {
-                                type: 'image/jpeg',
-                                lastModified: Date.now(),
-                            },
+                            { type: 'image/jpeg', lastModified: Date.now() },
                         );
+                        resolve(compressedFile);
+                    },
+                    'image/jpeg',
+                    quality,
+                );
+            };
 
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /** Normalisasi foto odometer: max lebar 1280px, max tinggi 960px, ratio asli. */
+    async function compressOdometerImage(file, quality = 0.82, maxWidth = 1280, maxHeight = 960) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                img.src = e.target.result;
+            };
+
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                const scale = Math.min(maxWidth / width, maxHeight / height, 1);
+                width = Math.round(width * scale);
+                height = Math.round(height * scale);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        const compressedFile = new File(
+                            [blob],
+                            file.name.replace(/\.\w+$/, '.jpg'),
+                            { type: 'image/jpeg', lastModified: Date.now() },
+                        );
                         resolve(compressedFile);
                     },
                     'image/jpeg',
@@ -64,29 +106,28 @@ document.addEventListener('turbo:load', () => {
         input.addEventListener('change', async () => {
             if (!input.files?.[0]) return;
 
-            const originalFile = input.files[0];
-
-            const compressedFile = await compressImage(originalFile);
+            const isOdometer =
+                input.id === 'bbm-foto-odometer-sebelum' || input.id === 'bbm-foto-odometer-sesudah';
+            const compressedFile = isOdometer
+                ? await compressOdometerImage(input.files[0])
+                : await compressImage(input.files[0]);
 
             const dt = new DataTransfer();
             dt.items.add(compressedFile);
             input.files = dt.files;
 
             const reader = new FileReader();
-
             reader.onload = () => {
                 preview.src = reader.result;
                 preview.style.display = 'block';
-
                 if (placeholder) placeholder.style.display = 'none';
                 if (removeBtn) removeBtn.style.display = 'flex';
-
                 slot.classList.add('has-file');
             };
-
             reader.readAsDataURL(compressedFile);
         });
-        if (removeBtn)
+
+        if (removeBtn) {
             removeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -97,9 +138,11 @@ document.addEventListener('turbo:load', () => {
                 removeBtn.style.display = 'none';
                 slot.classList.remove('has-file');
             });
+        }
     };
     root.querySelectorAll('[data-photo-preview-slot]').forEach(initPhotoSlot);
 
+    /* ── Jenis kendaraan auto-fill ── */
     const nomorSel = document.getElementById('bbm-nopol');
     const jenisInp = document.getElementById('bbm-jenis');
     if (nomorSel && jenisInp) {
@@ -111,13 +154,13 @@ document.addEventListener('turbo:load', () => {
         syncJenis();
     }
 
+    /* ── Total harga ── */
     const literInp = document.getElementById('bbm-liter');
     const hplInp = document.getElementById('bbm-harga-per-liter');
     const totalOut = document.getElementById('bbm-total-display');
 
     const formatRp = (n) =>
-        'Rp ' +
-        (Number.isFinite(n) ? n : 0).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        'Rp ' + (Number.isFinite(n) ? n : 0).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
     const recalcTotal = () => {
         if (!totalOut) return;
@@ -130,8 +173,7 @@ document.addEventListener('turbo:load', () => {
     hplInp?.addEventListener('input', recalcTotal);
     recalcTotal();
 
-    /* Theme and mobile menu are managed globally by app.js initVmsDashChrome */
-
+    /* ── Form + submit ── */
     const bbmForm = document.getElementById('bbm-report-form');
     const bbmSubmitBtn = document.getElementById('bbm-submit');
     const bbmSubmitHtml = bbmSubmitBtn?.innerHTML ?? '';
@@ -170,17 +212,17 @@ document.addEventListener('turbo:load', () => {
         });
     };
 
+    /* Semua field ada di langkah 1, validasi sekaligus sebelum lanjut ke ringkasan */
     const validateStep1 = () => {
         const errors = [];
+
+        /* Data Kendaraan */
         if (!nomorSel?.value) errors.push('Pilih nomor kendaraan.');
         if (!val('bbm-jenis-pengisian')) errors.push('Pilih keperluan pengisian BBM.');
         if (!val('bbm-tanggal')) errors.push('Tanggal wajib diisi.');
         if (!val('bbm-waktu')) errors.push('Waktu wajib diisi.');
-        return errors;
-    };
 
-    const validateStep2 = () => {
-        const errors = [];
+        /* Data Pengisian BBM */
         const seb = val('bbm-odo-sebelum');
         const ses = val('bbm-odo-sesudah');
         const sebN = parseInt(seb, 10);
@@ -195,15 +237,20 @@ document.addEventListener('turbo:load', () => {
         if (!Number.isFinite(L) || L < 0.001) errors.push('Liter wajib diisi (minimal 0,001 L).');
         if (!Number.isFinite(h) || h < 0) errors.push('Harga per liter wajib diisi (tidak boleh negatif).');
 
-        const fotoOdo = document.getElementById('bbm-foto-odometer');
+        /* Foto */
+        const fotoOdoSeb = document.getElementById('bbm-foto-odometer-sebelum');
+        const fotoOdoSes = document.getElementById('bbm-foto-odometer-sesudah');
         const fotoStruk = document.getElementById('bbm-foto-struk');
-        if (!fotoOdo?.files?.length) errors.push('Foto odometer wajib diunggah.');
+        if (!fotoOdoSeb?.files?.length) errors.push('Foto odometer sebelum pengisian wajib diunggah.');
+        if (!fotoOdoSes?.files?.length) errors.push('Foto odometer sesudah pengisian wajib diunggah.');
         if (!fotoStruk?.files?.length) errors.push('Foto struk pembelian wajib diunggah.');
+
         return errors;
     };
 
-    const validateAll = () => [...validateStep1(), ...validateStep2()];
+    const validateAll = () => validateStep1();
 
+    /* ── Review (ringkasan) ── */
     const reviewRoot = document.getElementById('bbm-review-root');
 
     const previewSrcForInput = (inputId) => {
@@ -214,6 +261,11 @@ document.addEventListener('turbo:load', () => {
         if (img && img.style.display !== 'none' && img.src) return img.src;
         return '';
     };
+
+    const photoCard = (src, caption) =>
+        src
+            ? `<div class="bbm-review-photo-wrap"><img src="${src}" alt="${esc(caption)}"><div class="bbm-review-photo-caption">${esc(caption)}</div></div>`
+            : `<p style="margin:0;font-size:0.82rem;color:#94a3b8">${esc(caption)} belum dipilih.</p>`;
 
     const buildReviewHtml = () => {
         const nopol = nomorSel?.options[nomorSel.selectedIndex]?.text?.trim() || '—';
@@ -226,16 +278,9 @@ document.addEventListener('turbo:load', () => {
         const waktu = val('bbm-waktu') || '—';
         const totalText = totalOut?.value || 'Rp 0';
 
-        const srcOdo = previewSrcForInput('bbm-foto-odometer');
+        const srcOdoSeb = previewSrcForInput('bbm-foto-odometer-sebelum');
+        const srcOdoSes = previewSrcForInput('bbm-foto-odometer-sesudah');
         const srcStruk = previewSrcForInput('bbm-foto-struk');
-        const imgOdo =
-            srcOdo ?
-                `<div class="bbm-review-photo-wrap"><img src="${srcOdo}" alt="Foto odometer"><div class="bbm-review-photo-caption">Foto odometer</div></div>`
-            :   '<p style="margin:0;font-size:0.82rem;color:#94a3b8">Foto odometer belum dipilih.</p>';
-        const imgStruk =
-            srcStruk ?
-                `<div class="bbm-review-photo-wrap"><img src="${srcStruk}" alt="Foto struk"><div class="bbm-review-photo-caption">Foto struk</div></div>`
-            :   '<p style="margin:0;font-size:0.82rem;color:#94a3b8">Foto struk belum dipilih.</p>';
 
         return `
 <div class="bbm-review-group">
@@ -258,7 +303,12 @@ document.addEventListener('turbo:load', () => {
     <div><dt>Harga / L</dt><dd>${esc(val('bbm-harga-per-liter') || '—')}</dd></div>
     <div><dt>Total harga</dt><dd>${esc(totalText)}</dd></div>
   </dl>
-  <div class="bbm-review-photos">${imgOdo}${imgStruk}</div>
+  <div class="bbm-review-photos">
+    ${photoCard(srcOdoSeb, 'Odometer sebelum')}${photoCard(srcOdoSes, 'Odometer sesudah')}
+  </div>
+  <div class="bbm-review-photos bbm-review-photos--struk">
+    ${photoCard(srcStruk, 'Struk pembelian')}
+  </div>
 </div>`;
     };
 
@@ -266,6 +316,7 @@ document.addEventListener('turbo:load', () => {
         if (reviewRoot) reviewRoot.innerHTML = buildReviewHtml();
     };
 
+    /* ── Wizard 2 langkah ── */
     const steps = bbmForm ? Array.from(bbmForm.querySelectorAll('.wizard-step[data-step]')) : [];
     const btnPrev = document.getElementById('bbm-prev');
     const btnNext = document.getElementById('bbm-next');
@@ -274,7 +325,7 @@ document.addEventListener('turbo:load', () => {
     const progressPct = document.getElementById('bbm-progress-pct');
 
     let currentStep = 1;
-    const totalSteps = steps.length || 3;
+    const totalSteps = steps.length || 2;
 
     const showStep = (n) => {
         currentStep = n;
@@ -300,9 +351,7 @@ document.addEventListener('turbo:load', () => {
     };
 
     btnNext?.addEventListener('click', async () => {
-        let err = [];
-        if (currentStep === 1) err = validateStep1();
-        else if (currentStep === 2) err = validateStep2();
+        const err = validateStep1();
         if (err.length) {
             await showBbmValidationErrors(err);
             return;
@@ -316,6 +365,7 @@ document.addEventListener('turbo:load', () => {
 
     showStep(1);
 
+    /* ── Submit ── */
     bbmForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errs = validateAll();
@@ -364,11 +414,7 @@ document.addEventListener('turbo:load', () => {
             });
 
             let data = {};
-            try {
-                data = await res.json();
-            } catch {
-                data = {};
-            }
+            try { data = await res.json(); } catch { data = {}; }
 
             if (res.status === 422 && data.errors) {
                 const msgs = Object.values(data.errors).flat();
@@ -417,4 +463,7 @@ document.addEventListener('turbo:load', () => {
             }
         }
     });
-});
+}
+
+document.addEventListener('turbo:load', initBbmForm);
+initBbmForm();

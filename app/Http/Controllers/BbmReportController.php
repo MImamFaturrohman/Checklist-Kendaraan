@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BbmReport;
 use App\Models\Kendaraan;
+use App\Support\BbmOdometerPhotoGrid;
 use App\Support\DriverShift;
 use App\Support\SuperAdminNotifier;
 use Illuminate\Http\JsonResponse;
@@ -63,7 +64,8 @@ class BbmReportController extends Controller
             'odometer_sesudah' => ['required', 'integer', 'min:0', 'gte:odometer_sebelum'],
             'liter' => ['required', 'numeric', 'min:0.001'],
             'harga_per_liter' => ['required', 'numeric', 'min:0'],
-            'foto_odometer' => ['required', 'image', 'max:5120'],
+            'foto_odometer_sebelum' => ['required', 'image', 'max:5120'],
+            'foto_odometer_sesudah' => ['required', 'image', 'max:5120'],
             'foto_struk' => ['required', 'image', 'max:5120'],
         ], [
             'nomor_kendaraan.required' => 'Pilih nomor kendaraan.',
@@ -85,9 +87,12 @@ class BbmReportController extends Controller
             'harga_per_liter.required' => 'Harga per liter wajib diisi.',
             'harga_per_liter.numeric' => 'Harga per liter harus berupa angka.',
             'harga_per_liter.min' => 'Harga per liter tidak boleh negatif.',
-            'foto_odometer.required' => 'Foto odometer wajib diunggah.',
-            'foto_odometer.image' => 'Foto odometer harus berupa file gambar (JPG, PNG, dll.).',
-            'foto_odometer.max' => 'Ukuran foto odometer maksimal 5 MB.',
+            'foto_odometer_sebelum.required' => 'Foto odometer sebelum pengisian wajib diunggah.',
+            'foto_odometer_sebelum.image' => 'Foto odometer sebelum harus berupa file gambar (JPG, PNG, dll.).',
+            'foto_odometer_sebelum.max' => 'Ukuran foto odometer sebelum maksimal 5 MB.',
+            'foto_odometer_sesudah.required' => 'Foto odometer sesudah pengisian wajib diunggah.',
+            'foto_odometer_sesudah.image' => 'Foto odometer sesudah harus berupa file gambar (JPG, PNG, dll.).',
+            'foto_odometer_sesudah.max' => 'Ukuran foto odometer sesudah maksimal 5 MB.',
             'foto_struk.required' => 'Foto struk pembelian wajib diunggah.',
             'foto_struk.image' => 'Foto struk harus berupa file gambar (JPG, PNG, dll.).',
             'foto_struk.max' => 'Ukuran foto struk maksimal 5 MB.',
@@ -99,7 +104,10 @@ class BbmReportController extends Controller
         $hargaPerLiter = (float) $validated['harga_per_liter'];
         $totalHarga = round($liter * $hargaPerLiter, 2);
 
-        $odometerPath = $request->file('foto_odometer')->store('bbm-reports/odometer', 'public');
+        $odometerPath = BbmOdometerPhotoGrid::compose(
+            $request->file('foto_odometer_sebelum'),
+            $request->file('foto_odometer_sesudah'),
+        );
         $strukPath = $request->file('foto_struk')->store('bbm-reports/struk', 'public');
 
         try {

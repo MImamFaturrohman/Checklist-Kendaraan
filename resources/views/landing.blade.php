@@ -312,7 +312,6 @@
                         autocomplete="off">
                     <button type="button" class="lp-search-clear" id="search-clear-btn" style="display:none" onclick="clearSearch()">&#x2715;</button>
                 </div>
-                <x-admin-per-page-select id="armada-per-page" :selected="10" />
             </div>
         </div>
 
@@ -816,15 +815,6 @@ function clearSearch() {
     currentPage = 1;
     renderTable();
     document.getElementById('armada-search').focus();
-}
-
-const armadaPerPageEl = document.getElementById('armada-per-page');
-if (armadaPerPageEl) {
-    armadaPerPageEl.addEventListener('change', function () {
-        perPage = parseInt(this.value, 10) || 10;
-        currentPage = 1;
-        renderTable();
-    });
 }
 
 const armadaPaginationEl = document.getElementById('armada-pagination');

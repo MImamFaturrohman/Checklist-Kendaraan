@@ -70,20 +70,38 @@
             width: 5.5rem;
             flex: 0 0 5.5rem;
         }
+        .portal-chart-container--bbm-combined {
+            height: 300px;
+        }
         @media (max-width: 640px) {
             .bbm-chart-title-row {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 10px;
+            }
+            .bbm-chart-title-row .portal-chart-title {
+                flex: 0 0 auto;
             }
             .bbm-chart-inline-filters {
-                justify-content: flex-end;
+                justify-content: flex-start;
                 margin-left: 0;
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
+                width: 100%;
             }
             .bbm-chart-inline-filters .bbm-chart-vehicle-wrap {
                 min-width: 0;
                 max-width: none;
                 flex: 1 1 auto;
+            }
+            .portal-chart-container--bbm-combined {
+                height: 280px;
+            }
+            .portal-charts-grid--bbm .portal-chart-card {
+                min-width: 0;
+                overflow: hidden;
+            }
+            .portal-chart-container--bbm-driver-pie {
+                height: 320px;
             }
         }
         .bbm-filter-inline-label {
@@ -345,6 +363,10 @@
             border-radius: 8px;
             transition: transform .2s, box-shadow .2s;
         }
+        .bbm-photo-thumb-btn img.bbm-photo-thumb--odometer-grid {
+            max-height: 420px;
+            object-fit: contain;
+        }
         .bbm-photo-thumb-btn:hover img {
             transform: scale(1.02);
             box-shadow: 0 4px 14px rgba(0,0,0,.15);
@@ -593,7 +615,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="portal-chart-container" style="height:300px">
+                    <div class="portal-chart-container portal-chart-container--bbm-combined">
                         <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
                         <canvas id="bbmChartCombined"></canvas>
                     </div>
@@ -843,6 +865,7 @@
                 const yCur = data.year;
                 const yPrev = data.year_previous;
                 const labels = data.month_labels.length ? data.month_labels : MONTH_LABELS;
+                const narrow = typeof window !== 'undefined' && window.innerWidth <= 640;
 
                 const el = document.getElementById('bbmChartCombined');
                 if (el) {
@@ -917,14 +940,19 @@
                         options: {
                             ...common,
                             interaction: { mode: 'index', intersect: false },
-                            datasets: { bar: { maxBarThickness: 22 } },
+                            layout: {
+                                padding: narrow ? { bottom: 4 } : {},
+                            },
+                            datasets: { bar: { maxBarThickness: narrow ? 14 : 22 } },
                             plugins: {
                                 legend: { 
                                     display: true,
-                                    position: 'top',
+                                    position: narrow ? 'bottom' : 'top',
                                     labels: {
                                         color: tick,
-                                        boxWidth: 12,
+                                        boxWidth: narrow ? 10 : 12,
+                                        padding: narrow ? 8 : 10,
+                                        font: { size: narrow ? 10 : 11 },
                                         generateLabels(chart) {
                                             const labels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
 
@@ -979,19 +1007,22 @@
                                     type: 'linear',
                                     position: 'left',
                                     beginAtZero: true,
-                                    title: { display: true, text: 'Rp (÷1000)', color: tick },
-                                    ticks: { color: tick, callback: (v) => fmtRpShort(v * 1000) },
+                                    title: { display: !narrow, text: 'Rp (÷1000)', color: tick },
+                                    ticks: { color: tick, callback: (v) => fmtRpShort(v * 1000), font: { size: narrow ? 9 : 11 } },
                                     grid: { color: grid },
                                 },
                                 y1: {
                                     type: 'linear',
                                     position: 'right',
                                     beginAtZero: true,
-                                    title: { display: true, text: 'Liter', color: tick },
-                                    ticks: { color: tick },
+                                    title: { display: !narrow, text: 'Liter', color: tick },
+                                    ticks: { color: tick, font: { size: narrow ? 9 : 11 } },
                                     grid: { drawOnChartArea: false },
                                 },
-                                x: { ticks: { color: tick, font: { size: 11 } }, grid: { color: grid } },
+                                x: {
+                                    ticks: { color: tick, font: { size: narrow ? 9 : 11 }, maxRotation: narrow ? 45 : 0 },
+                                    grid: { color: grid },
+                                },
                             },
                         },
                     });
@@ -1156,7 +1187,11 @@
                 function photoThumb(url, alt) {
                     if (!url) return '<p class="portal-empty" style="padding:8px">—</p>';
                     const safe = String(url).replace(/"/g, '&quot;');
-                    return `<button type="button" class="bbm-photo-thumb-btn" data-full-url="${safe}" aria-label="Perbesar ${esc(alt)}"><img src="${safe}" class="sppd-photo-thumb" alt="${esc(alt)}"></button>`;
+                    const imgClass =
+                        alt === 'Odometer'
+                            ? 'sppd-photo-thumb bbm-photo-thumb--odometer-grid'
+                            : 'sppd-photo-thumb';
+                    return `<button type="button" class="bbm-photo-thumb-btn" data-full-url="${safe}" aria-label="Perbesar ${esc(alt)}"><img src="${safe}" class="${imgClass}" alt="${esc(alt)}"></button>`;
                 }
                 const odo = photoThumb(d.odometer_photo_url, 'Odometer');
                 const struk = photoThumb(d.struk_photo_url, 'Struk');
@@ -1556,7 +1591,10 @@
             let bbmPieResizeTimer = null;
             window.addEventListener('resize', () => {
                 clearTimeout(bbmPieResizeTimer);
-                bbmPieResizeTimer = setTimeout(() => buildDriverPieChart(lastTopDrivers), 200);
+                bbmPieResizeTimer = setTimeout(() => {
+                    buildDriverPieChart(lastTopDrivers);
+                    redrawComparisonFromCache();
+                }, 200);
             }, { passive: true });
 
             /* Expose rebuild fn so the single document-level theme listener always calls the latest closure */

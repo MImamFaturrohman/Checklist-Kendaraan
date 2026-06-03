@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('turbo:load', () => {
     const root = document.querySelector('[data-sppd-form]');
     if (!root) return;
 
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sumTol.textContent = formatRp(tTol);
         sumBbm.textContent = formatRp(tBbm);
         sumGrand.textContent = formatRp(tTol + tBbm);
-        if (currentStep === 4) {
+        if (currentStep === steps.length) {
             renderStep4Summary();
         }
     };
@@ -335,29 +335,32 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     };
 
-    const validateVisibleStep = () => {
-        const visible = steps.find((s) => s.classList.contains('active'));
-        if (!visible) return true;
-        const stepNum = parseInt(visible.getAttribute('data-sppd-step'), 10);
-        if (stepNum === 2) {
-            return validateTolls();
-        }
-        if (stepNum === 3) {
-            return validateFuels();
-        }
-        const required = visible.querySelectorAll('input[required],select[required],textarea[required]');
+    const validateRequiredFields = (container) => {
+        const required = container.querySelectorAll('input[required],select[required],textarea[required]');
         for (const field of required) {
             if (field.disabled) continue;
             if (
                 (field.type === 'file' &&
                     !field.files?.length &&
-                    !visible.querySelector(`input[name="${field.name.replace(/\]$/, '_existing]')}"]`)) ||
+                    !container.querySelector(`input[name="${field.name.replace(/\]$/, '_existing]')}"]`)) ||
                 (field.type !== 'file' && !String(field.value || '').trim())
             ) {
                 field.reportValidity?.();
                 field.focus?.();
                 return false;
             }
+        }
+        return true;
+    };
+
+    const validateVisibleStep = () => {
+        const visible = steps.find((s) => s.classList.contains('active'));
+        if (!visible) return true;
+        const stepNum = parseInt(visible.getAttribute('data-sppd-step'), 10);
+        if (stepNum === 1) {
+            if (!validateRequiredFields(visible)) return false;
+            if (!validateTolls()) return false;
+            return validateFuels();
         }
         return true;
     };
@@ -382,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.classList.toggle('sppd-submit--hidden', hideSubmit);
             submitBtn.setAttribute('aria-hidden', hideSubmit ? 'true' : 'false');
         }
-        if (currentStep === 4) {
+        if (currentStep === steps.length) {
             renderStep4Summary();
         }
     };
@@ -392,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
             recalcTotals();
             return;
         }
-        if (e.target.matches('[name="keperluan_dinas"],[name="tujuan"]') && currentStep === 4) {
+        if (e.target.matches('[name="keperluan_dinas"],[name="tujuan"]') && currentStep === steps.length) {
             renderStep4Summary();
         }
     });

@@ -1,6 +1,7 @@
 @extends('layouts.dash-app')
 
 @section('title', 'Log Penggunaan Kendaraan')
+@section('bodyClass', 'vehicle-usage-form-page')
 @section('pageTitle', 'Log Penggunaan Kendaraan')
 @section('pageSubtitle', 'Isi log pemakaian kendaraan')
 
@@ -53,6 +54,7 @@
     .vul-review-dl dd { margin: 0; color: #0f172a; line-height: 1.45; word-break: break-word; }
     .dash-body.dark .vul-review-dl dd { color: #f1f5f9; }
 
+    .vehicle-usage-form-page .wizard-step .section-banner:not(:first-child) { margin-top: 28px; }
     .vul-bbm-stack { display: grid; gap: 1rem; }
     @media (min-width: 640px) {
         .vul-bbm-stack { grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
@@ -201,19 +203,19 @@
 
             <div class="checklist-progress-head">
                 <div class="checklist-progress-info">
-                    <span id="vul-step-label">LANGKAH 1 DARI 4</span>
-                    <span id="vul-progress-pct">25%</span>
+                    <span id="vul-step-label">LANGKAH 1 DARI 2</span>
+                    <span id="vul-progress-pct">50%</span>
                 </div>
                 <div class="checklist-progress-track">
                     <span id="vul-progress-fill"></span>
                 </div>
             </div>
 
-            {{-- Langkah 1 — sama pola dengan checklist (wizard-step) --}}
+            {{-- Langkah 1 — Data Penggunaan + Level BBM & Kilometer + Kondisi Kendaraan --}}
             <section class="wizard-step active" data-step="1">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17h1l1-4h10l1 4h1a1 1 0 011 1v1H4v-1a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 13l1.5-5h7L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>1. Data Penggunaan</span>
+                    <span>Data Penggunaan</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
@@ -260,13 +262,10 @@
                         </div>
                     </label>
                 </div>
-            </section>
 
-            {{-- Langkah 2 — BBM % (slider) + KM seperti checklist --}}
-            <section class="wizard-step" data-step="2">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17" stroke="currentColor" stroke-width="2"/><path d="M15 10h2a2 2 0 012 2v3" stroke="currentColor" stroke-width="2"/><path d="M7 10h4M7 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <span>2. Level BBM &amp; Kilometer</span>
+                    <span>Level BBM &amp; Kilometer</span>
                 </div>
                 <div class="vul-bbm-stack">
                     <div class="bbm-card">
@@ -296,13 +295,10 @@
                         <input type="number" name="km_akhir" id="vul-km-akhir" min="0" step="1" inputmode="numeric" value="{{ old('km_akhir') }}" placeholder="0" class="km-card-value km-card-editable">
                     </div>
                 </div>
-            </section>
 
-            {{-- Langkah 3 --}}
-            <section class="wizard-step" data-step="3">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg>
-                    <span>3. Kondisi Kendaraan</span>
+                    <span>Kondisi Kendaraan</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field checklist-field-span2">
@@ -320,11 +316,11 @@
                 </div>
             </section>
 
-            {{-- Langkah 4 --}}
-            <section class="wizard-step" data-step="4">
+            {{-- Langkah 2 — Ringkasan --}}
+            <section class="wizard-step" data-step="2">
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
-                    <span>4. Ringkasan &amp; Kirim</span>
+                    <span>Ringkasan</span>
                 </div>
                 <p class="vul-step4-hint" style="margin:0 0 12px;font-size:0.85rem;line-height:1.45;color:#64748b">Periksa kembali semua data. Tekan <strong>Kirim log</strong> di bawah untuk mengonfirmasi.</p>
                 <div class="vul-review" id="vul-review-root" aria-live="polite"></div>
@@ -341,8 +337,8 @@
                 LANJUT
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button type="submit" form="vehicle-usage-log-form" class="checklist-nav-btn checklist-nav-next bbm-submit-btn vul-submit--hidden" id="vul-submit" aria-hidden="true">
-                <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
+            <button type="submit" form="vehicle-usage-log-form" class="checklist-nav-btn checklist-nav-next final vul-submit--hidden" id="vul-submit" aria-hidden="true">
+                <i class="bi bi-send-fill" aria-hidden="true"></i>
                 Kirim log
             </button>
         </div>
