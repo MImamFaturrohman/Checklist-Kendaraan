@@ -702,7 +702,26 @@ document.addEventListener('turbo:load', async () => {
         requestAnimationFrame(() => refreshSignaturePads());
     };
 
-    const validateCurrentStep = () => {
+    const clSwalDialog = () => ({
+        customClass: {
+            popup:         'cl-swal-dialog',
+            title:         'cl-swal-title',
+            confirmButton: 'cl-swal-confirm',
+            cancelButton:  'cl-swal-cancel',
+            denyButton:    'cl-swal-deny-pdf',
+        },
+        buttonsStyling: false,
+    });
+
+    const clSwalError = (title, text) => Swal.fire({
+        icon: 'error',
+        title,
+        text,
+        confirmButtonText: 'Mengerti',
+        ...clSwalDialog(),
+    });
+
+    const validateCurrentStep = async () => {
         const el = steps.find(s => +s.dataset.step === currentStep);
 
         if ([2, 3, 4].includes(currentStep)) {
@@ -711,13 +730,13 @@ document.addEventListener('turbo:load', async () => {
             for (const row of current.querySelectorAll('.checklist-condition-row')) {
                 const checked = Array.from(row.querySelectorAll('input[type="radio"]')).find(r => r.checked);
                 if (!checked) {
-                    showModal('error', 'Checklist Belum Lengkap', 'Masih ada kondisi yang belum dipilih (OK / NO).', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                    await clSwalError('Checklist Belum Lengkap', 'Masih ada kondisi yang belum dipilih (OK / NO).');
                     row.style.borderColor = '#ef4444'; return false;
                 }
                 if (checked.value === 'no') {
                     const note = row.querySelector('.checklist-item-note');
                     if (!note || !note.value.trim()) {
-                        showModal('error', 'Keterangan Wajib Diisi', 'Item dengan kondisi "NO" harus diberi keterangan.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                        await clSwalError('Keterangan Wajib Diisi', 'Item dengan kondisi "NO" harus diberi keterangan.');
                         note.style.borderColor = '#ef4444'; return false;
                     }
                 }
@@ -727,7 +746,7 @@ document.addEventListener('turbo:load', async () => {
         if (currentStep === 2 || currentStep === 5) {
             for (const input of el.querySelectorAll('[data-required-photo]')) {
                 if (!input.files || input.files.length === 0) {
-                    showModal('error', 'Foto Wajib Diisi', 'Harap unggah semua foto yang diperlukan sebelum melanjutkan.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                    await clSwalError('Foto Wajib Diisi', 'Harap unggah semua foto yang diperlukan sebelum melanjutkan.');
                     input.classList.add('is-invalid'); return false;
                 }
                 input.classList.remove('is-invalid');
@@ -741,7 +760,7 @@ document.addEventListener('turbo:load', async () => {
                 let filled = 0;
                 container.querySelectorAll('input[type="file"]').forEach(input => { if (input.files && input.files.length > 0) filled++; });
                 if (filled < minPhotos) {
-                    showModal('error', 'Foto Belum Cukup', `Minimal ${minPhotos} foto harus diupload pada bagian ini.`, [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                    await clSwalError('Foto Belum Cukup', `Minimal ${minPhotos} foto harus diupload pada bagian ini.`);
                     return false;
                 }
             }
@@ -749,17 +768,17 @@ document.addEventListener('turbo:load', async () => {
 
         if (currentStep === 5) {
             if (!isKmAwalValid || !isKmAkhirValid) {
-                showModal('error', 'Data Tidak Valid', 'Periksa kembali KM Awal dan KM Akhir.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+                await clSwalError('Data Tidak Valid', 'Periksa kembali KM Awal dan KM Akhir.');
                 return false;
             }
         }
 
         if (currentStep === 7) {
             if (!window._sigPadSerah || window._sigPadSerah.isEmpty()) {
-                showModal('error', 'Tanda Tangan Diperlukan', 'Tanda tangan driver yang menyerahkan belum diisi.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]); return false;
+                await clSwalError('Tanda Tangan Diperlukan', 'Tanda tangan driver yang menyerahkan belum diisi.'); return false;
             }
             if (!window._sigPadTerima || window._sigPadTerima.isEmpty()) {
-                showModal('error', 'Tanda Tangan Diperlukan', 'Tanda tangan driver yang menerima belum diisi.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]); return false;
+                await clSwalError('Tanda Tangan Diperlukan', 'Tanda tangan driver yang menerima belum diisi.'); return false;
             }
         }
 
@@ -782,11 +801,11 @@ document.addEventListener('turbo:load', async () => {
     });
 
     nextButton.addEventListener('click', async () => {
-        if (!validateCurrentStep()) return;
+        if (!await validateCurrentStep()) return;
         if (currentStep === totalStep - 1) {
             const konfirmasi = document.getElementById('konfirmasi_data');
             if (konfirmasi && !konfirmasi.checked) {
-                showModal('error', 'Konfirmasi Diperlukan', 'Anda harus mencentang checkbox konfirmasi data sebelum dapat melihat preview.', [{ label: 'OK, Saya Mengerti', class: 'modal-btn-secondary', action: 'close' }]);
+                await clSwalError('Konfirmasi Diperlukan', 'Anda harus mencentang checkbox konfirmasi data sebelum dapat melihat preview.');
                 return;
             }
             populatePreview(); currentStep++; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); return;
@@ -794,30 +813,6 @@ document.addEventListener('turbo:load', async () => {
         if (currentStep < totalStep) { currentStep++; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
         await submitChecklist();
     });
-
-    const showModal = (type, title, message, buttons = []) => {
-        const modal    = document.getElementById('pdf-modal');
-        const iconEl   = document.getElementById('pdf-modal-icon');
-        const titleEl  = document.getElementById('pdf-modal-title');
-        const msgEl    = document.getElementById('pdf-modal-message');
-        const actionsEl = document.getElementById('pdf-modal-actions');
-        iconEl.className = 'modal-icon ' + type;
-        iconEl.innerHTML = type === 'success'
-            ? '<svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>'
-            : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-        titleEl.textContent = title; msgEl.textContent = message; actionsEl.innerHTML = '';
-        buttons.forEach(btn => {
-            if (btn.href) {
-                const a = document.createElement('a'); a.href = btn.href; a.target = btn.target || '_blank'; a.className = `modal-btn ${btn.class}`; a.textContent = btn.label; actionsEl.appendChild(a);
-            } else {
-                const b = document.createElement('button'); b.className = `modal-btn ${btn.class}`; b.textContent = btn.label;
-                if (btn.action === 'close')      b.onclick = () => modal.style.display = 'none';
-                else if (btn.action === 'dashboard') b.onclick = () => window.location.href = '/dashboard';
-                actionsEl.appendChild(b);
-            }
-        });
-        modal.style.display = 'flex';
-    };
 
     const populatePreview = () => {
         const container = document.getElementById('preview-content');
@@ -867,6 +862,19 @@ document.addEventListener('turbo:load', async () => {
     };
 
     const submitChecklist = async () => {
+        const confirmResult = await Swal.fire({
+            icon: 'question',
+            title: 'Kirim checklist?',
+            text: 'Data akan disimpan dan PDF laporan akan dibuat. Lanjutkan?',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, kirim',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            focusCancel: true,
+            ...clSwalDialog(),
+        });
+        if (!confirmResult.isConfirmed) return;
+
         if (window._sigPadSerah  && !window._sigPadSerah.isEmpty())  document.getElementById('sig-data-serah').value  = window._sigPadSerah.toDataURL();
         if (window._sigPadTerima && !window._sigPadTerima.isEmpty()) document.getElementById('sig-data-terima').value = window._sigPadTerima.toDataURL();
         const bbmDate = form.querySelector('[name="bbm_terakhir_date"]');
@@ -889,17 +897,38 @@ document.addEventListener('turbo:load', async () => {
                     const hiddenEl = document.getElementById(hidden); if (hiddenEl) hiddenEl.value = '';
                     const hintEl = wizardRoot.querySelector(`[data-sig-hint="${hint}"]`); if (hintEl) hintEl.classList.remove('hidden');
                 });
-                showModal('success', 'PDF Berhasil Dibuat!', 'Laporan checklist kendaraan telah berhasil di-generate dan disimpan.', [
-                    { label: '📄 Lihat PDF', class: 'modal-btn-success', href: data.pdf_url, target: '_blank' },
-                    { label: '← Kembali ke Dashboard', class: 'modal-btn-secondary', action: 'dashboard' }
-                ]);
+                const pdfResult = await Swal.fire({
+                    icon: 'success',
+                    title: 'PDF Berhasil Dibuat!',
+                    text: 'Laporan checklist kendaraan telah berhasil di-generate dan disimpan.',
+                    showDenyButton: true,
+                    confirmButtonText: 'Kembali ke Dashboard',
+                    denyButtonText: 'Lihat PDF',
+                    ...clSwalDialog(),
+                });
+                if (pdfResult.isDenied && data.pdf_url) {
+                    window.open(data.pdf_url, '_blank');
+                }
+                window.location.href = '/dashboard';
             } else {
-                showModal('error', 'Gagal Membuat PDF', data.message || 'Terjadi kesalahan saat menyimpan data.', [{ label: 'Coba Lagi', class: 'modal-btn-secondary', action: 'close' }]);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Membuat PDF',
+                    text: data.message || 'Terjadi kesalahan saat menyimpan data.',
+                    confirmButtonText: 'Coba Lagi',
+                    ...clSwalDialog(),
+                });
                 nextButton.disabled = false; updateWizardUI();
             }
         } catch (err) {
             console.error(err);
-            showModal('error', 'Koneksi Bermasalah', 'Terjadi kesalahan jaringan. Silakan periksa koneksi dan coba lagi.', [{ label: 'OK', class: 'modal-btn-secondary', action: 'close' }]);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Koneksi Bermasalah',
+                text: 'Terjadi kesalahan jaringan. Silakan periksa koneksi dan coba lagi.',
+                confirmButtonText: 'OK',
+                ...clSwalDialog(),
+            });
             nextButton.disabled = false; updateWizardUI();
         }
     };

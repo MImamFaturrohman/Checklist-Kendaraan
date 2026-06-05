@@ -19,7 +19,7 @@
             title="Total Kendaraan"
             :value="$stats['total_kendaraan']"
             unit="unit"
-            description="Armada kendaraan terdaftar"
+            description="Unit kendaraan terdaftar"
             icon="bi bi-truck-front-fill"
         />
         <x-admin-stat-card
@@ -40,7 +40,7 @@
             title="Total User"
             :value="$stats['total_portal_users']"
             unit="akun"
-            description="Pengguna portal administrasi"
+            description="Pengguna VMS"
             icon="bi bi-people-fill"
         />
     </div>
@@ -49,7 +49,7 @@
     <div class="mgmt-tab-bar">
         <button class="mgmt-tab active" id="tab-armada" onclick="switchTab('armada')">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
-            <span>Master Armada</span>
+            <span>Manajemen Unit Kendaraan</span>
             <span class="mgmt-tab-count" id="tc-armada">{{ $stats['total_kendaraan'] }}</span>
         </button>
         <button class="mgmt-tab" id="tab-users" onclick="switchTab('users')">
@@ -75,7 +75,7 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
                 </div>
                 <div class="mgmt-ph-text">
-                    <p class="mgmt-ph-title">Master Armada</p>
+                    <p class="mgmt-ph-title">Manajemen Unit Kendaraan</p>
                     <p class="mgmt-ph-sub">Kelola data kendaraan operasional</p>
                 </div>
                 <button type="button" class="mgmt-ph-add-btn" id="btn-open-armada-modal" onclick="openArmadaAddModal()">

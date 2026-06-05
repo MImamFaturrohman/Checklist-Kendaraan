@@ -109,9 +109,11 @@
 <div class="dash-nav-overlay" id="dash-nav-overlay" style="display:none" onclick="closeDashNavDrawer()" aria-hidden="true"></div>
 <aside class="dash-nav-drawer" id="dash-nav-drawer" aria-label="Menu aplikasi">
     <div class="dash-nav-drawer-body">
-        <button type="button" class="dash-nav-drawer-close" onclick="closeDashNavDrawer()" aria-label="Tutup menu navigasi">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-        </button>
+        <div class="dash-nav-drawer-top">
+            <button type="button" class="dash-nav-drawer-close" onclick="closeDashNavDrawer()" aria-label="Tutup menu navigasi">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
         @include('partials.dash-nav-menu', [
             'sbUser'                     => $layoutUser,
             'sbIsSuperAdmin'             => $layoutIsSuperAdmin,

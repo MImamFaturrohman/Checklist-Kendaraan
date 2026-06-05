@@ -5714,7 +5714,7 @@ html.dark .dash-body .portal-detail-catatan {
     position: fixed;
     top: 0; right: 0;
     height: 100%;
-    width: 420px;
+    width: min(400px, 100vw);
     max-width: 100vw;
     background: rgba(241, 245, 249, 0.75);
     backdrop-filter: blur(14px);
@@ -8748,7 +8748,7 @@ html.dark .dash-body .dash-logout-swal-popup {
     right: 0;
     height: 100%;
     height: 100dvh;
-    width: min(420px, 100vw);
+    width: min(400px, 100vw);
     max-width: 100vw;
     z-index: 790;
     display: flex;
@@ -8775,11 +8775,16 @@ html.dark .dash-body .dash-nav-drawer {
     box-shadow: -12px 0 52px rgba(0, 0, 0, 0.55);
 }
 
+.dash-nav-drawer-top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 6px 8px 2px;
+    margin-bottom: -32px;
+}
+
 .dash-nav-drawer-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 3;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -8812,7 +8817,7 @@ html.dark .dash-body .dash-nav-drawer-close:hover {
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 10px 10px 14px 16px;
+    padding: 0 10px 14px 16px;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -8837,7 +8842,7 @@ html.dark .dash-body .dash-nav-glass-card {
 .dash-nav-drawer-inner-nav {
     padding-top: 2px !important;
     padding-bottom: 4px !important;
-    padding-right: 48px;
+    padding-right: 10px;
 }
 
 /* ── Drawer: akun / notifikasi (≤991px) ── */
@@ -8848,7 +8853,7 @@ html.dark .dash-body .dash-nav-glass-card {
 @media (max-width: 991px) {
     .dash-nav-drawer-account {
         display: block;
-        padding: 4px 48px 12px 8px;
+        padding: 4px 10px 12px 8px;
         margin-bottom: 8px;
         border-bottom: 1px solid rgba(148, 163, 184, 0.28);
     }
@@ -8966,8 +8971,8 @@ html.dark .dash-body .dash-nav-notif-in-drawer .dash-notif-btn {
 .dash-nav-glass-card .dash-nav-drawer-link:not(.is-active) {
     color: rgba(15, 39, 71, 0.85) !important;
 }
-.dash-nav-drawer-body .dash-sidebar-icon,
-.dash-nav-glass-card .dash-sidebar-icon {
+.dash-nav-drawer-body .dash-sidebar-link:not(.is-active) .dash-sidebar-icon,
+.dash-nav-glass-card .dash-sidebar-link:not(.is-active) .dash-sidebar-icon {
     color: rgba(30, 64, 175, 0.5) !important;
 }
 .dash-nav-drawer-body .dash-sidebar-link:hover:not(.is-active),
@@ -8985,7 +8990,16 @@ html.dark .dash-body .dash-nav-notif-in-drawer .dash-notif-btn {
 .dash-nav-drawer-body .dash-nav-drawer-link.is-active,
 .dash-nav-glass-card .dash-sidebar-link.is-active,
 .dash-nav-glass-card .dash-nav-drawer-link.is-active {
+    background: rgba(37, 99, 235, 0.75) !important;
+    color: #fff !important;
+    font-weight: 600;
     box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+}
+.dash-nav-drawer-body .dash-sidebar-link.is-active .dash-sidebar-icon,
+.dash-nav-drawer-body .dash-nav-drawer-link.is-active .dash-sidebar-icon,
+.dash-nav-glass-card .dash-sidebar-link.is-active .dash-sidebar-icon,
+.dash-nav-glass-card .dash-nav-drawer-link.is-active .dash-sidebar-icon {
+    color: currentColor !important;
 }
 
 /* Dark drawer panel */
@@ -9001,8 +9015,8 @@ html.dark .dash-body .dash-nav-glass-card .dash-sidebar-link:not(.is-active),
 html.dark .dash-body .dash-nav-glass-card .dash-nav-drawer-link:not(.is-active) {
     color: rgba(226, 232, 240, 0.88) !important;
 }
-html.dark .dash-body .dash-nav-drawer-body .dash-sidebar-icon,
-html.dark .dash-body .dash-nav-glass-card .dash-sidebar-icon {
+html.dark .dash-body .dash-nav-drawer-body .dash-sidebar-link:not(.is-active) .dash-sidebar-icon,
+html.dark .dash-body .dash-nav-glass-card .dash-sidebar-link:not(.is-active) .dash-sidebar-icon {
     color: rgba(191, 219, 254, 0.5) !important;
 }
 html.dark .dash-body .dash-nav-drawer-body .dash-sidebar-link:hover:not(.is-active),
@@ -9010,6 +9024,19 @@ html.dark .dash-body .dash-nav-drawer-body .dash-nav-drawer-link:hover:not(.is-a
 html.dark .dash-body .dash-nav-glass-card .dash-sidebar-link:hover:not(.is-active),
 html.dark .dash-body .dash-nav-glass-card .dash-nav-drawer-link:hover:not(.is-active) {
     background: rgba(147, 197, 253, 0.12) !important;
+}
+html.dark .dash-body .dash-nav-drawer-body .dash-sidebar-link.is-active,
+html.dark .dash-body .dash-nav-drawer-body .dash-nav-drawer-link.is-active,
+html.dark .dash-body .dash-nav-glass-card .dash-sidebar-link.is-active,
+html.dark .dash-body .dash-nav-glass-card .dash-nav-drawer-link.is-active {
+    background: rgba(59, 130, 246, 0.45) !important;
+    color: #f8fafc !important;
+}
+html.dark .dash-body .dash-nav-drawer-body .dash-sidebar-link.is-active .dash-sidebar-icon,
+html.dark .dash-body .dash-nav-drawer-body .dash-nav-drawer-link.is-active .dash-sidebar-icon,
+html.dark .dash-body .dash-nav-glass-card .dash-sidebar-link.is-active .dash-sidebar-icon,
+html.dark .dash-body .dash-nav-glass-card .dash-nav-drawer-link.is-active .dash-sidebar-icon {
+    color: currentColor !important;
 }
 
 .dash-nav-drawer-footer {

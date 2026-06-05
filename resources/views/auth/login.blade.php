@@ -70,27 +70,22 @@
                     @csrf
                     {{-- Username --}}
                     <div class="auth-field">
-                        <div class="auth-input-group @error('username') has-error @enderror">
+                        <div class="auth-input-group" id="username-input-group">
                             <span class="auth-input-icon"><i class="bi bi-person-fill"></i></span>
                             <input id="username" type="text" name="username" class="auth-input" value="{{ old('username') }}" placeholder="Username" required autofocus>
                         </div>
-                        @error('username')
-                            <div class="auth-error-msg"><i class="bi bi-exclamation-circle"></i> {{ $message }}</div>
-                        @enderror
                     </div>
 
                     {{-- Password --}}
                     <div class="auth-field">
-                        <div class="auth-input-group @error('password') has-error @enderror">
+                        <div class="auth-input-group" id="password-input-group">
                             <span class="auth-input-icon"><i class="bi bi-lock-fill"></i></span>
                             <input id="password" type="password" name="password" class="auth-input" placeholder="Password" required>
                             <button class="auth-password-toggle" type="button" data-password-toggle>
                                 <i class="bi bi-eye" data-password-icon></i>
                             </button>
                         </div>
-                        @error('password')
-                            <div class="auth-error-msg"><i class="bi bi-exclamation-circle"></i> {{ $message }}</div>
-                        @enderror
+                        <div class="auth-error-msg" data-login-error role="alert" hidden></div>
                     </div>
 
                     <button type="submit" class="auth-btn-submit" id="login-submit" data-login-submit aria-busy="false">

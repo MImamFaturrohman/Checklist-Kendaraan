@@ -120,7 +120,7 @@
                 class="dash-topbar-dash-drawer-btn {{ $tbIsDashboard ? 'dash-topbar-drawer-mobile-only' : '' }}"
                 id="dash-nav-drawer-open"
                 onclick="openDashNavDrawer()"
-                title="Dashboard &amp; menu"
+                title="Menu Navigasi"
                 aria-label="Buka menu navigasi"
                 aria-expanded="false"
                 aria-controls="dash-nav-drawer">

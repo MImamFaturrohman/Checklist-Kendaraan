@@ -65,16 +65,115 @@
 </style>
 @endpush
 
-@section('modals')
-<div class="modal-overlay" id="pdf-modal" style="display:none">
-    <div class="modal-box" id="pdf-modal-box">
-        <div class="modal-icon" id="pdf-modal-icon"></div>
-        <h3 id="pdf-modal-title"></h3>
-        <p id="pdf-modal-message"></p>
-        <div class="modal-actions" id="pdf-modal-actions"></div>
-    </div>
-</div>
-@endsection
+@push('styles')
+<style>
+/* SweetAlert2 — checklist wizard (cl-swal-*) */
+.swal2-popup.cl-swal-dialog {
+    border-radius: 16px !important;
+    padding: 1.35rem 1.25rem 1.5rem !important;
+    border: 1px solid rgba(11, 44, 107, 0.12);
+}
+.dash-body.dark .swal2-popup.cl-swal-dialog {
+    background: #1e293b !important;
+    border-color: rgba(148, 163, 184, 0.2);
+    color: #f1f5f9 !important;
+}
+.swal2-title.cl-swal-title {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+.dash-body.dark .swal2-title.cl-swal-title { color: #f1f5f9 !important; }
+.cl-swal-dialog .swal2-actions {
+    margin: 1.25rem auto 0 !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+}
+.cl-swal-dialog button.swal2-confirm,
+.cl-swal-dialog .swal2-styled.swal2-confirm {
+    margin: 0 !important;
+    background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    padding: 0.7rem 1.5rem !important;
+    min-width: 8.5rem !important;
+    box-shadow: 0 4px 14px rgba(11, 44, 107, 0.3) !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+.cl-swal-dialog button.swal2-confirm:hover {
+    box-shadow: 0 6px 18px rgba(11, 44, 107, 0.38) !important;
+    transform: translateY(-1px);
+}
+.cl-swal-dialog button.swal2-cancel,
+.cl-swal-dialog .swal2-styled.swal2-cancel {
+    margin: 0 !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    padding: 0.7rem 1.35rem !important;
+    min-width: 7rem !important;
+    border: 2px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+}
+.cl-swal-dialog button.swal2-cancel:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+.dash-body.dark .cl-swal-dialog button.swal2-cancel,
+.dash-body.dark .cl-swal-dialog .swal2-styled.swal2-cancel {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+    color: #e2e8f0 !important;
+}
+.cl-swal-deny-pdf {
+    margin: 0 !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    padding: 0.7rem 1.5rem !important;
+    min-width: 8.5rem !important;
+    border: 2px solid #16a34a !important;
+    background: #f0fdf4 !important;
+    color: #15803d !important;
+    cursor: pointer !important;
+}
+.dash-body.dark .cl-swal-deny-pdf {
+    background: rgba(20, 83, 45, 0.3) !important;
+    border-color: rgba(74, 222, 128, 0.4) !important;
+    color: #86efac !important;
+}
+.cl-swal-error-box {
+    text-align: left;
+    margin-top: 0.75rem;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+.dash-body.dark .cl-swal-error-box {
+    background: rgba(127, 29, 29, 0.25);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+.cl-swal-error-list {
+    text-align: left;
+    margin: 0.25rem 0 0;
+    padding-left: 1.2rem;
+    line-height: 1.55;
+    font-size: 0.88rem;
+    color: #334155;
+}
+.dash-body.dark .cl-swal-error-list { color: #e2e8f0; }
+.cl-swal-error-list li { margin: 0.35rem 0; }
+.dash-body.dark .swal2-html-container { color: #e2e8f0 !important; }
+</style>
+@endpush
 
 @section('content')
 @php

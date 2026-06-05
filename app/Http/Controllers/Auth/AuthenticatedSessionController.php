@@ -24,7 +24,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): mixed
     {
         $request->authenticate();
 
@@ -41,6 +41,10 @@ class AuthenticatedSessionController extends Controller
                     'label' => $s['label'],
                 ]);
             }
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json(['redirect' => route('dashboard')]);
         }
 
         return redirect()->route('dashboard');
