@@ -2361,11 +2361,11 @@ html:not(.dark) .dash-body .dash-section-title { color: rgba(30, 58, 138, 0.5); 
 }
 
 .admin-table th {
-    background: #f1f5f9;
+    background: var(--dash-blue);
     padding: 10px 12px;
     text-align: left;
     font-weight: 700;
-    color: #475569;
+    color: #f1f5f9;
     font-size: 0.72rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;

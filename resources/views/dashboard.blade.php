@@ -6,7 +6,8 @@
     $isAdmin       = $user?->role === 'admin';
     $isManager     = $user?->role === 'manager';
     $isPic         = $user?->role === 'pic_kendaraan';
-    $isDriver      = $user?->role === 'driver' || $isPic;
+    $isDriver      = $user?->role === 'driver';
+    $isFieldStaff  = $isDriver || $isPic;
     $userRoleLabel = $isSuperAdmin ? 'SUPERADMIN' : ($isAdmin ? 'ADMIN' : ($isManager ? 'MANAGER' : ($isPic ? 'PIC KENDARAAN' : 'DRIVER')));
     $userName      = $user?->name ?? $user?->username ?? 'User';
 
@@ -54,6 +55,11 @@
                     AKSES MANAGER
                 </p>
                 <h2 class="dash-hero-name">Panel Persetujuan</h2>
+            @elseif($isPic)
+                <p class="dash-hero-kicker">
+                    Selamat Datang,
+                </p>
+                <h2 class="dash-hero-name">{{ $userName }}</h2>
             @else
                 <p class="dash-hero-kicker" style="text-transform: none;">
                     Selamat Bertugas,
@@ -65,7 +71,7 @@
                 <span class="dash-tag dash-tag-outline">
                     {{ 'ID: ' . str($user?->username ?? 'USER-00') }}
                 </span>
-                @if(!$isDriver)
+                @if($isSuperAdmin || $isAdmin || $isManager || $isPic)
                 <span class="mgmt-presence mgmt-presence--online" id="dash-presence-status">
                     <span class="mgmt-presence-dot" aria-hidden="true"></span>
                     <span id="dash-presence-label">Online</span>
@@ -114,7 +120,7 @@
 @section('content')
 <div class="dash-shell">
     <main class="dash-content">
-        <div class="dash-desktop-grid {{ ($isAdmin || $isSuperAdmin || $isManager || $isDriver) ? 'dash-desktop-grid--single' : '' }}">
+        <div class="dash-desktop-grid {{ ($isAdmin || $isSuperAdmin || $isManager || $isFieldStaff) ? 'dash-desktop-grid--single' : '' }}">
             <div class="dash-main-column">
 
                 @if($isManager)
@@ -279,8 +285,34 @@
                     </div>
                 </section>
 
-                @else
-                {{-- Driver / PIC --}}
+                @elseif($isPic)
+                {{-- PIC --}}
+                <section>
+                    <h3 class="dash-section-title">MENU</h3>
+                    <div class="dash-main-grid-admin">
+                        <a href="{{ route('bbm-reports.create') }}" class="dash-main-card dash-pressable">
+                            <div>
+                                <p class="dash-main-title">Form Pengisian BBM</p>
+                                <p class="dash-main-sub">Laporan liter, struk &amp; foto odometer</p>
+                            </div>
+                            <span class="dash-main-icon" aria-hidden="true">
+                                <i class="bi bi-fuel-pump-fill" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                        <a href="{{ route('vehicle-usage-logs.create') }}" class="dash-main-card dash-pressable">
+                            <div>
+                                <p class="dash-main-title">Form Log Penggunaan Kendaraan</p>
+                                <p class="dash-main-sub">Catat jam pakai unit &amp; keperluan</p>
+                            </div>
+                            <span class="dash-main-icon" aria-hidden="true">
+                                <i class="bi bi-truck-front-fill" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                    </div>
+                </section>
+
+                @elseif($isDriver)
+                {{-- Driver --}}
                 <section>
                     <h3 class="dash-section-title">TUGAS UTAMA</h3>
                     <div class="dash-main-grid-admin">
@@ -293,7 +325,6 @@
                                 <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i>
                             </span>
                         </a>
-                        @if (!$isPic)
                         <a href="{{ route('sppd.index') }}" class="dash-main-card dash-pressable">
                             <div>
                                 <p class="dash-main-title">TransDinas</p>
@@ -303,8 +334,6 @@
                                 <i class="bi bi-clipboard-data-fill" aria-hidden="true"></i>
                             </span>
                         </a>
-                        @endif
-                        @if ($isDriver)
                         <a href="{{ route('bbm-reports.create') }}" class="dash-main-card dash-pressable">
                             <div>
                                 <p class="dash-main-title">Form Pengisian BBM</p>
@@ -314,8 +343,6 @@
                                 <i class="bi bi-fuel-pump-fill" aria-hidden="true"></i>
                             </span>
                         </a>
-                        @endif
-                        @if ($user?->role === 'driver')
                         <a href="{{ route('vehicle-usage-logs.create') }}" class="dash-main-card dash-pressable">
                             <div>
                                 <p class="dash-main-title">Log Penggunaan Kendaraan</p>
@@ -325,7 +352,6 @@
                                 <i class="bi bi-truck-front-fill" aria-hidden="true"></i>
                             </span>
                         </a>
-                        @endif
                     </div>
                 </section>
                 @endif
@@ -342,7 +368,7 @@
 /* Pressable feedback is handled by app.js (turbo:load) */
 
 @if($isDriver)
-/* ── Live clock (driver / PIC) ── */
+/* ── Live clock (driver) ── */
 (function () {
     /* Guard against multiple intervals on Turbo back-navigation */
     if (window._dashClockInterval) {

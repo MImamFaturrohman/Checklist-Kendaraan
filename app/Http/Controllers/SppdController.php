@@ -34,7 +34,7 @@ class SppdController extends Controller
     {
         $r = auth()->user()?->role;
 
-        return in_array($r, ['driver', 'pic_kendaraan'], true);
+        return $r === 'driver';
     }
 
     private function resolveSppdPerPage(Request $request): int

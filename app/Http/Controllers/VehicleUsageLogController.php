@@ -13,7 +13,7 @@ class VehicleUsageLogController extends Controller
 {
     private function authorizeDriver(): void
     {
-        abort_unless(auth()->user()?->role === 'driver', 403);
+        abort_unless(in_array(auth()->user()?->role, ['driver', 'pic_kendaraan'], true), 403);
     }
 
     public function create(): View

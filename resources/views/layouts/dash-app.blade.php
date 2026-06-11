@@ -28,7 +28,8 @@
     $layoutIsAdmin        = $layoutUser?->role === 'admin';
     $layoutIsManager      = $layoutUser?->role === 'manager';
     $layoutIsPic          = $layoutUser?->role === 'pic_kendaraan';
-    $layoutIsDriver       = $layoutUser?->role === 'driver' || $layoutIsPic;
+    $layoutIsDriver       = $layoutUser?->role === 'driver';
+    $layoutIsFieldStaff   = $layoutIsDriver || $layoutIsPic;
     $layoutUserName       = $layoutUser?->name ?? $layoutUser?->username ?? 'User';
 
     /* Role label and @username for profile drawer */
@@ -121,6 +122,7 @@
             'sbIsManager'                => $layoutIsManager,
             'sbIsPic'                    => $layoutIsPic,
             'sbIsDriver'                 => $layoutIsDriver,
+            'sbIsFieldStaff'             => $layoutIsFieldStaff,
             'sbPendingCount'             => $layoutPendingCount,
             'sbSppdPending'              => $layoutSppdPending,
             'sbUserName'                 => $layoutUserName,

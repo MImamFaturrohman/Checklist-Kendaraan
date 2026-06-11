@@ -4,7 +4,7 @@
     $tbIsAdmin      = $tbIsAdmin      ?? ($tbUser?->role === 'admin');
     $tbIsManager    = $tbIsManager    ?? ($tbUser?->role === 'manager');
     $tbIsPic        = $tbIsPic        ?? ($tbUser?->role === 'pic_kendaraan');
-    $tbIsDriver     = $tbIsDriver     ?? ($tbUser?->role === 'driver' || $tbIsPic);
+    $tbIsDriver     = $tbIsDriver     ?? ($tbUser?->role === 'driver');
     $tbUserName     = $tbUserName     ?? ($tbUser?->name ?? $tbUser?->username ?? 'User');
     $tbUserRoleLabel = $tbIsSuperAdmin ? 'SUPERADMIN' : ($tbIsAdmin ? 'ADMIN' : ($tbIsManager ? 'MANAGER' : ($tbIsPic ? 'PIC KENDARAAN' : 'DRIVER')));
     $tbRoleChipClass = ($tbIsAdmin || $tbIsSuperAdmin) ? 'dash-chip-admin' : ($tbIsManager ? 'dash-chip-manager' : 'dash-chip-driver');

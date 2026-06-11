@@ -4,8 +4,9 @@
     $sbIsSuperAdmin  = $sbIsSuperAdmin  ?? ($sbUser?->role === 'superadmin');
     $sbIsAdmin       = $sbIsAdmin       ?? ($sbUser?->role === 'admin');
     $sbIsManager     = $sbIsManager     ?? ($sbUser?->role === 'manager');
-    $sbIsPic         = $sbIsPic         ?? ($sbUser?->role === 'pic_kendaraan');
-    $sbIsDriver      = $sbIsDriver      ?? ($sbUser?->role === 'driver' || $sbIsPic);
+    $sbIsPic         = $sbUser?->role === 'pic_kendaraan';
+    $sbIsDriver      = $sbUser?->role === 'driver';
+    $sbIsFieldStaff  = $sbIsDriver || $sbIsPic;
 
     $sbPendingCount  = $sbPendingCount ?? 0;
     $sbSppdPending   = $sbSppdPending  ?? 0;
@@ -254,11 +255,12 @@
     </div>
     @endif
 
-    @if($sbIsDriver)
+    @if($sbIsFieldStaff)
     {{-- ─ DRIVER / PIC ─ --}}
     <div class="dash-sidebar-group dash-nav-drawer-group">
-        <span class="dash-sidebar-group-label dash-nav-drawer-group-label">TUGAS SAYA</span>
+        <span class="dash-sidebar-group-label dash-nav-drawer-group-label">{{ $sbIsPic ? 'MENU' : 'TUGAS SAYA' }}</span>
 
+        @if($sbIsDriver)
         <a href="{{ route('checklists.create') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('checklists.*') ? 'is-active' : '' }}">
             <span class="dash-sidebar-icon">
@@ -266,7 +268,9 @@
             </span>
             <span class="dash-sidebar-label">Checklist Kendaraan</span>
         </a>
+        @endif
 
+        @if($sbIsDriver)
         <a href="{{ route('sppd.index') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('sppd.*') && !request()->routeIs('admin.sppd.*') && !request()->routeIs('manager.sppd.*') ? 'is-active' : '' }}">
             <span class="dash-sidebar-icon">
@@ -274,6 +278,7 @@
             </span>
             <span class="dash-sidebar-label">TransDinas</span>
         </a>
+        @endif
 
         <a href="{{ route('bbm-reports.create') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('bbm-reports.*') ? 'is-active' : '' }}">
@@ -293,7 +298,7 @@
                             stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
                 </svg>
             </span>
-            <span class="dash-sidebar-label">Laporan BBM</span>
+            <span class="dash-sidebar-label">{{ $sbIsPic ? 'Form Pengisian BBM' : 'Laporan BBM' }}</span>
         </a>
 
         <a href="{{ route('vehicle-usage-logs.create') }}"
@@ -301,7 +306,7 @@
             <span class="dash-sidebar-icon">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
             </span>
-            <span class="dash-sidebar-label">Log Penggunaan Kendaraan</span>
+            <span class="dash-sidebar-label">{{ $sbIsPic ? 'Form Log Penggunaan Kendaraan' : 'Log Penggunaan Kendaraan' }}</span>
         </a>
     </div>
     @endif
