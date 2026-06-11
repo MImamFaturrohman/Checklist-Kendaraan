@@ -9,6 +9,7 @@ use App\Models\ChecklistMesin;
 use App\Models\ChecklistPerlengkapan;
 use App\Models\Kendaraan;
 use App\Support\AdminTablePagination;
+use App\Support\TableSort;
 use App\Support\SuperAdminNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Google\Client as GoogleClient;
@@ -324,22 +325,32 @@ class ChecklistController extends Controller
 
         // Initial paginated data (superadmin & admin).
         if ($canAccessDatabase) {
-            $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
+            $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan']);
             $this->applyChecklistFilters($request, $dbQuery);
+            TableSort::apply($dbQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
             $dbChecklists = $dbQuery->paginate(10, ['*'], 'db_page')->withQueryString();
 
-            $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at');
+            $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin']);
             $this->applyChecklistFilters($request, $fotoQuery);
+            TableSort::apply($fotoQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
             $fotoChecklists = $fotoQuery->paginate(10, ['*'], 'foto_page')->withQueryString();
 
-            $pdfQuery = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
+            $pdfQuery = Checklist::whereNotNull('pdf_path');
             $this->applyChecklistFilters($request, $pdfQuery);
+            TableSort::apply($pdfQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
             $pdfChecklists = $pdfQuery->paginate(10, ['*'], 'pdf_page')->withQueryString();
         } else {
             $dbChecklists = collect();
             $fotoChecklists = collect();
             $pdfChecklists = collect();
         }
+
+        $dbSortState  = TableSort::current($request, self::CHECKLIST_SORT_ALLOWED);
+        $pdfSortState = $dbSortState; // All three sections share the same sort keys
+        $dbActiveSort  = $dbSortState['sort'] ?? null;
+        $dbActiveDir   = $dbSortState['dir']  ?? null;
+        $pdfActiveSort = $pdfSortState['sort'] ?? null;
+        $pdfActiveDir  = $pdfSortState['dir']  ?? null;
 
         $dbMeta = $canAccessDatabase ? ['current_page' => $dbChecklists->currentPage(),   'last_page' => $dbChecklists->lastPage(),   'total' => $dbChecklists->total(),   'per_page' => $dbChecklists->perPage()] : null;
         $fotoMeta = $canAccessDatabase ? ['current_page' => $fotoChecklists->currentPage(), 'last_page' => $fotoChecklists->lastPage(), 'total' => $fotoChecklists->total(), 'per_page' => $fotoChecklists->perPage()] : null;
@@ -359,9 +370,21 @@ class ChecklistController extends Controller
             'nopolList', 'dbStats', 'pdfStats', 'chartData', 'chartYear', 'yearsAvailable',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
             'dbMeta', 'fotoMeta', 'pdfMeta', 'dbPaginationHtml', 'fotoPaginationHtml', 'pdfPaginationHtml',
-            'canAccessDatabase', 'pemeriksaanInsightOnlyManager'
+            'canAccessDatabase', 'pemeriksaanInsightOnlyManager',
+            'dbActiveSort', 'dbActiveDir', 'pdfActiveSort', 'pdfActiveDir'
         ));
     }
+
+    private const CHECKLIST_SORT_ALLOWED = [
+        'tanggal'         => 'tanggal',
+        'nomor_kendaraan' => 'nomor_kendaraan',
+        'shift'           => 'shift',
+        'driver_serah'    => 'driver_serah',
+        'driver_terima'   => 'driver_terima',
+        'km_awal'         => 'km_awal',
+        'km_akhir'        => 'km_akhir',
+        'created_at'      => 'created_at',
+    ];
 
     /**
      * AJAX: Database Sheet filtered data (JSON).
@@ -371,8 +394,11 @@ class ChecklistController extends Controller
         abort_unless($this->canAccessFullPortalDatabase(), 403);
 
         $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 10);
-        $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])->orderByDesc('created_at');
+        $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan']);
         $this->applyChecklistFilters($request, $query);
+        TableSort::apply($query, $request, self::CHECKLIST_SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('created_at');
+        });
         $rows = $query->paginate($perPage)->withQueryString();
 
         $data = $rows->map(fn ($c) => [
@@ -415,8 +441,10 @@ class ChecklistController extends Controller
             ] : null,
         ]);
 
+        $sortState = TableSort::current($request, self::CHECKLIST_SORT_ALLOWED);
+
         return response()->json(array_merge(
-            ['data' => $data],
+            ['data' => $data, 'sort' => $sortState['sort'] ?? null, 'dir' => $sortState['dir'] ?? null],
             AdminTablePagination::jsonMeta($rows, route('api.admin.portal.database-sheet'))
         ));
     }
@@ -428,6 +456,17 @@ class ChecklistController extends Controller
     {
         return response()->json(array_merge(
             ['data' => $data],
+            AdminTablePagination::jsonMeta($rows, route($routeName))
+        ));
+    }
+
+    /**
+     * @param  array{sort: string, dir: string}|null  $sortState
+     */
+    private function paginatedPortalJsonWithSort($rows, $data, string $routeName, ?array $sortState): JsonResponse
+    {
+        return response()->json(array_merge(
+            ['data' => $data, 'sort' => $sortState['sort'] ?? null, 'dir' => $sortState['dir'] ?? null],
             AdminTablePagination::jsonMeta($rows, route($routeName))
         ));
     }
@@ -539,9 +578,13 @@ class ChecklistController extends Controller
             return $baseUrl.'/storage/'.ltrim($path, '/');
         };
 
-        $query = Checklist::with(['exterior', 'interior', 'mesin'])->orderByDesc('created_at');
+        $query = Checklist::with(['exterior', 'interior', 'mesin']);
         $this->applyChecklistFilters($request, $query);
+        TableSort::apply($query, $request, self::CHECKLIST_SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('created_at');
+        });
         $rows = $query->paginate($perPage)->withQueryString();
+        $fotoSortState = TableSort::current($request, self::CHECKLIST_SORT_ALLOWED);
 
         $data = $rows->map(fn ($c) => [
             'id' => $c->id,
@@ -566,7 +609,7 @@ class ChecklistController extends Controller
             ] : null,
         ]);
 
-        return $this->paginatedPortalJson($rows, $data, 'api.admin.portal.log-foto');
+        return $this->paginatedPortalJsonWithSort($rows, $data, 'api.admin.portal.log-foto', $fotoSortState);
     }
 
     /**
@@ -595,9 +638,13 @@ class ChecklistController extends Controller
             return $baseUrl.'/storage/'.ltrim($path, '/');
         };
 
-        $query = Checklist::whereNotNull('pdf_path')->orderByDesc('created_at');
+        $query = Checklist::whereNotNull('pdf_path');
         $this->applyChecklistFilters($request, $query);
+        TableSort::apply($query, $request, self::CHECKLIST_SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('created_at');
+        });
         $rows = $query->paginate($perPage)->withQueryString();
+        $pdfSortState = TableSort::current($request, self::CHECKLIST_SORT_ALLOWED);
 
         $data = $rows->map(fn ($c) => [
             'id' => $c->id,
@@ -609,7 +656,7 @@ class ChecklistController extends Controller
             'pdf_url' => $resolveUrl($c->pdf_path),
         ]);
 
-        return $this->paginatedPortalJson($rows, $data, 'api.admin.portal.arsip-pdf');
+        return $this->paginatedPortalJsonWithSort($rows, $data, 'api.admin.portal.arsip-pdf', $pdfSortState);
     }
 
     /**

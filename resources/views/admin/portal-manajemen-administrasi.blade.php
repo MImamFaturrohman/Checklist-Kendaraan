@@ -105,17 +105,17 @@
             {{-- Table --}}
             <div class="mgmt-table-wrap">
                 <table class="mgmt-table">
-                    <thead>
+                    <thead id="armada-thead">
                         <tr>
                             <th class="w-10">#</th>
-                            <th>Nomor Kendaraan</th>
-                            <th>Jenis Kendaraan</th>
-                            <th>Bidang</th>
-                            <th>KM Saat Ini</th>
+                            <x-sortable-th key="nomor_kendaraan" label="Nomor Kendaraan" :activeSort="null" :activeDir="null" />
+                            <x-sortable-th key="jenis_kendaraan" label="Jenis Kendaraan" :activeSort="null" :activeDir="null" />
+                            <x-sortable-th key="bidang" label="Bidang" :activeSort="null" :activeDir="null" />
+                            <x-sortable-th key="km_saat_ini" label="KM Saat Ini" :activeSort="null" :activeDir="null" />
                             <th>STNK</th>
                             <th>Pajak STNK</th>
                             <th>KIR</th>
-                            <th>Status</th>
+                            <x-sortable-th key="status_kendaraan" label="Status" :activeSort="null" :activeDir="null" />
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -228,12 +228,12 @@
             {{-- Table --}}
             <div class="mgmt-table-wrap">
                 <table class="mgmt-table">
-                    <thead>
+                    <thead id="user-thead">
                         <tr>
                             <th class="w-10">#</th>
-                            <th>Nama Lengkap</th>
-                            <th>Username</th>
-                            <th>Role</th>
+                            <x-sortable-th key="name" label="Nama Lengkap" :activeSort="null" :activeDir="null" />
+                            <x-sortable-th key="username" label="Username" :activeSort="null" :activeDir="null" />
+                            <x-sortable-th key="role" label="Role" :activeSort="null" :activeDir="null" />
                             <th>Status</th>
                             <th class="text-center">Aksi</th>
                         </tr>
@@ -692,7 +692,7 @@ window.switchTab = function(tab) {
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* MASTER ARMADA                                                           */
 /* ═══════════════════════════════════════════════════════════════════════ */
-let armadaPage = 1, armadaPerPage = 10;
+let armadaPage = 1, armadaPerPage = 10, armadaSort = '', armadaDir = '';
 
 async function fetchArmada(scroll = false) {
     document.getElementById('armada-loading').style.display = 'flex';
@@ -701,11 +701,13 @@ async function fetchArmada(scroll = false) {
         per_page: armadaPerPage,
         page:     armadaPage,
     });
+    if (armadaSort) { params.set('sort', armadaSort); params.set('dir', armadaDir); }
     try {
         const json = await fetch(`${BASE}/api/admin/portal/kendaraan?${params}`).then(r => r.json());
         renderArmadaTable(json.data, json.current_page, json.per_page);
         mountMgmtPagination('armada', json.pagination_html);
         document.getElementById('tc-armada').textContent = json.total;
+        if (window.AdminTableSort) window.AdminTableSort.syncAria(document.getElementById('armada-thead'), json.sort ?? null, json.dir ?? null);
         if (scroll) document.getElementById('section-armada').scrollIntoView({behavior:'smooth', block:'start'});
     } catch(e) { console.error(e); }
     finally { document.getElementById('armada-loading').style.display = 'none'; }
@@ -867,17 +869,32 @@ window.deleteKendaraan = function(id, nopol) {
 window.resetArmadaFilters = function() {
     document.getElementById('armada-search').value = '';
     document.getElementById('armada-perpage').value = '10';
-    armadaPerPage = 10; armadaPage = 1;
+    armadaPerPage = 10; armadaPage = 1; armadaSort = ''; armadaDir = '';
     fetchArmada();
 };
 
 document.getElementById('armada-search').addEventListener('input', debounce(() => { armadaPage = 1; fetchArmada(); }, 350));
 document.getElementById('armada-perpage').addEventListener('change', e => { armadaPerPage = parseInt(e.target.value); armadaPage = 1; fetchArmada(); });
 
+if (window.AdminTableSort) {
+    const armadaWrap = document.getElementById('armada-thead')?.closest('.mgmt-table-wrap') || document.getElementById('section-armada');
+    if (armadaWrap) {
+        window.AdminTableSort.bindRoot(armadaWrap, {
+            getUrl: () => new URL(location.href),
+            onNavigate: (url) => {
+                armadaSort = url.searchParams.get('sort') || '';
+                armadaDir  = url.searchParams.get('dir')  || '';
+                armadaPage = 1;
+                fetchArmada();
+            },
+        });
+    }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* MANAJEMEN USER                                                          */
 /* ═══════════════════════════════════════════════════════════════════════ */
-let userPage = 1, userPerPage = 15;
+let userPage = 1, userPerPage = 15, userSort = '', userDir = '';
 
 async function fetchUsers(scroll = false) {
     document.getElementById('user-loading').style.display = 'flex';
@@ -887,11 +904,13 @@ async function fetchUsers(scroll = false) {
         per_page:    userPerPage,
         page:        userPage,
     });
+    if (userSort) { params.set('sort', userSort); params.set('dir', userDir); }
     try {
         const json = await fetch(`${BASE}/api/admin/portal/users?${params}`).then(r => r.json());
         renderUserTable(json.data, json.current_page, json.per_page);
         mountMgmtPagination('users', json.pagination_html);
         document.getElementById('tc-users').textContent = json.total;
+        if (window.AdminTableSort) window.AdminTableSort.syncAria(document.getElementById('user-thead'), json.sort ?? null, json.dir ?? null);
         if (scroll) document.getElementById('section-users').scrollIntoView({behavior:'smooth', block:'start'});
     } catch(e) { console.error(e); }
     finally { document.getElementById('user-loading').style.display = 'none'; }
@@ -943,13 +962,28 @@ window.resetUserFilters = function() {
     document.getElementById('user-search').value = '';
     document.getElementById('user-role-filter').value = '';
     document.getElementById('user-perpage').value = '15';
-    userPerPage = 15; userPage = 1;
+    userPerPage = 15; userPage = 1; userSort = ''; userDir = '';
     fetchUsers();
 };
 
 document.getElementById('user-search').addEventListener('input', debounce(() => { userPage = 1; fetchUsers(); }, 350));
 document.getElementById('user-role-filter').addEventListener('change', () => { userPage = 1; fetchUsers(); });
 document.getElementById('user-perpage').addEventListener('change', e => { userPerPage = parseInt(e.target.value); userPage = 1; fetchUsers(); });
+
+if (window.AdminTableSort) {
+    const userWrap = document.getElementById('user-thead')?.closest('.mgmt-table-wrap') || document.getElementById('section-users');
+    if (userWrap) {
+        window.AdminTableSort.bindRoot(userWrap, {
+            getUrl: () => new URL(location.href),
+            onNavigate: (url) => {
+                userSort = url.searchParams.get('sort') || '';
+                userDir  = url.searchParams.get('dir')  || '';
+                userPage = 1;
+                fetchUsers();
+            },
+        });
+    }
+}
 
 document.getElementById('form-add-user').addEventListener('submit', async function(e) {
     e.preventDefault();

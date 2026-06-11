@@ -145,13 +145,6 @@
 
             <div class="portal-stats-row" data-stat-count="4">
                 <x-admin-stat-card
-                    title="Total"
-                    :value="$stats['total']"
-                    unit="permohonan"
-                    description="Seluruh permohonan peminjaman kendaraan"
-                    icon="bi bi-clipboard-data-fill"
-                />
-                <x-admin-stat-card
                     title="Menunggu"
                     :value="$stats['pending']"
                     unit="permohonan"
@@ -182,6 +175,15 @@
                     description="Melewati batas waktu berlaku"
                     icon="bi bi-clock-fill"
                     valueStyle="color:#6b7280"
+                />
+            </div>
+            <div class="portal-stats-row" data-stat-count="1">
+                <x-admin-stat-card
+                    title="Total"
+                    :value="$stats['total']"
+                    unit="permohonan"
+                    description="Seluruh permohonan peminjaman kendaraan"
+                    icon="bi bi-clipboard-data-fill"
                 />
             </div>
 
@@ -288,14 +290,14 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Pemohon</th>
+                                    <x-sortable-th key="nama_lengkap" label="Pemohon" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Bidang</th>
-                                    <th>Kendaraan</th>
+                                    <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Keperluan</th>
-                                    <th>Status</th>
+                                    <x-sortable-th key="status" label="Status" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Catatan</th>
-                                    <th>Diajukan</th>
-                                    <th>Diproses</th>
+                                    <x-sortable-th key="created_at" label="Diajukan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                    <x-sortable-th key="updated_at" label="Diproses" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>PDF</th>
                                 </tr>
                             </thead>
@@ -792,6 +794,9 @@
                     } else {
                         pagEl.innerHTML = data.pagination_html || '';
                     }
+                    if (window.AdminTableSort) {
+                        window.AdminTableSort.syncAria(tbody.closest('table'), data.sort ?? null, data.dir ?? null);
+                    }
                     syncFiltersFromUrl(u, data);
                     try {
                         const keepHash = location.hash || '#daftar';
@@ -806,6 +811,7 @@
 
             function buildListUrl(overrides = {}) {
                 const u = new URL(listUrl, location.origin);
+                const cur = new URL(location.href);
                 const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
                 const status = overrides.status !== undefined ? overrides.status : statusEl.value;
                 const perPage = overrides.per_page !== undefined ? overrides.per_page : perPageEl.value;
@@ -818,6 +824,10 @@
                 } else {
                     u.searchParams.delete('page');
                 }
+                const sortVal = Object.prototype.hasOwnProperty.call(overrides, 'sort') ? overrides.sort : cur.searchParams.get('sort');
+                const dirVal  = Object.prototype.hasOwnProperty.call(overrides, 'dir')  ? overrides.dir  : cur.searchParams.get('dir');
+                if (sortVal) u.searchParams.set('sort', sortVal); else u.searchParams.delete('sort');
+                if (dirVal)  u.searchParams.set('dir', dirVal);   else u.searchParams.delete('dir');
                 return u;
             }
 
@@ -859,8 +869,18 @@
                     searchEl.value = '';
                     statusEl.value = '';
                     perPageEl.value = DEFAULT_PER_PAGE;
-                    fetchRequestsFromUrl(buildListUrl({ search: '', status: '', per_page: DEFAULT_PER_PAGE, page: null }));
+                    fetchRequestsFromUrl(buildListUrl({ search: '', status: '', per_page: DEFAULT_PER_PAGE, sort: '', dir: '', page: null }));
                 }, { signal });
+            }
+
+            if (window.AdminTableSort) {
+                const ppmRoot = document.querySelector('[data-ppm-daftar-live]');
+                if (ppmRoot) {
+                    window.AdminTableSort.bindRoot(ppmRoot, {
+                        getUrl: () => new URL(location.href),
+                        onNavigate: (url) => fetchRequestsFromUrl(url),
+                    });
+                }
             }
 
             updateFilterChrome();

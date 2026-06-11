@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Support\AdminTablePagination;
+use App\Support\TableSort;
 use App\Models\VehicleUsageLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,6 +15,14 @@ class VehicleUsageLogArchiveController extends Controller
 {
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
+
+    private const SORT_ALLOWED = [
+        'created_at'      => 'created_at',
+        'nomor_kendaraan' => 'nomor_kendaraan',
+        'km_awal'         => 'km_awal',
+        'km_akhir'        => 'km_akhir',
+        'keperluan'       => 'keperluan',
+    ];
 
     public function index(Request $request): View|Response
     {
@@ -57,14 +66,14 @@ class VehicleUsageLogArchiveController extends Controller
             }
         }
 
-        $logs = $query
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
-            ->paginate($perPage)
-            ->onEachSide(0)
-            ->withQueryString();
+        TableSort::apply($query, $request, self::SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('created_at')->orderByDesc('id');
+        });
+
+        $logs = $query->paginate($perPage)->onEachSide(0)->withQueryString();
 
         $totalAll = VehicleUsageLog::query()->count();
+        $sortState = TableSort::current($request, self::SORT_ALLOWED);
 
         $view = view('admin.vehicle-usage-logs.index', [
             'logs' => $logs,
@@ -74,6 +83,8 @@ class VehicleUsageLogArchiveController extends Controller
                 'date_to' => $dateTo,
             ],
             'totalAll' => $totalAll,
+            'activeSort' => $sortState['sort'] ?? null,
+            'activeDir'  => $sortState['dir']  ?? null,
         ]);
 
         if ($request->header('X-VMS-VUL-Logs-Fragment') === '1') {

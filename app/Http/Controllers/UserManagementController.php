@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\AdminTablePagination;
+use App\Support\TableSort;
 use App\Models\Kendaraan;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -59,22 +60,41 @@ class UserManagementController extends Controller
             compact('kendaraans', 'users', 'stats', 'defaultPassword'));
     }
 
+    private const KENDARAAN_SORT_ALLOWED = [
+        'nomor_kendaraan'  => 'nomor_kendaraan',
+        'jenis_kendaraan'  => 'jenis_kendaraan',
+        'bidang'           => 'bidang',
+        'km_saat_ini'      => 'km_saat_ini',
+        'status_kendaraan' => 'status_kendaraan',
+    ];
+
+    private const USER_SORT_ALLOWED = [
+        'name'     => 'name',
+        'username' => 'username',
+        'role'     => 'role',
+    ];
+
     /* ── API: AJAX list kendaraan ─────────────────────────────────────── */
     public function apiKendaraan(Request $request): JsonResponse
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
-        $q = Kendaraan::orderBy('nomor_kendaraan');
+        $q = Kendaraan::query();
         if ($s = $request->input('search')) {
             $q->where(function ($x) use ($s) {
                 $x->where('nomor_kendaraan', 'like', "%{$s}%")
                   ->orWhere('jenis_kendaraan', 'like', "%{$s}%");
             });
         }
+        TableSort::apply($q, $request, self::KENDARAAN_SORT_ALLOWED, function ($x) {
+            $x->orderBy('nomor_kendaraan');
+        });
         $page = $q->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10));
 
+        $sortState = TableSort::current($request, self::KENDARAAN_SORT_ALLOWED);
+
         return response()->json(array_merge(
-            ['data' => $page->items()],
+            ['data' => $page->items(), 'sort' => $sortState['sort'] ?? null, 'dir' => $sortState['dir'] ?? null],
             AdminTablePagination::jsonMeta($page, route('api.admin.portal.kendaraan'))
         ));
     }
@@ -84,7 +104,7 @@ class UserManagementController extends Controller
     {
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
-        $q = User::query()->whereIn('role', self::MANAGED_ROLES)->orderBy('name');
+        $q = User::query()->whereIn('role', self::MANAGED_ROLES);
         if ($s = $request->input('search')) {
             $q->where(function ($x) use ($s) {
                 $x->where('name', 'like', "%{$s}%")
@@ -94,6 +114,9 @@ class UserManagementController extends Controller
         if (($rf = $request->input('role_filter')) && in_array($rf, self::MANAGED_ROLES, true)) {
             $q->where('role', $rf);
         }
+        TableSort::apply($q, $request, self::USER_SORT_ALLOWED, function ($x) {
+            $x->orderBy('name');
+        });
         $page = $q->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10));
 
         $data = collect($page->items())->map(function (User $user) {
@@ -107,8 +130,10 @@ class UserManagementController extends Controller
             ];
         })->values();
 
+        $userSortState = TableSort::current($request, self::USER_SORT_ALLOWED);
+
         return response()->json(array_merge(
-            ['data' => $data],
+            ['data' => $data, 'sort' => $userSortState['sort'] ?? null, 'dir' => $userSortState['dir'] ?? null],
             AdminTablePagination::jsonMeta($page, route('api.admin.portal.users'))
         ));
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Sppd;
 use App\Support\SppdStatus;
+use App\Support\TableSort;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -16,6 +17,15 @@ class SppdAdminController extends Controller
 {
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
+
+    private const SORT_ALLOWED = [
+        'nama_driver'     => 'nama_driver',
+        'keperluan_dinas' => 'keperluan_dinas',
+        'no_kendaraan'    => 'no_kendaraan',
+        'status'          => 'status',
+        'tanggal_dinas'   => 'tanggal_dinas',
+        'created_at'      => 'created_at',
+    ];
 
     private function authorizeAdmin(): void
     {
@@ -43,9 +53,11 @@ class SppdAdminController extends Controller
         $status = $request->input('status');
         $search = $request->input('q');
 
-        $query = Sppd::query()
-            ->with(['user:id,name,username', 'tolls', 'fuels'])
-            ->orderByDesc('created_at');
+        $query = Sppd::query()->with(['user:id,name,username', 'tolls', 'fuels']);
+
+        TableSort::apply($query, $request, self::SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('created_at');
+        });
 
         if ($status && in_array($status, SppdStatus::adminFilterOptions(), true)) {
             $query->where('status', $status);
@@ -71,6 +83,8 @@ class SppdAdminController extends Controller
             'completed' => Sppd::where('status', Sppd::STATUS_COMPLETED)->count(),
         ];
 
+        $sortState = TableSort::current($request, self::SORT_ALLOWED);
+
         $payload = [
             'sppds' => $sppds,
             'counts' => $counts,
@@ -78,6 +92,8 @@ class SppdAdminController extends Controller
             'search' => $search,
             'statusMeta' => fn (?string $s) => SppdStatus::meta($s),
             'canVerifySppd' => auth()->user()?->role === 'admin',
+            'activeSort' => $sortState['sort'] ?? null,
+            'activeDir'  => $sortState['dir']  ?? null,
         ];
 
         $view = view('admin.sppd.index', $payload);

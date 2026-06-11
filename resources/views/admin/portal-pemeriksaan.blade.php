@@ -244,7 +244,18 @@
             <div class="db-tab-panel active" data-db-panel="all">
                 <div class="admin-table-wrap">
                     <table class="admin-table">
-                        <thead><tr><th>#</th><th>Tanggal</th><th>Shift</th><th>Nopol</th><th>Jenis</th><th>Driver Serah</th><th>Driver Terima</th><th>BBM</th><th>KM Awal</th><th>KM Akhir</th></tr></thead>
+                        <thead id="db-all-thead"><tr>
+                            <th>#</th>
+                            <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
+                            <x-sortable-th key="shift" label="Shift" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
+                            <x-sortable-th key="nomor_kendaraan" label="Nopol" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
+                            <th>Jenis</th>
+                            <x-sortable-th key="driver_serah" label="Driver Serah" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
+                            <x-sortable-th key="driver_terima" label="Driver Terima" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
+                            <th>BBM</th>
+                            <x-sortable-th key="km_awal" label="KM Awal" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
+                            <x-sortable-th key="km_akhir" label="KM Akhir" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
+                        </tr></thead>
                         <tbody id="db-tbody-all">
                             @forelse($dbChecklists as $c)
                             <tr>
@@ -549,7 +560,15 @@
 
             <div class="admin-table-wrap">
                 <table class="admin-table">
-                    <thead><tr><th>#</th><th>Tanggal</th><th>Nopol</th><th>Driver Serah</th><th>Driver Terima</th><th>Shift</th><th>Aksi</th></tr></thead>
+                    <thead id="pdf-thead"><tr>
+                        <th>#</th>
+                        <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$pdfActiveSort ?? null" :activeDir="$pdfActiveDir ?? null" />
+                        <x-sortable-th key="nomor_kendaraan" label="Nopol" :activeSort="$pdfActiveSort ?? null" :activeDir="$pdfActiveDir ?? null" />
+                        <x-sortable-th key="driver_serah" label="Driver Serah" :activeSort="$pdfActiveSort ?? null" :activeDir="$pdfActiveDir ?? null" />
+                        <x-sortable-th key="driver_terima" label="Driver Terima" :activeSort="$pdfActiveSort ?? null" :activeDir="$pdfActiveDir ?? null" />
+                        <x-sortable-th key="shift" label="Shift" :activeSort="$pdfActiveSort ?? null" :activeDir="$pdfActiveDir ?? null" />
+                        <th>Aksi</th>
+                    </tr></thead>
                     <tbody id="pdf-tbody">
                         @forelse($pdfChecklists as $c)
                         @php
@@ -1093,11 +1112,13 @@
         let _abortFoto = null;
         let _abortPdf  = null;
 
+        let dbSort = '', dbDir = '', fotoSort = '', fotoDir = '', pdfSort = '', pdfDir = '';
+
         /* ================================================================
         DATABASE SHEET AJAX
         ================================================================ */
         function getDbParams() {
-            return {
+            const p = {
                 search:         document.getElementById('db-search')?.value ?? '',
                 tanggal_dari:   document.getElementById('db-dari')?.value ?? '',
                 tanggal_sampai: document.getElementById('db-sampai')?.value ?? '',
@@ -1106,6 +1127,8 @@
                 per_page:       dbPerPage,
                 page:           dbPage,
             };
+            if (dbSort) { p.sort = dbSort; p.dir = dbDir; }
+            return p;
         }
 
         async function fetchDb(scroll = false) {
@@ -1121,6 +1144,7 @@
                 renderDbInterior(json);
                 renderDbMesin(json);
                 mountPortalPagination('db', json.pagination_html);
+                if (window.AdminTableSort) window.AdminTableSort.syncAria(document.getElementById('db-all-thead'), json.sort ?? null, json.dir ?? null);
                 if (scroll) scrollToSection('section-db');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchDb error', e);
@@ -1185,7 +1209,7 @@
         LOG FOTO AJAX
         ================================================================ */
         function getFotoParams() {
-            return {
+            const p = {
                 search:         document.getElementById('foto-search')?.value ?? '',
                 tanggal_dari:   document.getElementById('foto-dari')?.value ?? '',
                 tanggal_sampai: document.getElementById('foto-sampai')?.value ?? '',
@@ -1193,6 +1217,8 @@
                 per_page:       fotoPerPage,
                 page:           fotoPage,
             };
+            if (fotoSort) { p.sort = fotoSort; p.dir = fotoDir; }
+            return p;
         }
 
         function thumbHtml(url, label) {
@@ -1248,7 +1274,7 @@
         ARSIP PDF AJAX
         ================================================================ */
         function getPdfParams() {
-            return {
+            const p = {
                 search:         document.getElementById('pdf-search')?.value ?? '',
                 tanggal_dari:   document.getElementById('pdf-dari')?.value ?? '',
                 tanggal_sampai: document.getElementById('pdf-sampai')?.value ?? '',
@@ -1257,6 +1283,8 @@
                 per_page:       pdfPerPage,
                 page:           pdfPage,
             };
+            if (pdfSort) { p.sort = pdfSort; p.dir = pdfDir; }
+            return p;
         }
 
         async function fetchPdf(scroll = false) {
@@ -1287,6 +1315,7 @@
                         : '<tr><td colspan="7" class="portal-empty">Belum ada laporan PDF.</td></tr>';
                 }
                 mountPortalPagination('pdf', json.pagination_html);
+                if (window.AdminTableSort) window.AdminTableSort.syncAria(document.getElementById('pdf-thead'), json.sort ?? null, json.dir ?? null);
                 if (scroll) scrollToSection('section-pdf');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchPdf error', e);
@@ -1329,11 +1358,29 @@
                 [`${p}-nopol`,`${p}-shift`].forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex=0; });
                 const ppEl = document.getElementById(`${p}-perpage`);
                 if (ppEl) { ppEl.value = '10'; }
-                if (p === 'db')   { dbPerPage=10;   dbPage=1;   fetchDb(); }
-                if (p === 'foto') { fotoPerPage=10; fotoPage=1; fetchFoto(); }
-                if (p === 'pdf')  { pdfPerPage=10;  pdfPage=1;  fetchPdf(); }
+                if (p === 'db')   { dbPerPage=10;   dbPage=1;   dbSort='';   dbDir='';   fetchDb(); }
+                if (p === 'foto') { fotoPerPage=10; fotoPage=1; fotoSort=''; fotoDir=''; fetchFoto(); }
+                if (p === 'pdf')  { pdfPerPage=10;  pdfPage=1;  pdfSort='';  pdfDir='';  fetchPdf(); }
             });
         });
+
+        // Sort header wiring for DB and PDF tables
+        if (window.AdminTableSort) {
+            const dbWrap = document.getElementById('db-all-thead')?.closest('.admin-table-wrap');
+            if (dbWrap) {
+                window.AdminTableSort.bindRoot(dbWrap, {
+                    getUrl: () => new URL(location.href),
+                    onNavigate: (url) => { dbSort = url.searchParams.get('sort') || ''; dbDir = url.searchParams.get('dir') || ''; dbPage = 1; fetchDb(); },
+                });
+            }
+            const pdfWrap = document.getElementById('pdf-thead')?.closest('.admin-table-wrap');
+            if (pdfWrap) {
+                window.AdminTableSort.bindRoot(pdfWrap, {
+                    getUrl: () => new URL(location.href),
+                    onNavigate: (url) => { pdfSort = url.searchParams.get('sort') || ''; pdfDir = url.searchParams.get('dir') || ''; pdfPage = 1; fetchPdf(); },
+                });
+            }
+        }
 
         /* ================================================================
         GLOBAL SEARCH & FILTER

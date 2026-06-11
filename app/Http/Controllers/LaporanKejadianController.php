@@ -6,6 +6,7 @@ use App\Mail\LaporanKejadianApprovalMail;
 use App\Models\Bidang;
 use App\Models\Kendaraan;
 use App\Support\AdminTablePagination;
+use App\Support\TableSort;
 use App\Models\LaporanKejadian;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
@@ -239,25 +240,42 @@ class LaporanKejadianController extends Controller
             'nearmiss' => LaporanKejadian::where('kategori', 'Nearmiss')->count(),
         ];
 
+        $sortState = TableSort::current($request, self::LK_SORT_ALLOWED);
+
         if ($request->expectsJson()) {
             return response()->json([
                 'tbody' => view('admin.partials.laporan-kejadian-rows', compact('laporans'))->render(),
                 'pagination_html' => AdminTablePagination::linksHtml($laporans, route('admin.laporan-kejadian.index')),
                 'per_page' => $laporans->perPage(),
+                'sort' => $sortState['sort'] ?? null,
+                'dir'  => $sortState['dir']  ?? null,
             ]);
         }
 
-        return view('admin.laporan-kejadian.index', compact('laporans', 'stats'));
+        $activeSort = $sortState['sort'] ?? null;
+        $activeDir  = $sortState['dir']  ?? null;
+
+        return view('admin.laporan-kejadian.index', compact('laporans', 'stats', 'activeSort', 'activeDir'));
     }
 
     /**
      * @return Builder<LaporanKejadian>
      */
+    private const LK_SORT_ALLOWED = [
+        'nama'            => 'nama',
+        'created_at'      => 'created_at',
+        'kategori'        => 'kategori',
+        'lokasi_kejadian' => 'lokasi_kejadian',
+        'nomor_kendaraan' => 'nomor_kendaraan',
+    ];
+
     private function adminLaporanQuery(Request $request): Builder
     {
-        $query = LaporanKejadian::query()
-            ->with(['bidang.parent'])
-            ->orderByDesc('created_at');
+        $query = LaporanKejadian::query()->with(['bidang.parent']);
+
+        TableSort::apply($query, $request, self::LK_SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('created_at');
+        });
 
         if ($search = trim((string) $request->input('search'))) {
             $query->where(function ($q) use ($search) {

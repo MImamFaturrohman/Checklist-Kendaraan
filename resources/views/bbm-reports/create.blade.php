@@ -162,7 +162,7 @@
 @section('content')
 <div class="checklist-shell" data-bbm-form>
     <main class="checklist-content">
-        <form id="bbm-report-form" class="checklist-card" action="{{ route('bbm-reports.store') }}" method="post" enctype="multipart/form-data" data-dashboard-url="{{ route('dashboard') }}" novalidate>
+        <form id="bbm-report-form" class="checklist-card" action="{{ route('bbm-reports.store') }}" method="post" enctype="multipart/form-data" data-dashboard-url="{{ route('dashboard') }}" data-shift-badge-class="{{ \App\Support\DriverShift::badgeClassFromCode($bbmShiftCode) }}" data-shift-icon-class="{{ \App\Support\DriverShift::iconClassFromCode($bbmShiftCode) }}" novalidate>
             @csrf
 
             @if ($errors->any())
@@ -216,9 +216,13 @@
                         </div>
                     </label>
                     <label class="checklist-field checklist-field-span">
-                        <span><i class="bi bi-brightness-high bbm-field-icon" aria-hidden="true"></i> Shift</span>
+                        <span><i class="{{ \App\Support\DriverShift::iconClassFromCode($bbmShiftCode) }} bbm-field-icon" aria-hidden="true"></i> Shift</span>
                         <div class="checklist-control-wrap">
-                            <input type="text" id="bbm-shift-label" value="{{ $shiftLabel }}" readonly>
+                            <input type="hidden" id="bbm-shift-label" value="{{ $shiftLabel }}">
+                            <span class="bbm-shift-badge bbm-shift-badge--form {{ \App\Support\DriverShift::badgeClassFromCode($bbmShiftCode) }}" aria-live="polite">
+                                <i class="{{ \App\Support\DriverShift::iconClassFromCode($bbmShiftCode) }}" aria-hidden="true"></i>
+                                {{ $shiftLabel }}
+                            </span>
                         </div>
                     </label>
                 </div>

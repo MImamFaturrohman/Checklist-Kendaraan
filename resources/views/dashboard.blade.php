@@ -56,8 +56,7 @@
                 <h2 class="dash-hero-name">Panel Persetujuan</h2>
             @else
                 <p class="dash-hero-kicker" style="text-transform: none;">
-                    <span class="dash-hero-kicker-dot"></span>
-                    Selamat bertugas,
+                    Selamat Bertugas,
                 </p>
                 <h2 class="dash-hero-name">{{ $userName }}</h2>
             @endif
@@ -73,7 +72,10 @@
                 </span>
                 @endif
                 @if($isDriver)
-                    <span class="dash-hero-shift dash-clock-shift" id="dash-hero-shift">—</span>
+                    <span class="dash-hero-shift dash-clock-shift" id="dash-hero-shift">
+                        <i id="dash-hero-shift-icon" class="bi bi-sunrise-fill" aria-hidden="true"></i>
+                        <span id="dash-hero-shift-label">—</span>
+                    </span>
                 @endif
                 @if(($isSuperAdmin || $isManager) && $pendingCount > 0)
                     <span class="dash-tag" style="background:rgba(239,68,68,0.18);color:#fca5a5;border:1px solid rgba(239,68,68,0.35)">
@@ -131,7 +133,7 @@
                                 </p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true" style="position:relative">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
                                 @if($pendingCount > 0)<span class="dash-pending-dot"></span>@endif
                             </span>
                         </a>
@@ -147,7 +149,7 @@
                                 </p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true" style="position:relative">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-clipboard-data-fill" aria-hidden="true"></i>
                                 @if($sppdPendingManager > 0)<span class="dash-pending-dot"></span>@endif
                             </span>
                         </a>
@@ -157,7 +159,7 @@
                                 <p class="dash-main-sub">Ringkasan kartu &amp; grafik liter / biaya pengisian</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M6 20V10M18 20V10M4 20h16M8 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 14h.01M15 14h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                <i class="bi bi-fuel-pump-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-main-card dash-pressable">
@@ -166,7 +168,7 @@
                                 <p class="dash-main-sub">Ringkasan ceklist, unit, shift &amp; grafik BBM</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
+                                <i class="bi bi-database-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                     </div>
@@ -182,7 +184,7 @@
                                 <p class="dash-main-sub">Database, foto fisik &amp; arsip PDF</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
+                                <i class="bi bi-database-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.peminjaman') }}" class="dash-main-card dash-pressable" style="position:relative">
@@ -191,7 +193,7 @@
                                 <p class="dash-main-sub">Daftar permohonan &amp; unduh PDF</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-clipboard2-fill" aria-hidden="true"></i>
                             </span>
                             @if($pendingCount > 0)<span class="dash-pending-dot" style="top:18px;right:18px"></span>@endif
                         </a>
@@ -201,7 +203,7 @@
                                 <p class="dash-main-sub">Daftar laporan incident / near miss &amp; unduh PDF</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.vehicle-usage-logs.index') }}" class="dash-main-card dash-pressable">
@@ -210,7 +212,7 @@
                                 <p class="dash-main-sub">Riwayat jam pakai &amp; keperluan dari driver</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-journal-bookmark-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.portal-manajemen') }}" class="dash-main-card dash-pressable">
@@ -219,7 +221,7 @@
                                 <p class="dash-main-sub">Master armada &amp; Manajemen user</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-people-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.portal-bbm-operasional') }}" class="dash-main-card dash-pressable">
@@ -228,20 +230,7 @@
                                 <p class="dash-main-sub">Insight liter, biaya &amp; laporan pengisian BBM</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 56V14C18 10.6863 20.6863 8 24 8H38C41.3137 8 44 10.6863 44 14V56" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <rect x="24" y="16" width="14" height="12" rx="2" 
-                                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-                                    <path d="M14 56H48" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-                                    <path d="M44 20H50C52.2091 20 54 21.7909 54 24V42C54 44.2091 52.2091 46 50 46C47.7909 46 46 44.2091 46 42V34" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M44 34H54" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-                                    <path d="M31 35C31 35 25 42 25 47C25 50.3137 27.6863 53 31 53C34.3137 53 37 50.3137 37 47C37 42 31 35 31 35Z" 
-                                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-                                </svg>
+                                <i class="bi bi-fuel-pump-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('checklists.create') }}" class="dash-main-card dash-pressable">
@@ -250,7 +239,7 @@
                                 <p class="dash-main-sub">Mulai inspeksi unit hari ini</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M9 2H15V6H9V2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12L11.2 14.2L15 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.sppd.index') }}" class="dash-main-card dash-pressable">
@@ -259,7 +248,7 @@
                                 <p class="dash-main-sub">Verifikasi biaya dinas driver</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-clipboard-data-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                     </div>
@@ -275,7 +264,7 @@
                                 <p class="dash-main-sub">Lihat info ringkas dan chart pemeriksaan</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
+                                <i class="bi bi-database-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.sppd.index') }}" class="dash-main-card dash-pressable">
@@ -284,7 +273,7 @@
                                 <p class="dash-main-sub">Verifikasi laporan biaya dinas driver</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-clipboard-data-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                     </div>
@@ -301,39 +290,28 @@
                                 <p class="dash-main-sub">Mulai inspeksi unit hari ini</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M9 2H15V6H9V2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12L11.2 14.2L15 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i>
                             </span>
                         </a>
+                        @if (!$isPic)
                         <a href="{{ route('sppd.index') }}" class="dash-main-card dash-pressable">
                             <div>
                                 <p class="dash-main-title">TransDinas</p>
                                 <p class="dash-main-sub">Laporan tol, dan BBM</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <i class="bi bi-clipboard-data-fill" aria-hidden="true"></i>
                             </span>
                         </a>
-                        @if ($user?->role === 'driver' || $user?->role === 'pic_kendaraan')
+                        @endif
+                        @if ($isDriver)
                         <a href="{{ route('bbm-reports.create') }}" class="dash-main-card dash-pressable">
                             <div>
                                 <p class="dash-main-title">Form Pengisian BBM</p>
                                 <p class="dash-main-sub">Laporan liter, struk &amp; foto odometer</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 56V14C18 10.6863 20.6863 8 24 8H38C41.3137 8 44 10.6863 44 14V56" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <rect x="24" y="16" width="14" height="12" rx="2" 
-                                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-                                    <path d="M14 56H48" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-                                    <path d="M44 20H50C52.2091 20 54 21.7909 54 24V42C54 44.2091 52.2091 46 50 46C47.7909 46 46 44.2091 46 42V34" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M44 34H54" 
-                                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-                                    <path d="M31 35C31 35 25 42 25 47C25 50.3137 27.6863 53 31 53C34.3137 53 37 50.3137 37 47C37 42 31 35 31 35Z" 
-                                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-                                </svg>
+                                <i class="bi bi-fuel-pump-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         @endif
@@ -344,7 +322,7 @@
                                 <p class="dash-main-sub">Catat jam pakai unit &amp; keperluan</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+                                <i class="bi bi-truck-front-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         @endif
@@ -374,9 +352,9 @@
     const DAYS   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
     const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
     function getShift(hour) {
-        if (hour >= 7  && hour < 12) return { label: 'Shift Pagi',  cls: 'shift-pagi' };
-        if (hour >= 12 && hour < 16) return { label: 'Shift Siang', cls: 'shift-siang' };
-        return { label: 'Di Luar Shift', cls: 'shift-none' };
+        if (hour >= 7  && hour < 12) return { label: 'Shift Pagi',  cls: 'shift-pagi',  icon: 'bi bi-brightness-alt-high-fill' };
+        if (hour >= 12 && hour < 16) return { label: 'Shift Siang', cls: 'shift-siang', icon: 'bi bi-sun-fill' };
+        return { label: 'Di Luar Shift', cls: 'shift-none', icon: 'bi bi-moon-fill' };
     }
     function tick() {
         const now   = new Date();
@@ -388,7 +366,13 @@
         const shiftEl = document.getElementById('dash-hero-shift');
         if (dateEl) dateEl.textContent = `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
         if (timeEl) timeEl.textContent = `${hh}:${mm} WIB`;
-        if (shiftEl) { shiftEl.textContent = shift.label; shiftEl.className = 'dash-hero-shift dash-clock-shift ' + shift.cls; }
+        if (shiftEl) {
+            shiftEl.className = 'dash-hero-shift dash-clock-shift ' + shift.cls;
+            const iconEl = document.getElementById('dash-hero-shift-icon');
+            const labelEl = document.getElementById('dash-hero-shift-label');
+            if (iconEl) iconEl.className = shift.icon;
+            if (labelEl) labelEl.textContent = shift.label;
+        }
     }
     tick();
     window._dashClockInterval = setInterval(tick, 1000);

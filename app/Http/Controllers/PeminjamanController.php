@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\AdminTablePagination;
+use App\Support\TableSort;
 use App\Models\Bidang;
 use App\Models\Kendaraan;
 use App\Models\PeminjamanRequest;
@@ -72,27 +73,50 @@ class PeminjamanController extends Controller
         ]);
     }
 
+    private const MGR_PEMINJAMAN_PENDING_SORT = [
+        'nama_lengkap'   => 'nama_lengkap',
+        'nomor_kendaraan'=> 'nomor_kendaraan',
+        'created_at'     => 'created_at',
+    ];
+
+    private const MGR_PEMINJAMAN_HISTORY_SORT = [
+        'nama_lengkap'   => 'nama_lengkap',
+        'nomor_kendaraan'=> 'nomor_kendaraan',
+        'status'         => 'status',
+        'updated_at'     => 'updated_at',
+    ];
+
     public function managerIndex(Request $request)
     {
         abort_unless(auth()->user()?->role === 'manager', 403);
 
         PeminjamanRequest::expirePendingPastBorrowDate();
 
-        $pendingRequests = PeminjamanRequest::where('status', 'pending')
-            ->with('bidang.parent')
-            ->orderByDesc('created_at')
-            ->paginate(10, ['*'], 'pending_page')
-            ->onEachSide(0)
-            ->withQueryString();
+        $pendingQuery = PeminjamanRequest::where('status', 'pending')->with('bidang.parent');
+        TableSort::apply($pendingQuery, $request, self::MGR_PEMINJAMAN_PENDING_SORT, function ($q) {
+            $q->orderByDesc('created_at');
+        }, 'pending');
+        $pendingRequests = $pendingQuery->paginate(10, ['*'], 'pending_page')->onEachSide(0)->withQueryString();
 
-        $historyRequests = PeminjamanRequest::whereIn('status', ['approved', 'rejected', 'expired'])
-            ->with(['approver', 'bidang.parent'])
-            ->orderByDesc('updated_at')
-            ->paginate(10, ['*'], 'history_page')
-            ->onEachSide(0)
-            ->withQueryString();
+        $historyQuery = PeminjamanRequest::whereIn('status', ['approved', 'rejected', 'expired'])->with(['approver', 'bidang.parent']);
+        TableSort::apply($historyQuery, $request, self::MGR_PEMINJAMAN_HISTORY_SORT, function ($q) {
+            $q->orderByDesc('updated_at');
+        }, 'history');
+        $historyRequests = $historyQuery->paginate(10, ['*'], 'history_page')->onEachSide(0)->withQueryString();
 
-        return view('manager.peminjaman', compact('pendingRequests', 'historyRequests'));
+        $pendingSortState  = TableSort::current($request, self::MGR_PEMINJAMAN_PENDING_SORT, 'pending');
+        $historySortState  = TableSort::current($request, self::MGR_PEMINJAMAN_HISTORY_SORT, 'history');
+
+        $pendingActiveSort  = $pendingSortState['sort']  ?? null;
+        $pendingActiveDir   = $pendingSortState['dir']   ?? null;
+        $historyActiveSort  = $historySortState['sort']  ?? null;
+        $historyActiveDir   = $historySortState['dir']   ?? null;
+
+        return view('manager.peminjaman', compact(
+            'pendingRequests', 'historyRequests',
+            'pendingActiveSort', 'pendingActiveDir',
+            'historyActiveSort', 'historyActiveDir'
+        ));
     }
 
     public function approve(Request $request, PeminjamanRequest $peminjaman): JsonResponse
@@ -239,23 +263,42 @@ class PeminjamanController extends Controller
             'permohonan' => $stats['total'],
         ];
 
+        $sortState = TableSort::current($request, self::PPM_SORT_ALLOWED);
+
         if ($request->expectsJson()) {
             return response()->json([
                 'tbody' => view('admin.partials.peminjaman-request-rows', compact('requests'))->render(),
                 'pagination_html' => AdminTablePagination::linksHtml($requests, route('admin.peminjaman')),
                 'per_page' => $requests->perPage(),
+                'sort' => $sortState['sort'] ?? null,
+                'dir'  => $sortState['dir']  ?? null,
             ]);
         }
 
-        return view('admin.peminjaman', compact('requests', 'stats', 'tabCounts'));
+        $activeSort = $sortState['sort'] ?? null;
+        $activeDir  = $sortState['dir']  ?? null;
+
+        return view('admin.peminjaman', compact('requests', 'stats', 'tabCounts', 'activeSort', 'activeDir'));
     }
 
     /**
      * @return Builder<PeminjamanRequest>
      */
+    private const PPM_SORT_ALLOWED = [
+        'nama_lengkap'   => 'nama_lengkap',
+        'nomor_kendaraan'=> 'nomor_kendaraan',
+        'status'         => 'status',
+        'created_at'     => 'created_at',
+        'updated_at'     => 'updated_at',
+    ];
+
     private function adminPeminjamanRequestsQuery(Request $request)
     {
-        $query = PeminjamanRequest::with(['approver', 'bidang.parent'])->orderByDesc('created_at');
+        $query = PeminjamanRequest::with(['approver', 'bidang.parent']);
+
+        TableSort::apply($query, $request, self::PPM_SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('created_at');
+        });
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {

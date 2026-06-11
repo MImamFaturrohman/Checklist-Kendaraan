@@ -74,7 +74,7 @@
     border: 1px solid rgba(11, 44, 107, 0.12);
 }
 .dash-body.dark .swal2-popup.cl-swal-dialog {
-    background: #1e293b !important;
+    background: rgba(16, 38, 80, 0.78) !important;
     border-color: rgba(148, 163, 184, 0.2);
     color: #f1f5f9 !important;
 }
@@ -94,6 +94,7 @@
 .cl-swal-dialog .swal2-styled.swal2-confirm {
     margin: 0 !important;
     background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+    filter: brightness(1.3);
     color: #fff !important;
     border: none !important;
     border-radius: 12px !important;

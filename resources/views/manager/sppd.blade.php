@@ -17,13 +17,25 @@
         <div class="portal-wrapper">
             <div id="mgr-sppd-live-root" data-vms-sppd-live>
             @fragment('manager-sppd-body')
+            {{-- Hidden form carrying scoped sort state for the SPPD fragment handler --}}
+            <form method="get" action="{{ route('manager.sppd') }}" style="display:none" id="mgr-sppd-sort-form">
+                <input type="hidden" name="pending_sort" value="{{ $pendingActiveSort ?? '' }}">
+                <input type="hidden" name="pending_dir"  value="{{ $pendingActiveDir  ?? '' }}">
+                <input type="hidden" name="history_sort" value="{{ $historyActiveSort ?? '' }}">
+                <input type="hidden" name="history_dir"  value="{{ $historyActiveDir  ?? '' }}">
+            </form>
 
             <div class="portal-section-header" style="margin-bottom:12px">
                 <div class="portal-section-title">Menunggu Persetujuan</div>
             </div>
-            <div class="admin-table-wrap">
+            <div class="admin-table-wrap" data-sort-scope="pending">
                 <table class="admin-table">
-                    <thead><tr><th>Driver</th><th>Ringkasan</th><th>Kendaraan</th><th>Aksi</th></tr></thead>
+                    <thead><tr>
+                        <x-sortable-th key="nama_driver" label="Driver" :activeSort="$pendingActiveSort ?? null" :activeDir="$pendingActiveDir ?? null" scope="pending" />
+                        <th>Ringkasan</th>
+                        <x-sortable-th key="no_kendaraan" label="Kendaraan" :activeSort="$pendingActiveSort ?? null" :activeDir="$pendingActiveDir ?? null" scope="pending" />
+                        <th>Aksi</th>
+                    </tr></thead>
                     <tbody>
                         @forelse($pending as $s)
                             <tr>
@@ -55,9 +67,15 @@
             <div class="portal-section-header" style="margin:28px 0 12px">
                 <div class="portal-section-title">Riwayat</div>
             </div>
-            <div class="admin-table-wrap">
+            <div class="admin-table-wrap" data-sort-scope="history">
                 <table class="admin-table">
-                    <thead><tr><th>Driver</th><th>Ringkasan</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+                    <thead><tr>
+                        <x-sortable-th key="nama_driver" label="Driver" :activeSort="$historyActiveSort ?? null" :activeDir="$historyActiveDir ?? null" scope="history" />
+                        <th>Ringkasan</th>
+                        <x-sortable-th key="status" label="Status" :activeSort="$historyActiveSort ?? null" :activeDir="$historyActiveDir ?? null" scope="history" />
+                        <x-sortable-th key="updated_at" label="Tanggal" :activeSort="$historyActiveSort ?? null" :activeDir="$historyActiveDir ?? null" scope="history" />
+                        <th>Aksi</th>
+                    </tr></thead>
                     <tbody>
                         @forelse($history as $s)
                             @php

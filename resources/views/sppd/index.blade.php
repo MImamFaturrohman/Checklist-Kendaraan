@@ -44,15 +44,17 @@
                     name="per_page"
                     :selected="(int) request('per_page', $sppds->perPage())"
                 />
+                <input type="hidden" name="sort" value="{{ $activeSort ?? '' }}">
+                <input type="hidden" name="dir"  value="{{ $activeDir  ?? '' }}">
             </form>
 
             <div class="admin-table-wrap sppd-table-wrap">
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>Ringkasan</th>
-                            <th>Kendaraan</th>
-                            <th>Status</th>
+                            <x-sortable-th key="keperluan_dinas" label="Ringkasan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                            <x-sortable-th key="no_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                            <x-sortable-th key="status" label="Status" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                             <th class="sppd-th-aksi">Aksi</th>
                         </tr>
                     </thead>

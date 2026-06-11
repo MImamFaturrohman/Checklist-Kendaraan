@@ -6,11 +6,13 @@ import 'tom-select/dist/css/tom-select.bootstrap5.css';
 import * as Turbo from '@hotwired/turbo';
 import Swal from 'sweetalert2';
 import * as AdminPagination from './admin-pagination';
+import * as AdminTableSort from './admin-table-sort';
 
 window.Alpine    = Alpine;
 window.SignaturePad = SignaturePad;
 window.Swal      = Swal;
 window.AdminPagination = AdminPagination;
+window.AdminTableSort  = AdminTableSort;
 
 Turbo.start();
 Alpine.start();
@@ -453,7 +455,33 @@ document.addEventListener('turbo:load', async () => {
                 history.replaceState({}, '', fullUrl);
             } catch (_) { window.location.href = fullUrl; }
         }
+        function syncFromForms() {
+            const url = new URL(window.location.pathname, window.location.origin);
+            collectParams().forEach((v, k) => url.searchParams.set(k, v));
+            resetPaging(url); fetchFragment(url.toString());
+        }
         root.addEventListener('click', (e) => {
+            const th = e.target.closest('th[data-sort]');
+            if (th && root.contains(th)) {
+                e.preventDefault();
+                const key = th.dataset.sort;
+                // Determine scope from closest ancestor with data-sort-scope
+                const scopeWrap = th.closest('[data-sort-scope]');
+                const scope = scopeWrap ? scopeWrap.dataset.sortScope : null;
+                const sortName = scope ? `${scope}_sort` : 'sort';
+                const dirName  = scope ? `${scope}_dir`  : 'dir';
+                const form = root.querySelector('form');
+                if (form) {
+                    const curSort = form.querySelector(`[name="${sortName}"]`)?.value || '';
+                    const curDir  = form.querySelector(`[name="${dirName}"]`)?.value  || '';
+                    const next = AdminTableSort.cycleSort(curSort, curDir, key);
+                    const sortEl = form.querySelector(`[name="${sortName}"]`);
+                    const dirEl  = form.querySelector(`[name="${dirName}"]`);
+                    if (sortEl) sortEl.value = next.clear ? '' : next.sort;
+                    if (dirEl)  dirEl.value  = next.clear ? '' : next.dir;
+                }
+                syncFromForms(); return;
+            }
             const a = e.target.closest('.tbl-pagination a[href]');
             if (!a || !root.contains(a)) return;
             e.preventDefault(); fetchFragment(a.href);
@@ -515,6 +543,22 @@ document.addEventListener('turbo:load', async () => {
             resetPaging(url); fetchFragment(url.toString());
         }
         root.addEventListener('click', (e) => {
+            const th = e.target.closest('th[data-sort]');
+            if (th && root.contains(th)) {
+                e.preventDefault();
+                const key = th.dataset.sort;
+                const form = root.querySelector('#bbm-portal-filter-form');
+                if (form) {
+                    const curSort = form.querySelector('[name="sort"]')?.value || '';
+                    const curDir  = form.querySelector('[name="dir"]')?.value  || '';
+                    const next = AdminTableSort.cycleSort(curSort, curDir, key);
+                    const sortEl = form.querySelector('[name="sort"]');
+                    const dirEl  = form.querySelector('[name="dir"]');
+                    if (sortEl) sortEl.value = next.clear ? '' : next.sort;
+                    if (dirEl)  dirEl.value  = next.clear ? '' : next.dir;
+                }
+                syncFromForms(); return;
+            }
             const resetBtn = e.target.closest('[data-bbm-portal-reset]');
             if (resetBtn && root.contains(resetBtn)) {
                 e.preventDefault();
@@ -522,6 +566,8 @@ document.addEventListener('turbo:load', async () => {
                 if (form) {
                     ['q','shift','jenis_pengisian','date_from','date_to'].forEach(n => { const el = form.querySelector(`[name="${n}"]`); if (el) el.value = ''; });
                     const pp = form.querySelector('[name="per_page"]'); if (pp) pp.value = '25';
+                    const sortEl = form.querySelector('[name="sort"]'); if (sortEl) sortEl.value = '';
+                    const dirEl  = form.querySelector('[name="dir"]');  if (dirEl)  dirEl.value  = '';
                 }
                 syncFromForms(); return;
             }
@@ -579,6 +625,22 @@ document.addEventListener('turbo:load', async () => {
             resetPaging(url); fetchFragment(url.toString());
         }
         root.addEventListener('click', (e) => {
+            const th = e.target.closest('th[data-sort]');
+            if (th && root.contains(th)) {
+                e.preventDefault();
+                const key = th.dataset.sort;
+                const form = root.querySelector('#vul-logs-filter-form');
+                if (form) {
+                    const curSort = form.querySelector('[name="sort"]')?.value || '';
+                    const curDir  = form.querySelector('[name="dir"]')?.value  || 'asc';
+                    const newDir  = (curSort === key) ? (curDir === 'asc' ? 'desc' : 'asc') : 'asc';
+                    const sortEl = form.querySelector('[name="sort"]');
+                    const dirEl  = form.querySelector('[name="dir"]');
+                    if (sortEl) sortEl.value = key;
+                    if (dirEl)  dirEl.value  = newDir;
+                }
+                syncFromForms(); return;
+            }
             const resetBtn = e.target.closest('[data-vul-logs-reset]');
             if (resetBtn && root.contains(resetBtn)) {
                 e.preventDefault();
@@ -586,6 +648,8 @@ document.addEventListener('turbo:load', async () => {
                 if (form) {
                     ['q','date_from','date_to'].forEach(n => { const el = form.querySelector(`[name="${n}"]`); if (el) el.value = ''; });
                     const pp = form.querySelector('[name="per_page"]'); if (pp) pp.value = '25';
+                    const sortEl = form.querySelector('[name="sort"]'); if (sortEl) sortEl.value = '';
+                    const dirEl  = form.querySelector('[name="dir"]');  if (dirEl)  dirEl.value  = '';
                 }
                 syncFromForms(); return;
             }

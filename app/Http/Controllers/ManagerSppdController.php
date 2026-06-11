@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sppd;
+use App\Support\TableSort;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,20 @@ class ManagerSppdController extends Controller
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
 
+    private const PENDING_SORT_ALLOWED = [
+        'nama_driver'   => 'nama_driver',
+        'no_kendaraan'  => 'no_kendaraan',
+        'tanggal_dinas' => 'tanggal_dinas',
+        'created_at'    => 'created_at',
+    ];
+
+    private const HISTORY_SORT_ALLOWED = [
+        'nama_driver'   => 'nama_driver',
+        'no_kendaraan'  => 'no_kendaraan',
+        'status'        => 'status',
+        'updated_at'    => 'updated_at',
+    ];
+
     private function resolveManagerSppdPerPage(Request $request): int
     {
         $n = (int) $request->query('per_page', 12);
@@ -34,25 +49,29 @@ class ManagerSppdController extends Controller
 
         $pendingQuery = Sppd::query()
             ->where('status', Sppd::STATUS_PENDING_MANAGER)
-            ->with(['user:id,name,username', 'tolls', 'fuels'])
-            ->orderByDesc('created_at');
+            ->with(['user:id,name,username', 'tolls', 'fuels']);
+        TableSort::apply($pendingQuery, $request, self::PENDING_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'), 'pending');
 
         $historyQuery = Sppd::query()
             ->whereIn('status', [Sppd::STATUS_APPROVED, Sppd::STATUS_REJECTED, Sppd::STATUS_COMPLETED])
-            ->with(['user:id,name,username', 'approver:id,name'])
-            ->orderByDesc('updated_at');
+            ->with(['user:id,name,username', 'approver:id,name']);
+        TableSort::apply($historyQuery, $request, self::HISTORY_SORT_ALLOWED, fn ($q) => $q->orderByDesc('updated_at'), 'history');
 
-        $pending = $pendingQuery
-            ->paginate($perPage, ['*'], 'pending_page')
-            ->onEachSide(0)
-            ->withQueryString();
+        $pending = $pendingQuery->paginate($perPage, ['*'], 'pending_page')->onEachSide(0)->withQueryString();
+        $history = $historyQuery->paginate($perPage, ['*'], 'history_page')->onEachSide(0)->withQueryString();
 
-        $history = $historyQuery
-            ->paginate($perPage, ['*'], 'history_page')
-            ->onEachSide(0)
-            ->withQueryString();
+        $pendingSortState  = TableSort::current($request, self::PENDING_SORT_ALLOWED, 'pending');
+        $historySortState  = TableSort::current($request, self::HISTORY_SORT_ALLOWED, 'history');
 
-        $view = view('manager.sppd', compact('pending', 'history', 'perPage'));
+        $view = view('manager.sppd', [
+            'pending'           => $pending,
+            'history'           => $history,
+            'perPage'           => $perPage,
+            'pendingActiveSort' => $pendingSortState['sort'] ?? null,
+            'pendingActiveDir'  => $pendingSortState['dir']  ?? null,
+            'historyActiveSort' => $historySortState['sort'] ?? null,
+            'historyActiveDir'  => $historySortState['dir']  ?? null,
+        ]);
 
         if ($request->header('X-VMS-SPPD-Fragment') === '1') {
             return response($view->fragment('manager-sppd-body'));

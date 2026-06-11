@@ -144,11 +144,11 @@
                         <thead>
                             <tr>
                                 <th style="width:52px">#</th>
-                                <th>Pelapor</th>
-                                <th>Waktu</th>
-                                <th>Kategori</th>
-                                <th>Lokasi</th>
-                                <th>Kendaraan</th>
+                                <x-sortable-th key="nama" label="Pelapor" :activeSort="$activeSort" :activeDir="$activeDir" />
+                                <x-sortable-th key="created_at" label="Waktu" :activeSort="$activeSort" :activeDir="$activeDir" />
+                                <x-sortable-th key="kategori" label="Kategori" :activeSort="$activeSort" :activeDir="$activeDir" />
+                                <x-sortable-th key="lokasi_kejadian" label="Lokasi" :activeSort="$activeSort" :activeDir="$activeDir" />
+                                <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort" :activeDir="$activeDir" />
                                 <th style="width: 125px; white-space:nowrap">Aksi</th>
                             </tr>
                         </thead>
@@ -231,6 +231,10 @@ window.LK_LIST_URL = @json(route('admin.laporan-kejadian.index'));
                 } else {
                     pagEl.innerHTML = data.pagination_html || '';
                 }
+                if (window.AdminTableSort) {
+                    const table = tbody.closest('table');
+                    window.AdminTableSort.syncAria(table, data.sort ?? null, data.dir ?? null);
+                }
                 syncFiltersFromUrl(u, data);
                 try {
                     history.replaceState(null, '', u.pathname + u.search);
@@ -244,6 +248,7 @@ window.LK_LIST_URL = @json(route('admin.laporan-kejadian.index'));
 
         function buildListUrl(overrides = {}) {
             const u = new URL(listUrl, location.origin);
+            const cur = new URL(location.href);
             const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
             const kategori = overrides.kategori !== undefined ? overrides.kategori : kategoriEl.value;
             const perPage = overrides.per_page !== undefined ? overrides.per_page : perPageEl.value;
@@ -256,6 +261,11 @@ window.LK_LIST_URL = @json(route('admin.laporan-kejadian.index'));
             } else {
                 u.searchParams.delete('page');
             }
+            // preserve active sort (unless explicitly overridden)
+            const sortVal = Object.prototype.hasOwnProperty.call(overrides, 'sort') ? overrides.sort : cur.searchParams.get('sort');
+            const dirVal  = Object.prototype.hasOwnProperty.call(overrides, 'dir')  ? overrides.dir  : cur.searchParams.get('dir');
+            if (sortVal) u.searchParams.set('sort', sortVal); else u.searchParams.delete('sort');
+            if (dirVal)  u.searchParams.set('dir', dirVal);   else u.searchParams.delete('dir');
             return u;
         }
 
@@ -297,8 +307,16 @@ window.LK_LIST_URL = @json(route('admin.laporan-kejadian.index'));
                 searchEl.value = '';
                 kategoriEl.value = '';
                 perPageEl.value = DEFAULT_PER_PAGE;
-                fetchListFromUrl(buildListUrl({ search: '', kategori: '', per_page: DEFAULT_PER_PAGE, page: null }));
+                fetchListFromUrl(buildListUrl({ search: '', kategori: '', per_page: DEFAULT_PER_PAGE, sort: '', dir: '', page: null }));
             }, { signal });
+        }
+
+        // Wire sort header clicks via AdminTableSort
+        if (window.AdminTableSort) {
+            window.AdminTableSort.bindRoot(root, {
+                getUrl: () => new URL(location.href),
+                onNavigate: (url) => fetchListFromUrl(url),
+            });
         }
 
         updateFilterChrome();

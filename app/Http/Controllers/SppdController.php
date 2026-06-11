@@ -7,6 +7,7 @@ use App\Models\Sppd;
 use App\Models\SppdFuel;
 use App\Models\SppdToll;
 use App\Support\SppdStatus;
+use App\Support\TableSort;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,14 @@ class SppdController extends Controller
 {
     /** @var list<int> */
     private const SPPD_PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
+
+    private const SORT_ALLOWED = [
+        'keperluan_dinas' => 'keperluan_dinas',
+        'no_kendaraan'    => 'no_kendaraan',
+        'status'          => 'status',
+        'tanggal_dinas'   => 'tanggal_dinas',
+        'created_at'      => 'created_at',
+    ];
 
     private function isDriverRole(): bool
     {
@@ -46,8 +55,9 @@ class SppdController extends Controller
 
         $query = Sppd::query()
             ->where('user_id', auth()->id())
-            ->with(['tolls', 'fuels'])
-            ->orderByDesc('created_at');
+            ->with(['tolls', 'fuels']);
+
+        TableSort::apply($query, $request, self::SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
 
         if ($q !== '') {
             $like = '%'.$q.'%';
@@ -63,13 +73,13 @@ class SppdController extends Controller
             $query->where('status', $status);
         }
 
-        $sppds = $query
-            ->paginate($perPage)
-            ->onEachSide(0)
-            ->withQueryString();
+        $sppds = $query->paginate($perPage)->onEachSide(0)->withQueryString();
+        $sortState = TableSort::current($request, self::SORT_ALLOWED);
 
         $view = view('sppd.index', [
-            'sppds' => $sppds,
+            'sppds'      => $sppds,
+            'activeSort' => $sortState['sort'] ?? null,
+            'activeDir'  => $sortState['dir']  ?? null,
         ]);
 
         if ($request->header('X-VMS-SPPD-Fragment') === '1') {

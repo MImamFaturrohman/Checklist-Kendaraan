@@ -18,13 +18,13 @@
                 <div class="portal-section-header" style="margin-bottom:12px">
                     <div class="portal-section-title">Menunggu Persetujuan</div>
                 </div>
-                <div class="admin-table-wrap">
+                <div class="admin-table-wrap" data-sort-scope="pending">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Pemohon</th>
+                                <x-sortable-th key="nama_lengkap" label="Pemohon" :activeSort="$pendingActiveSort ?? null" :activeDir="$pendingActiveDir ?? null" scope="pending" />
                                 <th>Keperluan</th>
-                                <th>Kendaraan</th>
+                                <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$pendingActiveSort ?? null" :activeDir="$pendingActiveDir ?? null" scope="pending" />
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -86,17 +86,17 @@
                 <div class="portal-section-header" style="margin:28px 0 12px">
                     <div class="portal-section-title">Riwayat</div>
                 </div>
-                <div class="admin-table-wrap">
+                <div class="admin-table-wrap" data-sort-scope="history">
                     <table class="admin-table">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Pemohon</th>
-                                <th>Kendaraan</th>
+                                <x-sortable-th key="nama_lengkap" label="Pemohon" :activeSort="$historyActiveSort ?? null" :activeDir="$historyActiveDir ?? null" scope="history" />
+                                <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$historyActiveSort ?? null" :activeDir="$historyActiveDir ?? null" scope="history" />
                                 <th>Keperluan</th>
-                                <th>Status</th>
+                                <x-sortable-th key="status" label="Status" :activeSort="$historyActiveSort ?? null" :activeDir="$historyActiveDir ?? null" scope="history" />
                                 <th>Catatan</th>
-                                <th>Diproses</th>
+                                <x-sortable-th key="updated_at" label="Diproses" :activeSort="$historyActiveSort ?? null" :activeDir="$historyActiveDir ?? null" scope="history" />
                             </tr>
                         </thead>
                         <tbody>
@@ -252,5 +252,19 @@
             }
         });
     })();
+
+    // Sort header wiring — full-page GET navigation (scoped params)
+    document.addEventListener('turbo:load', function() {
+        if (!window.AdminTableSort) return;
+        document.querySelectorAll('.admin-table-wrap[data-sort-scope]').forEach(wrap => {
+            const scope = wrap.dataset.sortScope;
+            window.AdminTableSort.bindRoot(wrap, {
+                getUrl: () => new URL(location.href),
+                onNavigate: (url) => { window.location.href = url.toString(); },
+                scope,
+                pageKey: scope === 'pending' ? 'pending_page' : 'history_page',
+            });
+        });
+    });
     </script>
 @endsection

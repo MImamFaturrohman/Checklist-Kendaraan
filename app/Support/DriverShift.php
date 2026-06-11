@@ -10,7 +10,7 @@ final class DriverShift
     public const CODES = ['pagi', 'siang', 'luar'];
 
     /**
-     * @return array{code: string, label: string, badge_class: string}
+     * @return array{code: string, label: string, badge_class: string, icon_class: string}
      */
     public static function fromHour(int $hour): array
     {
@@ -19,6 +19,7 @@ final class DriverShift
                 'code' => 'pagi',
                 'label' => 'Shift Pagi',
                 'badge_class' => 'bbm-shift-pagi',
+                'icon_class' => 'bi bi-sunrise-fill',
             ];
         }
 
@@ -27,6 +28,7 @@ final class DriverShift
                 'code' => 'siang',
                 'label' => 'Shift Siang',
                 'badge_class' => 'bbm-shift-siang',
+                'icon_class' => 'bi bi-sun-fill',
             ];
         }
 
@@ -34,11 +36,17 @@ final class DriverShift
             'code' => 'luar',
             'label' => 'Di Luar Shift',
             'badge_class' => 'bbm-shift-luar',
+            'icon_class' => 'bi bi-moon-fill',
         ];
     }
 
+    public static function iconClassFromCode(?string $code): string
+    {
+        return self::fromCode($code)['icon_class'];
+    }
+
     /**
-     * @return array{code: string, label: string, badge_class: string}
+     * @return array{code: string, label: string, badge_class: string, icon_class: string}
      */
     public static function current(): array
     {
@@ -68,7 +76,7 @@ final class DriverShift
     }
 
     /**
-     * @return array{code: string, label: string, badge_class: string}
+     * @return array{code: string, label: string, badge_class: string, icon_class: string}
      */
     public static function fromCode(?string $code): array
     {

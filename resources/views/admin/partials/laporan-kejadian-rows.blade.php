@@ -21,7 +21,7 @@
             <span class="mgmt-nopol">{{ $row->nomor_kendaraan }}</span>
             <div class="lk-admin-meta">{{ $row->jenis_kendaraan }}</div>
         </td>
-        <td>
+        <td style="width: 127px;">
             @if($row->manager_approval_token)
                 <span class="lk-pending">
                     <i class="bi bi-hourglass-split"></i> Pending Approval

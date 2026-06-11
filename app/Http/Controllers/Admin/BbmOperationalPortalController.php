@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BbmReport;
 use App\Models\Kendaraan;
 use App\Support\DriverShift;
+use App\Support\TableSort;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,17 @@ class BbmOperationalPortalController extends Controller
     private const PER_PAGE_OPTIONS = [5, 10, 25, 50, 100];
 
     private const MONTH_SHORT_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    private const SORT_ALLOWED = [
+        'tanggal'         => 'tanggal',
+        'waktu'           => 'waktu',
+        'shift'           => 'shift',
+        'nomor_kendaraan' => 'nomor_kendaraan',
+        'liter'           => 'liter',
+        'total_harga'     => 'total_harga',
+        'odometer_sebelum'=> 'odometer_sebelum',
+        'odometer_sesudah'=> 'odometer_sesudah',
+    ];
 
     private function authorizePortalAccess(): void
     {
@@ -401,13 +413,13 @@ class BbmOperationalPortalController extends Controller
             $reportsQuery->whereRaw('0 = 1');
         }
 
-        $reports = $reportsQuery
-            ->orderByDesc('tanggal')
-            ->orderByDesc('waktu')
-            ->orderByDesc('id')
-            ->paginate($perPage)
-            ->onEachSide(0)
-            ->withQueryString();
+        TableSort::apply($reportsQuery, $request, self::SORT_ALLOWED, function ($q) {
+            $q->orderByDesc('tanggal')->orderByDesc('waktu')->orderByDesc('id');
+        });
+
+        $reports = $reportsQuery->paginate($perPage)->onEachSide(0)->withQueryString();
+
+        $sortState = TableSort::current($request, self::SORT_ALLOWED);
 
         $payload = [
             'stats' => [
@@ -432,6 +444,8 @@ class BbmOperationalPortalController extends Controller
             'bbmPortalJenisPengisian' => $jenisPengisianFilter,
             'bbmPortalDateFrom' => $dateFrom,
             'bbmPortalDateTo' => $dateTo,
+            'activeSort' => $sortState['sort'] ?? null,
+            'activeDir'  => $sortState['dir']  ?? null,
         ];
 
         $view = view('admin.bbm-operational-portal', $payload);
@@ -468,6 +482,7 @@ class BbmOperationalPortalController extends Controller
                 'shift_code' => $shiftCode,
                 'shift_label' => DriverShift::tableLabelFromCode($shiftCode),
                 'shift_badge_class' => DriverShift::badgeClassFromCode($shiftCode),
+                'shift_icon_class' => DriverShift::iconClassFromCode($shiftCode),
                 'odometer_sebelum' => (string) (int) $bbmReport->odometer_sebelum,
                 'odometer_sesudah' => (string) (int) $bbmReport->odometer_sesudah,
                 'total_km' => (string) $totalKm,

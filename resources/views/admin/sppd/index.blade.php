@@ -43,6 +43,8 @@
                         </select>
                     </div>
                     <x-admin-per-page-select id="admin-sppd-per-page" name="per_page" :selected="$sppds->perPage()" />
+                    <input type="hidden" name="sort" value="{{ $activeSort ?? '' }}">
+                    <input type="hidden" name="dir"  value="{{ $activeDir  ?? '' }}">
                 </form>
 
                 <div class="admin-table-wrap">
@@ -50,10 +52,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Driver</th>
-                                <th>Ringkasan</th>
-                                <th>Kendaraan</th>
-                                <th>Status</th>
+                                <x-sortable-th key="nama_driver" label="Driver" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <x-sortable-th key="keperluan_dinas" label="Ringkasan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <x-sortable-th key="no_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <x-sortable-th key="status" label="Status" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <th>Aksi</th>
                             </tr>
                         </thead>

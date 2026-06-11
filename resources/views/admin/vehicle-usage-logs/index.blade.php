@@ -58,6 +58,8 @@
                         <div class="ppm-status-wrap bbm-portal-filter-actions">
                             <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" data-vul-logs-reset title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
                         </div>
+                        <input type="hidden" name="sort" value="{{ $activeSort ?? '' }}">
+                        <input type="hidden" name="dir"  value="{{ $activeDir  ?? '' }}">
                     </form>
 
                     <div class="admin-table-wrap" style="margin-top: 16px">
@@ -65,15 +67,15 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Waktu dicatat</th>
+                                    <x-sortable-th key="created_at" label="Waktu dicatat" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Driver</th>
-                                    <th>Kendaraan</th>
+                                    <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>BBM Awal</th>
                                     <th>BBM Akhir</th>
-                                    <th>KM Awal</th>    
-                                    <th>KM Akhir</th>
+                                    <x-sortable-th key="km_awal" label="KM Awal" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                    <x-sortable-th key="km_akhir" label="KM Akhir" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Durasi</th>
-                                    <th>Keperluan</th>
+                                    <x-sortable-th key="keperluan" label="Keperluan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Kondisi Sebelum</th>
                                     <th>Kondisi Sesudah</th>
                                 </tr>

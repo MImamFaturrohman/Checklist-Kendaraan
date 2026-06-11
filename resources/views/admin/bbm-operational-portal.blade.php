@@ -576,7 +576,7 @@
                 <x-admin-stat-card
                     title="Peringatan Pengisian BBM"
                     icon="bi bi-exclamation-triangle-fill"
-                    description="Kendaraan dengan pengisian BBM paling lama"
+                    description="Kendaraan dengan jeda pengisian BBM terlama"
                 >
                     <x-slot:statValue>
                         <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
@@ -690,23 +690,25 @@
                         <div class="ppm-status-wrap bbm-portal-filter-actions">
                             <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" data-bbm-portal-reset title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
                         </div>
+                        <input type="hidden" name="sort" value="{{ $activeSort ?? '' }}">
+                        <input type="hidden" name="dir"  value="{{ $activeDir  ?? '' }}">
                     </form>
                     <div class="admin-table-wrap admin-table-wrap--bbm-reports">
                         <table class="admin-table admin-table--bbm-reports">
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Tanggal</th>
-                                    <th>Waktu</th>
-                                    <th>Shift</th>
+                                    <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                    <x-sortable-th key="waktu" label="Waktu" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                    <x-sortable-th key="shift" label="Shift" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Jenis BBM</th>
-                                    <th>Kendaraan</th>
+                                    <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Pengemudi</th>
-                                    <th>Km Sebelum</th>
-                                    <th>Km Sesudah</th>
+                                    <x-sortable-th key="odometer_sebelum" label="Km Sebelum" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                    <x-sortable-th key="odometer_sesudah" label="Km Sesudah" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Total KM</th>
-                                    <th>Volume (L)</th>
-                                    <th>Total Biaya</th>
+                                    <x-sortable-th key="liter" label="Volume (L)" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                    <x-sortable-th key="total_harga" label="Total Biaya" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -722,6 +724,7 @@
                                         <td>{{ $waktuStr }}</td>
                                         <td>
                                             <span class="bbm-shift-badge {{ \App\Support\DriverShift::badgeClassFromCode($r->shift) }}">
+                                                <i class="{{ \App\Support\DriverShift::iconClassFromCode($r->shift) }}" aria-hidden="true"></i>
                                                 {{ \App\Support\DriverShift::tableLabelFromCode($r->shift) }}
                                             </span>
                                         </td>
@@ -1183,7 +1186,8 @@
 
             function renderBbmDetail(d) {
                 const badgeCls = (d.shift_badge_class && String(d.shift_badge_class).replace(/[^a-z0-9_-]/gi, '')) || 'bbm-shift-luar';
-                const shiftHtml = `<span class="bbm-shift-badge ${esc(badgeCls)}">${esc(d.shift_label || '—')}</span>`;
+                const iconCls = (d.shift_icon_class && String(d.shift_icon_class).replace(/[^a-z0-9 _-]/gi, '').trim()) || 'bi bi-moon-fill';
+                const shiftHtml = `<span class="bbm-shift-badge ${esc(badgeCls)}"><i class="${esc(iconCls)}" aria-hidden="true"></i>${esc(d.shift_label || '—')}</span>`;
                 function photoThumb(url, alt) {
                     if (!url) return '<p class="portal-empty" style="padding:8px">—</p>';
                     const safe = String(url).replace(/"/g, '&quot;');
