@@ -320,11 +320,11 @@
                 <table class="admin-table" style="table-layout:fixed">
                     <thead>
                         <tr>
-                            <th style="width:52px">#</th>
+                            <th style="width:52px; border-top-left-radius: 10px;">#</th>
                             <th style="width:24%">Nomor</th>
                             <th>Jenis Kendaraan</th>
                             <th>Bidang</th>
-                            <th style="width:22%">Status</th>
+                            <th style="width:22%; border-top-right-radius: 10px;">Status</th>
                         </tr>
                     </thead>
                     <tbody id="armada-tbody">

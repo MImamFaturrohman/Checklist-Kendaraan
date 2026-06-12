@@ -17,6 +17,7 @@
 @push('styles')
 @php
     $bbmShiftCode = $driverShiftAtLogin['code'] ?? 'luar';
+    $isPicKendaraan = ($user->role ?? null) === 'pic_kendaraan';
     $shiftLabel = match($bbmShiftCode) {
         'pagi'  => 'Pagi',
         'siang' => 'Siang',
@@ -164,6 +165,7 @@
     <main class="checklist-content">
         <form id="bbm-report-form" class="checklist-card" action="{{ route('bbm-reports.store') }}" method="post" enctype="multipart/form-data" data-dashboard-url="{{ route('dashboard') }}" data-shift-badge-class="{{ \App\Support\DriverShift::badgeClassFromCode($bbmShiftCode) }}" data-shift-icon-class="{{ \App\Support\DriverShift::iconClassFromCode($bbmShiftCode) }}" novalidate>
             @csrf
+            <input type="hidden" id="bbm-shift-label" value="{{ $shiftLabel }}">
 
             @if ($errors->any())
                 <div class="bbm-nojs-errors" role="alert">
@@ -194,7 +196,7 @@
                             <select name="nomor_kendaraan" id="bbm-nopol" required>
                                 <option value="">Pilih Nomor Kendaraan</option>
                                 @foreach ($kendaraans as $k)
-                                    <option value="{{ $k->nomor_kendaraan }}" data-jenis="{{ $k->jenis_kendaraan }}" @selected(old('nomor_kendaraan') === $k->nomor_kendaraan)>{{ $k->nomor_kendaraan }}</option>
+                                    <option value="{{ $k->nomor_kendaraan }}" data-jenis="{{ $k->jenis_kendaraan }}" @if($isPicKendaraan) data-km-current="{{ $k->km_current !== null ? (int) $k->km_current : '' }}" @endif @selected(old('nomor_kendaraan') === $k->nomor_kendaraan)>{{ $k->nomor_kendaraan }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -203,26 +205,6 @@
                         <span>Jenis Kendaraan</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="bbm-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis terisi…" autocomplete="off">
-                        </div>
-                    </label>
-                    <label class="checklist-field checklist-field-span">
-                        <span>Keperluan Pengisian BBM</span>
-                        <div class="checklist-control-wrap checklist-control-select">
-                            <select name="jenis_pengisian" id="bbm-jenis-pengisian" required>
-                                <option value="">Pilih Keperluan</option>
-                                <option value="Operasional" @selected(old('jenis_pengisian') === 'Operasional')>Operasional</option>
-                                <option value="Perjalanan Dinas (SPPD)" @selected(old('jenis_pengisian') === 'Perjalanan Dinas (SPPD)')>Perjalanan Dinas (SPPD)</option>
-                            </select>
-                        </div>
-                    </label>
-                    <label class="checklist-field checklist-field-span">
-                        <span><i class="{{ \App\Support\DriverShift::iconClassFromCode($bbmShiftCode) }} bbm-field-icon" aria-hidden="true"></i> Shift</span>
-                        <div class="checklist-control-wrap">
-                            <input type="hidden" id="bbm-shift-label" value="{{ $shiftLabel }}">
-                            <span class="bbm-shift-badge bbm-shift-badge--form {{ \App\Support\DriverShift::badgeClassFromCode($bbmShiftCode) }}" aria-live="polite">
-                                <i class="{{ \App\Support\DriverShift::iconClassFromCode($bbmShiftCode) }}" aria-hidden="true"></i>
-                                {{ $shiftLabel }}
-                            </span>
                         </div>
                     </label>
                 </div>
@@ -240,6 +222,18 @@
                         </div>
                     </label>
                 </div>
+                <div class="checklist-grid-two">
+                    <label class="checklist-field checklist-field-span">
+                        <span>Keperluan Pengisian BBM</span>
+                        <div class="checklist-control-wrap checklist-control-select">
+                            <select name="jenis_pengisian" id="bbm-jenis-pengisian" required>
+                                <option value="">Pilih Keperluan</option>
+                                <option value="Operasional" @selected(old('jenis_pengisian') === 'Operasional')>Operasional</option>
+                                <option value="Perjalanan Dinas (SPPD)" @selected(old('jenis_pengisian') === 'Perjalanan Dinas (SPPD)')>Perjalanan Dinas (SPPD)</option>
+                            </select>
+                        </div>
+                    </label>
+                </div>
 
                 <div class="section-banner">
                     <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><path d="M4 10h16v6H4z" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 118 0v2" stroke="currentColor" stroke-width="2"/></svg>
@@ -249,7 +243,7 @@
                     <label class="checklist-field">
                         <span>KM Sebelum</span>
                         <div class="checklist-control-wrap">
-                            <input type="number" name="odometer_sebelum" id="bbm-odo-sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="0">
+                            <input type="number" name="odometer_sebelum" id="bbm-odo-sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="0" data-km-current-hint="{{ $isPicKendaraan ? '1' : '0' }}">
                         </div>
                     </label>
                     <label class="checklist-field">
@@ -325,8 +319,8 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <button type="submit" form="bbm-report-form" class="checklist-nav-btn checklist-nav-next final bbm-submit-btn bbm-submit--hidden" id="bbm-submit" aria-hidden="true">
-                <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
-                Kirim Laporan BBM
+            <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
+            Kirim Laporan BBM
             </button>
         </div>
     </footer>

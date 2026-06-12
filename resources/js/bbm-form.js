@@ -1,6 +1,5 @@
 /**
- * Form laporan BBM (driver): wizard 2 langkah, preview foto, kalkulasi total, AJAX submit.
- * Menggunakan initBbmForm() + guard double-bind agar aman dengan Turbo Drive.
+ * Form laporan BBM 
  */
 
 function initBbmForm() {
@@ -145,10 +144,15 @@ function initBbmForm() {
     /* ── Jenis kendaraan auto-fill ── */
     const nomorSel = document.getElementById('bbm-nopol');
     const jenisInp = document.getElementById('bbm-jenis');
+    const odoSebelumInp = document.getElementById('bbm-odo-sebelum');
     if (nomorSel && jenisInp) {
         const syncJenis = () => {
             const opt = nomorSel.options[nomorSel.selectedIndex];
             jenisInp.value = opt?.dataset?.jenis || '';
+            if (odoSebelumInp?.dataset?.kmCurrentHint === '1') {
+                const kmCurrent = opt?.dataset?.kmCurrent || '';
+                odoSebelumInp.placeholder = kmCurrent ? `${kmCurrent}` : '0';
+            }
         };
         nomorSel.addEventListener('change', syncJenis);
         syncJenis();
@@ -177,6 +181,9 @@ function initBbmForm() {
     const bbmForm = document.getElementById('bbm-report-form');
     const bbmSubmitBtn = document.getElementById('bbm-submit');
     const bbmSubmitHtml = bbmSubmitBtn?.innerHTML ?? '';
+    const previewOverlay = document.getElementById('bbm-preview-overlay');
+    const previewModal = previewOverlay?.querySelector('.bbm-preview-modal');
+    const previewCloseBtn = document.getElementById('bbm-preview-close');
 
     const esc = (s) => {
         const d = document.createElement('div');
@@ -273,10 +280,6 @@ function initBbmForm() {
         const keperluanSel = document.getElementById('bbm-jenis-pengisian');
         const keperluan =
             keperluanSel?.options[keperluanSel.selectedIndex]?.text?.trim() || val('bbm-jenis-pengisian') || '—';
-        const shift = val('bbm-shift-label') || '—';
-        const shiftBadgeCls = root.dataset.shiftBadgeClass || 'bbm-shift-luar';
-        const shiftIconCls = root.dataset.shiftIconClass || 'bi bi-moon-fill';
-        const shiftBadgeHtml = `<span class="bbm-shift-badge ${esc(shiftBadgeCls)}"><i class="${esc(shiftIconCls)}" aria-hidden="true"></i>${esc(shift)}</span>`;
         const tanggal = val('bbm-tanggal') || '—';
         const waktu = val('bbm-waktu') || '—';
         const totalText = totalOut?.value || 'Rp 0';
@@ -292,7 +295,6 @@ function initBbmForm() {
     <div><dt>Kendaraan</dt><dd>${esc(nopol)}</dd></div>
     <div><dt>Jenis</dt><dd>${esc(jenis)}</dd></div>
     <div><dt>Keperluan pengisian</dt><dd>${esc(keperluan)}</dd></div>
-    <div><dt>Shift</dt><dd>${shiftBadgeHtml}</dd></div>
     <div><dt>Tanggal</dt><dd>${esc(tanggal)}</dd></div>
     <div><dt>Waktu</dt><dd>${esc(waktu)}</dd></div>
   </dl>
@@ -329,7 +331,7 @@ function initBbmForm() {
 
     let currentStep = 1;
     const totalSteps = steps.length || 2;
-
+    
     const showStep = (n) => {
         currentStep = n;
         steps.forEach((s) => {

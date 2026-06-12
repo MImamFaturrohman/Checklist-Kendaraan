@@ -61,7 +61,7 @@
                 </p>
                 <h2 class="dash-hero-name">{{ $userName }}</h2>
             @else
-                <p class="dash-hero-kicker" style="text-transform: none;">
+                <p class="dash-hero-kicker">
                     Selamat Bertugas,
                 </p>
                 <h2 class="dash-hero-name">{{ $userName }}</h2>
@@ -301,7 +301,7 @@
                         </a>
                         <a href="{{ route('vehicle-usage-logs.create') }}" class="dash-main-card dash-pressable">
                             <div>
-                                <p class="dash-main-title">Form Log Penggunaan Kendaraan</p>
+                                <p class="dash-main-title">Log Penggunaan Kendaraan</p>
                                 <p class="dash-main-sub">Catat jam pakai unit &amp; keperluan</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
