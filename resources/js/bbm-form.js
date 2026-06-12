@@ -202,6 +202,12 @@ function initBbmForm() {
         return Swal.fire({
             icon: 'error',
             title: 'Data belum valid',
+            customClass: {
+                popup: 'swal-bbm-popup',
+                title: 'swal-bbm-title',
+                htmlContainer: 'swal-bbm-title',
+                confirmButton: 'swal-bbm-confirm'
+            },
             html:
                 '<ul style="text-align:left;margin:0;padding-left:1.2rem">' +
                 list.map((e) => '<li>' + esc(String(e)) + '</li>').join('') +
@@ -389,9 +395,16 @@ function initBbmForm() {
 
         const confirm = await Swal.fire({
             icon: 'question',
-            iconColor: '#0b2c6b',
+            iconColor: '#000',
             title: 'Kirim laporan BBM?',
             text: 'Laporan akan disimpan dan dikirim ke admin. Lanjutkan?',
+            customClass: {
+                popup: 'swal-bbm-popup',
+                title: 'swal-bbm-title',
+                text: 'swal-bbm-text',
+                confirmButton: 'swal-bbm-confirm',
+                cancelButton: 'swal-bbm-cancel'
+            },
             showCancelButton: true,
             confirmButtonText: 'Ya, kirim',
             cancelButtonText: 'Batal',
@@ -441,6 +454,12 @@ function initBbmForm() {
                 await Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
+                    customClass: {
+                        popup: 'swal-bbm-popup',
+                        title: 'swal-bbm-title',
+                        text: 'swal-bbm-text',
+                        confirmButton: 'swal-bbm-confirm'
+                    },
                     text: data.message || 'Laporan tersimpan.',
                     confirmButtonText: 'Kembali ke Dashboard',
                 }).then((r) => {
@@ -453,6 +472,12 @@ function initBbmForm() {
                 icon: 'error',
                 title: 'Gagal',
                 text: data.message || 'Tidak dapat menyimpan laporan.',
+                customClass: {
+                    popup: 'swal-bbm-popup',
+                    title: 'swal-bbm-title',
+                    text: 'swal-bbm-text',
+                    confirmButton: 'swal-bbm-confirm'
+                },
                 confirmButtonText: 'Tutup',
                 allowEnterKey: false,
                 returnFocus: false,
@@ -462,6 +487,12 @@ function initBbmForm() {
                 icon: 'error',
                 title: 'Gagal',
                 text: 'Koneksi bermasalah. Periksa jaringan lalu coba lagi.',
+                customClass: {
+                    popup: 'swal-bbm-popup',
+                    title: 'swal-bbm-title',
+                    text: 'swal-bbm-text',
+                    confirmButton: 'swal-bbm-confirm'
+                },
                 confirmButtonText: 'Tutup',
                 allowEnterKey: false,
                 returnFocus: false,

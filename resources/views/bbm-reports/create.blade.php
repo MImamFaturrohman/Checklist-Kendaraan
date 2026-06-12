@@ -314,6 +314,14 @@
     }
     html.dark .dash-body p.bbm-step3-hint { color: #94a3b8; }
     html.dark .dash-body p.bbm-step3-hint strong { color: #facc15; }
+
+    .swal-bbm-popup { background: rgba(255, 255, 255, 0.9) }
+    html.dark .dash-body .swal-bbm-popup {
+        color: #f3f4f6;
+        background: rgba(16, 38, 80, 0.78);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
 </style>
 @endpush
 
@@ -508,6 +516,12 @@
             icon: 'success',
             title: 'Berhasil',
             text: bbmOk,
+            customClass: {
+                popup: 'swal-bbm-popup',
+                title: 'swal-bbm-title',
+                text: 'swal-bbm-text',
+                confirmButton: 'swal-bbm-confirm'
+            }
             confirmButtonText: 'Kembali ke Dashboard',
         }).then((r) => { if (r.isConfirmed) window.location.href = dashUrl; });
         return;
@@ -518,6 +532,12 @@
             icon: 'error',
             title: 'Gagal',
             text: bbmError,
+            customClass: {
+                popup: 'swal-bbm-popup',
+                title: 'swal-bbm-title',
+                text: 'swal-bbm-text',
+                confirmButton: 'swal-bbm-confirm'
+            }
             confirmButtonText: 'Kembali ke Dashboard',
             showCancelButton: true,
             cancelButtonText: 'Tutup',
