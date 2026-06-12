@@ -151,7 +151,7 @@ function initBbmForm() {
             jenisInp.value = opt?.dataset?.jenis || '';
             if (odoSebelumInp?.dataset?.kmCurrentHint === '1') {
                 const kmCurrent = opt?.dataset?.kmCurrent || '';
-                odoSebelumInp.placeholder = kmCurrent ? `${kmCurrent}` : '0';
+                odoSebelumInp.placeholder = kmCurrent ? `${kmCurrent}` : 'Sebelum';
             }
         };
         nomorSel.addEventListener('change', syncJenis);
@@ -181,9 +181,6 @@ function initBbmForm() {
     const bbmForm = document.getElementById('bbm-report-form');
     const bbmSubmitBtn = document.getElementById('bbm-submit');
     const bbmSubmitHtml = bbmSubmitBtn?.innerHTML ?? '';
-    const previewOverlay = document.getElementById('bbm-preview-overlay');
-    const previewModal = previewOverlay?.querySelector('.bbm-preview-modal');
-    const previewCloseBtn = document.getElementById('bbm-preview-close');
 
     const esc = (s) => {
         const d = document.createElement('div');
@@ -219,7 +216,7 @@ function initBbmForm() {
         });
     };
 
-    /* Semua field ada di langkah 1, validasi sekaligus sebelum lanjut ke ringkasan */
+    /* Validasi semua field sebelum membuka preview */
     const validateStep1 = () => {
         const errors = [];
 
@@ -289,31 +286,23 @@ function initBbmForm() {
         const srcStruk = previewSrcForInput('bbm-foto-struk');
 
         return `
-<div class="bbm-review-group">
-  <h4>Data kendaraan &amp; waktu</h4>
-  <dl class="bbm-review-dl">
-    <div><dt>Kendaraan</dt><dd>${esc(nopol)}</dd></div>
-    <div><dt>Jenis</dt><dd>${esc(jenis)}</dd></div>
-    <div><dt>Keperluan pengisian</dt><dd>${esc(keperluan)}</dd></div>
-    <div><dt>Tanggal</dt><dd>${esc(tanggal)}</dd></div>
-    <div><dt>Waktu</dt><dd>${esc(waktu)}</dd></div>
-  </dl>
+<table class="info-table sppd-mini-table">
+  <tr><td class="label">Kendaraan</td><td>${esc(nopol)}</td></tr>
+  <tr><td class="label">Jenis</td><td>${esc(jenis)}</td></tr>
+  <tr><td class="label">Keperluan</td><td>${esc(keperluan)}</td></tr>
+  <tr><td class="label">Tanggal</td><td>${esc(tanggal)}</td></tr>
+  <tr><td class="label">Waktu</td><td>${esc(waktu)}</td></tr>
+  <tr><td class="label">KM Sebelum</td><td>${esc(val('bbm-odo-sebelum') || '—')}</td></tr>
+  <tr><td class="label">KM Sesudah</td><td>${esc(val('bbm-odo-sesudah') || '—')}</td></tr>
+  <tr><td class="label">Liter</td><td>${esc(val('bbm-liter') || '—')} L</td></tr>
+  <tr><td class="label">Harga / Liter</td><td>${esc(val('bbm-harga-per-liter') || '—')}</td></tr>
+  <tr><td class="label">Total Harga</td><td><strong>${esc(totalText)}</strong></td></tr>
+</table>
+<div class="bbm-review-photos" style="margin-top:14px">
+  ${photoCard(srcOdoSeb, 'Odometer sebelum')}${photoCard(srcOdoSes, 'Odometer sesudah')}
 </div>
-<div class="bbm-review-group">
-  <h4>Pengisian BBM</h4>
-  <dl class="bbm-review-dl">
-    <div><dt>KM sebelum</dt><dd>${esc(val('bbm-odo-sebelum') || '—')}</dd></div>
-    <div><dt>KM sesudah</dt><dd>${esc(val('bbm-odo-sesudah') || '—')}</dd></div>
-    <div><dt>Liter</dt><dd>${esc(val('bbm-liter') || '—')}</dd></div>
-    <div><dt>Harga / L</dt><dd>${esc(val('bbm-harga-per-liter') || '—')}</dd></div>
-    <div><dt>Total harga</dt><dd>${esc(totalText)}</dd></div>
-  </dl>
-  <div class="bbm-review-photos">
-    ${photoCard(srcOdoSeb, 'Odometer sebelum')}${photoCard(srcOdoSes, 'Odometer sesudah')}
-  </div>
-  <div class="bbm-review-photos bbm-review-photos--struk">
-    ${photoCard(srcStruk, 'Struk pembelian')}
-  </div>
+<div class="bbm-review-photos bbm-review-photos--struk">
+  ${photoCard(srcStruk, 'Struk pembelian')}
 </div>`;
     };
 
@@ -321,56 +310,69 @@ function initBbmForm() {
         if (reviewRoot) reviewRoot.innerHTML = buildReviewHtml();
     };
 
-    /* ── Wizard 2 langkah ── */
-    const steps = bbmForm ? Array.from(bbmForm.querySelectorAll('.wizard-step[data-step]')) : [];
-    const btnPrev = document.getElementById('bbm-prev');
-    const btnNext = document.getElementById('bbm-next');
-    const progressFill = document.getElementById('bbm-progress-fill');
-    const stepLabel = document.getElementById('bbm-step-label');
-    const progressPct = document.getElementById('bbm-progress-pct');
-
-    let currentStep = 1;
-    const totalSteps = steps.length || 2;
-    
-    const showStep = (n) => {
-        currentStep = n;
-        steps.forEach((s) => {
-            s.classList.toggle('active', +s.dataset.step === n);
-        });
-        const pct = Math.round((n / totalSteps) * 100);
-        if (progressFill) progressFill.style.width = `${pct}%`;
-        if (stepLabel) stepLabel.textContent = `LANGKAH ${n} DARI ${totalSteps}`;
-        if (progressPct) progressPct.textContent = `${pct}%`;
-        if (btnPrev) btnPrev.disabled = n <= 1;
-        if (btnNext) {
-            const hideNext = n >= totalSteps;
-            btnNext.classList.toggle('bbm-next--hidden', hideNext);
-            btnNext.setAttribute('aria-hidden', hideNext ? 'true' : 'false');
-        }
-        if (bbmSubmitBtn) {
-            const hideSubmit = n !== totalSteps;
-            bbmSubmitBtn.classList.toggle('bbm-submit--hidden', hideSubmit);
-            bbmSubmitBtn.setAttribute('aria-hidden', hideSubmit ? 'true' : 'false');
-        }
-        if (n === totalSteps) refreshReview();
+    /* ── Modal Preview ── */
+    const openPreviewModal = () => {
+        refreshReview();
+        const overlay = document.getElementById('bbm-preview-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'flex';
+        // Trigger CSS animation
+        overlay.classList.remove('active');
+        void overlay.offsetWidth;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Scroll modal body ke atas
+        const body = overlay.querySelector('.bbm-preview-modal-body');
+        if (body) body.scrollTop = 0;
     };
 
+    const closePreviewModal = () => {
+        const overlay = document.getElementById('bbm-preview-overlay');
+        if (!overlay) return;
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    // Tombol "Lihat Preview" — validasi dulu, lalu buka modal
+    const btnNext = document.getElementById('bbm-next');
     btnNext?.addEventListener('click', async () => {
         const err = validateStep1();
         if (err.length) {
             await showBbmValidationErrors(err);
             return;
         }
-        showStep(currentStep + 1);
+        openPreviewModal();
     });
 
-    btnPrev?.addEventListener('click', () => {
-        if (currentStep > 1) showStep(currentStep - 1);
+    // Tombol X di pojok kanan atas modal
+    document.getElementById('bbm-preview-close')?.addEventListener('click', closePreviewModal);
+
+    // Tombol "Kembali ke Form" di footer modal
+    document.getElementById('bbm-preview-cancel')?.addEventListener('click', closePreviewModal);
+
+    // Klik backdrop overlay (di luar modal)
+    document.getElementById('bbm-preview-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'bbm-preview-overlay') closePreviewModal();
     });
 
-    showStep(1);
+    // Tombol ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const overlay = document.getElementById('bbm-preview-overlay');
+            if (overlay && overlay.style.display !== 'none') closePreviewModal();
+        }
+    });
 
-    /* ── Submit ── */
+    // Progress bar — single step, selalu penuh
+    const progressFill = document.getElementById('bbm-progress-fill');
+    const stepLabel    = document.getElementById('bbm-step-label');
+    const progressPct  = document.getElementById('bbm-progress-pct');
+    if (progressFill) progressFill.style.width = '100%';
+    if (stepLabel) stepLabel.textContent = 'LENGKAPI SEMUA DATA';
+    if (progressPct) progressPct.textContent = '';
+
+    /* ── Submit (dari tombol di dalam modal) ── */
     bbmForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errs = validateAll();
@@ -423,16 +425,19 @@ function initBbmForm() {
 
             if (res.status === 422 && data.errors) {
                 const msgs = Object.values(data.errors).flat();
+                closePreviewModal();
                 await showBbmValidationErrors(msgs.length ? msgs : [data.message || 'Data tidak valid.']);
                 return;
             }
 
             if (res.status === 419) {
+                closePreviewModal();
                 await showBbmValidationErrors(['Sesi kedaluwarsa. Muat ulang halaman lalu kirim lagi.']);
                 return;
             }
 
             if (res.ok && data.success) {
+                closePreviewModal();
                 await Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',

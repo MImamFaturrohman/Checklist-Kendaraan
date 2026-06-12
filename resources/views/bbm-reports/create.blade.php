@@ -65,41 +65,198 @@
         box-shadow: 0 4px 14px rgba(11,44,107,0.25);
     }
     .bbm-form-page .bbm-page-head h1 { margin: 0; font-size: 1.35rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
-    .dash-body.dark .bbm-form-page .bbm-page-head h1 { color: #f1f5f9; }
+    html.dark .dash-body .bbm-form-page .bbm-page-head h1 { color: #f1f5f9; }
     .bbm-form-page .bbm-page-head p { margin: 4px 0 0; font-size: 0.82rem; color: #64748b; }
-    .dash-body.dark .bbm-form-page .bbm-page-head p { color: #94a3b8; }
+    html.dark .dash-body .bbm-form-page .bbm-page-head p { color: #94a3b8; }
+
+    .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
+    html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); }
 
     .bbm-footer-actions {
-        display: flex;
-        width: 100%;
-        min-width: 0;
+        display: flex !important;
+        width: 100% !important;
+        min-width: 0 !important;
         gap: 10px;
     }
-    #bbm-submit.bbm-submit--hidden {
-        display: none !important;
-    }
-    #bbm-next.bbm-next--hidden {
-        display: none !important;
-    }
     .bbm-footer-actions .checklist-nav-next {
+        flex: 1 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        justify-content: center !important;
+    }
+    /* Override grid footer agar tombol penuh tanpa kolom back */
+    .bbm-form-page .checklist-footer {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Modal Preview BBM ── */
+    #bbm-preview-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(0, 0, 0, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        animation: bbmOverlayIn 0.2s ease;
+    }
+    #bbm-preview-overlay.active {
+        display: flex;
+    }
+    @keyframes bbmOverlayIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    .bbm-preview-modal {
+        position: relative;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 24px 80px rgba(11, 44, 107, 0.22), 0 4px 20px rgba(0,0,0,0.12);
+        width: 100%;
+        max-width: 620px;
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: bbmModalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    html.dark .dash-body .bbm-preview-modal {
+        background: #0f172a;
+        border: 1px solid rgba(71,85,105,0.35);
+        box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+    }
+    @keyframes bbmModalIn {
+        from { opacity: 0; transform: translateY(28px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .bbm-preview-modal-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        flex-shrink: 0;
+    }
+    html.dark .dash-body .bbm-preview-modal-header {
+        border-bottom-color: rgba(71,85,105,0.35);
+    }
+    .bbm-preview-modal-close {
+        flex-shrink: 0;
+    }
+    .bbm-preview-modal-header-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0b2c6b 0%, #123f8f 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #facc15;
+        flex-shrink: 0;
+    }
+    .bbm-preview-modal-title {
         flex: 1;
         min-width: 0;
-        justify-content: center;
+    }
+    .bbm-preview-modal-title h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.01em;
+    }
+    html.dark .dash-body .bbm-preview-modal-title h3 { color: #f1f5f9; }
+    .bbm-preview-modal-title p {
+        margin: 2px 0 0;
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+    html.dark .dash-body .bbm-preview-modal-title p { color: #94a3b8; }
+    .bbm-preview-modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 18px 20px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .bbm-preview-modal-footer {
+        padding: 14px 20px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    html.dark .dash-body .bbm-preview-modal-footer {
+        border-top-color: rgba(71,85,105,0.35);
+    }
+    .bbm-preview-modal-footer .bbm-modal-cancel-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        background: transparent;
+        color: #475569;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .bbm-preview-modal-footer .bbm-modal-cancel-btn:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #0f172a;
+    }
+    html.dark .dash-body .bbm-preview-modal-footer .bbm-modal-cancel-btn {
+        border-color: rgba(71,85,105,0.5);
+        color: #94a3b8;
+    }
+    html.dark .dash-body .bbm-preview-modal-footer .bbm-modal-cancel-btn:hover {
+        background: rgba(71,85,105,0.2);
+        color: #f1f5f9;
     }
 
     .bbm-review {
-        display: grid;
-        gap: 14px;
-        padding: 16px;
+        padding: 0;
         border-radius: 12px;
-        background: rgba(248, 250, 252, 0.9);
-        border: 1px solid #e2e8f0;
+        background: transparent;
+        border: none;
         font-size: 0.88rem;
     }
-    .dash-body.dark .bbm-review {
-        background: rgba(15, 23, 42, 0.5);
-        border-color: rgba(71, 85, 105, 0.35);
+    html.dark .dash-body .bbm-review {
+        background: transparent;
+        border-color: transparent;
         color: #e2e8f0;
+    }
+    /* Info table di dalam modal preview — sama dengan sppd-detail-html */
+    .bbm-review .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+        font-size: 0.82rem;
+    }
+    .bbm-review .info-table td {
+        border: 1px solid #e2e8f0;
+        padding: 7px 10px;
+        vertical-align: top;
+    }
+    .bbm-review .info-table .label {
+        font-weight: 700;
+        background: #f1f5f9;
+        color: #475569;
+        width: 38%;
+    }
+    html.dark .dash-body .bbm-review .info-table td {
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+    }
+    html.dark .dash-body .bbm-review .info-table .label {
+        background: rgba(8, 20, 50, 0.55);
+        color: #94a3b8;
     }
     .bbm-review-group h4 {
         margin: 0 0 8px;
@@ -109,13 +266,13 @@
         letter-spacing: 0.04em;
         color: #64748b;
     }
-    .dash-body.dark .bbm-review-group h4 { color: #94a3b8; }
+    html.dark .dash-body .bbm-review-group h4 { color: #94a3b8; }
     .bbm-review-dl { margin: 0; display: grid; gap: 6px; }
     .bbm-review-dl > div { display: grid; grid-template-columns: minmax(100px, 140px) 1fr; gap: 10px; align-items: start; }
     .bbm-review-dl dt { margin: 0; font-weight: 600; color: #475569; font-size: 0.8rem; }
-    .dash-body.dark .bbm-review-dl dt { color: #cbd5e1; }
+    html.dark .dash-body .bbm-review-dl dt { color: #cbd5e1; }
     .bbm-review-dl dd { margin: 0; color: #0f172a; line-height: 1.45; word-break: break-word; }
-    .dash-body.dark .bbm-review-dl dd { color: #f1f5f9; }
+    html.dark .dash-body .bbm-review-dl dd { color: #f1f5f9; }
     .bbm-review-photos {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -131,7 +288,7 @@
         border: 1px solid #e2e8f0;
         background: #f8fafc;
     }
-    .dash-body.dark .bbm-review-photo-wrap {
+    html.dark .dash-body .bbm-review-photo-wrap {
         border-color: rgba(71, 85, 105, 0.45);
         background: rgba(30, 41, 59, 0.45);
     }
@@ -148,15 +305,15 @@
         color: #64748b;
         font-weight: 600;
     }
-    .dash-body.dark .bbm-review-photo-caption { color: #94a3b8; }
+    html.dark .dash-body .bbm-review-photo-caption { color: #94a3b8; }
     p.bbm-step3-hint {
         margin: 0 0 12px;
         font-size: 0.85rem;
         line-height: 1.45;
         color: #64748b;
     }
-    .dash-body.dark p.bbm-step3-hint { color: #94a3b8; }
-    .dash-body.dark p.bbm-step3-hint strong { color: #facc15; }
+    html.dark .dash-body p.bbm-step3-hint { color: #94a3b8; }
+    html.dark .dash-body p.bbm-step3-hint strong { color: #facc15; }
 </style>
 @endpush
 
@@ -186,12 +343,12 @@
 
             <section class="wizard-step active" data-step="1">
                 <div class="section-banner">
-                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17h1l1-4h10l1 4h1a1 1 0 011 1v1H4v-1a1 1 0 011-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 13l1.5-5h7L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>Data Kendaraan</span>
+                    <i class="bi bi-fuel-pump-fill section-banner-icon"></i>
+                    <span>Data Kendaraan & Pengisian BBM</span>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>Kendaraan</span>
+                        <span>Data Kendaraan</span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select name="nomor_kendaraan" id="bbm-nopol" required>
                                 <option value="">Pilih Nomor Kendaraan</option>
@@ -202,7 +359,7 @@
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span>Jenis Kendaraan</span>
+                        <span style="visibility: hidden">&nbsp;</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="bbm-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis terisi…" autocomplete="off">
                         </div>
@@ -210,13 +367,11 @@
                 </div>
                 <div class="checklist-grid-two bbm-datetime-grid">
                     <label class="checklist-field">
-                        <span><i class="bi bi-calendar3 bbm-field-icon" aria-hidden="true"></i> Tanggal</span>
                         <div class="checklist-control-wrap bbm-input-with-icon">
                             <input type="date" name="tanggal" id="bbm-tanggal" required value="{{ old('tanggal') }}">
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span><i class="bi bi-clock bbm-field-icon" aria-hidden="true"></i> Waktu</span>
                         <div class="checklist-control-wrap bbm-input-with-icon">
                             <input type="time" name="waktu" id="bbm-waktu" required value="{{ old('waktu') }}">
                         </div>
@@ -224,7 +379,6 @@
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field checklist-field-span">
-                        <span>Keperluan Pengisian BBM</span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select name="jenis_pengisian" id="bbm-jenis-pengisian" required>
                                 <option value="">Pilih Keperluan</option>
@@ -234,36 +388,31 @@
                         </div>
                     </label>
                 </div>
-
-                <div class="section-banner">
-                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><path d="M4 10h16v6H4z" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 118 0v2" stroke="currentColor" stroke-width="2"/></svg>
-                    <span>Data Pengisian BBM</span>
-                </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>KM Sebelum</span>
+                        <span>KM Odometer</span>
                         <div class="checklist-control-wrap">
-                            <input type="number" name="odometer_sebelum" id="bbm-odo-sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="0" data-km-current-hint="{{ $isPicKendaraan ? '1' : '0' }}">
+                            <input type="number" name="odometer_sebelum" id="bbm-odo-sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="Sebelum" data-km-current-hint="{{ $isPicKendaraan ? '1' : '0' }}">
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span>KM Sesudah</span>
+                        <span style="visibility: hidden">&nbsp;</span>
                         <div class="checklist-control-wrap">
-                            <input type="number" name="odometer_sesudah" id="bbm-odo-sesudah" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sesudah') }}" placeholder="0">
+                            <input type="number" name="odometer_sesudah" id="bbm-odo-sesudah" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sesudah') }}" placeholder="Sesudah">
                         </div>
                     </label>
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>Liter</span>
+                        <span>Detail BBM</span>
                         <div class="checklist-control-wrap">
-                            <input type="number" name="liter" id="bbm-liter" required min="0.001" step="0.001" value="{{ old('liter') }}" placeholder="0">
+                            <input type="number" name="liter" id="bbm-liter" required min="0.001" step="0.001" value="{{ old('liter') }}" placeholder="Liter">
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span>Harga/L</span>
+                        <span style="visibility: hidden">&nbsp;</span>
                         <div class="checklist-control-wrap">
-                            <input type="number" name="harga_per_liter" id="bbm-harga-per-liter" required min="0" step="1" value="{{ old('harga_per_liter') }}" placeholder="0">
+                            <input type="number" name="harga_per_liter" id="bbm-harga-per-liter" required min="0" step="1" value="{{ old('harga_per_liter') }}" placeholder="Harga">
                         </div>
                     </label>
                     <label class="checklist-field checklist-field-span2 bbm-total-field">
@@ -298,32 +447,50 @@
                 <p style="margin:8px 0 0;font-size:0.78rem;line-height:1.45;color:#b45309;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);padding:10px 12px;border-radius:10px;">Pastikan mengambil foto dengan kamera landscape (horizontal).</p>
             </section>
 
-            <section class="wizard-step" data-step="2">
-                <div class="section-banner">
-                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
-                    <span>Ringkasan</span>
-                </div>
-                <p class="bbm-step3-hint">Periksa kembali semua data. Tekan <strong>Kirim Laporan BBM</strong> di bawah jika data sudah sesuai.</p>
-                <div class="bbm-review" id="bbm-review-root" aria-live="polite"></div>
-            </section>
         </form>
     </main>
 
     <footer class="checklist-footer">
-        <button type="button" class="checklist-nav-btn checklist-nav-back" id="bbm-prev" disabled>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
         <div class="bbm-footer-actions">
-            <button type="button" class="checklist-nav-btn checklist-nav-next" id="bbm-next">
-                LANJUT
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <button type="submit" form="bbm-report-form" class="checklist-nav-btn checklist-nav-next final bbm-submit-btn bbm-submit--hidden" id="bbm-submit" aria-hidden="true">
-            <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
-            Kirim Laporan BBM
+            <button type="button" class="checklist-nav-btn checklist-nav-next" id="bbm-next" style="width:100%">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                Lihat Preview
             </button>
         </div>
     </footer>
+</div>
+@endsection
+
+@section('modals')
+{{-- ── Modal Preview BBM ── --}}
+<div id="bbm-preview-overlay" role="dialog" aria-modal="true" aria-labelledby="bbm-preview-modal-title">
+    <div class="bbm-preview-modal">
+        <div class="bbm-preview-modal-header">
+            <div class="bbm-preview-modal-header-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="bbm-preview-modal-title">
+                <h3 id="bbm-preview-modal-title">Ringkasan Laporan BBM</h3>
+                <p>Periksa kembali data sebelum mengirim.</p>
+            </div>
+            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite bbm-preview-modal-close" id="bbm-preview-close" title="Tutup" aria-label="Tutup">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="bbm-preview-modal-body sppd-detail-html">
+            <div class="bbm-review" id="bbm-review-root" aria-live="polite"></div>
+        </div>
+        <div class="bbm-preview-modal-footer">
+            <button type="button" class="bbm-modal-cancel-btn" id="bbm-preview-cancel">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Kembali
+            </button>
+            <button type="submit" form="bbm-report-form" class="checklist-nav-btn checklist-nav-next final bbm-submit-btn" id="bbm-submit">
+                <i class="bi bi-send-fill bbm-submit-icon" aria-hidden="true"></i>
+                Kirim Laporan BBM
+            </button>
+        </div>
+    </div>
 </div>
 @endsection
 
