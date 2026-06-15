@@ -189,6 +189,208 @@
 
 .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
 html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); }
+
+/* ── Modal Preview Checklist ── */
+#checklist-preview-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: clOverlayIn 0.2s ease;
+}
+#checklist-preview-overlay.active {
+    display: flex;
+}
+@keyframes clOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.checklist-preview-modal {
+    position: relative;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 24px 80px rgba(11, 44, 107, 0.22), 0 4px 20px rgba(0,0,0,0.12);
+    width: 100%;
+    max-width: 620px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: clModalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+html.dark .dash-body .checklist-preview-modal {
+    background: #0f172a;
+    border: 1px solid rgba(71,85,105,0.35);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+}
+@keyframes clModalIn {
+    from { opacity: 0; transform: translateY(28px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.checklist-preview-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+html.dark .dash-body .checklist-preview-modal-header {
+    border-bottom-color: rgba(71,85,105,0.35);
+}
+.checklist-preview-modal-close {
+    flex-shrink: 0;
+}
+.checklist-preview-modal-header-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0b2c6b 0%, #123f8f 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #facc15;
+    flex-shrink: 0;
+}
+.checklist-preview-modal-title {
+    flex: 1;
+    min-width: 0;
+}
+.checklist-preview-modal-title h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+html.dark .dash-body .checklist-preview-modal-title h3 { color: #f1f5f9; }
+.checklist-preview-modal-title p {
+    margin: 2px 0 0;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+html.dark .dash-body .checklist-preview-modal-title p { color: #94a3b8; }
+.checklist-preview-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px;
+    -webkit-overflow-scrolling: touch;
+}
+.checklist-preview-modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+html.dark .dash-body .checklist-preview-modal-footer {
+    border-top-color: rgba(71,85,105,0.35);
+}
+.checklist-preview-modal-footer .checklist-modal-cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: transparent;
+    color: #475569;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.checklist-preview-modal-footer .checklist-modal-cancel-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+html.dark .dash-body .checklist-preview-modal-footer .checklist-modal-cancel-btn {
+    border-color: rgba(71,85,105,0.5);
+    color: #94a3b8;
+}
+html.dark .dash-body .checklist-preview-modal-footer .checklist-modal-cancel-btn:hover {
+    background: rgba(71,85,105,0.2);
+    color: #f1f5f9;
+}
+.checklist-submit-btn {
+    width: 100%;
+    min-height: 52px;
+    font-size: 0.95rem;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(5, 45, 127, 0.35);
+}
+
+/* Dark Mode overrides for Checklist Preview inside Modal */
+.checklist-preview-modal-body .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 0.82rem;
+}
+.checklist-preview-modal-body .info-table th {
+    border: 1px solid #e2e8f0;
+    padding: 7px 10px;
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    text-align: left;
+    font-size: 0.82rem;
+}
+.checklist-preview-modal-body .info-table td {
+    border: 1px solid #e2e8f0;
+    padding: 7px 10px;
+    vertical-align: middle;
+    color: #334155;
+}
+.checklist-preview-modal-body .info-table .label {
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #475569;
+    width: 38%;
+    vertical-align: top;
+}
+html.dark .dash-body .checklist-preview-modal-body .info-table th {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(8, 20, 50, 0.55);
+    color: #94a3b8;
+}
+html.dark .dash-body .checklist-preview-modal-body .info-table td {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+}
+html.dark .dash-body .checklist-preview-modal-body .info-table .label {
+    background: rgba(8, 20, 50, 0.55);
+    color: #94a3b8;
+}
+html.dark .dash-body .pvw-catatan {
+    background: rgba(30, 41, 59, 0.3);
+    border-color: rgba(71, 85, 105, 0.3);
+    color: #e2e8f0;
+}
+html.dark .dash-body .pvw-sig-img {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(71, 85, 105, 0.35);
+}
+html.dark .dash-body .pvw-perlengkapan-item.ada {
+    background: rgba(20, 83, 45, 0.25);
+    color: #86efac;
+}
+html.dark .dash-body .pvw-perlengkapan-item.tidak {
+    background: rgba(127, 29, 29, 0.25);
+    color: #fca5a5;
+}
+html.dark .dash-body .pvw-photo-slot img {
+    border-color: rgba(71, 85, 105, 0.35);
+    background: rgba(30, 41, 59, 0.45);
+}
 </style>
 @endpush
 
@@ -513,22 +715,6 @@ html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { fil
                 </div>
             </section>
 
-            {{-- ==================== STEP 8: PREVIEW ==================== --}}
-            <section class="wizard-step" data-step="8">
-                <div class="section-banner">
-                    <svg class="section-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
-                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    <span>8. Preview Ringkasan Checklist</span>
-                </div>
-                <div id="preview-content">
-                    <div style="text-align:center;padding:48px 0;color:#94a3b8">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="margin-bottom:12px;opacity:.4"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        <p style="font-size:.88rem">Memuat ringkasan data...</p>
-                    </div>
-                </div>
-            </section>
         </form>
     </main>
 
@@ -541,6 +727,44 @@ html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { fil
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
     </footer>
+</div>
+@endsection
+
+@section('modals')
+{{-- ── Modal Preview Checklist ── --}}
+<div id="checklist-preview-overlay" role="dialog" aria-modal="true" aria-labelledby="checklist-preview-modal-title">
+    <div class="checklist-preview-modal">
+        <div class="checklist-preview-modal-header">
+            <div class="checklist-preview-modal-header-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="checklist-preview-modal-title">
+                <h3 id="checklist-preview-modal-title">Ringkasan Laporan Checklist</h3>
+                <p>Periksa kembali data sebelum mengirim.</p>
+            </div>
+            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite checklist-preview-modal-close" id="checklist-preview-close" title="Tutup" aria-label="Tutup">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="checklist-preview-modal-body sppd-detail-html">
+            <div id="preview-content">
+                <div style="text-align:center;padding:48px 0;color:#94a3b8">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="margin-bottom:12px;opacity:.4"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <p style="font-size:.88rem">Memuat ringkasan data...</p>
+                </div>
+            </div>
+        </div>
+        <div class="checklist-preview-modal-footer">
+            <button type="button" class="checklist-modal-cancel-btn" id="checklist-preview-cancel">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Kembali
+            </button>
+            <button type="button" class="checklist-nav-btn checklist-nav-next final checklist-submit-btn" id="checklist-submit">
+                <i class="bi bi-send-fill checklist-submit-icon" aria-hidden="true"></i>
+                Generate PDF
+            </button>
+        </div>
+    </div>
 </div>
 @endsection
 

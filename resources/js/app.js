@@ -747,6 +747,45 @@ document.addEventListener('turbo:load', async () => {
     const totalStep = steps.length;
     let refreshSignaturePads = () => {};
 
+    const previewOverlay = document.getElementById('checklist-preview-overlay');
+    const previewClose   = document.getElementById('checklist-preview-close');
+    const previewCancel  = document.getElementById('checklist-preview-cancel');
+    const previewSubmit  = document.getElementById('checklist-submit');
+    const previewSubmitHtml = previewSubmit ? previewSubmit.innerHTML : '';
+
+    const openPreviewModal = () => {
+        if (!previewOverlay) return;
+        previewOverlay.style.display = 'flex';
+        previewOverlay.classList.remove('active');
+        void previewOverlay.offsetWidth;
+        previewOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        const body = previewOverlay.querySelector('.checklist-preview-modal-body');
+        if (body) body.scrollTop = 0;
+    };
+
+    const closePreviewModal = () => {
+        if (!previewOverlay) return;
+        previewOverlay.classList.remove('active');
+        previewOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    previewClose?.addEventListener('click', closePreviewModal);
+    previewCancel?.addEventListener('click', closePreviewModal);
+    previewOverlay?.addEventListener('click', (e) => {
+        if (e.target.id === 'checklist-preview-overlay') closePreviewModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && previewOverlay && previewOverlay.style.display !== 'none') {
+            closePreviewModal();
+        }
+    });
+
+    previewSubmit?.addEventListener('click', async () => {
+        await submitChecklist();
+    });
+
     const updateWizardUI = () => {
         steps.forEach(s => s.classList.toggle('active', +s.dataset.step === currentStep));
         const pct = Math.round((currentStep / totalStep) * 100);
@@ -755,9 +794,6 @@ document.addEventListener('turbo:load', async () => {
         if (progressPct) progressPct.textContent = `${pct}%`;
         prevButton.disabled = currentStep === 1;
         if (currentStep === totalStep) {
-            nextButton.classList.add('final');
-            nextButton.innerHTML = `GENERATE PDF <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>`;
-        } else if (currentStep === totalStep - 1) {
             nextButton.classList.remove('final');
             nextButton.innerHTML = `LIHAT PREVIEW <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>`;
         } else {
@@ -872,16 +908,22 @@ document.addEventListener('turbo:load', async () => {
 
     nextButton.addEventListener('click', async () => {
         if (!await validateCurrentStep()) return;
-        if (currentStep === totalStep - 1) {
+        if (currentStep === totalStep) {
             const konfirmasi = document.getElementById('konfirmasi_data');
             if (konfirmasi && !konfirmasi.checked) {
                 await clSwalError('Konfirmasi Diperlukan', 'Anda harus mencentang checkbox konfirmasi data sebelum dapat melihat preview.');
                 return;
             }
-            populatePreview(); currentStep++; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); return;
+            populatePreview();
+            openPreviewModal();
+            return;
         }
-        if (currentStep < totalStep) { currentStep++; updateWizardUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-        await submitChecklist();
+        if (currentStep < totalStep) {
+            currentStep++;
+            updateWizardUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
     });
 
     const populatePreview = () => {
@@ -901,11 +943,11 @@ document.addEventListener('turbo:load', async () => {
         const sigSerahUrl  = window._sigPadSerah  && !window._sigPadSerah.isEmpty()  ? window._sigPadSerah.toDataURL()  : null;
         const sigTerimaUrl = window._sigPadTerima && !window._sigPadTerima.isEmpty() ? window._sigPadTerima.toDataURL() : null;
         const badge = v => v === 'OK' ? `<span class="pvw-badge pvw-ok">OK</span>` : v === 'NO' ? `<span class="pvw-badge pvw-no">NO</span>` : `<span class="pvw-badge">—</span>`;
-        const pvwRow = (label, value) => `<div class="pvw-row"><span class="pvw-label">${esc(label)}</span><span class="pvw-value">${value}</span></div>`;
-        const pvwSection = (title, body) => `<div class="pvw-section"><div class="pvw-section-head"><span>${esc(title)}</span></div><div class="pvw-section-body">${body}</div></div>`;
+        const pvwRow = (label, value) => `<tr><td class="label">${esc(label)}</td><td>${value}</td></tr>`;
+        const pvwSection = (title, body) => `<div class="pvw-section-group" style="margin-bottom: 20px;"><h3 class="sppd-toll-leg-title">${esc(title)}</h3><div>${body}</div></div>`;
         const pvwTable = (items, labels, prefix) => {
-            const rows = items.map(k => { const val = rv(`${prefix}_${k}`); const note = nv(`${prefix}_${k}_catatan`); return `<tr><td>${esc(labels[k]||k)}</td><td>${badge(val)}</td><td class="pvw-note-cell">${note ? esc(note) : '<span class="pvw-none">—</span>'}</td></tr>`; }).join('');
-            return `<table class="pvw-table"><thead><tr><th>Item</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>${rows}</tbody></table>`;
+            const rows = items.map(k => { const val = rv(`${prefix}_${k}`); const note = nv(`${prefix}_${k}_catatan`); return `<tr><td>${esc(labels[k]||k)}</td><td style="width: 15%; text-align: center;">${badge(val)}</td><td>${note ? esc(note) : '<span class="pvw-none">—</span>'}</td></tr>`; }).join('');
+            return `<table class="info-table"><thead><tr><th>Item</th><th style="width: 15%; text-align: center;">Status</th><th>Keterangan</th></tr></thead><tbody>${rows}</tbody></table>`;
         };
         const pvwPhotos = sources => { const imgs = sources.filter(p => p.src).map(p => `<div class="pvw-photo-slot"><img src="${p.src}" alt="${esc(p.label)}"><span>${esc(p.label)}</span></div>`).join(''); return imgs ? `<div class="pvw-photo-grid">${imgs}</div>` : ''; };
         const extItems = ['body_kendaraan','kaca','spion','lampu_utama','lampu_sein','ban','velg','wiper'];
@@ -921,11 +963,11 @@ document.addEventListener('turbo:load', async () => {
         const catatanVal = nv('catatan_khusus');
         container.innerHTML = `
             <div class="pvw-notice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Periksa semua data di bawah ini. Klik <strong>GENERATE PDF</strong> untuk menyimpan dan membuat laporan.</span></div>
-            ${pvwSection('A. Identitas Unit', `${pvwRow('Tanggal',esc(fv('tanggal')))}${pvwRow('Shift',esc(fv('shift')))}${pvwRow('Jam Serah Terima',esc(fv('jam_serah_terima')))}${pvwRow('Nomor Kendaraan',`<strong>${esc(fv('nomor_kendaraan'))}</strong>`)}${pvwRow('Jenis Kendaraan',esc(fv('jenis_kendaraan')))}${pvwRow('Driver Menyerahkan',esc(fv('driver_serah')))}${pvwRow('Driver Menerima',esc(fv('driver_terima')))}`)}
+            ${pvwSection('A. Identitas Unit', `<table class="info-table">${pvwRow('Tanggal',esc(fv('tanggal')))}${pvwRow('Shift',esc(fv('shift')))}${pvwRow('Jam Serah Terima',esc(fv('jam_serah_terima')))}${pvwRow('Nomor Kendaraan',`<strong>${esc(fv('nomor_kendaraan'))}</strong>`)}${pvwRow('Jenis Kendaraan',esc(fv('jenis_kendaraan')))}${pvwRow('Driver Menyerahkan',esc(fv('driver_serah')))}${pvwRow('Driver Menerima',esc(fv('driver_terima')))}</table>`)}
             ${pvwSection('B. Kondisi Eksterior', pvwTable(extItems,extLabels,'exterior')+pvwPhotos(['depan','kanan','kiri','belakang'].map(s=>({label:s.toUpperCase(),src:photoSrc(`exterior_foto_${s}`)}))))}
             ${pvwSection('C. Kondisi Interior', pvwTable(intItems,intLabels,'interior')+pvwPhotos([1,2,3].map(i=>({label:`Foto ${i}`,src:photoSrc(`interior_foto_${i}`)})))) }
             ${pvwSection('D. Kondisi Mesin',    pvwTable(msnItems,msnLabels,'mesin')+pvwPhotos([1,2,3].map(i=>({label:`Foto ${i}`,src:photoSrc(`mesin_foto_${i}`)})))) }
-            ${pvwSection('E. BBM & Kilometer', `${pvwRow('Level BBM',`<strong>${esc(fv('level_bbm'))}%</strong>`)}${pvwRow('Pengisian BBM Terakhir',esc(bbmTerakhir))}${pvwRow('KM Awal',esc(fv('km_awal')))}${pvwRow('KM Akhir',esc(fv('km_akhir')))}${bbmPhotoSrc?`<div class="pvw-photo-grid"><div class="pvw-photo-slot"><img src="${bbmPhotoSrc}" alt="Dashboard BBM"><span>Dashboard BBM</span></div></div>`:''}`)}
+            ${pvwSection('E. BBM & Kilometer', `<table class="info-table">${pvwRow('Level BBM',`<strong>${esc(fv('level_bbm'))}%</strong>`)}${pvwRow('Pengisian BBM Terakhir',esc(bbmTerakhir))}${pvwRow('KM Awal',esc(fv('km_awal')))}${pvwRow('KM Akhir',esc(fv('km_akhir')))}</table>${bbmPhotoSrc?`<div class="pvw-photo-grid"><div class="pvw-photo-slot"><img src="${bbmPhotoSrc}" alt="Dashboard BBM"><span>Dashboard BBM</span></div></div>`:''}`)}
             ${pvwSection('F. Perlengkapan Unit', `<div class="pvw-perlengkapan-grid">${Object.entries(plItems).map(([k,label])=>{const ada=cbv(`perlengkapan[${k}]`);return `<div class="pvw-perlengkapan-item ${ada?'ada':'tidak'}"><span class="pvw-pl-icon">${ada?'✓':'✗'}</span><span>${esc(label)}</span></div>`;}).join('')}</div>`)}
             ${pvwSection('G. Catatan & Tanda Tangan', `<div style="margin-bottom:14px"><span class="pvw-label" style="display:block;margin-bottom:6px">Catatan Tambahan</span>${catatanVal?`<div class="pvw-catatan">${esc(catatanVal)}</div>`:'<span class="pvw-none">Tidak ada catatan tambahan.</span>'}</div><div class="pvw-sig-grid"><div class="pvw-sig-block"><div class="pvw-sig-label">TTD Driver Menyerahkan</div>${sigSerahUrl?`<img src="${sigSerahUrl}" class="pvw-sig-img" alt="TTD Serah">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div><div class="pvw-sig-block"><div class="pvw-sig-label">TTD Driver Menerima</div>${sigTerimaUrl?`<img src="${sigTerimaUrl}" class="pvw-sig-img" alt="TTD Terima">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div></div>`)}
         `;
@@ -956,8 +998,10 @@ document.addEventListener('turbo:load', async () => {
         }
         const formData = new FormData(form);
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
-        nextButton.disabled = true;
-        nextButton.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px"><svg class="spin-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="31" stroke-linecap="round"></circle></svg> MEMPROSES...</span>';
+        if (previewSubmit) {
+            previewSubmit.disabled = true;
+            previewSubmit.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px"><svg class="spin-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="31" stroke-linecap="round"></circle></svg> MEMPROSES...</span>';
+        }
         try {
             const res  = await fetch(form.action, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' }, body: formData });
             const data = await res.json();
@@ -967,10 +1011,11 @@ document.addEventListener('turbo:load', async () => {
                     const hiddenEl = document.getElementById(hidden); if (hiddenEl) hiddenEl.value = '';
                     const hintEl = wizardRoot.querySelector(`[data-sig-hint="${hint}"]`); if (hintEl) hintEl.classList.remove('hidden');
                 });
+                closePreviewModal();
                 const pdfResult = await Swal.fire({
                     icon: 'success',
                     title: 'PDF Berhasil Dibuat!',
-                    text: 'Laporan checklist kendaraan telah berhasil di-generate dan disimpan.',
+                    text: 'Laporan checklist kendaraan telah berhasil disimpan.',
                     showDenyButton: true,
                     confirmButtonText: 'Kembali ke Dashboard',
                     denyButtonText: 'Lihat PDF',
@@ -981,6 +1026,7 @@ document.addEventListener('turbo:load', async () => {
                 }
                 window.location.href = '/dashboard';
             } else {
+                closePreviewModal();
                 await Swal.fire({
                     icon: 'error',
                     title: 'Gagal Membuat PDF',
@@ -988,10 +1034,14 @@ document.addEventListener('turbo:load', async () => {
                     confirmButtonText: 'Coba Lagi',
                     ...clSwalDialog(),
                 });
-                nextButton.disabled = false; updateWizardUI();
+                if (previewSubmit) {
+                    previewSubmit.disabled = false;
+                    previewSubmit.innerHTML = previewSubmitHtml;
+                }
             }
         } catch (err) {
             console.error(err);
+            closePreviewModal();
             await Swal.fire({
                 icon: 'error',
                 title: 'Koneksi Bermasalah',
@@ -999,7 +1049,10 @@ document.addEventListener('turbo:load', async () => {
                 confirmButtonText: 'OK',
                 ...clSwalDialog(),
             });
-            nextButton.disabled = false; updateWizardUI();
+            if (previewSubmit) {
+                previewSubmit.disabled = false;
+                previewSubmit.innerHTML = previewSubmitHtml;
+            }
         }
     };
 
