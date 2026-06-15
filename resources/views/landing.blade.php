@@ -104,6 +104,9 @@
         }
 
         /* ── FORM SECTION ── */
+        .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
+        html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); }
+
         .lp-form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;

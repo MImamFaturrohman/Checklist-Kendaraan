@@ -203,14 +203,6 @@ function initVulForm() {
         }
     });
 
-    // Progress bar — single step, selalu penuh
-    const progressFill = document.getElementById('vul-progress-fill');
-    const stepLabel    = document.getElementById('vul-step-label');
-    const progressPct  = document.getElementById('vul-progress-pct');
-    if (progressFill) progressFill.style.width = '100%';
-    if (stepLabel) stepLabel.textContent = 'LENGKAPI SEMUA DATA';
-    if (progressPct) progressPct.textContent = '';
-
     /* ── Submit (dari tombol di dalam modal) ── */
     form.addEventListener('submit', async (e) => {
         e.preventDefault();

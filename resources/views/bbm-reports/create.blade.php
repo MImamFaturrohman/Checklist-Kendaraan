@@ -315,12 +315,119 @@
     html.dark .dash-body p.bbm-step3-hint { color: #94a3b8; }
     html.dark .dash-body p.bbm-step3-hint strong { color: #facc15; }
 
-    .swal-bbm-popup { background: rgba(255, 255, 255, 0.9) }
-    html.dark .dash-body .swal-bbm-popup {
-        color: #f3f4f6;
-        background: rgba(16, 38, 80, 0.78);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    .swal-bbm-icon-success {
+        box-sizing: content-box !important;
     }
+    .swal-bbm-icon-success * {
+        box-sizing: content-box !important;
+    }
+    .swal2-popup.swal-bbm-popup .swal2-success-circular-line-left,
+    .swal2-popup.swal-bbm-popup .swal2-success-circular-line-right,
+    .swal2-popup.swal-bbm-popup .swal2-success-fix {
+        background: transparent !important;
+    }
+    .swal2-popup.swal-bbm-popup {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 20px !important;
+        width: 420px !important;
+        max-width: calc(100% - 32px) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid rgba(11, 44, 107, 0.12) !important;
+        padding: 1.5rem 1.25rem 1.5rem !important;
+    }
+    html.dark .dash-body .swal2-popup.swal-bbm-popup {
+        color: #f3f4f6 !important;
+        background: rgba(16, 38, 80, 0.78) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .swal-bbm-popup .swal2-actions {
+        margin: 1.25rem auto 0 !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+    .swal-bbm-popup button.swal-bbm-confirm {
+        margin: 0 !important;
+        background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
+        padding: 0.7rem 1.5rem !important;
+        min-width: 8.5rem !important;
+        box-shadow: 0 4px 14px rgba(11, 44, 107, 0.3) !important;
+        cursor: pointer !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    .swal-bbm-popup button.swal-bbm-confirm:hover {
+        box-shadow: 0 6px 18px rgba(11, 44, 107, 0.38) !important;
+        transform: translateY(-1px);
+    }
+    .swal-bbm-popup button.swal-bbm-cancel {
+        margin: 0 !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        font-size: 0.88rem !important;
+        padding: 0.7rem 1.35rem !important;
+        min-width: 7rem !important;
+        border: 2px solid #cbd5e1 !important;
+        background: #f8fafc !important;
+        color: #475569 !important;
+        cursor: pointer !important;
+    }
+    .swal-bbm-popup button.swal-bbm-cancel:hover {
+        background: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
+    }
+    html.dark .dash-body .swal-bbm-popup button.swal-bbm-cancel {
+        background: rgba(30, 41, 59, 0.8) !important;
+        border-color: rgba(148, 163, 184, 0.35) !important;
+        color: #e2e8f0 !important;
+    }
+    html.dark .dash-body .swal-bbm-popup button.swal-bbm-cancel:hover {
+        background: rgba(30, 41, 59, 0.95) !important;
+        border-color: rgba(148, 163, 184, 0.5) !important;
+    }
+    .swal-bbm-lead {
+        margin: 0 0 6px;
+        font-size: 0.82rem;
+        color: #64748b;
+        line-height: 1.45;
+    }
+    html.dark .dash-body .swal-bbm-lead { color: #94a3b8; }
+    .swal-bbm-title {
+        font-size: 1.15rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+    }
+
+    html.dark .dash-body .swal-bbm-title { color: #f1f5f9 !important; }
+    .swal-bbm-error-box {
+        text-align: left;
+        margin-top: 0.75rem;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+    html.dark .dash-body .swal-bbm-error-box {
+        background: rgba(127, 29, 29, 0.25);
+        border-color: rgba(248, 113, 113, 0.35);
+    }
+    .swal-bbm-list {
+        text-align: left;
+        margin: 0.25rem 0 0;
+        padding-left: 1.2rem;
+        line-height: 1.55;
+        font-size: 0.9rem;
+        color: #334155;
+    }
+
+    html.dark .dash-body .swal-bbm-list { color: #f1f5f9; }
 
 </style>
 @endpush
@@ -341,22 +448,13 @@
 
             <div class="checklist-progress-head">
                 <div class="checklist-progress-info">
-                    <span id="bbm-step-label">LANGKAH 1 DARI 2</span>
-                    <span id="bbm-progress-pct">50%</span>
-                </div>
-                <div class="checklist-progress-track">
-                    <span id="bbm-progress-fill"></span>
+                    <span style="font-size: 1.3em;"><i class="bi bi-fuel-pump-fill"></i> DATA KENDARAAN &amp; PENGISIAN BBM</span>
                 </div>
             </div>
 
             <section class="wizard-step active" data-step="1">
-                <div class="section-banner">
-                    <i class="bi bi-fuel-pump-fill section-banner-icon"></i>
-                    <span>Data Kendaraan & Pengisian BBM</span>
-                </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>Data Kendaraan</span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select name="nomor_kendaraan" id="bbm-nopol" required>
                                 <option value="">Pilih Nomor Kendaraan</option>
@@ -367,7 +465,6 @@
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span style="visibility: hidden">&nbsp;</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="bbm-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis terisi…" autocomplete="off">
                         </div>

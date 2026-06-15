@@ -86,15 +86,30 @@
         .vul-bbm-stack { grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
     }
 
+    .vul-swal-dialog .swal2-icon {
+        box-sizing: content-box !important;
+    }
+    .vul-swal-dialog .swal2-icon * {
+        box-sizing: content-box !important;
+    }
+    .swal2-popup.vul-swal-dialog .swal2-success-circular-line-left,
+    .swal2-popup.vul-swal-dialog .swal2-success-circular-line-right,
+    .swal2-popup.vul-swal-dialog .swal2-success-fix {
+        background: transparent !important;
+    }
     .swal2-popup.vul-swal-dialog {
         border-radius: 16px !important;
         padding: 1.35rem 1.25rem 1.5rem !important;
         border: 1px solid rgba(11, 44, 107, 0.12);
+        background: rgba(255, 255, 255, 0.9) !important;
+        width: 420px !important;
+        max-width: calc(100% - 32px) !important;
     }
     html.dark .dash-body .swal2-popup.vul-swal-dialog {
-        color: #f3f4f6;
-        background: rgba(16, 38, 80, 0.78);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        color: #f3f4f6 !important;
+        background: rgba(16, 38, 80, 0.78) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
     }
     .swal2-title.vul-swal-title {
         font-size: 1.15rem !important;
@@ -366,29 +381,19 @@
 
             <div class="checklist-progress-head">
                 <div class="checklist-progress-info">
-                    <span id="vul-step-label">LENGKAPI SEMUA DATA</span>
-                    <span id="vul-progress-pct">100%</span>
-                </div>
-                <div class="checklist-progress-track">
-                    <span id="vul-progress-fill" style="width:100%"></span>
+                    <span id="vul-step-label" style="font-size: 1.3em;"><i class="bi bi-truck-front-fill banner-icon"></i> DATA PENGGUNAAN KENDARAAN</span>
                 </div>
             </div>
 
             {{-- Langkah 1 — Data Penggunaan + Level BBM & Kilometer + Kondisi Kendaraan --}}
             <section class="wizard-step active" data-step="1">
-                <div class="section-banner">
-                    <i class="section-banner-icon bi bi-truck-front-fill" style="margin-top: 8px;"></i>
-                    <span>Data Penggunaan</span>
-                </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>Nama</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="vul-nama" readonly class="checklist-input-readonly" value="{{ $user->name ?? $user->username }}" autocomplete="name">
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span>No. Kendaraan</span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select name="nomor_kendaraan" id="vul-nopol">
                                 <option value="">Pilih nomor kendaraan</option>
@@ -399,7 +404,6 @@
                         </div>
                     </label>
                     <label class="checklist-field checklist-field-span2">
-                        <span>Jenis Kendaraan</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="vul-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis dari no. kendaraan" autocomplete="off">
                         </div>
@@ -457,7 +461,7 @@
                     </div>
                 </div>
 
-                <div class="checklist-grid-two">
+                <div class="checklist-grid-two" style="margin-top: 10px;">
                     <label class="checklist-field checklist-field-span2">
                         <span>Kondisi sebelum penggunaan</span>
                         <div class="checklist-control-wrap">

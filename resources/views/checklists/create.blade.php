@@ -68,10 +68,24 @@
 @push('styles')
 <style>
 /* SweetAlert2 — checklist wizard (cl-swal-*) */
+.cl-swal-dialog .swal2-icon {
+    box-sizing: content-box !important;
+}
+.cl-swal-dialog .swal2-icon * {
+    box-sizing: content-box !important;
+}
+.swal2-popup.cl-swal-dialog .swal2-success-circular-line-left,
+.swal2-popup.cl-swal-dialog .swal2-success-circular-line-right,
+.swal2-popup.cl-swal-dialog .swal2-success-fix {
+    background: transparent !important;
+}
 .swal2-popup.cl-swal-dialog {
     border-radius: 16px !important;
     padding: 1.35rem 1.25rem 1.5rem !important;
     border: 1px solid rgba(11, 44, 107, 0.12);
+    background: rgba(255, 255, 255, 0.9) !important;
+    width: 420px !important;
+    max-width: calc(100% - 32px) !important;
 }
 .dash-body.dark .swal2-popup.cl-swal-dialog {
     background: rgba(16, 38, 80, 0.78) !important;
@@ -150,15 +164,14 @@
     border-color: rgba(74, 222, 128, 0.4) !important;
     color: #86efac !important;
 }
-.cl-swal-error-box {
-    text-align: left;
+.cl-swal-error-text {
     margin-top: 0.75rem;
     padding: 10px 14px;
     border-radius: 10px;
     background: #fef2f2;
     border: 1px solid #fecaca;
 }
-.dash-body.dark .cl-swal-error-box {
+.dash-body.dark .cl-swal-error-text {
     background: rgba(127, 29, 29, 0.25);
     border-color: rgba(248, 113, 113, 0.35);
 }
@@ -173,6 +186,9 @@
 .dash-body.dark .cl-swal-error-list { color: #e2e8f0; }
 .cl-swal-error-list li { margin: 0.35rem 0; }
 .dash-body.dark .swal2-html-container { color: #e2e8f0 !important; }
+
+.dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
+html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); }
 </style>
 @endpush
 

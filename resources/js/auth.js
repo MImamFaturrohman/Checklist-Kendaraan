@@ -18,6 +18,7 @@
         body.classList.toggle('light-mode', isLight);
         /* sync html.dark so the FOUC rule stays consistent */
         html.classList.toggle('dark', !isLight);
+        html.style.colorScheme = isLight ? 'light' : 'dark';
         icon.className = isLight ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
     }
 

@@ -14,7 +14,7 @@ document.addEventListener('turbo:load', () => {
     const sumTol = document.getElementById('sppd-sum-tol');
     const sumBbm = document.getElementById('sppd-sum-bbm');
     const sumGrand = document.getElementById('sppd-sum-grand');
-    const step4Summary = document.getElementById('sppd-step4-summary');
+    const step4Summary = document.getElementById('sppd-review-root');
 
     const swalFormTheme = () =>
         document.body.classList.contains('dark')
@@ -30,11 +30,8 @@ document.addEventListener('turbo:load', () => {
     const stepLabel = document.getElementById('sppd-step-label');
     const progressPct = document.getElementById('sppd-progress-pct');
     const progressFill = document.getElementById('sppd-progress-fill');
-    const prevBtn = document.getElementById('sppd-prev');
     const nextBtn = document.getElementById('sppd-next');
     const submitBtn = document.getElementById('sppd-submit');
-    const steps = Array.from(root.querySelectorAll('[data-sppd-step]'));
-    let currentStep = 1;
 
     let tollBerIdx = tollsBerWrap.querySelectorAll('[data-toll-row]').length;
     let tollKemIdx = tollsKemWrap.querySelectorAll('[data-toll-row]').length;
@@ -46,7 +43,17 @@ document.addEventListener('turbo:load', () => {
             jenis.value = opt?.dataset?.jenis || '';
         };
         nopol.addEventListener('change', syncJenis);
-        syncJenis();
+
+        // Gunakan requestAnimationFrame + setTimeout sebagai fallback untuk memastikan
+        // browser sudah selesai merender selectedIndex yang benar sebelum kita baca,
+        // terutama saat halaman di-restore dari Turbo cache atau saat mode edit.
+        requestAnimationFrame(() => {
+            syncJenis();
+            // Fallback ekstra jika rAF belum cukup (misalnya browser lambat render select)
+            if (!jenis.value) {
+                setTimeout(syncJenis, 0);
+            }
+        });
     }
 
     const formatRp = (n) => {
@@ -56,7 +63,7 @@ document.addEventListener('turbo:load', () => {
 
     const escapeHtml = (s) => {
         const d = document.createElement('div');
-        d.textContent = s;
+        d.textContent = s ?? '';
         return d.innerHTML;
     };
 
@@ -204,9 +211,7 @@ document.addEventListener('turbo:load', () => {
         sumTol.textContent = formatRp(tTol);
         sumBbm.textContent = formatRp(tBbm);
         sumGrand.textContent = formatRp(tTol + tBbm);
-        if (currentStep === steps.length) {
-            renderStep4Summary();
-        }
+        renderStep4Summary();
     };
 
     const showResult = (ok, title, msg, buttons) => {
@@ -299,7 +304,7 @@ document.addEventListener('turbo:load', () => {
     const validateFuels = () => {
         const rows = Array.from(fuelsWrap.querySelectorAll('[data-fuel-row]'));
         if (rows.length === 0) {
-            showErrorModal('BBM', 'Tambahkan minimal satu baris BBM dan isi baris pertama.');
+            showErrorModal('BBM', 'Tambahkan minimal satu baris BBM and isi baris pertama.');
             return false;
         }
         const first = rows[0];
@@ -354,48 +359,56 @@ document.addEventListener('turbo:load', () => {
     };
 
     const validateVisibleStep = () => {
-        const visible = steps.find((s) => s.classList.contains('active'));
-        if (!visible) return true;
-        const stepNum = parseInt(visible.getAttribute('data-sppd-step'), 10);
-        if (stepNum === 1) {
-            if (!validateRequiredFields(visible)) return false;
-            if (!validateTolls()) return false;
-            return validateFuels();
-        }
-        return true;
+        if (!validateRequiredFields(form)) return false;
+        if (!validateTolls()) return false;
+        return validateFuels();
     };
 
-    const updateStepUi = () => {
-        const total = steps.length || 1;
-        steps.forEach((step, idx) => {
-            step.classList.toggle('active', idx + 1 === currentStep);
-        });
-        const pct = Math.round((currentStep / total) * 100);
-        if (stepLabel) stepLabel.textContent = `LANGKAH ${currentStep} DARI ${total}`;
-        if (progressPct) progressPct.textContent = `${pct}%`;
-        if (progressFill) progressFill.style.width = `${pct}%`;
-        if (prevBtn) prevBtn.disabled = currentStep === 1;
-        if (nextBtn) {
-            const hideNext = currentStep >= total;
-            nextBtn.classList.toggle('sppd-next--hidden', hideNext);
-            nextBtn.setAttribute('aria-hidden', hideNext ? 'true' : 'false');
-        }
-        if (submitBtn) {
-            const hideSubmit = currentStep < total;
-            submitBtn.classList.toggle('sppd-submit--hidden', hideSubmit);
-            submitBtn.setAttribute('aria-hidden', hideSubmit ? 'true' : 'false');
-        }
-        if (currentStep === steps.length) {
-            renderStep4Summary();
-        }
+    /* ── Modal Preview SPPD ── */
+    const openPreviewModal = () => {
+        renderStep4Summary();
+        const overlay = document.getElementById('sppd-preview-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'flex';
+        overlay.classList.remove('active');
+        void overlay.offsetWidth;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        const body = overlay.querySelector('.sppd-preview-modal-body');
+        if (body) body.scrollTop = 0;
     };
+
+    const closePreviewModal = () => {
+        const overlay = document.getElementById('sppd-preview-overlay');
+        if (!overlay) return;
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    nextBtn?.addEventListener('click', () => {
+        if (!validateVisibleStep()) return;
+        openPreviewModal();
+    });
+
+    document.getElementById('sppd-preview-close')?.addEventListener('click', closePreviewModal);
+    document.getElementById('sppd-preview-cancel')?.addEventListener('click', closePreviewModal);
+    document.getElementById('sppd-preview-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'sppd-preview-overlay') closePreviewModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const overlay = document.getElementById('sppd-preview-overlay');
+            if (overlay && overlay.style.display !== 'none') closePreviewModal();
+        }
+    });
 
     root.addEventListener('input', (e) => {
         if (e.target.matches('.sppd-toll-harga, .sppd-fuel-liter, .sppd-fuel-hpl')) {
             recalcTotals();
             return;
         }
-        if (e.target.matches('[name="keperluan_dinas"],[name="tujuan"]') && currentStep === steps.length) {
+        if (e.target.matches('[name="keperluan_dinas"],[name="tujuan"]')) {
             renderStep4Summary();
         }
     });
@@ -455,9 +468,9 @@ document.addEventListener('turbo:load', () => {
         line.dataset.tollRow = '';
         line.innerHTML = `
             <div class="sppd-row sppd-toll-inputs">
-                <label class="checklist-field"><span>Dari Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_berangkat[${tollBerIdx}][dari_tol]"></div></label>
-                <label class="checklist-field"><span>Ke Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_berangkat[${tollBerIdx}][ke_tol]"></div></label>
-                <label class="checklist-field"><span>Harga</span><div class="checklist-control-wrap"><input type="number" name="tolls_berangkat[${tollBerIdx}][harga]" class="sppd-toll-harga" min="0" step="1"></div></label>
+                <label class="checklist-field"><div class="checklist-control-wrap"><input type="text" name="tolls_berangkat[${tollBerIdx}][dari_tol]" placeholder="Dari Tol"></div></label>
+                <label class="checklist-field"><div class="checklist-control-wrap"><input type="text" name="tolls_berangkat[${tollBerIdx}][ke_tol]" placeholder="Ke Tol"></div></label>
+                <label class="checklist-field"><div class="checklist-control-wrap"><input type="number" name="tolls_berangkat[${tollBerIdx}][harga]" class="sppd-toll-harga" min="0" step="1" placeholder="Harga"></div></label>
             </div>
             <button type="button" class="sppd-line-remove" data-remove-toll title="Hapus baris tol" aria-label="Hapus baris tol"><i class="bi bi-dash-lg"></i></button>
         `;
@@ -471,9 +484,9 @@ document.addEventListener('turbo:load', () => {
         line.dataset.tollRow = '';
         line.innerHTML = `
             <div class="sppd-row sppd-toll-inputs">
-                <label class="checklist-field"><span>Dari Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_kembali[${tollKemIdx}][dari_tol]"></div></label>
-                <label class="checklist-field"><span>Ke Tol</span><div class="checklist-control-wrap"><input type="text" name="tolls_kembali[${tollKemIdx}][ke_tol]"></div></label>
-                <label class="checklist-field"><span>Harga</span><div class="checklist-control-wrap"><input type="number" name="tolls_kembali[${tollKemIdx}][harga]" class="sppd-toll-harga" min="0" step="1"></div></label>
+                <label class="checklist-field"><div class="checklist-control-wrap"><input type="text" name="tolls_kembali[${tollKemIdx}][dari_tol]" placeholder="Dari Tol"></div></label>
+                <label class="checklist-field"><div class="checklist-control-wrap"><input type="text" name="tolls_kembali[${tollKemIdx}][ke_tol]" placeholder="Ke Tol"></div></label>
+                <label class="checklist-field"><div class="checklist-control-wrap"><input type="number" name="tolls_kembali[${tollKemIdx}][harga]" class="sppd-toll-harga" min="0" step="1" placeholder="Harga"></div></label>
             </div>
             <button type="button" class="sppd-line-remove" data-remove-toll title="Hapus baris tol" aria-label="Hapus baris tol"><i class="bi bi-dash-lg"></i></button>
         `;
@@ -515,8 +528,16 @@ document.addEventListener('turbo:load', () => {
             const data = await res.json().catch(() => ({}));
             if (res.ok && data.success) {
                 const listUrl = data.redirect || `${window.location.origin}/sppd`;
+                closePreviewModal();
                 if (typeof Swal !== 'undefined') {
                     await Swal.fire({
+                        customClass: {
+                            icon: 'swal-sppd-icon-success',
+                            popup: 'swal-sppd-popup',
+                            title: 'swal-sppd-title',
+                            text: 'swal-sppd-text',
+                            confirm: 'swal-sppd-confirm',
+                        },
                         icon: 'success',
                         title: 'Berhasil',
                         text: 'Rekap SPPD berhasil dikirim.',
@@ -530,11 +551,13 @@ document.addEventListener('turbo:load', () => {
                     ]);
                 }
             } else {
+                closePreviewModal();
                 showResult(false, 'Gagal', data.message || 'Validasi gagal.', [{ label: 'OK', class: 'modal-btn-secondary' }]);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = prevHtml;
             }
         } catch {
+            closePreviewModal();
             showResult(false, 'Koneksi Bermasalah', 'Terjadi kesalahan jaringan. Silakan coba lagi.', [{ label: 'OK', class: 'modal-btn-secondary' }]);
             submitBtn.disabled = false;
             submitBtn.innerHTML = prevHtml;
@@ -548,6 +571,13 @@ document.addEventListener('turbo:load', () => {
         }
         if (typeof Swal !== 'undefined') {
             const r = await Swal.fire({
+                customClass: {
+                    popup: 'swal-sppd-popup',
+                    title: 'swal-sppd-title',
+                    text: 'swal-sppd-text',
+                    confirm: 'swal-sppd-confirm',
+                    cancel: 'swal-sppd-cancel',
+                },
                 icon: 'question',
                 title: 'Submit Laporan?',
                 text: 'Pastikan data sudah benar.',
@@ -562,18 +592,5 @@ document.addEventListener('turbo:load', () => {
         await submitReport();
     });
 
-    prevBtn?.addEventListener('click', () => {
-        if (currentStep <= 1) return;
-        currentStep -= 1;
-        updateStepUi();
-    });
-    nextBtn?.addEventListener('click', () => {
-        if (!validateVisibleStep()) return;
-        if (currentStep >= steps.length) return;
-        currentStep += 1;
-        updateStepUi();
-    });
-
     recalcTotals();
-    updateStepUi();
 });

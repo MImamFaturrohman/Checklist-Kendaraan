@@ -41,6 +41,7 @@ document.addEventListener('turbo:before-cache', function () {
     function applyTheme(dark) {
         html.classList.toggle('dark', dark);
         document.body.classList.toggle('dark', dark);
+        html.style.colorScheme = dark ? 'dark' : 'light';
         const icon  = document.getElementById('dash-theme-icon');
         const label = document.getElementById('dash-theme-label');
         if (icon)  icon.className    = dark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
@@ -782,7 +783,12 @@ document.addEventListener('turbo:load', async () => {
         title,
         text,
         confirmButtonText: 'Mengerti',
-        ...clSwalDialog(),
+        customClass: {
+            popup: 'cl-swal-dialog',
+            title: 'cl-swal-title',
+            htmlContainer: 'cl-swal-error-text',
+            confirmButton: 'cl-swal-confirm',
+        },
     });
 
     const validateCurrentStep = async () => {

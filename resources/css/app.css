@@ -6102,7 +6102,6 @@ html.dark .dash-body .portal-detail-catatan {
     color: #475569;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    border-bottom: 1.5px solid #e5e7eb;
 }
 .profile-card-header svg { color: #3b82f6; flex-shrink: 0; }
 .profile-card-body { padding: 14px 0 0; }
@@ -6194,7 +6193,6 @@ html.dark .dash-body .portal-detail-catatan {
 .profile-pw-accordion:hover { background: #f8fafc; border-radius: 10px; }
 .profile-pw-body {
     padding: 14px 16px 16px;
-    border-top: 1.5px solid #f1f5f9;
 }
 
 /* Alert */
@@ -6279,7 +6277,7 @@ html.dark .dash-body .portal-detail-catatan {
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.5s ease;
-    z-index: -2;
+    z-index: 0;
 }
 
 .dash-bg-wave, .dash-bg-sparkle, .dash-bg-royal-tint, .dash-bg-stardust {
@@ -6515,7 +6513,7 @@ html.dark .dash-body {
     transition: background 0.4s ease, color 0.4s ease;
 }
 
-html.dark .dash-body .dash-bg-cubes       { opacity: 0.8; }
+html.dark .dash-body .dash-bg-cubes       { opacity: 0.8; filter: contrast(1.1) brightness(0.9); }
 html.dark .dash-body .dash-bg-sparkle    { opacity: 0.92; mix-blend-mode: color-dodge; }
 html.dark .dash-body .dash-bg-royal-tint { opacity: 0; }
 html.dark .dash-body .dash-bg-stardust   { opacity: 0.2; }
@@ -6710,7 +6708,6 @@ html.dark .dash-body .profile-card + .profile-card {
 }
 
 html.dark .dash-body .profile-card-header {
-    border-bottom-color: rgba(255, 255, 255, 0.06);
     color: rgba(200, 218, 255, 0.65);
 }
 
@@ -6749,10 +6746,6 @@ html.dark .dash-body .profile-pw-accordion {
 }
 
 html.dark .dash-body .profile-pw-accordion:hover { background: rgba(255, 255, 255, 0.04); }
-
-html.dark .dash-body .profile-pw-body {
-    border-top-color: rgba(255, 255, 255, 0.06);
-}
 
 html.dark .dash-body .profile-alert-success {
     background: rgba(34, 197, 94, 0.12);
@@ -8812,6 +8805,7 @@ html.dark .dash-body .dash-topbar-icon-btn:hover {
 }
 .dash-logout-swal-popup {
     background: rgba(255, 255, 255, 0.93);
+    border-radius: 20px;
 }
 
 html.dark .dash-body .dash-logout-swal-popup {
@@ -9248,6 +9242,13 @@ html.dark .dash-body .dash-nav-drawer-logout-btn:hover {
 
     html:not(.dark) .dash-body .dash-bg-cubes {
         opacity: 0.8 !important;
+    }
+
+    /* Dark mode on mobile: restore visible opacity for cube pattern */
+    html.dark .dash-body .dash-bg-cubes {
+        opacity: 0.55 !important;
+        mix-blend-mode: screen !important;
+        filter: contrast(1.05) brightness(0.85) !important;
     }
 
     /* --- Stop SVG wave animations (GPU composite + paint) --- */

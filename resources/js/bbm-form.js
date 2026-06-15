@@ -201,17 +201,20 @@ function initBbmForm() {
         }
         return Swal.fire({
             icon: 'error',
-            title: 'Data belum valid',
+            title: 'Formulir belum valid',
             customClass: {
                 popup: 'swal-bbm-popup',
                 title: 'swal-bbm-title',
-                htmlContainer: 'swal-bbm-title',
+                htmlContainer: 'swal-bbm-html',
                 confirmButton: 'swal-bbm-confirm'
             },
+            buttonsStyling: false,
             html:
-                '<ul style="text-align:left;margin:0;padding-left:1.2rem">' +
+                '<p class="swal-bbm-lead">Mohon lengkapi isian terlebih dahulu:</p>' +
+                '<div class="swal-bbm-error-box">' +
+                '<ul class="swal-bbm-list" style="margin:0;">' +
                 list.map((e) => '<li>' + esc(String(e)) + '</li>').join('') +
-                '</ul>',
+                '</ul></div>',
             confirmButtonText: 'Perbaiki form',
             allowEnterKey: false,
             returnFocus: false,
@@ -395,7 +398,7 @@ function initBbmForm() {
 
         const confirm = await Swal.fire({
             icon: 'question',
-            iconColor: '#000',
+            iconColor: document.documentElement.classList.contains('dark') ? '#2563eb' :'#0e2a52',
             title: 'Kirim laporan BBM?',
             text: 'Laporan akan disimpan dan dikirim ke admin. Lanjutkan?',
             customClass: {
@@ -405,12 +408,12 @@ function initBbmForm() {
                 confirmButton: 'swal-bbm-confirm',
                 cancelButton: 'swal-bbm-cancel'
             },
+            buttonsStyling: false,
             showCancelButton: true,
             confirmButtonText: 'Ya, kirim',
             cancelButtonText: 'Batal',
             reverseButtons: true,
             focusCancel: true,
-            width: Math.min(420, window.innerWidth - 32),
         });
         if (!confirm.isConfirmed) return;
 
@@ -455,11 +458,13 @@ function initBbmForm() {
                     icon: 'success',
                     title: 'Berhasil',
                     customClass: {
+                        icon: 'swal-bbm-icon-success',
                         popup: 'swal-bbm-popup',
                         title: 'swal-bbm-title',
                         text: 'swal-bbm-text',
                         confirmButton: 'swal-bbm-confirm'
                     },
+                    buttonsStyling: false,
                     text: data.message || 'Laporan tersimpan.',
                     confirmButtonText: 'Kembali ke Dashboard',
                 }).then((r) => {
@@ -478,6 +483,7 @@ function initBbmForm() {
                     text: 'swal-bbm-text',
                     confirmButton: 'swal-bbm-confirm'
                 },
+                buttonsStyling: false,
                 confirmButtonText: 'Tutup',
                 allowEnterKey: false,
                 returnFocus: false,
@@ -493,6 +499,7 @@ function initBbmForm() {
                     text: 'swal-bbm-text',
                     confirmButton: 'swal-bbm-confirm'
                 },
+                buttonsStyling: false,
                 confirmButtonText: 'Tutup',
                 allowEnterKey: false,
                 returnFocus: false,
