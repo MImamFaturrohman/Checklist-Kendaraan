@@ -363,6 +363,67 @@
         background: rgba(71,85,105,0.2);
         color: #f1f5f9;
     }
+
+    /* ── 3D White Slider Thumb for BBM Level ── */
+    .bbm-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        outline: none;
+        background: #e5e7eb;
+    }
+    .bbm-slider::-webkit-slider-runnable-track {
+        height: 6px;
+        border-radius: 999px;
+    }
+    .bbm-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 22px;
+        width: 22px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        margin-top: -8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.22), 0 4px 10px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
+        cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .bbm-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.08);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.24), 0 5px 12px rgba(0,0,0,0.16), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
+    }
+    .bbm-slider::-webkit-slider-thumb:active {
+        transform: scale(0.96);
+    }
+    
+    .bbm-slider::-moz-range-track {
+        height: 6px;
+        border-radius: 999px;
+        background: #e5e7eb;
+    }
+    .bbm-slider::-moz-range-progress {
+        background: #facc15;
+        height: 6px;
+        border-radius: 999px;
+    }
+    .bbm-slider::-moz-range-thumb {
+        height: 22px;
+        width: 22px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.22), 0 4px 10px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
+        cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .bbm-slider::-moz-range-thumb:hover {
+        transform: scale(1.08);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.24), 0 5px 12px rgba(0,0,0,0.16), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
+    }
+    .bbm-slider::-moz-range-thumb:active {
+        transform: scale(0.96);
+    }
 </style>
 @endpush
 

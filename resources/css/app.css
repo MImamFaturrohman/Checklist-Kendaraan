@@ -2336,7 +2336,8 @@ html:not(.dark) .dash-body .dash-section-title { color: rgba(30, 58, 138, 0.5); 
 
 .admin-tab {
     padding: 8px 16px;
-    border-radius: 999px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
     border: 1px solid #e2e8f0;
     background: #f8fafc;
     color: #64748b;
@@ -3438,8 +3439,8 @@ html.dark .dash-body .tbl-pagination [aria-current="page"] span {
 }
 
 .lp-feat-icon-red {
-    background: rgba(246, 28, 28, 0.25);
-    color: #b91c1c;
+    background: rgba(245, 49, 49, 0.25);
+    color: #fd0c0c;
 }
 
 .lp-feat-title {
@@ -3490,7 +3491,8 @@ html.dark .dash-body .tbl-pagination [aria-current="page"] span {
 .landing-section-sub {
     color: #64748b;
     font-size: 0.85rem;
-    margin: 0;
+    margin-top: 12px;
+    margin-bottom: 12px;
 }
 
 .landing-search-form {
@@ -3550,7 +3552,6 @@ html.dark .dash-body .landing-card {
     color: #fff;
     padding: 12px 16px;
     border-radius: 14px;
-    margin-bottom: 24px;
     font-size: 1rem;
     font-weight: 800;
     letter-spacing: 0.3px;
@@ -6217,7 +6218,6 @@ html.dark .dash-body .portal-detail-catatan {
     justify-content: flex-end;
     gap: 10px;
     padding: 14px 16px;
-    border-top: 1px solid #e2e8f0;
     background: transparent;
     flex-shrink: 0;
     position: relative;
@@ -8837,6 +8837,22 @@ html.dark .dash-body .dash-logout-swal-popup {
     background: #DC3545;
     transform: translateY(0) scale(0.98);
     filter: brightness(0.96);
+}
+
+.dash-logout-swal-close {
+    color: #94a3b8 !important;
+    transition: color 0.15s ease !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+.dash-logout-swal-close:hover {
+    color: #ef4444 !important;
+}
+html.dark .dash-body .dash-logout-swal-close {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+html.dark .dash-body .dash-logout-swal-close:hover {
+    color: #fca5a5 !important;
 }
 
 .dash-nav-overlay {

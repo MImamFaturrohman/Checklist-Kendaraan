@@ -80,9 +80,8 @@
         </div>
 
         <div class="note">
-            Tombol di atas akan membawa Anda ke halaman detail laporan lengkap beserta kolom tanda tangan digital.
-            Link ini bersifat unik dan hanya dapat digunakan satu kali. Jika Anda sudah menandatangani, halaman akan
-            menampilkan konfirmasi bahwa laporan telah diproses.
+            Tombol di atas akan membawa Anda ke halaman detail laporan lengkap.
+            Link ini hanya dapat digunakan satu kali.
         </div>
     </div>
     <div class="footer">

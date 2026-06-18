@@ -213,7 +213,7 @@
     <div class="card">
         <div class="card-head">
             <div class="card-head-icon"><i class="bi bi-pen"></i></div>
-            <div class="card-head-title">Tanda Tangan Persetujuan Manager</div>
+            <div class="card-head-title">Tanda Tangan Persetujuan Manajer</div>
         </div>
         <div class="card-body">
             <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px;">
@@ -236,7 +236,7 @@
 
             <button type="button" class="submit-btn" id="btn-approve">
                 <i class="bi bi-check-circle-fill"></i>
-                Setujui &amp; Kirim Tanda Tangan
+                Approve
             </button>
         </div>
     </div>
@@ -300,8 +300,8 @@
 
         const confirm = await Swal.fire({
             icon: 'question',
-            title: 'Setujui Laporan?',
-            text: 'Tanda tangan Anda akan disimpan permanen dan PDF laporan akan dibuat. Lanjutkan?',
+            title: 'Setujui Laporan',
+            text: 'Laporan yang telah disetujui akan disimpan permanen.',
             showCancelButton: true,
             confirmButtonText: 'Ya, setujui',
             cancelButtonText: 'Batal',
@@ -328,12 +328,18 @@
             const data = await res.json().catch(() => ({}));
 
             if (res.ok && data.success) {
+                const pdfUrl = data.pdf_url || null;
                 await Swal.fire({
                     icon: 'success',
-                    title: 'Laporan Disetujui',
-                    text: 'Tanda tangan Anda telah disimpan dan PDF laporan telah dibuat.',
+                    title: 'Laporan Telah Disimpan',
                     confirmButtonColor: '#002a7a',
+                    confirmButtonText: pdfUrl ? '📄 Lihat PDF Laporan' : 'OK',
+                    showCloseButton: false,
+                    allowOutsideClick: false,
                 });
+                if (pdfUrl) {
+                    window.open(pdfUrl, '_blank');
+                }
                 location.reload();
             } else {
                 Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan. Coba lagi.', confirmButtonColor: '#002a7a' });

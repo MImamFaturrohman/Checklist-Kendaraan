@@ -44,23 +44,40 @@
     .bbm-slider::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; }
     .bbm-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
-        height: 18px; width: 18px;
+        height: 22px; width: 22px;
         border-radius: 50%;
-        background: white;
-        border: 2px solid #e5e7eb;
-        margin-top: -6px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        margin-top: -8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.22), 0 4px 10px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
         cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
+    .bbm-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.08);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.24), 0 5px 12px rgba(0,0,0,0.16), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
+    }
+    .bbm-slider::-webkit-slider-thumb:active {
+        transform: scale(0.96);
+    }
+
     .bbm-slider::-moz-range-track { height: 6px; border-radius: 999px; background: #e5e7eb; }
     .bbm-slider::-moz-range-progress { background: #facc15; height: 6px; border-radius: 999px; }
     .bbm-slider::-moz-range-thumb {
-        height: 18px; width: 18px;
+        height: 22px; width: 22px;
         border-radius: 50%;
-        background: white;
-        border: 2px solid #e5e7eb;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.22), 0 4px 10px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
         cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .bbm-slider::-moz-range-thumb:hover {
+        transform: scale(1.08);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.24), 0 5px 12px rgba(0,0,0,0.16), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
+    }
+    .bbm-slider::-moz-range-thumb:active {
+        transform: scale(0.96);
     }
 </style>
 @endpush
@@ -394,6 +411,7 @@ html.dark .dash-body .pvw-photo-slot img {
 </style>
 @endpush
 
+
 @section('content')
 @php
     $userRole           = $user->role ?? 'driver';
@@ -637,7 +655,7 @@ html.dark .dash-body .pvw-photo-slot img {
                 <div class="checklist-field" style="margin-top:14px">
                     <label class="checklist-photo-slot checklist-photo-slot-wide" data-photo-preview-slot>
                         <input type="file" name="foto_bbm_dashboard" accept="image/*" capture="environment" required data-photo-single data-required-photo>
-                        <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO INDIKATOR BBM & DASHBOARD</strong></div>
+                        <div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO (RATIO 16:9) INDIKATOR BBM &amp; DASHBOARD</strong></div>
                         <img class="photo-slot-preview" alt="Preview BBM" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>
                     </label>
                     <p style="margin:8px 0 0;font-size:0.78rem;line-height:1.45;color:#b45309;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);padding:10px 12px;border-radius:10px;">Pastikan mengambil foto dengan kamera landscape (horizontal).</p>

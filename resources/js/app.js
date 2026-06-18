@@ -703,6 +703,7 @@ document.addEventListener('turbo:load', async () => {
         allowEmptyOption: false, create: false, maxOptions: 100,
         placeholder: selectEl.dataset.placeholder || 'Pilih Driver',
         closeAfterSelect: true,
+        dropdownParent: 'body',
         render: {
             option(data, escape) {
                 const iconClass = data.icon || 'bi bi-person';

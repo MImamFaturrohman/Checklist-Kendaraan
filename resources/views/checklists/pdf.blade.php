@@ -163,8 +163,8 @@
         .status-photo img {
             display: block;
             width: 100%;
-            height: 92px;
-            object-fit: cover;
+            height: auto;
+            max-height: 170px;
             border: none;
             padding: 0 !important;
             margin: 0 !important;

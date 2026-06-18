@@ -103,6 +103,7 @@
     <div class="dash-sidebar-group dash-nav-drawer-group">
         <span class="dash-sidebar-group-label dash-nav-drawer-group-label">ADMINISTRASI</span>
 
+        @if($sbIsSuperAdmin)
         <a href="{{ route('admin.portal-pemeriksaan') }}"
            class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.portal-pemeriksaan*') ? 'is-active' : '' }}">
             <span class="dash-sidebar-icon">
@@ -110,6 +111,7 @@
             </span>
             <span class="dash-sidebar-label">Pemeriksaan Kendaraan</span>
         </a>
+        @endif
 
         @if($sbIsSuperAdmin)
         <a href="{{ route('admin.peminjaman') }}"
@@ -140,6 +142,29 @@
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </span>
             <span class="dash-sidebar-label">Laporan Kejadian</span>
+        </a>
+        @endif
+
+        @if($sbIsAdmin)
+        <a href="{{ route('admin.portal-bbm-operasional') }}"
+           class="dash-sidebar-link dash-nav-drawer-link {{ request()->routeIs('admin.portal-bbm-operasional*') ? 'is-active' : '' }}">
+            <span class="dash-sidebar-icon">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 56V14C18 10.6863 20.6863 8 24 8H38C41.3137 8 44 10.6863 44 14V56" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="24" y="16" width="14" height="12" rx="2" 
+                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M14 56H48" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M44 20H50C52.2091 20 54 21.7909 54 24V42C54 44.2091 52.2091 46 50 46C47.7909 46 46 44.2091 46 42V34" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M44 34H54" 
+                            stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M31 35C31 35 25 42 25 47C25 50.3137 27.6863 53 31 53C34.3137 53 37 50.3137 37 47C37 42 31 35 31 35Z" 
+                            stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <span class="dash-sidebar-label">BBM Operasional</span>
         </a>
         @endif
     </div>

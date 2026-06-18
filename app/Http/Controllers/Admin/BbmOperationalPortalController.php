@@ -34,7 +34,7 @@ class BbmOperationalPortalController extends Controller
 
     private function authorizePortalAccess(): void
     {
-        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'manager'], true), 403);
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'manager', 'admin'], true), 403);
     }
 
     /**
@@ -318,9 +318,9 @@ class BbmOperationalPortalController extends Controller
     public function index(Request $request): View|Response
     {
         $role = auth()->user()?->role;
-        abort_unless(in_array($role, ['superadmin', 'manager'], true), 403);
+        abort_unless(in_array($role, ['superadmin', 'manager', 'admin'], true), 403);
 
-        $chartsOnly = $role === 'manager';
+        $chartsOnly = in_array($role, ['manager', 'admin'], true);
         $perPage = $this->resolvePerPage($request);
         $search = $request->input('q');
         $shiftFilter = $request->input('shift');

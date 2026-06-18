@@ -18,7 +18,7 @@
             <div id="mgr-sppd-live-root" data-vms-sppd-live>
             @fragment('manager-sppd-body')
             {{-- Hidden form carrying scoped sort state for the SPPD fragment handler --}}
-            <form method="get" action="{{ route('manager.sppd') }}" style="display:none" id="mgr-sppd-sort-form">
+            <form method="get" action="{{ route('manager.sppd.index') }}" style="display:none" id="mgr-sppd-sort-form">
                 <input type="hidden" name="pending_sort" value="{{ $pendingActiveSort ?? '' }}">
                 <input type="hidden" name="pending_dir"  value="{{ $pendingActiveDir  ?? '' }}">
                 <input type="hidden" name="history_sort" value="{{ $historyActiveSort ?? '' }}">

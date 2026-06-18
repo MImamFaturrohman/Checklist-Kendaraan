@@ -143,7 +143,7 @@
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
 
-            <div class="portal-stats-row" data-stat-count="4">
+            <div class="portal-stats-row" data-stat-count="3">
                 <x-admin-stat-card
                     title="Menunggu"
                     :value="$stats['pending']"
@@ -168,6 +168,15 @@
                     icon="bi bi-x-circle-fill"
                     valueStyle="color:#b91c1c"
                 />
+            </div>
+            <div class="portal-stats-row" data-stat-count="2">
+                <x-admin-stat-card
+                    title="Total"
+                    :value="$stats['total']"
+                    unit="permohonan"
+                    description="Seluruh permohonan peminjaman kendaraan"
+                    icon="bi bi-clipboard-data-fill"
+                />
                 <x-admin-stat-card
                     title="Expired"
                     :value="$stats['expired']"
@@ -175,15 +184,6 @@
                     description="Melewati batas waktu berlaku"
                     icon="bi bi-clock-fill"
                     valueStyle="color:#6b7280"
-                />
-            </div>
-            <div class="portal-stats-row" data-stat-count="1">
-                <x-admin-stat-card
-                    title="Total"
-                    :value="$stats['total']"
-                    unit="permohonan"
-                    description="Seluruh permohonan peminjaman kendaraan"
-                    icon="bi bi-clipboard-data-fill"
                 />
             </div>
 

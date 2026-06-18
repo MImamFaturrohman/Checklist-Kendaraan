@@ -39,7 +39,7 @@ class ChecklistController extends Controller
 
     private function canAccessInspectionPortal(): bool
     {
-        return in_array(auth()->user()?->role, ['superadmin', 'admin', 'manager'], true);
+        return in_array(auth()->user()?->role, ['superadmin', 'manager'], true);
     }
 
     /**

@@ -48,7 +48,7 @@
                     <span class="dash-hero-kicker-dot"></span>
                     AKSES ADMIN
                 </p>
-                <h2 class="dash-hero-name">Portal Pemeriksaan</h2>
+                <h2 class="dash-hero-name">Fleet Hub</h2>
             @elseif($isManager)
                 <p class="dash-hero-kicker">
                     <span class="dash-hero-kicker-dot"></span>
@@ -264,13 +264,13 @@
                 <section>
                     <h3 class="dash-section-title">TUGAS UTAMA</h3>
                     <div class="dash-main-grid-admin">
-                        <a href="{{ route('admin.portal-pemeriksaan') }}" class="dash-main-card dash-pressable">
+                        <a href="{{ route('admin.portal-bbm-operasional') }}" class="dash-main-card dash-pressable">
                             <div>
-                                <p class="dash-main-title">Portal Pemeriksaan Kendaraan</p>
-                                <p class="dash-main-sub">Lihat info ringkas dan chart pemeriksaan</p>
+                                <p class="dash-main-title">Log BBM</p>
+                                <p class="dash-main-sub">Insight liter, biaya &amp; laporan pengisian BBM</p>
                             </div>
                             <span class="dash-main-icon" aria-hidden="true">
-                                <i class="bi bi-database-fill" aria-hidden="true"></i>
+                                <i class="bi bi-fuel-pump-fill" aria-hidden="true"></i>
                             </span>
                         </a>
                         <a href="{{ route('admin.sppd.index') }}" class="dash-main-card dash-pressable">

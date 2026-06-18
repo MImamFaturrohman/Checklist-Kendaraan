@@ -221,7 +221,15 @@ class LaporanKejadianController extends Controller
             Log::error('LaporanKejadian PDF build gagal setelah approval: '.$e->getMessage(), ['laporan_id' => $laporan->id]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Tanda tangan berhasil disimpan. Laporan telah disetujui.']);
+        $pdfUrl = ($laporan->pdf_path && Storage::disk('public')->exists($laporan->pdf_path))
+            ? Storage::disk('public')->url($laporan->pdf_path)
+            : null;
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Tanda tangan berhasil disimpan. Laporan telah disetujui.',
+            'pdf_url'  => $pdfUrl,
+        ]);
     }
 
     public function adminIndex(Request $request)

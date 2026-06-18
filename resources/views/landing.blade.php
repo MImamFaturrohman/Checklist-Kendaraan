@@ -299,26 +299,26 @@
 
     {{-- ARMADA SECTION --}}
     <section class="landing-section" id="armada">
-        <div class="lp-section-heading">
-            <div>
-                <h2 class="landing-section-title">Daftar Kendaraan</h2>
-                <p class="landing-section-sub">Total <span id="armada-count">{{ $kendaraans->count() }}</span> kendaraan terdaftar</p>
-            </div>
-            <div class="lp-armada-controls">
-                <div class="lp-search-wrap">
-                    <svg class="lp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <input type="text" id="armada-search" class="lp-search-input"
-                        placeholder="Cari nomor polisi atau jenis kendaraan..."
-                        autocomplete="off">
-                    <button type="button" class="lp-search-clear" id="search-clear-btn" style="display:none" onclick="clearSearch()">&#x2715;</button>
+        
+        <div class="landing-card">
+            <div class="lp-section-heading">
+                <div>
+                    <h2 class="landing-section-title">Daftar Kendaraan</h2>
+                    <p class="landing-section-sub">Total <span id="armada-count">{{ $kendaraans->count() }}</span> kendaraan terdaftar</p>
+                </div>
+                <div class="lp-armada-controls">
+                    <div class="lp-search-wrap">
+                        <svg class="lp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <input type="text" id="armada-search" class="lp-search-input"
+                            placeholder="Cari nomor polisi atau jenis kendaraan..."
+                            autocomplete="off">
+                        <button type="button" class="lp-search-clear" id="search-clear-btn" style="display:none" onclick="clearSearch()">&#x2715;</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="landing-card">
             <div class="admin-table-wrap">
                 <table class="admin-table" style="table-layout:fixed">
                     <thead>
@@ -344,11 +344,6 @@
 
     {{-- FORM SECTION --}}
     <section class="landing-section" id="form-peminjaman">
-        <div style="margin-bottom:20px">
-            <h2 class="landing-section-title">Form Permohonan Peminjaman Kendaraan</h2>
-            <p class="landing-section-sub">Isi formulir di bawah untuk mengajukan permohonan peminjaman kendaraan</p>
-        </div>
-
         <div class="landing-card landing-form-card">
             <div class="landing-form-banner">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
@@ -357,7 +352,8 @@
                 </svg>
                 <span>Permohonan Peminjaman Kendaraan</span>
             </div>
-
+            <p class="landing-section-sub">Isi formulir di bawah untuk mengajukan permohonan peminjaman kendaraan</p>
+            
             <form id="form-request" autocomplete="off">
                 @csrf
                 <div class="lp-form-grid">
@@ -380,7 +376,7 @@
                     <div class="checklist-field">
                         <span>Posisi / Jabatan <span style="color:#ef4444">*</span></span>
                         <input type="text" id="jabatan" name="jabatan"
-                            placeholder="Contoh: Staff HSE, Supervisor Operasional" required>
+                            placeholder="Contoh: Staff HSE" required>
                     </div>
 
                     {{-- Bidang / Bagian (samping Posisi / Jabatan di desktop) --}}
@@ -497,16 +493,12 @@
 
     {{-- LAPORAN KEJADIAN --}}
     <section class="landing-section" id="form-laporan-kejadian">
-        <div style="margin-bottom:20px">
-            <h2 class="landing-section-title">Laporan Kejadian dan Kerusakan Kendaraan</h2>
-            <p class="landing-section-sub">Laporkan incident atau near miss terkait operasi kendaraan / lingkungan kerja</p>
-        </div>
-
         <div class="landing-card landing-form-card">
             <div class="landing-form-banner">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span>Formulir Laporan Kejadian dan Kerusakan Kendaraan</span>
             </div>
+            <p class="landing-section-sub">Laporkan incident atau near miss terkait operasi kendaraan / lingkungan kerja</p>
 
             <form id="form-laporan-kejadian-form" autocomplete="off" enctype="multipart/form-data">
                 @csrf

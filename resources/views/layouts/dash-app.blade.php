@@ -420,9 +420,9 @@ document.querySelectorAll('.js-logout-form').forEach(function (form) {
             title: 'Keluar dari akun?',
             text: 'Anda akan keluar dari sistem.',
             icon: 'warning',
-            showCancelButton: true,
+            showCancelButton: false,
+            showCloseButton: true,
             confirmButtonText: 'Ya, Logout',
-            cancelButtonText: 'Batal',
             reverseButtons: true,
             customClass: {
                 popup: 'dash-logout-swal-popup',
@@ -431,7 +431,7 @@ document.querySelectorAll('.js-logout-form').forEach(function (form) {
                 icon: 'dash-logout-swal-icon',
                 actions: 'dash-logout-swal-actions',
                 confirmButton: 'dash-logout-swal-confirm',
-                cancelButton: 'dash-logout-swal-cancel'
+                closeButton: 'dash-logout-swal-close'
             }
         }).then(function (result) {
             if (result.isConfirmed) form.submit();

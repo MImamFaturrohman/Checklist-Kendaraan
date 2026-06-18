@@ -1,6 +1,7 @@
-document.addEventListener('turbo:load', () => {
+function initSppdForm() {
     const root = document.querySelector('[data-sppd-form]');
-    if (!root) return;
+    if (!root || root.dataset.sppdBound) return;
+    root.dataset.sppdBound = '1';
 
     const form = document.getElementById('sppd-form');
     const nopol = document.getElementById('sppd-nopol');
@@ -593,4 +594,7 @@ document.addEventListener('turbo:load', () => {
     });
 
     recalcTotals();
-});
+}
+
+document.addEventListener('turbo:load', initSppdForm);
+initSppdForm();

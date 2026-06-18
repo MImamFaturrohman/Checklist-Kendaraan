@@ -269,20 +269,20 @@
         <tr>
             <td class="label">Nama Driver</td>
             <td>{{ $sppd->nama_driver }}</td>
-            <td class="label">Keperluan Dinas</td>
-            <td>{{ $sppd->keperluan_dinas }}</td>
-        </tr>
-        <tr>
-            <td class="label">Nomor Kendaraan</td>
-            <td>{{ $sppd->no_kendaraan }}</td>
             <td class="label">Tanggal Dinas</td>
             <td>{{ $tgl }}</td>
         </tr>
         <tr>
-            <td class="label">Jenis Kendaraan</td>
-            <td>{{ $sppd->jenis_kendaraan }}</td>
+            <td class="label">Nomor Kendaraan</td>
+            <td>{{ $sppd->no_kendaraan }}</td>
             <td class="label">Tujuan</td>
             <td>{{ $sppd->tujuan }}</td>
+        </tr>
+        <tr>
+            <td class="label">Jenis Kendaraan</td>
+            <td>{{ $sppd->jenis_kendaraan }}</td>
+            <td class="label">Keperluan Dinas</td>
+            <td>{{ $sppd->keperluan_dinas }}</td>
         </tr>
     </table>
 
