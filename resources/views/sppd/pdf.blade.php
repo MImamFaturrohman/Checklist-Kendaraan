@@ -109,31 +109,29 @@
             color: #374151;
             line-height: 1.6;
             margin-top: 5px;
-            padding: 10px;
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
+            padding: 0;
+            background: none;
+            border: none;
         }
 
         /* Validasi: border blok — QR mengikuti skala tipografi sig-meta (em dari font yang sama) */
-        .signature-block-table {
+        .signature-container-table {
             width: 100%;
-            margin-top: 8px;
+            margin-top: 10px;
             border-collapse: collapse;
             table-layout: fixed;
-            font-size: 8.5pt;
             page-break-inside: avoid;
-            border: 1px solid #d1d5db;
         }
-        .signature-block-table td {
+        .signature-container-table td {
             vertical-align: middle;
-            border-bottom: none;
-            padding: 8px 10px;
-            background: #fff;
-            width: 50%;
+            padding: 0;
+            border: none;
+            background: none;
         }
-        .signature-block-table td:first-child {
-            border-right: 1px solid #d1d5db;
+        .signature-card {
+            border-radius: 6px;
+            background: rgba(27, 84, 189, 0.1);
+            padding: 4px 8px;
         }
 
         /* QR | teks sejajar horizontal — pakai table-cell (DomPDF tidak andal untuk flexbox) */
@@ -147,36 +145,19 @@
         .sig-qr-wrap {
             display: table-cell;
             vertical-align: middle;
-            padding-right: 4px;
+            padding-right: 8px;
             box-sizing: border-box;
-        }
-
-        .sig-qr-wrap-pm {
-            width: 21mm;
-            height: 21mm;
-        }
-
-        .sig-qr-wrap-adm {
-            width: 21mm;
-            height: 21mm;
+            width: 20mm;
         }
 
         .signature-qr-img {
-            max-width: 100%;
+            width: 20mm;
+            height: 20mm;
             display: block;
             margin: 0;
             border: none;
             padding: 0;
             box-sizing: border-box;
-            object-fit: contain;
-        }
-        .signature-qr-img-pm {
-            width: 21mm;
-            height: 21mm;
-        }
-        .signature-qr-img-adm {
-            width: 21mm;
-            height: 21mm;
         }
         .sig-meta {
             display: table-cell;
@@ -229,7 +210,7 @@
 </head>
 <body>
 @php
-    $tgl = $sppd->tanggal_dinas?->format('d F Y');
+    $tgl = $sppd->tanggal_dinas?->locale('id')->translatedFormat('d F Y');
     $headerDate = \Carbon\Carbon::now();
     $tahun = $headerDate->format('y');
     $bulanRomawi = [
@@ -289,27 +270,27 @@
     @if($sppd->tolls->isNotEmpty())
     <div class="section-heading">Biaya Tol</div>
     @php
-        $tolBerPdf = $sppd->tolls->where('leg', 'berangkat')->values();
+        $tolBrktPdf = $sppd->tolls->where('leg', 'berangkat')->values();
         $tolKemPdf = $sppd->tolls->where('leg', 'kembali')->values();
     @endphp
-    @if($tolBerPdf->isNotEmpty() || $tolKemPdf->isNotEmpty())
+    @if($tolBrktPdf->isNotEmpty() || $tolKemPdf->isNotEmpty())
     <table class="merge-total-table">
-        @if($tolBerPdf->isNotEmpty())
+        @if($tolBrktPdf->isNotEmpty())
         @php
-            $rowspanBer = $tolBerPdf->count();
-            $sumBer = (float) $tolBerPdf->sum(fn ($t) => (float) $t->harga);
+            $rowspanBrkt = $tolBrktPdf->count();
+            $sumBer = (float) $tolBrktPdf->sum(fn ($t) => (float) $t->harga);
         @endphp
         <tr>
             <th class="merge-rute-col">Rute Tol</th>
             <th class="merge-biaya-col">Biaya</th>
             <th class="merge-total-header-col">Total Tol Berangkat</th>
         </tr>
-        @foreach($tolBerPdf as $t)
+        @foreach($tolBrktPdf as $t)
         <tr>
             <td class="merge-rute-col">{{ $t->dari_tol }} – {{ $t->ke_tol }}</td>
             <td class="merge-biaya-col">Rp{{ number_format((float) $t->harga, 2, ',', '.') }}</td>
             @if($loop->first)
-            <td class="merge-total-col" rowspan="{{ $rowspanBer }}">Rp{{ number_format($sumBer, 2, ',', '.') }}</td>
+            <td class="merge-total-col" rowspan="{{ $rowspanBrkt }}">Rp{{ number_format($sumBer, 2, ',', '.') }}</td>
             @endif
         </tr>
         @endforeach
@@ -338,14 +319,19 @@
     @endif
     @endif
 
-    <div class="section-heading">BBM</div>
     @php
         $fuelRows = $sppd->fuels;
         $fuelCount = $fuelRows->count();
         $bbmBodyRows = max(1, $fuelCount);
         $rowspanBbm = $bbmBodyRows;
     @endphp
+    <div class="section-heading">Biaya BBM</div>
     <table class="merge-total-table">
+        <colgroup>
+            <col style="width: 35%;">
+            <col style="width: 35%;">
+            <col style="width: 30%;">
+        </colgroup>
         <tr>
             <th class="merge-liter-col">Liter</th>
             <th class="merge-biaya-col">Biaya</th>
@@ -366,12 +352,14 @@
             <td class="merge-total-col">Rp{{ number_format((float) $sppd->total_bbm, 2, ',', '.') }}</td>
         </tr>
         @endforelse
+        
+    </table>
 
-        {{-- Baris Grand Total --}}
+    <div class="section-heading">Grand Total</div>
+    <table class="merge-total-table" style="margin-top: 12px;">
         <tr class="merge-grand-row">
-            <td class="merge-rute-col" style="border: none; background: transparent;"></td> 
-            <td class="merge-biaya-col" style="background: #f3f4f6; font-weight: bold; text-align: center;">Grand Total</td> 
-            <td style="background: #f3f4f6; font-weight: bold; text-align: center; border: 1px solid #d1d5db;">
+            <td style="background: #f3f4f6; font-weight: bold; text-align: center; width: 70%;" colspan="2">Keseluruhan Biaya Tol dan BBM</td> 
+            <td style="background: #f3f4f6; font-weight: bold; text-align: center; width: 30%;">
                 Rp{{ number_format((float) $sppd->grand_total, 2, ',', '.') }}
             </td>
         </tr>
@@ -421,31 +409,36 @@
         $qrAdm = SppdPdfQr::pngDataUri($qrAdmPayload);
     @endphp
 
-    <table class="signature-block-table">
+    <table class="signature-container-table">
         <tr>
-            <td>
-                <div class="sig-pair-wrap">
-                    <div class="sig-qr-wrap sig-qr-wrap-pm">
-                        <img class="signature-qr-img sig-qr-pm" src="{{ $qrPm }}" alt="QR Port Manager">
-                    </div>
-                    <div class="sig-meta">
-                        <div class="sig-line-title">Menyetujui,</div>
-                        <div class="sig-line-role">PORT MANAGER</div>
-                        <div class="sig-line-name">{{ mb_strtoupper((string) $pmName, 'UTF-8') }}</div>
-                        <div class="sig-line-when">{{ $pmWhenCaption }}</div>
+            <td style="width: 48%;">
+                <div class="signature-card">
+                    <div class="sig-pair-wrap">
+                        <div class="sig-qr-wrap sig-qr-wrap-pm">
+                            <img class="signature-qr-img sig-qr-pm" src="{{ $qrPm }}" alt="QR Port Manager">
+                        </div>
+                        <div class="sig-meta">
+                            <div class="sig-line-title">Menyetujui,</div>
+                            <div class="sig-line-role">PORT MANAGER</div>
+                            <div class="sig-line-name">{{ mb_strtoupper((string) $pmName, 'UTF-8') }} NAME</div>
+                            <div class="sig-line-when">{{ $pmWhenCaption }}</div>
+                        </div>
                     </div>
                 </div>
             </td>
-            <td>
-                <div class="sig-pair-wrap">
-                    <div class="sig-qr-wrap sig-qr-wrap-adm">
-                        <img class="signature-qr-img sig-qr-adm" src="{{ $qrAdm }}" alt="QR Admin">
-                    </div>
-                    <div class="sig-meta">
-                        <div class="sig-line-title">Diverifikasi,</div>
-                        <div class="sig-line-role">KEUANGAN &amp; ADMINISTRASI</div>
-                        <div class="sig-line-name">{{ mb_strtoupper((string) $admName, 'UTF-8') }}</div>
-                        <div class="sig-line-when">{{ $admWhenCaption }}</div>
+            <td style="width: 4%;"></td>
+            <td style="width: 48%;">
+                <div class="signature-card">
+                    <div class="sig-pair-wrap">
+                        <div class="sig-qr-wrap sig-qr-wrap-adm">
+                            <img class="signature-qr-img sig-qr-adm" src="{{ $qrAdm }}" alt="QR Admin">
+                        </div>
+                        <div class="sig-meta">
+                            <div class="sig-line-title">Diverifikasi,</div>
+                            <div class="sig-line-role">KEUANGAN &amp; ADMINISTRASI</div>
+                            <div class="sig-line-name">KEUANGAN NAME</div>
+                            <div class="sig-line-when">{{ $admWhenCaption }}</div>
+                        </div>
                     </div>
                 </div>
             </td>

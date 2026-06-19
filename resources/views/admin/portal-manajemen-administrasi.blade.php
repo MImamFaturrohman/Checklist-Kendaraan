@@ -1,10 +1,107 @@
-@extends('layouts.dash-app')
+﻿@extends('layouts.dash-app')
 
 @section('title', 'Portal Manajemen Administrasi')
 @section('pageTitle', 'Portal Manajemen Administrasi')
 @section('pageSubtitle', 'Master armada & manajemen user')
 
 @php $premiumBgId = 'portal_manajemen'; @endphp
+
+@push('styles')
+<style>
+.portal-bidang-root-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    transition: all 0.2s;
+}
+
+.portal-bidang-child-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    transition: all 0.2s;
+}
+
+.portal-bidang-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: 6px;
+    margin-top: 3px;
+}
+
+.portal-bidang-mgr-badge {
+    background: rgba(234, 88, 12, .08);
+    color: #c2410c;
+    border: 1px solid rgba(234, 88, 12, .18);
+}
+
+.portal-bidang-tl-badge {
+    background: rgba(124, 58, 237, .08);
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, .18);
+}
+
+.portal-bidang-btn-sub {
+    background: rgba(124, 58, 237, .08);
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, .2);
+}
+
+/* Dark Mode styles */
+html.dark .portal-bidang-root-row {
+    background: rgba(30, 41, 59, 0.45) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(241, 245, 249, 0.9) !important;
+}
+
+html.dark .portal-bidang-child-row {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    color: rgba(226, 232, 240, 0.8) !important;
+}
+
+html.dark .portal-bidang-root-row strong {
+    color: rgba(241, 245, 249, 0.95) !important;
+}
+
+html.dark .portal-bidang-child-row span {
+    color: rgba(226, 232, 240, 0.85) !important;
+}
+
+html.dark .portal-bidang-mgr-badge {
+    background: rgba(251, 146, 60, 0.12) !important;
+    color: #fb923c !important;
+    border-color: rgba(251, 146, 60, 0.25) !important;
+}
+
+html.dark .portal-bidang-tl-badge {
+    background: rgba(167, 139, 250, 0.12) !important;
+    color: #a78bfa !important;
+    border-color: rgba(167, 139, 250, 0.25) !important;
+}
+
+html.dark .portal-bidang-btn-sub {
+    background: rgba(167, 139, 250, 0.12) !important;
+    color: #a78bfa !important;
+    border-color: rgba(167, 139, 250, 0.25) !important;
+}
+</style>
+@endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
@@ -47,6 +144,11 @@
 
     {{-- ── TAB BAR ───────────────────────────────────────────────────────── --}}
     <div class="mgmt-tab-bar">
+        <button class="mgmt-tab" id="tab-bidang" onclick="switchTab('bidang')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>Bidang / Bagian</span>
+            <span class="mgmt-tab-count" id="tc-bidang">{{ \App\Models\Bidang::count() }}</span>
+        </button>
         <button class="mgmt-tab active" id="tab-armada" onclick="switchTab('armada')">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
             <span>Manajemen Unit Kendaraan</span>
@@ -61,6 +163,33 @@
             <span>Manajemen User</span>
             <span class="mgmt-tab-count" id="tc-users">{{ $stats['total_portal_users'] }}</span>
         </button>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════════════ --}}
+    {{-- SECTION: BIDANG / BAGIAN                                          --}}
+    {{-- ══════════════════════════════════════════════════════════════════ --}}
+    <div id="section-bidang" style="display:none">
+        <div class="mgmt-panel">
+            <div class="mgmt-panel-header" style="--ph:#7c3aed">
+                <div class="mgmt-ph-icon" style="background:rgba(124,58,237,.12);color:#7c3aed">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="mgmt-ph-text">
+                    <p class="mgmt-ph-title">Bidang / Bagian</p>
+                    <p class="mgmt-ph-sub">Kelola struktur bidang &amp; kontak manajer / team leader</p>
+                </div>
+                <button type="button" class="mgmt-ph-add-btn" id="btn-open-bidang-root" style="background:rgba(124,58,237,.12);color:#7c3aed;border-color:rgba(124,58,237,.25)" onclick="openBidangModal({})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                    Bidang Utama
+                </button>
+            </div>
+
+            <div id="bidang-loading" class="mgmt-loading" style="display:none">
+                <span class="mgmt-dot"></span><span class="mgmt-dot"></span><span class="mgmt-dot"></span>
+            </div>
+
+            <div id="portal-bidang-tree" style="padding: 10px 0" aria-live="polite"></div>
+        </div>
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════════ --}}
@@ -533,6 +662,72 @@
 </div>
 @endsection
 
+@section('modals')
+
+{{-- ══════════════════════════════════════════════════════════════════════ --}}
+{{-- MODAL: BIDANG / BAGIAN                                                 --}}
+{{-- ══════════════════════════════════════════════════════════════════════ --}}
+<div id="portal-bidang-modal" class="mgmt-modal-overlay" hidden onclick="if(event.target===this)closeBidangModal()">
+    <div class="mgmt-modal-box" onclick="event.stopPropagation()">
+        <div class="mgmt-modal-header">
+            <div class="mgmt-modal-avatar" style="background:rgba(124,58,237,.15);color:#7c3aed;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+                <h2 class="mgmt-modal-title" id="portal-bidang-modal-title">Bidang / Bagian</h2>
+                <p class="mgmt-modal-sub">Tambah atau ubah data bidang</p>
+            </div>
+            <button type="button" class="mgmt-modal-close" onclick="closeBidangModal()" aria-label="Tutup">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+        <form id="portal-form-bidang" onsubmit="event.preventDefault(); submitBidangModal()">
+            <input type="hidden" id="portal-bidang-id" value="">
+            <div class="mgmt-modal-body">
+                <p class="mgmt-modal-section-label">DATA BIDANG</p>
+                <div class="mgmt-modal-grid">
+                    <div class="mgmt-field" style="grid-column:span 2">
+                        <label class="mgmt-label" for="portal-bidang-nama">Nama Bidang / Bagian <span style="color:#ef4444">*</span></label>
+                        <input type="text" id="portal-bidang-nama" class="mgmt-input" required maxlength="200" placeholder="Contoh: Operasional">
+                    </div>
+                    <div class="mgmt-field" id="portal-bidang-parent-wrap" style="grid-column:span 2">
+                        <label class="mgmt-label" for="portal-bidang-parent">Induk (kosongkan untuk bidang utama)</label>
+                        <select id="portal-bidang-parent" class="mgmt-input">
+                            <option value="">— Bidang utama —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="portal-bidang-leader-section" style="display:none">
+                    <div class="mgmt-modal-divider"></div>
+                    <p class="mgmt-modal-section-label">PIMPINAN BIDANG <span style="color:#ef4444">*</span></p>
+                    <div class="mgmt-modal-grid">
+                        <div class="mgmt-field" style="grid-column:span 2">
+                            <label class="mgmt-label" for="portal-bidang-pimpinan-jabatan">Jabatan <span style="color:#ef4444">*</span></label>
+                            <input type="text" id="portal-bidang-pimpinan-jabatan" class="mgmt-input" maxlength="150" placeholder="Contoh: Manajer, Team Leader, Supervisor">
+                        </div>
+                        <div class="mgmt-field">
+                            <label class="mgmt-label" for="portal-bidang-pimpinan-nama">Nama Pimpinan <span style="color:#ef4444">*</span></label>
+                            <input type="text" id="portal-bidang-pimpinan-nama" class="mgmt-input" maxlength="200" placeholder="Nama lengkap pimpinan">
+                        </div>
+                        <div class="mgmt-field">
+                            <label class="mgmt-label" for="portal-bidang-pimpinan-email">Email Pimpinan <span style="color:#ef4444">*</span></label>
+                            <input type="email" id="portal-bidang-pimpinan-email" class="mgmt-input" maxlength="255" placeholder="pimpinan@perusahaan.com">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mgmt-modal-footer">
+                <button type="button" class="mgmt-cancel-btn" onclick="closeBidangModal()">Batal</button>
+                <button type="submit" class="mgmt-submit-btn" id="btn-save-bidang">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 (function () {
@@ -654,12 +849,13 @@ window.toggleEye = function(inputId, btn) {
         : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>';
 };
 
-/* ─── Modal overlay lock (armada + tambah user + edit user) ───────────── */
+/* ─── Modal overlay lock (armada + tambah user + edit user + bidang) ─── */
 function refreshMgmtModalOverflow() {
-    const armada = document.getElementById('armada-form-modal');
-    const userAdd = document.getElementById('user-add-modal');
+    const armada   = document.getElementById('armada-form-modal');
+    const userAdd  = document.getElementById('user-add-modal');
     const userEdit = document.getElementById('user-edit-modal');
-    const anyOpen = [armada, userAdd, userEdit].some(el => el && !el.hidden);
+    const bidang   = document.getElementById('portal-bidang-modal');
+    const anyOpen = [armada, userAdd, userEdit, bidang].some(el => el && !el.hidden);
     document.body.style.overflow = anyOpen ? 'hidden' : '';
 }
 
@@ -682,11 +878,188 @@ window.closeUserAddModal = function() {
 /* SECTION TABS                                                            */
 /* ═══════════════════════════════════════════════════════════════════════ */
 window.switchTab = function(tab) {
-    document.getElementById('section-armada').style.display = tab === 'armada' ? '' : 'none';
-    document.getElementById('section-users').style.display  = tab === 'users'  ? '' : 'none';
-    document.getElementById('tab-armada').classList.toggle('active', tab === 'armada');
-    document.getElementById('tab-users').classList.toggle('active',  tab === 'users');
-    if (tab === 'users') fetchUsers();
+    document.getElementById('section-bidang').style.display  = tab === 'bidang'  ? '' : 'none';
+    document.getElementById('section-armada').style.display  = tab === 'armada'  ? '' : 'none';
+    document.getElementById('section-users').style.display   = tab === 'users'   ? '' : 'none';
+    document.getElementById('tab-bidang').classList.toggle('active',  tab === 'bidang');
+    document.getElementById('tab-armada').classList.toggle('active',  tab === 'armada');
+    document.getElementById('tab-users').classList.toggle('active',   tab === 'users');
+    if (tab === 'users')  fetchUsers();
+    if (tab === 'bidang') loadPortalBidangs();
+};
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* BIDANG / BAGIAN AJAX                                                    */
+/* ═══════════════════════════════════════════════════════════════════════ */
+const PORTAL_BIDANG_API  = @json(url('/admin/bidangs'));
+let portalBidangTree = [];
+
+function escPB(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escPBJs(s) { return String(s ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/\n/g,'\\n'); }
+
+function flatPortalBidang(nodes, acc = []) {
+    nodes.forEach(n => {
+        acc.push({ id:n.id, nama:n.nama, parent_id:n.parent_id??null,
+            pimpinan_nama:n.pimpinan_nama||null, pimpinan_email:n.pimpinan_email||null,
+            jabatan:n.jabatan||null });
+        if (n.children&&n.children.length) flatPortalBidang(n.children,acc);
+    }); return acc;
+}
+
+async function loadPortalBidangs() {
+    document.getElementById('bidang-loading').style.display = 'flex';
+    try {
+        const res  = await fetch(PORTAL_BIDANG_API, { headers:{'Accept':'application/json','X-Requested-With':'XMLHttpRequest'} });
+        const data = await res.json();
+        if (!res.ok) { Swal.fire({icon:'error',title:'Gagal',text:data.message||'HTTP '+res.status}); return; }
+        portalBidangTree = data.data || [];
+        renderPortalBidangTree(portalBidangTree);
+        const tc = document.getElementById('tc-bidang');
+        if (tc) tc.textContent = String(flatPortalBidang(portalBidangTree).length);
+    } catch(e){ console.error(e); }
+    finally { document.getElementById('bidang-loading').style.display='none'; }
+}
+
+function buildLeaderBadges(n) {
+    let p=[];
+    if(n.jabatan && n.pimpinan_nama) p.push(`<span class="portal-bidang-badge portal-bidang-mgr-badge">${escPB(n.jabatan)}</span>`);
+    else if(n.pimpinan_nama)         p.push(`<span class="portal-bidang-badge portal-bidang-mgr-badge">Pimpinan: ${escPB(n.pimpinan_nama)}</span>`);
+    return p.length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${p.join('')}</div>`:'';
+}
+
+function renderPortalBidangTree(nodes) {
+    const el = document.getElementById('portal-bidang-tree');
+    if (!nodes.length) { el.innerHTML='<p style="padding:12px 4px;color:#94a3b8;font-size:0.85rem;">Belum ada data bidang. Klik "+ Bidang Utama" untuk memulai.</p>'; return; }
+    el.innerHTML = '<ul style="list-style:none;margin:0;padding:0">'+nodes.map(n=>renderPBRoot(n)).join('')+'</ul>';
+}
+
+function renderPBRoot(n) {
+    const badges = buildLeaderBadges(n);
+    const actAdd = `<button type="button" class="mgmt-act-btn portal-bidang-btn-sub" style="padding:5px 10px;font-size:0.75rem" onclick="openBidangModal({lockParent:${n.id},parent_id:${n.id}})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Sub</button>`;
+    const actEdit = `<button type="button" class="mgmt-act-btn mgmt-act-edit" style="padding:5px 10px;font-size:0.75rem" onclick="openBidangModal({id:${n.id},nama:'${escPBJs(n.nama)}',parent_id:null,pimpinan_nama:'${escPBJs(n.pimpinan_nama||'')}',pimpinan_email:'${escPBJs(n.pimpinan_email||'')}',jabatan:'${escPBJs(n.jabatan||'')}'})" ><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Edit</button>`;
+    const actDel = `<button type="button" class="mgmt-act-btn mgmt-act-del" style="padding:5px 10px;font-size:0.75rem" onclick="deleteBidangPortal(${n.id},'${escPBJs(n.nama)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Hapus</button>`;
+    const subs = (n.children&&n.children.length)?'<ul style="list-style:none;margin:4px 0 0;padding-left:22px;border-left:2px solid rgba(124,58,237,.2)">'+n.children.map(c=>renderPBChild(c)).join('')+'</ul>':'';
+    return `<li style="margin-bottom:8px"><div class="portal-bidang-root-row"><div style="flex:1;min-width:0"><strong style="font-size:0.9rem">${escPB(n.nama)}</strong>${badges}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-left:auto">${actEdit}${actAdd}${actDel}</div></div>${subs}</li>`;
+}
+
+function renderPBChild(n) {
+    const badges = buildLeaderBadges(n);
+    const actEdit = `<button type="button" class="mgmt-act-btn mgmt-act-edit" style="padding:5px 10px;font-size:0.75rem" onclick="openBidangModal({id:${n.id},nama:'${escPBJs(n.nama)}',parent_id:${n.parent_id},pimpinan_nama:'${escPBJs(n.pimpinan_nama||'')}',pimpinan_email:'${escPBJs(n.pimpinan_email||'')}',jabatan:'${escPBJs(n.jabatan||'')}'})" ><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Edit</button>`;
+    const actDel = `<button type="button" class="mgmt-act-btn mgmt-act-del" style="padding:5px 10px;font-size:0.75rem" onclick="deleteBidangPortal(${n.id},'${escPBJs(n.nama)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Hapus</button>`;
+    return `<li style="margin-bottom:6px"><div class="portal-bidang-child-row"><div style="flex:1;min-width:0"><span style="font-size:0.87rem">${escPB(n.nama)}</span>${badges}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-left:auto">${actEdit}${actDel}</div></div></li>`;
+}
+
+function togglePBLeaderSection() {
+    const sel = document.getElementById('portal-bidang-parent');
+    const sec = document.getElementById('portal-bidang-leader-section');
+    if (!sec) return;
+    sec.style.display = sel.value ? 'block' : 'none';
+    const jabatanInput = document.getElementById('portal-bidang-pimpinan-jabatan');
+    const namaInput   = document.getElementById('portal-bidang-pimpinan-nama');
+    const emailInput  = document.getElementById('portal-bidang-pimpinan-email');
+    if (sel.value) {
+        jabatanInput?.setAttribute('required','');
+        namaInput?.setAttribute('required','');
+        emailInput?.setAttribute('required','');
+    } else {
+        jabatanInput?.removeAttribute('required');
+        namaInput?.removeAttribute('required');
+        emailInput?.removeAttribute('required');
+    }
+}
+
+function populatePBParents(lockParent) {
+    const sel = document.getElementById('portal-bidang-parent');
+    sel.innerHTML = '<option value="">\u2014 Bidang utama \u2014</option>';
+    portalBidangTree.forEach(r => { const o=document.createElement('option'); o.value=String(r.id); o.textContent=r.nama; sel.appendChild(o); });
+    if (lockParent) { sel.value=String(lockParent); sel.disabled=true; }
+    else { sel.disabled=false; }
+    togglePBLeaderSection();
+}
+
+window.openBidangModal = function(opts) {
+    const { id, nama, parent_id, lockParent, pimpinan_nama, pimpinan_email, jabatan } = opts||{};
+    document.getElementById('portal-bidang-modal-title').textContent = id?'Ubah Bidang':(lockParent?'Tambah Sub-Bidang':'Tambah Bidang Utama');
+    document.getElementById('portal-bidang-id').value = id||'';
+    document.getElementById('portal-bidang-nama').value = nama||'';
+
+    const jabatanInput = document.getElementById('portal-bidang-pimpinan-jabatan');
+    const namaInput   = document.getElementById('portal-bidang-pimpinan-nama');
+    const emailInput  = document.getElementById('portal-bidang-pimpinan-email');
+    jabatanInput.value = jabatan || '';
+    namaInput.value   = pimpinan_nama || '';
+    emailInput.value  = pimpinan_email || '';
+
+    populatePBParents(lockParent||null);
+    const sel = document.getElementById('portal-bidang-parent');
+    if (!lockParent && parent_id!=null && parent_id!=='') sel.value=String(parent_id);
+    sel.removeEventListener('change',togglePBLeaderSection);
+    sel.addEventListener('change',togglePBLeaderSection);
+    togglePBLeaderSection();
+    document.getElementById('portal-bidang-modal').hidden=false;
+    refreshMgmtModalOverflow();
+    setTimeout(()=>document.getElementById('portal-bidang-nama').focus(),80);
+};
+
+window.closeBidangModal = function() {
+    document.getElementById('portal-bidang-modal').hidden=true;
+    document.getElementById('portal-bidang-parent').disabled=false;
+    refreshMgmtModalOverflow();
+};
+
+window.submitBidangModal = async function() {
+    const id  = document.getElementById('portal-bidang-id').value;
+    const btn = document.getElementById('btn-save-bidang');
+    const psel = document.getElementById('portal-bidang-parent');
+    const pv = psel.value;
+    const payload = { nama: document.getElementById('portal-bidang-nama').value.trim(), parent_id: pv===''?null:parseInt(pv,10) };
+    if (pv !== '') {
+        const pimpinanJabatan = document.getElementById('portal-bidang-pimpinan-jabatan').value.trim();
+        const pimpinanNama    = document.getElementById('portal-bidang-pimpinan-nama').value.trim();
+        const pimpinanEmail   = document.getElementById('portal-bidang-pimpinan-email').value.trim();
+
+        if (!pimpinanNama || !pimpinanEmail) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validasi',
+                html: 'Nama dan Email <strong>Pimpinan</strong> wajib diisi untuk sub-bidang.',
+                confirmButtonColor: '#7c3aed'
+            });
+            return;
+        }
+
+        payload.pimpinan_nama  = pimpinanNama;
+        payload.pimpinan_email = pimpinanEmail;
+        payload.jabatan        = pimpinanJabatan || null;
+    } else {
+        payload.pimpinan_nama = null; payload.pimpinan_email = null; payload.jabatan = null;
+    }
+    btn.disabled=true; const prev=btn.innerHTML; btn.textContent='Menyimpan...';
+    try {
+        const url=id?(PORTAL_BIDANG_API+'/'+id):PORTAL_BIDANG_API, method=id?'PUT':'POST';
+        const res=await fetch(url,{method,headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':CSRF,'X-Requested-With':'XMLHttpRequest'},body:JSON.stringify(payload)});
+        const data=await res.json().catch(()=>({}));
+        if (!res.ok) {
+            data.errors?Swal.fire({icon:'warning',title:'Validasi',html:Object.values(data.errors).flat().join('<br>'),confirmButtonColor:'#7c3aed'}):Swal.fire({icon:'error',title:'Gagal',text:data.message||'HTTP '+res.status}); return;
+        }
+        closeBidangModal(); Swal.fire({icon:'success',title:id?'Diperbarui':'Disimpan',timer:1300,showConfirmButton:false}); loadPortalBidangs();
+    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+    finally { btn.disabled=false; btn.innerHTML=prev; }
+};
+
+window.deleteBidangPortal = function(id,nama) {
+    Swal.fire({
+        title:'Hapus Bidang?',html:`<p>Yakin ingin menghapus <strong>${escPB(nama)}</strong>?</p><div style="margin-top:10px;padding:8px;background:#fef9c3;border:1px solid #fde68a;border-radius:8px;font-size:0.82rem;color:#92400e;text-align:left">⚠️ Sub-bidang di dalamnya juga akan dihapus.</div>`,
+        icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',cancelButtonColor:'#64748b',confirmButtonText:'Ya, Hapus',cancelButtonText:'Batal',
+    }).then(async r => {
+        if (!r.isConfirmed) return;
+        try {
+            const res=await fetch(PORTAL_BIDANG_API+'/'+id,{method:'DELETE',headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':CSRF,'X-Requested-With':'XMLHttpRequest'}});
+            const data=await res.json().catch(()=>({}));
+            if (!res.ok||!data.success){Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'});return;}
+            Swal.fire({icon:'success',title:'Terhapus',timer:1300,showConfirmButton:false}); loadPortalBidangs();
+        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+    });
 };
 
 /* ═══════════════════════════════════════════════════════════════════════ */
@@ -1115,12 +1488,11 @@ document.getElementById('armada-tbody').addEventListener('click', function (ev) 
 
 document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
+    const bidangM = document.getElementById('portal-bidang-modal');
     const armadaM = document.getElementById('armada-form-modal');
-    const userM = document.getElementById('user-edit-modal');
-    if (!armadaM.hidden) {
-        closeArmadaModal();
-        return;
-    }
+    const userM   = document.getElementById('user-edit-modal');
+    if (bidangM && !bidangM.hidden) { closeBidangModal(); return; }
+    if (!armadaM.hidden) { closeArmadaModal(); return; }
     if (!userM.hidden) closeUserModal();
 });
 

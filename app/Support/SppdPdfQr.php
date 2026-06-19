@@ -5,6 +5,7 @@ namespace App\Support;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Logo\Logo;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 
 final class SppdPdfQr
@@ -21,7 +22,8 @@ final class SppdPdfQr
         $qr = QrCode::create($text)
             ->setSize($size)
             ->setMargin(2)
-            ->setErrorCorrectionLevel(ErrorCorrectionLevel::High);
+            ->setErrorCorrectionLevel(ErrorCorrectionLevel::High)
+            ->setRoundBlockSizeMode(RoundBlockSizeMode::None);
 
         $writer = new PngWriter();
 

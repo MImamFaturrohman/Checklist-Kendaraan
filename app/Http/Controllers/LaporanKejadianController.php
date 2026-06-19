@@ -93,7 +93,7 @@ class LaporanKejadianController extends Controller
         $firstPenjelasan = $lampiran[0]['penjelasan'] ?? '';
         $fotoPath = $lampiran[0]['path'] ?? null;
 
-        $needsManagerApproval = $bidang->hasManagerContact();
+        $needsManagerApproval = $bidang->hasAnyApprovalContact();
         $token = $needsManagerApproval ? Str::random(64) : null;
 
         $laporan = LaporanKejadian::create([
@@ -119,9 +119,11 @@ class LaporanKejadianController extends Controller
 
         if ($needsManagerApproval) {
             $approvalUrl = route('laporan-kejadian.approval.show', ['token' => $token]);
+            $recipientEmail = $bidang->approvalRecipientEmail();
+            $recipientNama  = $bidang->approvalRecipientNama();
             try {
-                Mail::to($bidang->manager_email)
-                    ->send(new LaporanKejadianApprovalMail($laporan->load('bidang.parent'), $approvalUrl, $bidang->manager_nama));
+                Mail::to($recipientEmail)
+                    ->send(new LaporanKejadianApprovalMail($laporan->load('bidang.parent'), $approvalUrl, $recipientNama));
             } catch (\Throwable $e) {
                 Log::error('LaporanKejadian approval email gagal: '.$e->getMessage(), ['laporan_id' => $laporan->id]);
             }
@@ -129,7 +131,7 @@ class LaporanKejadianController extends Controller
             return response()->json([
                 'success' => true,
                 'pending_manager_approval' => true,
-                'message' => 'Laporan kejadian berhasil dikirim. Tautan persetujuan telah dikirimkan ke email manager bidang Anda.',
+                'message' => 'Laporan kejadian berhasil dikirim. Tautan persetujuan telah dikirimkan ke email pimpinan bidang Anda.',
             ]);
         }
 

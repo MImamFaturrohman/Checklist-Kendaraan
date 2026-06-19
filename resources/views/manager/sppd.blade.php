@@ -112,7 +112,9 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('modals')
     <div id="sppd-modal-detail-manager" class="modal-overlay" style="display:none">
         <div class="modal-box profile-card sppd-modal-box" style="max-width:min(720px,100%);text-align:left;max-height:86vh;overflow:auto">
             <h3>Detail Rekap SPPD</h3>
@@ -123,8 +125,10 @@
             </div>
         </div>
     </div>
+@endsection
 
-    <script>
+@push('scripts')
+<script>
     (function () {
         const BASE = @json(url('/'));
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
@@ -257,4 +261,4 @@
 
     })();
     </script>
-@endsection
+@endpush

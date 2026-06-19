@@ -31,10 +31,11 @@ class BidangController extends Controller
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $data = $request->validate([
-            'nama' => 'required|string|max:200',
-            'parent_id' => 'nullable|exists:bidangs,id',
-            'manager_nama' => 'nullable|string|max:200',
-            'manager_email' => 'nullable|email|max:255',
+            'nama'           => 'required|string|max:200',
+            'parent_id'      => 'nullable|exists:bidangs,id',
+            'pimpinan_nama'  => 'nullable|string|max:200',
+            'pimpinan_email' => 'nullable|email|max:255',
+            'jabatan'        => 'nullable|string|max:150',
         ]);
 
         if (! empty($data['parent_id'])) {
@@ -46,10 +47,11 @@ class BidangController extends Controller
             }
         }
 
-        // Manager contact only makes sense on leaf / sub-bidangs
+        // Pimpinan contact only makes sense on sub-bidangs (leaf nodes)
         if (empty($data['parent_id'])) {
-            $data['manager_nama'] = null;
-            $data['manager_email'] = null;
+            $data['pimpinan_nama']  = null;
+            $data['pimpinan_email'] = null;
+            $data['jabatan']        = null;
         }
 
         $parentId = $data['parent_id'] ?? null;
@@ -72,10 +74,11 @@ class BidangController extends Controller
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         $data = $request->validate([
-            'nama' => 'required|string|max:200',
-            'parent_id' => 'nullable|exists:bidangs,id',
-            'manager_nama' => 'nullable|string|max:200',
-            'manager_email' => 'nullable|email|max:255',
+            'nama'           => 'required|string|max:200',
+            'parent_id'      => 'nullable|exists:bidangs,id',
+            'pimpinan_nama'  => 'nullable|string|max:200',
+            'pimpinan_email' => 'nullable|email|max:255',
+            'jabatan'        => 'nullable|string|max:150',
         ]);
 
         if ($bidang->children()->exists()) {
@@ -101,11 +104,12 @@ class BidangController extends Controller
             }
         }
 
-        // Manager contact only valid on sub-bidang (leaf); clear if promoting to root
+        // Pimpinan contact only valid on sub-bidang (leaf); clear if promoting to root
         $effectiveParentId = array_key_exists('parent_id', $data) ? $data['parent_id'] : $bidang->parent_id;
         if (! $effectiveParentId) {
-            $data['manager_nama'] = null;
-            $data['manager_email'] = null;
+            $data['pimpinan_nama']  = null;
+            $data['pimpinan_email'] = null;
+            $data['jabatan']        = null;
         }
 
         $oldParentId = $bidang->parent_id;
@@ -157,13 +161,14 @@ class BidangController extends Controller
             : [];
 
         return [
-            'id' => $b->id,
-            'nama' => $b->nama,
-            'parent_id' => $b->parent_id,
-            'sort_order' => $b->sort_order,
-            'manager_nama' => $b->manager_nama,
-            'manager_email' => $b->manager_email,
-            'children' => $children,
+            'id'             => $b->id,
+            'nama'           => $b->nama,
+            'parent_id'      => $b->parent_id,
+            'sort_order'     => $b->sort_order,
+            'pimpinan_nama'  => $b->pimpinan_nama,
+            'pimpinan_email' => $b->pimpinan_email,
+            'jabatan'        => $b->jabatan,
+            'children'       => $children,
         ];
     }
 }

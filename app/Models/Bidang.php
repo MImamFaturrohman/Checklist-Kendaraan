@@ -11,8 +11,9 @@ class Bidang extends Model
     protected $fillable = [
         'parent_id',
         'nama',
-        'manager_nama',
-        'manager_email',
+        'pimpinan_nama',
+        'pimpinan_email',
+        'jabatan',
         'sort_order',
     ];
 
@@ -58,9 +59,41 @@ class Bidang extends Model
         return $this->nama;
     }
 
+    public function hasPimpinanContact(): bool
+    {
+        return filled($this->pimpinan_nama) && filled($this->pimpinan_email);
+    }
+
+    /** @deprecated Use hasPimpinanContact() */
     public function hasManagerContact(): bool
     {
-        return filled($this->manager_nama) && filled($this->manager_email);
+        return $this->hasPimpinanContact();
+    }
+
+    /** @deprecated Always returns false — team leader concept removed */
+    public function hasTeamLeaderContact(): bool
+    {
+        return false;
+    }
+
+    /** Kembalikan email penerima persetujuan. */
+    public function approvalRecipientEmail(): ?string
+    {
+        if ($this->hasPimpinanContact()) return $this->pimpinan_email;
+        return null;
+    }
+
+    /** Kembalikan nama penerima persetujuan. */
+    public function approvalRecipientNama(): ?string
+    {
+        if ($this->hasPimpinanContact()) return $this->pimpinan_nama;
+        return null;
+    }
+
+    /** True jika ada kontak pimpinan untuk persetujuan. */
+    public function hasAnyApprovalContact(): bool
+    {
+        return $this->hasPimpinanContact();
     }
 
     /** Hanya sub-bidang (daun) yang boleh dipilih di form peminjaman. */

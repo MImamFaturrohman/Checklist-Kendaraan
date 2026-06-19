@@ -2310,7 +2310,7 @@ html:not(.dark) .dash-body .dash-section-title { color: rgba(30, 58, 138, 0.5); 
    ADMIN PAGES — shared
    =================================================================== */
 .admin-shell {
-    max-width: 1100px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 14px;
     min-height: 100vh;
@@ -2496,7 +2496,7 @@ html.dark .dash-body .stat-card .stat-label {
 
 /* Armada */
 .armada-shell {
-    max-width: 1080px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 14px;
     min-height: 100vh;

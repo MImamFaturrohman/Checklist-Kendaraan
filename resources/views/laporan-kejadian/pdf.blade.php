@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     @include('partials.favicon')
-    <title>Laporan Kejadian — {{ $laporan->nama }}</title>
+    <title>Laporan Kejadian Kendaraan Operasional — {{ $laporan->nama }}</title>
     <style>
         @font-face {
             font-family: 'Arial';
@@ -127,8 +127,10 @@
             background: #f3f4f6;
             color: #111827;
             width: 50%;
+            border-bottom: none;
         }
         .dual-peristiwa-table .subbody {
+            border-top: none;
             white-space: pre-wrap;
         }
 
@@ -282,8 +284,10 @@
     $jamLabel = $tgl->format('H:i').' WIB';
 
     $bidangNama = $laporan->bidang?->nama ?? '–';
-    $jabatanManajerLine = 'MANAJER '.mb_strtoupper($bidangNama, 'UTF-8');
-    $namaManajer = $laporan->bidang?->manager_nama;
+    $pimpinanNama = $laporan->bidang?->pimpinan_nama;
+    $pimpinanJabatan = mb_strtoupper($laporan->bidang?->jabatan ?? 'PIMPINAN', 'UTF-8');
+
+    $hasPimpinanInfo = filled($pimpinanNama);
 
     $isIncident = $laporan->kategori === 'Incident';
     $isNearmiss = $laporan->kategori === 'Nearmiss';
@@ -299,7 +303,7 @@
                     <img class="header-logo" src="{{ public_path('images/ADCPM Landscape NEW.png') }}" alt="Logo ADC PM">
                 </td>
                 <td class="header-right">
-                    <div class="header-title">LAPORAN KEJADIAN</div>
+                    <div class="header-title">LAPORAN KEJADIAN KENDARAAN OPERASIONAL</div>
                     <div class="header-pm">PM UNIT SURALAYA</div>
                     <div class="header-no">{{ $docNo }} &nbsp;|&nbsp; {{ Carbon::now()->translatedFormat('d F Y') }}</div>
                 </td>
@@ -397,15 +401,17 @@
     <table class="sig-table">
         <tr>
             <td>
-                @if($laporan->ttd_manager && $namaManajer && $jabatanManajerLine)
+                @if($hasPimpinanInfo)
                     <div class="sig-line">Mengetahui,</div>
-                    <div class="sig-role">{{ $jabatanManajerLine }}</div>
+                    <div class="sig-role">{{ $pimpinanJabatan }}</div>
 
                     <div class="sig-img-box">
-                        <img src="{{ $laporan->ttd_manager }}" alt="Tanda tangan manajer">
+                        @if($laporan->ttd_manager)
+                            <img src="{{ $laporan->ttd_manager }}" alt="Tanda tangan pimpinan">
+                        @endif
                     </div>
                     <div class="sig-print-name">
-                        {{ mb_strtoupper($namaManajer, 'UTF-8') }}
+                        {{ mb_strtoupper($pimpinanNama, 'UTF-8') }}
                     </div>
                 @endif
             </td>

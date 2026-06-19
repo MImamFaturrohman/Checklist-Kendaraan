@@ -188,11 +188,6 @@
             </div>
 
             <div class="mgmt-tab-bar" style="margin-top: 4px">
-                <button type="button" class="mgmt-tab" id="ppm-tab-bidang" onclick="ppmSwitchTab('bidang')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <span>Bidang / Bagian</span>
-                    <span class="mgmt-tab-count" id="tc-bidang">{{ $tabCounts['bidangs'] }}</span>
-                </button>
                 <button type="button" class="mgmt-tab" id="ppm-tab-pernyataan" onclick="ppmSwitchTab('pernyataan')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <span>Pernyataan</span>
@@ -203,23 +198,6 @@
                     <span>Daftar permohonan</span>
                     <span class="mgmt-tab-count" id="tc-permohonan">{{ $tabCounts['permohonan'] }}</span>
                 </button>
-            </div>
-
-            {{-- A. Master Bidang / Bagian --}}
-            <div id="ppm-section-bidang" class="ppm-tab-panel" style="display: none">
-                <div class="portal-section" id="ppm-master-bidang" style="margin-top: 14px">
-                    <div class="portal-section-header" style="margin-bottom: 8px">
-                        <div class="portal-section-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                            Bidang / Bagian
-                        </div>
-                    </div>
-                    <p class="peminj-meta" style="margin:0 0 12px">Struktur induk</p>
-                    <div class="ppm-master-actions">
-                        <button type="button" class="admin-filter-btn" id="ppm-btn-bidang-root">+ Bidang utama</button>
-                    </div>
-                    <div id="ppm-bidang-tree" class="ppm-tree" aria-live="polite"></div>
-                </div>
             </div>
 
             {{-- B. Pernyataan --}}
@@ -317,44 +295,7 @@
 @endsection
 
 @section('modals')
-    {{-- Modal Bidang --}}
-    <div id="ppm-modal-bidang" class="ppm-modal" hidden>
-        <div class="ppm-modal-backdrop" data-close="bidang"></div>
-        <div class="ppm-modal-box portal-section">
-            <h3 id="ppm-modal-bidang-title">Bidang / Bagian</h3>
-            <form id="ppm-form-bidang">
-                <input type="hidden" id="ppm-bidang-id" value="">
-                <div class="ppm-field">
-                    <label for="ppm-bidang-nama">Nama</label>
-                    <input type="text" id="ppm-bidang-nama" class="admin-filter-input" required maxlength="200">
-                </div>
-                <div class="ppm-field" id="ppm-bidang-parent-wrap">
-                    <label for="ppm-bidang-parent">Induk (kosongkan untuk bidang utama)</label>
-                    <select id="ppm-bidang-parent" class="admin-filter-input">
-                        <option value="">— Bidang utama —</option>
-                    </select>
-                </div>
-                {{-- Manager fields: hanya tampil untuk sub-bidang --}}
-                <div id="ppm-bidang-manager-wrap" style="display:none">
-                    <div style="font-size:0.78rem;font-weight:600;color:#475569;margin:12px 0 6px;letter-spacing:.3px;text-transform:uppercase;">
-                        Manajer Sub-Bidang (opsional)
-                    </div>
-                    <div class="ppm-field">
-                        <label for="ppm-bidang-manager-nama">Nama Manager</label>
-                        <input type="text" id="ppm-bidang-manager-nama" class="admin-filter-input" maxlength="200" placeholder="Nama lengkap manager">
-                    </div>
-                    <div class="ppm-field">
-                        <label for="ppm-bidang-manager-email">Email Manager</label>
-                        <input type="email" id="ppm-bidang-manager-email" class="admin-filter-input" maxlength="255" placeholder="email@perusahaan.com">
-                    </div>
-                </div>
-                <div class="ppm-modal-actions">
-                    <button type="button" class="portal-local-reset" id="ppm-bidang-cancel" data-close="bidang">Batal</button>
-                    <button type="submit" class="admin-filter-btn">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
+
 
     {{-- Modal Pernyataan --}}
     <div id="ppm-modal-pernyataan" class="ppm-modal" hidden>
@@ -380,13 +321,12 @@
     <script>
     window.PPM_API = {
         csrf: @json(csrf_token()),
-        bidangs: @json(url('/admin/bidangs')),
         pernyataans: @json(url('/admin/pernyataans')),
     };
     window.PPM_LIST_URL = @json(route('admin.peminjaman'));
 
     window.ppmSwitchTab = function (tab) {
-        const tabs = ['bidang', 'pernyataan', 'daftar'];
+        const tabs = ['pernyataan', 'daftar'];
         if (!tabs.includes(tab)) tab = 'daftar';
         tabs.forEach(t => {
             const sec = document.getElementById('ppm-section-' + t);
@@ -405,11 +345,11 @@
     (function () {
         let initialTab = 'daftar';
         const h = (location.hash || '').replace(/^#/, '');
-        if (['bidang', 'pernyataan', 'daftar'].includes(h)) initialTab = h;
+        if (['pernyataan', 'daftar'].includes(h)) initialTab = h;
         else {
             try {
                 const s = localStorage.getItem('ppm-active-tab');
-                if (['bidang', 'pernyataan', 'daftar'].includes(s)) initialTab = s;
+                if (['pernyataan', 'daftar'].includes(s)) initialTab = s;
             } catch (e) { /* ignore */ }
         }
         window.ppmSwitchTab(initialTab);
@@ -432,52 +372,6 @@
             Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
         }
 
-        let bidangTree = [];
-
-        function renderBidangTree(data) {
-            bidangTree = data;
-            const el = document.getElementById('ppm-bidang-tree');
-            if (!data.length) {
-                el.innerHTML = '<p class="peminj-meta">Belum ada data bidang.</p>';
-                const tc = document.getElementById('tc-bidang');
-                if (tc) tc.textContent = '0';
-                return;
-            }
-            el.innerHTML = '<ul>' + data.map(renderRoot).join('') + '</ul>';
-        }
-
-        function renderRoot(node) {
-            const actions = `
-                <div class="ppm-tree-actions">
-                    <button type="button" class="ppm-btn-ghost" data-act="edit-bidang" data-id="${node.id}">Edit</button>
-                    <button type="button" class="ppm-btn-ghost" data-act="add-sub" data-parent="${node.id}">+ Sub</button>
-                    <button type="button" class="ppm-btn-ghost ppm-btn-danger" data-act="del-bidang" data-id="${node.id}">Hapus</button>
-                </div>`;
-            const subs = (node.children && node.children.length)
-                ? '<ul>' + node.children.map(ch => renderChild(ch)).join('') + '</ul>'
-                : '';
-            return `<li>
-                <div class="ppm-tree-row">
-                    <strong>${escapeHtml(node.nama)}</strong>
-                    ${actions}
-                </div>${subs}
-            </li>`;
-        }
-
-        function renderChild(node) {
-            const actions = `
-                <div class="ppm-tree-actions">
-                    <button type="button" class="ppm-btn-ghost" data-act="edit-bidang" data-id="${node.id}">Edit</button>
-                    <button type="button" class="ppm-btn-ghost ppm-btn-danger" data-act="del-bidang" data-id="${node.id}">Hapus</button>
-                </div>`;
-            return `<li>
-                <div class="ppm-tree-row">
-                    <span>${escapeHtml(node.nama)}</span>
-                    ${actions}
-                </div>
-            </li>`;
-        }
-
         function escapeHtml(s) {
             const d = document.createElement('div');
             d.textContent = s;
@@ -491,143 +385,6 @@
                 .replace(/'/g, '&#39;')
                 .replace(/</g, '&lt;');
         }
-
-        async function loadBidangs() {
-            const res = await fetch(PPM_API.bidangs, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-            const data = await res.json();
-            if (!res.ok) { showErrors(res, data); return; }
-            renderBidangTree(data.data || []);
-            const tc = document.getElementById('tc-bidang');
-            if (tc) tc.textContent = String(flattenBidang(data.data || []).length);
-        }
-
-        function populateBidangParents() {
-            const sel = document.getElementById('ppm-bidang-parent');
-            sel.innerHTML = '<option value="">— Bidang utama —</option>';
-            bidangTree.forEach(r => {
-                const o = document.createElement('option');
-                o.value = String(r.id);
-                o.textContent = r.nama;
-                sel.appendChild(o);
-            });
-        }
-
-        function toggleManagerWrap() {
-            const sel = document.getElementById('ppm-bidang-parent');
-            const wrap = document.getElementById('ppm-bidang-manager-wrap');
-            if (!wrap) return;
-            wrap.style.display = sel.value ? 'block' : 'none';
-        }
-
-        function openBidangModal(opts) {
-            const { id, nama, parent_id, lockParent, manager_nama, manager_email } = opts;
-            document.getElementById('ppm-modal-bidang-title').textContent = id ? 'Ubah bidang' : (lockParent ? 'Tambah sub-bidang' : 'Tambah bidang utama');
-            document.getElementById('ppm-bidang-id').value = id || '';
-            document.getElementById('ppm-bidang-nama').value = nama || '';
-            document.getElementById('ppm-bidang-manager-nama').value = manager_nama || '';
-            document.getElementById('ppm-bidang-manager-email').value = manager_email || '';
-            populateBidangParents();
-            const sel = document.getElementById('ppm-bidang-parent');
-            if (lockParent) {
-                sel.value = String(lockParent);
-                sel.disabled = true;
-            } else {
-                sel.disabled = false;
-                sel.value = (parent_id != null && parent_id !== '') ? String(parent_id) : '';
-            }
-            toggleManagerWrap();
-            sel.addEventListener('change', toggleManagerWrap);
-            document.getElementById('ppm-modal-bidang').hidden = false;
-        }
-
-        function closeBidangModal() {
-            document.getElementById('ppm-modal-bidang').hidden = true;
-            document.getElementById('ppm-bidang-parent').disabled = false;
-        }
-
-        document.getElementById('ppm-btn-bidang-root').addEventListener('click', () => openBidangModal({}));
-
-        document.getElementById('ppm-bidang-tree').addEventListener('click', e => {
-            const btn = e.target.closest('[data-act]');
-            if (!btn) return;
-            const act = btn.getAttribute('data-act');
-            const id = btn.getAttribute('data-id');
-            const parent = btn.getAttribute('data-parent');
-            if (act === 'add-sub') {
-                openBidangModal({ lockParent: parent, parent_id: parent });
-                return;
-            }
-            if (act === 'edit-bidang') {
-                const flat = flattenBidang(bidangTree);
-                const node = flat.find(x => String(x.id) === String(id));
-                if (!node) return;
-                openBidangModal({
-                    id: node.id,
-                    nama: node.nama,
-                    parent_id: node.parent_id,
-                    manager_nama: node.manager_nama || '',
-                    manager_email: node.manager_email || '',
-                });
-                return;
-            }
-            if (act === 'del-bidang') {
-                Swal.fire({
-                    title: 'Hapus bidang?',
-                    text: 'Tindakan ini tidak dapat dibatalkan.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#b91c1c',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, hapus',
-                    cancelButtonText: 'Batal',
-                }).then(async r => {
-                    if (!r.isConfirmed) return;
-                    const res = await fetch(PPM_API.bidangs + '/' + id, { method: 'DELETE', headers: headers() });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok || !data.success) { showErrors(res, data); return; }
-                    Swal.fire({ icon: 'success', title: 'Terhapus', timer: 1400, showConfirmButton: false });
-                    loadBidangs();
-                });
-            }
-        });
-
-        function flattenBidang(nodes, acc = []) {
-            nodes.forEach(n => {
-                acc.push({ id: n.id, nama: n.nama, parent_id: n.parent_id ?? null, manager_nama: n.manager_nama || null, manager_email: n.manager_email || null });
-                if (n.children && n.children.length) flattenBidang(n.children, acc);
-            });
-            return acc;
-        }
-
-        document.getElementById('ppm-form-bidang').addEventListener('submit', async e => {
-            e.preventDefault();
-            const id = document.getElementById('ppm-bidang-id').value;
-            const payload = {
-                nama: document.getElementById('ppm-bidang-nama').value.trim(),
-            };
-            const psel = document.getElementById('ppm-bidang-parent');
-            const pv = psel.value;
-            payload.parent_id = pv === '' ? null : parseInt(pv, 10);
-
-            if (pv !== '') {
-                payload.manager_nama = document.getElementById('ppm-bidang-manager-nama').value.trim() || null;
-                payload.manager_email = document.getElementById('ppm-bidang-manager-email').value.trim() || null;
-            } else {
-                payload.manager_nama = null;
-                payload.manager_email = null;
-            }
-
-            const url = id ? (PPM_API.bidangs + '/' + id) : PPM_API.bidangs;
-            const method = id ? 'PUT' : 'POST';
-            const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(payload) });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) { showErrors(res, data); return; }
-            closeBidangModal();
-            Swal.fire({ icon: 'success', title: 'Disimpan', timer: 1200, showConfirmButton: false });
-            loadBidangs();
-        });
-
-        document.querySelectorAll('[data-close="bidang"]').forEach(el => el.addEventListener('click', closeBidangModal));
 
         /* --- Pernyataan (tabel + modal seperti Bidang, AJAX) --- */
         let pernyataanRowsCache = [];
@@ -728,7 +485,6 @@
             });
         });
 
-        loadBidangs();
         loadPernyataans();
     })();
 
