@@ -42,52 +42,32 @@
         .header-pm    { font-size: 12pt; font-weight: bold; color: #3d4654; margin-top: -2px; }
         .header-no    { font-size: 11px; font-weight: bold; color: #002a7a; margin-top: 2px; }
 
-        /* Styling Kategori & Checkbox */
+        /* Styling Kategori */
         .lk-cat-container {
             margin: 10px 0 15px;
             font-size: 10pt;
             text-align: right;
         }
 
-        .lk-cat-item {
+        .lk-cat-badge {
             display: inline-block;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-
-        .checkbox-box {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 1.5px solid #002a7a;
-            border-radius: 2px;
-            vertical-align: middle;
-            position: relative;
-            margin-right: 6px;
-            background-color: #fff;
-        }
-
-        .checkbox-box.checked {
-            background-color: #002a7a;
-        }
-
-        .checkbox-box.checked::after {
-            content: '';
-            position: absolute;
-            left: 4px;
-            top: 1px;
-            width: 4px;
-            height: 7px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .lk-cat-label {
-            display: inline-block;
-            vertical-align: middle;
+            padding: 3px 9px;
+            border-radius: 4px;
             font-weight: bold;
-            color: #374151;
+            font-size: 9pt;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .lk-cat-badge.active {
+            border: 1px solid #002a7a;
+            background-color: #002a7a;
+            color: #ffffff;
+        }
+
+        .lk-cat-badge.inactive {
+            border: 1px solid #6b7280;
+            color: #6b7280;
         }
 
         .section-heading {
@@ -118,14 +98,6 @@
             background: #f3f4f6;
             color: #111827;
             width: 22%;
-        }
-
-        .block-label {
-            font-weight: 700;
-            font-size: 9.5pt;
-            color: #374151;
-            margin-top: 8px;
-            margin-bottom: 3px;
         }
         .block-text {
             font-size: 9.5pt;
@@ -158,7 +130,6 @@
         }
         .dual-peristiwa-table .subbody {
             white-space: pre-wrap;
-            min-height: 72px;
         }
 
         /* Kotak satu: header + kolom foto + penjelasan di bawah tiap foto */
@@ -166,7 +137,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #e5e7eb;
             font-size: 9pt;
             page-break-inside: avoid;
             table-layout: fixed;
@@ -343,14 +314,8 @@
             </td>
             <td style="width: 50%; text-align: right; vertical-align: middle; padding: 0;">
                 <div class="lk-cat-container" style="display: inline-block; margin: 0; padding-top: 5px;">
-                    <div class="lk-cat-item" style="margin-left: 15px;">
-                        <span class="checkbox-box {{ $isIncident ? 'checked' : '' }}"></span>
-                        <span class="lk-cat-label">Insiden</span>
-                    </div>
-                    <div class="lk-cat-item" style="margin-left: 15px;">
-                        <span class="checkbox-box {{ $isNearmiss ? 'checked' : '' }}"></span>
-                        <span class="lk-cat-label">Nearmiss</span>
-                    </div>
+                    <span class="lk-cat-badge {{ $isIncident ? 'active' : 'inactive' }}">Insiden</span>
+                    <span class="lk-cat-badge {{ $isNearmiss ? 'active' : 'inactive' }}" style="margin-left: 4px;">Nearmiss</span>
                 </div>
             </td>
         </tr>
@@ -360,26 +325,26 @@
         <tr>
             <td class="label">Nama Pelapor</td>
             <td>{{ $laporan->nama }}</td>
+            <td class="label">No. Kendaraan</td>
+            <td>{{ $laporan->nomor_kendaraan }}</td>
+        </tr>
+        <tr>
             <td class="label">NIP</td>
             <td>{{ $laporan->nip }}</td>
+            <td class="label">Jenis kendaraan</td>
+            <td>{{ $laporan->jenis_kendaraan }}</td>
         </tr>
         <tr>
             <td class="label">Posisi / Jabatan</td>
             <td>{{ $laporan->jabatan }}</td>
-            <td class="label">Bidang / Bagian</td>
-            <td>{{ $bidangNama }}</td>
-        </tr>
-        <tr>
             <td class="label">Hari dan tanggal kejadian</td>
             <td>{{ $hariStr }}, {{ $tanggalStr }}</td>
-            <td class="label">Waktu Kejadian</td>
-            <td>{{ $jamLabel }}</td>
         </tr>
         <tr>
-            <td class="label">No. Kendaraan</td>
-            <td>{{ $laporan->nomor_kendaraan }}</td>
-            <td class="label">Jenis kendaraan</td>
-            <td>{{ $laporan->jenis_kendaraan }}</td>
+            <td class="label">Bidang / Bagian</td>
+            <td>{{ $bidangNama }}</td>
+            <td class="label">Waktu Kejadian</td>
+            <td>{{ $jamLabel }}</td>
         </tr>
         <tr>
             <td class="label">Lokasi kejadian</td>
@@ -388,41 +353,44 @@
     </table>
 
     <div class="section-heading">Uraian</div>
-    <table class="dual-peristiwa-table">
+    <table class="dual-peristiwa-table" style="margin-bottom: 15px;">
         <tr>
             <td class="subhead">Peristiwa</td>
             <td class="subhead">Sebelum Kejadian</td>
         </tr>
         <tr>
-            <td class="subbody">{{ $laporan->peristiwa }}</td>
-            <td class="subbody">{{ $laporan->sebelum_kejadian }}</td>
+            <td class="subbody">{{ trim($laporan->peristiwa) }}</td>
+            <td class="subbody">{{ trim($laporan->sebelum_kejadian) }}</td>
         </tr>
-    </table>
-
-    <div class="block-label">Kejadian</div>
-    <div class="block-text">{{ $laporan->uraian_kejadian }}</div>
-
-    @php
-        $slides = $fotoSlides ?? [];
-        $colCount = max(1, count($slides));
-        $imgMaxH = $colCount === 1 ? 200 : ($colCount === 2 ? 168 : 128);
-    @endphp
-    <table class="lk-gambar-shell">
         <tr>
-            @forelse($slides as $s)
-                <td class="lk-gambar-col" style="width: {{ round(100 / $colCount, 2) }}%; text-align: center; vertical-align: middle;">
-                    <div class="lk-gambar-col-inner">
-                        @if(!empty($s['data_url']))
-                            <img src="{{ $s['data_url'] }}" alt="Foto kejadian" style="max-height: {{ $imgMaxH }}px; ">
-                        @else
-                            <span style="color:#9ca3af;font-size:8.5pt;">(Tidak ada gambar)</span>
-                        @endif
-                        <div class="lk-gambar-col-caption">{{ $s['penjelasan'] ?? '' }}</div>
-                    </div>
-                </td>
-            @empty
-                <td class="lk-gambar-empty" colspan="1">(Tidak ada gambar)</td>
-            @endforelse
+            <td colspan="2" class="block-text" style="border: 1px solid #d1d5db; border-top: none;"><strong style="color: #374151; display: block; margin-bottom: 4px;">Kejadian</strong>{{ trim($laporan->uraian_kejadian) }}</td>
+        </tr>
+        @php
+            $slides = $fotoSlides ?? [];
+            $colCount = max(1, count($slides));
+            $imgMaxH = $colCount === 1 ? 200 : ($colCount === 2 ? 168 : 128);
+        @endphp
+        <tr>
+            <td colspan="2" style="padding: 0; border: 1px solid #d1d5db; border-top: none;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0; table-layout: fixed; border: none;">
+                    <tr>
+                        @forelse($slides as $index => $s)
+                            <td class="lk-gambar-col" style="width: {{ round(100 / $colCount, 2) }}%; text-align: center; vertical-align: middle; padding: 0; border: none; {{$index < $colCount - 1 ? 'border-right: 1px solid #d1d5db;' : ''}}">
+                                <div class="lk-gambar-col-inner" style="padding: 8px;">
+                                    @if(!empty($s['data_url']))
+                                        <img src="{{ $s['data_url'] }}" alt="Foto kejadian" style="max-height: {{ $imgMaxH }}px; display: block; margin: 0 auto 6px; border: 1px solid #e5e7eb; border-radius: 3px; max-width: 100%; width: auto; object-fit: contain;">
+                                    @else
+                                        <span style="color:#9ca3af;font-size:8.5pt;">(Tidak ada gambar)</span>
+                                    @endif
+                                    <div class="lk-gambar-col-caption" style="text-align: center; white-space: pre-wrap; word-wrap: break-word; font-size: 8.5pt; color: #1a1a2e; padding-top: 6px; margin-top: 2px;">{{ $s['penjelasan'] ?? '' }}</div>
+                                </div>
+                            </td>
+                        @empty
+                            <td class="lk-gambar-empty" colspan="1" style="padding: 12px; text-align: center; color: #9ca3af; font-size: 8.5pt; border: none;">(Tidak ada gambar)</td>
+                        @endforelse
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
 

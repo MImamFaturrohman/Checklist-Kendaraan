@@ -39,19 +39,16 @@
         <div class="dash-hero-left">
             @if($isSuperAdmin)
                 <p class="dash-hero-kicker">
-                    <span class="dash-hero-kicker-dot"></span>
                     AKSES SUPERADMIN
                 </p>
                 <h2 class="dash-hero-name">Fleet Hub</h2>
             @elseif($isAdmin)
                 <p class="dash-hero-kicker">
-                    <span class="dash-hero-kicker-dot"></span>
                     AKSES ADMIN
                 </p>
                 <h2 class="dash-hero-name">Fleet Hub</h2>
             @elseif($isManager)
                 <p class="dash-hero-kicker">
-                    <span class="dash-hero-kicker-dot"></span>
                     AKSES MANAGER
                 </p>
                 <h2 class="dash-hero-name">Panel Persetujuan</h2>

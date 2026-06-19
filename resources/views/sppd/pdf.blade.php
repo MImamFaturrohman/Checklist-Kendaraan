@@ -33,12 +33,12 @@
             font-size: 12pt;
             font-weight: 700;
             color: #3d4654;
-            margin-top: 1px;
+            margin-top: -2px;
         }
         .header-number {
             width: 100%;
             text-align: right;
-            margin-top: 1px;
+            margin-top: 2px;
             font-size: 11px;
             font-weight: 700;
             color: #002a7a;

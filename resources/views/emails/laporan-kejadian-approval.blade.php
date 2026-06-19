@@ -41,7 +41,7 @@
         <table class="table">
             <tr>
                 <td>Pelapor</td>
-                <td>{{ $laporan->nama }} (NIP {{ $laporan->nip }})</td>
+                <td>{{ $laporan->nama }} | {{ $laporan->nip }}</td>
             </tr>
             <tr>
                 <td>Jabatan</td>

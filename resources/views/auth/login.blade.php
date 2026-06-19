@@ -8,6 +8,7 @@
         <title>Login - {{ config('app.name', 'VMS') }}</title>
         @include('partials.favicon')
         @vite(['resources/css/auth.css', 'resources/js/auth.js'])
+        <script src="https://unpkg.com/@phosphor-icons/web"></script>
         
         <style>
             /* Gradient tokens — diubah JS saat toggle tema */
@@ -89,7 +90,7 @@
                     </div>
 
                     <button type="submit" class="auth-btn-submit" id="login-submit" data-login-submit aria-busy="false">
-                        <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                        <i class="ph-bold ph-sign-in" aria-hidden="true"></i>
                         <span class="auth-btn-text">Log in</span>
                     </button>
                 </form>

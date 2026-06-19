@@ -45,7 +45,7 @@
     const passwordGroup    = loginForm.querySelector('#password-input-group');
 
     const submitOriginalHTML = submitButton
-        ? '<i class="bi bi-box-arrow-in-right" aria-hidden="true"></i><span class="auth-btn-text">Log in</span>'
+        ? '<i class="ph-bold ph-sign-in" aria-hidden="true"></i><span class="auth-btn-text">Log in</span>'
         : '';
 
     if (passwordInput && passwordToggle && passwordIcon) {
@@ -79,7 +79,7 @@
             submitButton.setAttribute('aria-busy', 'true');
             loginForm.classList.add('auth-form--loading');
             submitButton.innerHTML =
-                '<span class="auth-login-spinner" role="status" aria-label="Memuat"></span>'
+                '<i class="ph-bold ph-spinner auth-login-spinner" role="status" aria-label="Memuat"></i>'
                 + '<span class="auth-btn-text">Memverifikasi\u2026</span>';
         } else {
             submitButton.classList.remove('is-loading');

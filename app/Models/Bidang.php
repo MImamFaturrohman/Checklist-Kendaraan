@@ -52,7 +52,7 @@ class Bidang extends Model
     {
         $p = $this->relationLoaded('parent') ? $this->parent : $this->parent()->first();
         if ($p) {
-            return $p->nama.' — '.$this->nama;
+            return $p->nama.'—'.$this->nama;
         }
 
         return $this->nama;

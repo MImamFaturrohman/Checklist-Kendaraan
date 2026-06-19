@@ -22,7 +22,7 @@ class LaporanKejadianApprovalMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '[Persetujuan] Laporan Kejadian – '.$this->laporan->nama.' ('.($this->laporan->kategori).')',
+            subject: '[Persetujuan] Laporan Kejadian–'.$this->laporan->nama.' ('.($this->laporan->kategori).')',
         );
     }
 
