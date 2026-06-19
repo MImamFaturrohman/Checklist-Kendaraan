@@ -399,8 +399,8 @@ function initBbmForm() {
         const confirm = await Swal.fire({
             icon: 'question',
             iconColor: document.documentElement.classList.contains('dark') ? '#2563eb' :'#0e2a52',
-            title: 'Kirim laporan BBM?',
-            text: 'Laporan akan disimpan dan dikirim ke admin. Lanjutkan?',
+            title: 'Kirim laporan BBM',
+            text: 'Laporan akan disimpan dan dikirim ke admin, lanjutkan?',
             customClass: {
                 popup: 'swal-bbm-popup',
                 title: 'swal-bbm-title',

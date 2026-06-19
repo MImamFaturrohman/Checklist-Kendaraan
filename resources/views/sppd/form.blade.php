@@ -409,19 +409,18 @@
                     @endforeach
                 </div>
                 <button type="button" class="sppd-add-row" id="sppd-add-fuel">+ Tambah baris BBM</button>
+                <footer class="checklist-footer sppd-checklist-footer" style="margin-top: 20px;">
+                    <div class="sppd-footer-right">
+                        <div class="sppd-footer-actions">
+                            <button type="button" class="checklist-nav-btn checklist-nav-next" id="sppd-next" style="width:100%">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                                Lihat Preview
+                            </button>
+                        </div>
+                    </div>
+                </footer>
             </section>
         </form>
     </main>
-
-    <footer class="checklist-footer sppd-checklist-footer">
-        <div class="sppd-footer-right">
-            <div class="sppd-footer-actions">
-                <button type="button" class="checklist-nav-btn checklist-nav-next" id="sppd-next" style="width:100%">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
-                    Lihat Preview
-                </button>
-            </div>
-        </div>
-    </footer>
 </div>
 @endsection

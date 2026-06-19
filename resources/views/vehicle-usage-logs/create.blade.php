@@ -37,7 +37,7 @@
         color: #e2e8f0;
     }
     
-    /* Info table di dalam modal preview — sama dengan sppd-detail-html */
+    /* Info table di dalam modal preview */
     .vul-review .info-table {
         width: 100%;
         border-collapse: collapse;
@@ -367,7 +367,7 @@
     /* ── 3D White Slider Thumb for BBM Level ── */
     .bbm-slider {
         -webkit-appearance: none;
-        width: 100%;
+        width: 90%;
         height: 6px;
         border-radius: 999px;
         outline: none;
@@ -379,12 +379,12 @@
     }
     .bbm-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
-        height: 22px;
-        width: 22px;
+        height: 19px;
+        width: 19px;
         border-radius: 50%;
         background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
         border: 1px solid rgba(0, 0, 0, 0.15) !important;
-        margin-top: -8px;
+        margin-top: -7px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.22), 0 4px 10px rgba(0,0,0,0.12), inset 0 -2px 4px rgba(0,0,0,0.08), inset 0 2px 3px rgba(255,255,255,1) !important;
         cursor: pointer;
         transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -424,6 +424,10 @@
     .bbm-slider::-moz-range-thumb:active {
         transform: scale(0.96);
     }
+    .bbm-value {
+        color: #1e3a8a;
+    }
+    html.dark .dash-body .bbm-value { color: #3b82f6; }
 </style>
 @endpush
 
@@ -537,17 +541,16 @@
                     </label>
                 </div>
             </section>
+            <footer class="checklist-footer" style="margin-top: 20px;">
+                <div class="vul-footer-actions">
+                    <button type="button" class="checklist-nav-btn checklist-nav-next" id="vul-next" style="width:100%">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                        Lihat Preview
+                    </button>
+                </div>
+            </footer>
         </form>
     </main>
-
-    <footer class="checklist-footer">
-        <div class="vul-footer-actions">
-            <button type="button" class="checklist-nav-btn checklist-nav-next" id="vul-next" style="width:100%">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
-                Lihat Preview
-            </button>
-        </div>
-    </footer>
 </div>
 @endsection
 

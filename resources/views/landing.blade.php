@@ -31,11 +31,14 @@
         }
         .lp-section-heading {
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
             gap: 16px;
             margin-bottom: 16px;
             flex-wrap: wrap;
+        }
+        .lp-section-heading .landing-section-sub {
+            margin: 0;
         }
         .lp-search-wrap {
             position: relative;

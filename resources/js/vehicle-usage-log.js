@@ -162,7 +162,7 @@ function initVulForm() {
             iconColor: '#dc2626',
             title: 'Formulir belum valid',
             html:
-                '<p class="vul-swal-lead">Mohon lengkapi isian terlebih dahulu:</p>' +
+                '<p class="vul-swal-lead">Mohon lengkapi terlebih dahulu:</p>' +
                 '<div class="vul-swal-error-box"><ul class="vul-swal-list" style="margin:0">' +
                 list.map((e) => '<li>' + esc(String(e)) + '</li>').join('') +
                 '</ul></div>',

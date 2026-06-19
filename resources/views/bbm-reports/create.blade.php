@@ -25,6 +25,15 @@
     };
 @endphp
 <style>
+    .bbm-form-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #0b2c6b;
+    }
+    html.dark .dash-body .bbm-form-title { color: #D4AF37; }
+    .bbm-form-title i { color: #D4AF37; }
+
     .bbm-form-page .section-banner {
         display: flex;
         align-items: center;
@@ -69,8 +78,26 @@
     .bbm-form-page .bbm-page-head p { margin: 4px 0 0; font-size: 0.82rem; color: #64748b; }
     html.dark .dash-body .bbm-form-page .bbm-page-head p { color: #94a3b8; }
 
+    .bbm-span-input-label { margin-left: 12px; }
     .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
     html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); }
+
+    .foto-warning {
+        margin:8px 0 0;
+        font-size:0.78rem;
+        line-height:1.45;
+        color:#b45309;
+        background:rgba(245,158,11,0.12);
+        border:1px solid rgba(245,158,11,0.28);
+        padding:10px 12px;
+        border-radius:10px;
+    }
+    html.dark .dash-body .foto-warning {
+        color: #1e40af;
+        background: rgba(30, 64, 175, 0.12);
+        border: 1px solid rgba(30, 64, 175, 0.28);
+        filter: brightness(1.5);
+    }
 
     .bbm-footer-actions {
         display: flex !important;
@@ -447,14 +474,15 @@
             @endif
 
             <div class="checklist-progress-head">
-                <div class="checklist-progress-info">
-                    <span style="font-size: 1.3em;"><i class="bi bi-fuel-pump-fill"></i> DATA KENDARAAN &amp; PENGISIAN BBM</span>
+                <div class="bbm-form-title">
+                    <span style="font-size: 1.3em;"><i class="bi bi-fuel-pump-fill"></i> DATA PENGISIAN BBM</span>
                 </div>
             </div>
 
             <section class="wizard-step active" data-step="1">
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
+                        <span class="bbm-span-input-label">Data kendaraan</span>
                         <div class="checklist-control-wrap checklist-control-select">
                             <select name="nomor_kendaraan" id="bbm-nopol" required>
                                 <option value="">Pilih Nomor Kendaraan</option>
@@ -465,6 +493,7 @@
                         </div>
                     </label>
                     <label class="checklist-field">
+                        <span style="visibility: hidden">&nbsp;</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="bbm-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis terisi…" autocomplete="off">
                         </div>
@@ -495,7 +524,7 @@
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>KM Odometer</span>
+                        <span class="bbm-span-input-label">KM Odometer</span>
                         <div class="checklist-control-wrap">
                             <input type="number" name="odometer_sebelum" id="bbm-odo-sebelum" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sebelum') }}" placeholder="Sebelum" data-km-current-hint="{{ $isPicKendaraan ? '1' : '0' }}">
                         </div>
@@ -509,7 +538,7 @@
                 </div>
                 <div class="checklist-grid-two">
                     <label class="checklist-field">
-                        <span>Detail BBM</span>
+                        <span class="bbm-span-input-label">Detail BBM</span>
                         <div class="checklist-control-wrap">
                             <input type="number" name="liter" id="bbm-liter" required min="0.001" step="0.001" value="{{ old('liter') }}" placeholder="Liter">
                         </div>
@@ -521,7 +550,6 @@
                         </div>
                     </label>
                     <label class="checklist-field checklist-field-span2 bbm-total-field">
-                        <span>Total Harga</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="bbm-total-display" readonly class="checklist-input-readonly bbm-total-readonly" value="Rp 0" autocomplete="off" aria-live="polite">
                         </div>
@@ -549,20 +577,18 @@
                         <button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus">×</button>
                     </label>
                 </div>
-                <p style="margin:8px 0 0;font-size:0.78rem;line-height:1.45;color:#b45309;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);padding:10px 12px;border-radius:10px;">Pastikan mengambil foto dengan kamera landscape (horizontal).</p>
+                <p class="foto-warning">Pastikan mengambil foto <strong>odometer</strong> dengan kamera <strong>landscape</strong> (horizontal).</p>
             </section>
-
+            <footer class="checklist-footer" style="margin-top: 20px;">
+                <div class="bbm-footer-actions">
+                    <button type="button" class="checklist-nav-btn checklist-nav-next" id="bbm-next" style="width:100%">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                        Lihat Preview
+                    </button>
+                </div>
+            </footer>
         </form>
     </main>
-
-    <footer class="checklist-footer">
-        <div class="bbm-footer-actions">
-            <button type="button" class="checklist-nav-btn checklist-nav-next" id="bbm-next" style="width:100%">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
-                Lihat Preview
-            </button>
-        </div>
-    </footer>
 </div>
 @endsection
 
