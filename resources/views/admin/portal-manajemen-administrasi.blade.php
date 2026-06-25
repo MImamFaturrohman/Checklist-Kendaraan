@@ -1,4 +1,4 @@
-﻿@extends('layouts.dash-app')
+@extends('layouts.dash-app')
 
 @section('title', 'Portal Manajemen Administrasi')
 @section('pageTitle', 'Portal Manajemen Administrasi')
@@ -761,7 +761,12 @@ function mountMgmtPagination(section, html) {
             }, { pathname: new URL(MGMT_API_PATHS[section]).pathname });
         }
     } else {
-        el.innerHTML = html || '';
+        const interval = setInterval(() => {
+            if (window.AdminPagination) {
+                clearInterval(interval);
+                mountMgmtPagination(section, html);
+            }
+        }, 30);
     }
 }
 

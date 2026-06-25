@@ -325,20 +325,22 @@ class ChecklistController extends Controller
 
         // Initial paginated data (superadmin & admin).
         if ($canAccessDatabase) {
+            $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 10);
+
             $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan']);
             $this->applyChecklistFilters($request, $dbQuery);
             TableSort::apply($dbQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
-            $dbChecklists = $dbQuery->paginate(10, ['*'], 'db_page')->withQueryString();
+            $dbChecklists = $dbQuery->paginate($perPage, ['*'], 'page')->withQueryString();
 
             $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin']);
             $this->applyChecklistFilters($request, $fotoQuery);
             TableSort::apply($fotoQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
-            $fotoChecklists = $fotoQuery->paginate(10, ['*'], 'foto_page')->withQueryString();
+            $fotoChecklists = $fotoQuery->paginate($perPage, ['*'], 'page')->withQueryString();
 
             $pdfQuery = Checklist::whereNotNull('pdf_path');
             $this->applyChecklistFilters($request, $pdfQuery);
             TableSort::apply($pdfQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
-            $pdfChecklists = $pdfQuery->paginate(10, ['*'], 'pdf_page')->withQueryString();
+            $pdfChecklists = $pdfQuery->paginate($perPage, ['*'], 'page')->withQueryString();
         } else {
             $dbChecklists = collect();
             $fotoChecklists = collect();

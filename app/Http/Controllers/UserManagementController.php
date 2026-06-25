@@ -29,7 +29,7 @@ class UserManagementController extends Controller
                   ->orWhere('jenis_kendaraan', 'like', "%{$ks}%");
             });
         }
-        $kendaraans = $kQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10), ['*'], 'kp')->onEachSide(0)->withQueryString();
+        $kendaraans = $kQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10), ['*'], 'page')->onEachSide(0)->withQueryString();
 
         // --- Users (semua selain superadmin dalam MANAGED_ROLES) ---
         $uQuery = User::query()->whereIn('role', self::MANAGED_ROLES)->orderBy('name');
@@ -42,7 +42,7 @@ class UserManagementController extends Controller
         if (($rf = $request->input('role_filter')) && in_array($rf, self::MANAGED_ROLES, true)) {
             $uQuery->where('role', $rf);
         }
-        $users = $uQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10), ['*'], 'up')->onEachSide(0)->withQueryString();
+        $users = $uQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10), ['*'], 'page')->onEachSide(0)->withQueryString();
 
         $stats = [
             'total_kendaraan' => Kendaraan::count(),

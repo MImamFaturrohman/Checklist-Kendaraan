@@ -128,66 +128,30 @@
             </div>
         </div>
 
-        @if($canAccessDatabase)
-        {{-- ============================================================
-             GLOBAL SEARCH & FILTER
-        ============================================================ --}}
-        <div class="portal-global-search-wrap" id="portal-global-bar">
-            <div class="portal-global-label">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/></svg>
-                <span>Global Search</span>
-                <span class="portal-global-hint">mencari di Database, Foto, dan PDF sekaligus</span>
-            </div>
-            <div class="portal-global-inputs">
-                <div class="portal-global-search-field">
-                    <input type="text" id="global-search" placeholder="Cari nopol, driver, jenis..." class="portal-global-input" autocomplete="off">
-                </div>
-                <input type="date" id="global-dari" class="portal-global-date" title="Tanggal dari">
-                <input type="date" id="global-sampai" class="portal-global-date" title="Tanggal sampai">
-                <select id="global-nopol" class="portal-global-select">
-                    <option value="">Semua Nopol</option>
-                    @foreach($nopolList as $n)
-                        <option value="{{ $n }}">{{ $n }}</option>
-                    @endforeach
-                </select>
-                <select id="global-shift" class="portal-global-select">
-                    <option value="">Semua Shift</option>
-                    <option value="Pagi">Pagi</option>
-                    <option value="Siang">Siang</option>
-                </select>
-                <button type="button" id="global-reset" class="portal-global-reset">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-                    Reset
-                </button>
-            </div>
-        </div>
 
-        {{-- ============================================================
-             SECTION TABS
-        ============================================================ --}}
-        <div class="portal-section-tabs">
-            <button class="portal-section-tab active" data-section="db">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
-                Database Sheet
-            </button>
-            <button class="portal-section-tab" data-section="foto">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="2"/><path d="M21 16L16 11L7 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Log Foto Fisik
-            </button>
-            <button class="portal-section-tab" data-section="pdf">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Arsip PDF
-            </button>
-        </div>
+
+
 
         {{-- ============================================================
              SECTION: DATABASE SHEET
         ============================================================ --}}
         <div class="portal-section" id="section-db">
             <div class="portal-section-header">
-                <div class="portal-section-title">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
-                    Database Sheet
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                    <div class="portal-section-tabs" style="margin-bottom:0">
+                        <button class="portal-section-tab active" data-section="db">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
+                            Database Sheet
+                        </button>
+                        <button class="portal-section-tab" data-section="foto">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="2"/><path d="M21 16L16 11L7 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Log Foto Fisik
+                        </button>
+                        <button class="portal-section-tab" data-section="pdf">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Arsip PDF
+                        </button>
+                    </div>
                 </div>
                 @if(auth()->user()?->role === 'superadmin')
                 <div class="portal-pemeriksaan-superadmin-actions" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -218,12 +182,8 @@
                     <option value="">Semua Nopol</option>
                     @foreach($nopolList as $n)<option value="{{ $n }}">{{ $n }}</option>@endforeach
                 </select>
-                <select id="db-shift" class="admin-filter-input">
-                    <option value="">Semua Shift</option>
-                    <option value="Pagi">Pagi</option>
-                    <option value="Siang">Siang</option>
-                </select>
-                <x-admin-per-page-select id="db-perpage" name="per_page" :selected="10" />
+
+                <x-admin-per-page-select id="db-perpage" name="per_page" :selected="$dbChecklists->perPage()" />
                 <button type="button" class="portal-local-reset" data-section-reset="db">Reset</button>
             </div>
 
@@ -357,9 +317,21 @@
         ============================================================ --}}
         <div class="portal-section" id="section-foto" style="display:none">
             <div class="portal-section-header">
-                <div class="portal-section-title">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="2"/><path d="M21 16L16 11L7 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Log Foto Fisik
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                    <div class="portal-section-tabs" style="margin-bottom:0">
+                        <button class="portal-section-tab active" data-section="db">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
+                            Database Sheet
+                        </button>
+                        <button class="portal-section-tab" data-section="foto">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="2"/><path d="M21 16L16 11L7 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Log Foto Fisik
+                        </button>
+                        <button class="portal-section-tab" data-section="pdf">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Arsip PDF
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -375,7 +347,7 @@
                     <option value="">Semua Nopol</option>
                     @foreach($nopolList as $n)<option value="{{ $n }}">{{ $n }}</option>@endforeach
                 </select>
-                <x-admin-per-page-select id="foto-perpage" name="per_page" :selected="10" />
+                <x-admin-per-page-select id="foto-perpage" name="per_page" :selected="$fotoChecklists->perPage()" />
                 <button type="button" class="portal-local-reset" data-section-reset="foto">Reset</button>
             </div>
 
@@ -526,9 +498,21 @@
         ============================================================ --}}
         <div class="portal-section" id="section-pdf" style="display:none">
             <div class="portal-section-header">
-                <div class="portal-section-title">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    Arsip PDF
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                    <div class="portal-section-tabs" style="margin-bottom:0">
+                        <button class="portal-section-tab active" data-section="db">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
+                            Database Sheet
+                        </button>
+                        <button class="portal-section-tab" data-section="foto">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="2"/><path d="M21 16L16 11L7 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Log Foto Fisik
+                        </button>
+                        <button class="portal-section-tab" data-section="pdf">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Arsip PDF
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -544,12 +528,8 @@
                     <option value="">Semua Nopol</option>
                     @foreach($nopolList as $n)<option value="{{ $n }}">{{ $n }}</option>@endforeach
                 </select>
-                <select id="pdf-shift" class="admin-filter-input">
-                    <option value="">Semua Shift</option>
-                    <option value="Pagi">Pagi</option>
-                    <option value="Siang">Siang</option>
-                </select>
-                <x-admin-per-page-select id="pdf-perpage" name="per_page" :selected="10" />
+
+                <x-admin-per-page-select id="pdf-perpage" name="per_page" :selected="$pdfChecklists->perPage()" />
                 <button type="button" class="portal-local-reset" data-section-reset="pdf">Reset</button>
             </div>
 
@@ -605,7 +585,6 @@
             </div>
             <div id="pdf-pagination" class="tbl-pagination-mount"></div>
         </div>
-        @endif
     </div>{{-- end portal-wrapper --}}
 </div>{{-- end admin-shell --}}
 @endsection
@@ -650,9 +629,9 @@
             pdf: '/api/admin/portal/arsip-pdf',
         };
 
-        let dbPage   = 1, dbPerPage   = 10;
-        let fotoPage = 1, fotoPerPage = 10;
-        let pdfPage  = 1, pdfPerPage  = 10;
+        let dbPage   = 1, dbPerPage   = {{ (int) $dbChecklists->perPage() }};
+        let fotoPage = 1, fotoPerPage = {{ (int) $fotoChecklists->perPage() }};
+        let pdfPage  = 1, pdfPerPage  = {{ (int) $pdfChecklists->perPage() }};
 
         /* ================================================================
         CHARTS — dark-mode aware, rebuilds on theme toggle
@@ -935,9 +914,10 @@
         ================================================================ */
         document.querySelectorAll('.portal-section-tab').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.portal-section-tab').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
                 const target = btn.dataset.section;
+                document.querySelectorAll('.portal-section-tab').forEach(b => {
+                    b.classList.toggle('active', b.dataset.section === target);
+                });
                 document.querySelectorAll('.portal-section').forEach(s => {
                     const id = s.id.replace('section-', '');
                     s.style.display = id === target ? '' : 'none';
@@ -1100,7 +1080,12 @@
                     }, { pathname: new URL(BASE_URL + PORTAL_API_PATHS[section]).pathname });
                 }
             } else {
-                el.innerHTML = html || '';
+                const interval = setInterval(() => {
+                    if (window.AdminPagination) {
+                        clearInterval(interval);
+                        mountPortalPagination(section, html);
+                    }
+                }, 30);
             }
         }
 
@@ -1111,7 +1096,7 @@
         let _abortFoto = null;
         let _abortPdf  = null;
 
-        let dbSort = '', dbDir = '', fotoSort = '', fotoDir = '', pdfSort = '', pdfDir = '';
+        let dbSort = '{{ $dbActiveSort ?? "" }}', dbDir = '{{ $dbActiveDir ?? "" }}', fotoSort = '', fotoDir = '', pdfSort = '{{ $pdfActiveSort ?? "" }}', pdfDir = '{{ $pdfActiveDir ?? "" }}';
 
         /* ================================================================
         DATABASE SHEET AJAX
@@ -1122,7 +1107,6 @@
                 tanggal_dari:   document.getElementById('db-dari')?.value ?? '',
                 tanggal_sampai: document.getElementById('db-sampai')?.value ?? '',
                 nopol:          document.getElementById('db-nopol')?.value ?? '',
-                shift:          document.getElementById('db-shift')?.value ?? '',
                 per_page:       dbPerPage,
                 page:           dbPage,
             };
@@ -1278,7 +1262,6 @@
                 tanggal_dari:   document.getElementById('pdf-dari')?.value ?? '',
                 tanggal_sampai: document.getElementById('pdf-sampai')?.value ?? '',
                 nopol:          document.getElementById('pdf-nopol')?.value ?? '',
-                shift:          document.getElementById('pdf-shift')?.value ?? '',
                 per_page:       pdfPerPage,
                 page:           pdfPage,
             };
@@ -1328,13 +1311,13 @@
         const debouncedFoto = debounce(() => { fotoPage = 1; fetchFoto(); });
         const debouncedPdf  = debounce(() => { pdfPage = 1;  fetchPdf(); });
 
-        ['db-search','db-dari','db-sampai','db-nopol','db-shift'].forEach(id => {
+        ['db-search','db-dari','db-sampai','db-nopol'].forEach(id => {
             document.getElementById(id)?.addEventListener('input', debouncedDb);
         });
         ['foto-search','foto-dari','foto-sampai','foto-nopol'].forEach(id => {
             document.getElementById(id)?.addEventListener('input', debouncedFoto);
         });
-        ['pdf-search','pdf-dari','pdf-sampai','pdf-nopol','pdf-shift'].forEach(id => {
+        ['pdf-search','pdf-dari','pdf-sampai','pdf-nopol'].forEach(id => {
             document.getElementById(id)?.addEventListener('input', debouncedPdf);
         });
 
@@ -1354,7 +1337,7 @@
             btn.addEventListener('click', () => {
                 const p = btn.dataset.sectionReset;
                 [`${p}-search`,`${p}-dari`,`${p}-sampai`].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-                [`${p}-nopol`,`${p}-shift`].forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex=0; });
+                [`${p}-nopol`].forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex=0; });
                 const ppEl = document.getElementById(`${p}-perpage`);
                 if (ppEl) { ppEl.value = '10'; }
                 if (p === 'db')   { dbPerPage=10;   dbPage=1;   dbSort='';   dbDir='';   fetchDb(); }
@@ -1368,61 +1351,40 @@
             const dbWrap = document.getElementById('db-all-thead')?.closest('.admin-table-wrap');
             if (dbWrap) {
                 window.AdminTableSort.bindRoot(dbWrap, {
-                    getUrl: () => new URL(location.href),
+                    getUrl: () => {
+                        const url = new URL(location.href);
+                        if (dbSort) {
+                            url.searchParams.set('sort', dbSort);
+                            url.searchParams.set('dir', dbDir);
+                        } else {
+                            url.searchParams.delete('sort');
+                            url.searchParams.delete('dir');
+                        }
+                        return url;
+                    },
                     onNavigate: (url) => { dbSort = url.searchParams.get('sort') || ''; dbDir = url.searchParams.get('dir') || ''; dbPage = 1; fetchDb(); },
                 });
             }
             const pdfWrap = document.getElementById('pdf-thead')?.closest('.admin-table-wrap');
             if (pdfWrap) {
                 window.AdminTableSort.bindRoot(pdfWrap, {
-                    getUrl: () => new URL(location.href),
+                    getUrl: () => {
+                        const url = new URL(location.href);
+                        if (pdfSort) {
+                            url.searchParams.set('sort', pdfSort);
+                            url.searchParams.set('dir', pdfDir);
+                        } else {
+                            url.searchParams.delete('sort');
+                            url.searchParams.delete('dir');
+                        }
+                        return url;
+                    },
                     onNavigate: (url) => { pdfSort = url.searchParams.get('sort') || ''; pdfDir = url.searchParams.get('dir') || ''; pdfPage = 1; fetchPdf(); },
                 });
             }
         }
 
-        /* ================================================================
-        GLOBAL SEARCH & FILTER
-        ================================================================ */
-        function syncGlobalToLocal(params) {
-            ['db','foto','pdf'].forEach(pfx => {
-                const s = document.getElementById(`${pfx}-search`);
-                const d = document.getElementById(`${pfx}-dari`);
-                const u = document.getElementById(`${pfx}-sampai`);
-                const n = document.getElementById(`${pfx}-nopol`);
-                const h = document.getElementById(`${pfx}-shift`);
-                if (s) s.value = params.search;
-                if (d) d.value = params.tanggal_dari;
-                if (u) u.value = params.tanggal_sampai;
-                if (n) n.value = params.nopol;
-                if (h) h.value = params.shift ?? '';
-            });
-        }
 
-        const debouncedGlobal = debounce(() => {
-            const params = {
-                search:         document.getElementById('global-search')?.value ?? '',
-                tanggal_dari:   document.getElementById('global-dari')?.value ?? '',
-                tanggal_sampai: document.getElementById('global-sampai')?.value ?? '',
-                nopol:          document.getElementById('global-nopol')?.value ?? '',
-                shift:          document.getElementById('global-shift')?.value ?? '',
-            };
-            syncGlobalToLocal(params);
-            dbPage=1; fotoPage=1; pdfPage=1;
-            fetchDb(); fetchFoto(); fetchPdf();
-        });
-
-        ['global-search','global-dari','global-sampai','global-nopol','global-shift'].forEach(id => {
-            document.getElementById(id)?.addEventListener('input', debouncedGlobal);
-        });
-
-        document.getElementById('global-reset')?.addEventListener('click', () => {
-            ['global-search','global-dari','global-sampai'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-            ['global-nopol','global-shift'].forEach(id => { const el=document.getElementById(id); if(el) el.selectedIndex=0; });
-            syncGlobalToLocal({ search:'', tanggal_dari:'', tanggal_sampai:'', nopol:'', shift:'' });
-            dbPage=1; fotoPage=1; pdfPage=1;
-            fetchDb(); fetchFoto(); fetchPdf();
-        });
 
         /* ================================================================
         DATABASE SYNC (without page refresh)
