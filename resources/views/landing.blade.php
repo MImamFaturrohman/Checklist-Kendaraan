@@ -665,13 +665,14 @@
 <script>
 /** SweetAlert2 — warna popup mengikuti tema light/dark landing */
 function landingSwalOpts(opts) {
-    const dark = document.body.classList.contains('dark');
     const base = {
-        background: dark ? '#1e293b' : '#ffffff',
-        color: dark ? '#f1f5f9' : '#0f172a',
-        confirmButtonColor: '#0A2342',
-        cancelButtonColor: dark ? '#475569' : '#94a3b8',
-        customClass: { popup: 'lp-swal-popup' },
+        customClass: {
+            popup: 'lp-swal-popup',
+            title: 'lp-swal-title',
+            confirmButton: 'lp-swal-confirm',
+            cancelButton: 'lp-swal-cancel',
+        },
+        buttonsStyling: false,
     };
     return Object.assign({}, base, opts || {});
 }

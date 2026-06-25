@@ -28,29 +28,28 @@
             <x-admin-stat-card
                 title="Total Ceklist"
                 :value="$dbStats['total']"
-                unit="laporan"
-                description="Seluruh laporan pemeriksaan tercatat"
+                unit="Laporan"
+                description="Seluruh laporan pemeriksaan"
                 icon="bi bi-clipboard-data-fill"
             />
             <x-admin-stat-card
                 title="Ceklist Tahun Ini"
                 :value="$dbStats['tahun_ini']"
-                unit="laporan"
+                unit="Laporan"
                 :description="'Laporan pemeriksaan tahun ' . $chartYear"
                 icon="bi bi-calendar-check-fill"
             />
             <x-admin-stat-card
                 title="Kendaraan"
                 :value="$dbStats['kendaraan_unik']"
-                unit="unit kendaraan"
+                unit="Unit"
                 description="Unit kendaraan terdaftar"
                 icon="bi bi-truck-front-fill"
             />
             <x-admin-stat-card
                 title="Driver Aktif"
                 :value="$dbStats['driver_aktif']"
-                unit="personel"
-                description="Driver dengan aktivitas checklist"
+                unit="Personel"
                 icon="bi bi-person-fill-check"
             />
         </div>
