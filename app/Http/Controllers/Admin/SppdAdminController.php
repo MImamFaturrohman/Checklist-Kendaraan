@@ -81,6 +81,7 @@ class SppdAdminController extends Controller
             'approved' => Sppd::where('status', Sppd::STATUS_APPROVED)->count(),
             'rejected' => Sppd::where('status', Sppd::STATUS_REJECTED)->count(),
             'completed' => Sppd::where('status', Sppd::STATUS_COMPLETED)->count(),
+            'approved_completed' => Sppd::whereIn('status', [Sppd::STATUS_APPROVED, Sppd::STATUS_COMPLETED])->count(),
         ];
 
         $sortState = TableSort::current($request, self::SORT_ALLOWED);

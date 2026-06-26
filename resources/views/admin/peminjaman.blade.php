@@ -19,23 +19,24 @@
         /* Status badge — dark mode: latar lebih transparan, warna lebih tipis */
         html.dark .dash-body .ppm-requests-table .status-pending {
             background: rgba(234, 179, 8, 0.1);
-            color: rgba(251, 191, 36, 0.88);
-            border-color: rgba(251, 191, 36, 0.22);
+            color: rgba(255, 191, 0, 0.88);
+            backdrop-filter: blur(5px) saturate(180%);
         }
         html.dark .dash-body .ppm-requests-table .status-approved {
             background: rgba(34, 197, 94, 0.1);
-            color: rgba(134, 239, 172, 0.9);
             border-color: rgba(34, 197, 94, 0.22);
+            backdrop-filter: blur(5px) saturate(180%);
+            filter: brightness(1.5);
         }
         html.dark .dash-body .ppm-requests-table .status-rejected {
             background: rgba(248, 113, 113, 0.1);
-            color: rgba(252, 165, 165, 0.9);
             border-color: rgba(248, 113, 113, 0.22);
+            backdrop-filter: blur(5px) saturate(180%);
         }
         html.dark .dash-body .ppm-requests-table .status-expired {
             background: rgba(148, 163, 184, 0.08);
-            color: rgba(200, 218, 255, 0.55);
             border-color: rgba(148, 163, 184, 0.18);
+            backdrop-filter: blur(5px) saturate(180%);
         }
         .peminj-empty { text-align: center; color: #9ca3af; padding: 40px 12px; }
         .dash-body.dark .peminj-empty { color: rgba(200, 218, 255, 0.45); }
@@ -145,26 +146,23 @@
 
             <div class="portal-stats-row" data-stat-count="3">
                 <x-admin-stat-card
-                    title="Menunggu"
+                    title="Pending"
                     :value="$stats['pending']"
-                    unit="permohonan"
-                    description="Menunggu persetujuan"
+                    unit="Permohonan"
                     icon="bi bi-hourglass-split"
-                    valueStyle="color:#b45309"
+                    valueStyle="color:#ffbf00"
                 />
                 <x-admin-stat-card
-                    title="Disetujui"
+                    title="Approved"
                     :value="$stats['approved']"
-                    unit="permohonan"
-                    description="Permohonan yang disetujui"
+                    unit="Permohonan"
                     icon="bi bi-check-circle-fill"
                     valueStyle="color:#15803d"
                 />
                 <x-admin-stat-card
-                    title="Ditolak"
+                    title="Rejected"
                     :value="$stats['rejected']"
-                    unit="permohonan"
-                    description="Permohonan yang ditolak"
+                    unit="Permohonan"
                     icon="bi bi-x-circle-fill"
                     valueStyle="color:#b91c1c"
                 />
@@ -173,14 +171,14 @@
                 <x-admin-stat-card
                     title="Total"
                     :value="$stats['total']"
-                    unit="permohonan"
+                    unit="Permohonan"
                     description="Seluruh permohonan peminjaman kendaraan"
                     icon="bi bi-clipboard-data-fill"
                 />
                 <x-admin-stat-card
                     title="Expired"
                     :value="$stats['expired']"
-                    unit="permohonan"
+                    unit="Permohonan"
                     description="Melewati batas waktu berlaku"
                     icon="bi bi-clock-fill"
                     valueStyle="color:#6b7280"
@@ -232,7 +230,9 @@
                 <div class="portal-section" style="margin-top: 14px">
                     <div class="portal-section-header" style="margin-bottom: 0">
                         <div class="portal-section-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2"/>
+                            </svg>
                             Daftar permohonan peminjaman
                         </div>
                     </div>

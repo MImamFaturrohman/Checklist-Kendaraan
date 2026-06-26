@@ -17,10 +17,10 @@
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
             <div class="portal-stats-row" data-stat-count="4">
-                <x-admin-stat-card title="Total" :value="$counts['all']" unit="SPPD" description="Semua dokumen perjalanan dinas" icon="bi bi-folder-fill" />
-                <x-admin-stat-card title="Menunggu Verifikasi" :value="$counts['pending']" unit="dokumen" description="Belum diverifikasi admin" icon="bi bi-hourglass-top" />
-                <x-admin-stat-card title="Revisi" :value="$counts['revision']" unit="dokumen" description="Perlu perbaikan data driver" icon="bi bi-pencil-fill" />
-                <x-admin-stat-card title="Menunggu Disetujui" :value="$counts['pending_manager']" unit="dokumen" description="Menunggu persetujuan manager" icon="bi bi-person-check-fill" />
+                <x-admin-stat-card title="Total" :value="$counts['approved_completed']" unit="SPPD" description="Laporan SPPD diverifikasi & disetujui" icon="bi bi-check-circle-fill" />
+                <x-admin-stat-card title="Menunggu Verifikasi" :value="$counts['pending']" unit="Dokumen" description="Belum diverifikasi admin" icon="bi bi-hourglass-top" valueStyle="color: #ffbf00"/>
+                <x-admin-stat-card title="Revisi" :value="$counts['revision']" unit="Dokumen" description="Perlu perbaikan data driver" icon="bi bi-pencil-fill" />
+                <x-admin-stat-card title="Menunggu Disetujui" :value="$counts['pending_manager']" unit="Dokumen" description="Menunggu persetujuan manager" icon="bi bi-person-check-fill" valueStyle="color: #FFA500" />
             </div>
 
             <div class="portal-section" id="section-sppd-admin">
@@ -75,7 +75,7 @@
                                                 data-id="{{ $s->id }}"
                                                 title="Detail Laporan"
                                                 aria-label="Detail Laporan"
-                                            ><i class="bi bi-eye-fill"></i></button>
+                                            ><i class="bi bi-info-circle"></i></button>
                                             @php
                                                 $admPdfOk = $s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path);
                                             @endphp

@@ -472,14 +472,14 @@
                 <x-admin-stat-card
                     title="Total Laporan BBM"
                     :value="$stats['total_reports_all']"
-                    unit="laporan"
+                    unit="Laporan"
                     description="Akumulasi seluruh waktu"
                     icon="bi bi-clipboard-data-fill"
                 />
                 <x-admin-stat-card
                     title="Laporan BBM Tahunan"
                     :value="$stats['year_reports']"
-                    unit="laporan"
+                    unit="Laporan"
                     description="Laporan pengisian tahun {{ $stats['year_label'] }}"
                     icon="bi bi-calendar-week-fill"
                 >

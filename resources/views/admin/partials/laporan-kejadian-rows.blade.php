@@ -24,7 +24,7 @@
         <td style="width: 127px;">
             @if($row->manager_approval_token)
                 <span class="lk-pending">
-                    <i class="bi bi-hourglass-split"></i> Pending Approval
+                    <i class="bi bi-hourglass-split"></i> Pending
                 </span>
             @else
                 @php

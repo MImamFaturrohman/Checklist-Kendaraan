@@ -27,7 +27,7 @@
                 <x-admin-stat-card
                     title="Total Entri Log"
                     :value="$totalAll"
-                    unit="entri"
+                    unit="Entri"
                     description="Seluruh catatan pemakaian kendaraan"
                     icon="bi bi-journal-bookmark-fill"
                 />

@@ -28,22 +28,18 @@
         .lk-kat-inc {
             background: rgba(185, 28, 28, 0.08);
             color: #b91c1c;
-            border: 1px solid rgba(185, 28, 28, 0.18);
         }
         .lk-kat-nm {
-            background: rgba(180, 83, 9, 0.08);
-            color: #b45309;
-            border: 1px solid rgba(180, 83, 9, 0.18);
+            background: rgba(158, 73, 8, 0.08);
+            color: #ffbf00;
         }
         html.dark .dash-body .lk-kat-inc {
             background: rgba(185, 28, 28, 0.08) !important;
             color: #b91c1c !important;
-            border-color: rgba(185, 28, 28, 0.18) !important;
         }
         html.dark .dash-body .lk-kat-nm {
             background: rgba(180, 83, 9, 0.08) !important;
-            color: #b45309 !important;
-            border-color: rgba(180, 83, 9, 0.18) !important;
+            color: #ffbf00 !important;
         }
         .lk-daftar-filters.portal-local-filters { align-items: stretch; }
         .lk-daftar-filters .portal-search-full { flex: 1 1 200px; min-width: 0; }
@@ -84,14 +80,14 @@
                 <x-admin-stat-card
                     title="Total Laporan"
                     :value="$stats['total']"
-                    unit="laporan"
+                    unit="Laporan"
                     description="Seluruh laporan kejadian tercatat"
                     icon="bi bi-clipboard-data-fill"
                 />
                 <x-admin-stat-card
                     title="Incident"
                     :value="$stats['incident']"
-                    unit="kejadian"
+                    unit="Kejadian"
                     description="Laporan insiden yang terjadi"
                     icon="bi bi-exclamation-triangle-fill"
                     valueStyle="color:#b91c1c"
@@ -99,10 +95,10 @@
                 <x-admin-stat-card
                     title="Near Miss"
                     :value="$stats['nearmiss']"
-                    unit="kejadian"
+                    unit="Kejadian"
                     description="Hampir terjadi insiden (near miss)"
                     icon="bi bi-shield-fill-exclamation"
-                    valueStyle="color:#b45309"
+                    valueStyle="color:#ffbf00"
                 />
             </div>
 

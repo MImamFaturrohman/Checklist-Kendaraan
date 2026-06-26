@@ -115,28 +115,28 @@ html.dark .portal-bidang-btn-sub {
         <x-admin-stat-card
             title="Total Kendaraan"
             :value="$stats['total_kendaraan']"
-            unit="unit"
+            unit="Unit"
             description="Unit kendaraan terdaftar"
             icon="bi bi-truck-front-fill"
         />
         <x-admin-stat-card
             title="Total Driver"
             :value="$stats['total_driver']"
-            unit="orang"
+            unit="Personel"
             description="Driver aktif dalam sistem"
             icon="bi bi-person-fill"
         />
         <x-admin-stat-card
             title="PIC Kendaraan"
             :value="$stats['total_pic']"
-            unit="orang"
+            unit="Personel"
             description="Person in charge kendaraan"
             icon="bi bi-person-badge-fill"
         />
         <x-admin-stat-card
             title="Total User"
             :value="$stats['total_portal_users']"
-            unit="akun"
+            unit="Akun"
             description="Pengguna VMS"
             icon="bi bi-people-fill"
         />

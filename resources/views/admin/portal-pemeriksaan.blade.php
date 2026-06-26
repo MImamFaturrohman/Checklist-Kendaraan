@@ -251,7 +251,7 @@
                                 <td style="font-weight:700;font-size:0.75rem;{{ $statusStyle($c->exterior->$k) }}">{{ $statusLabel($c->exterior->$k) }}</td>
                                 @endforeach
                                 <td class="portal-db-aksi">
-                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button>
+                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button>
                                 </td>
                             </tr>
                             @endif
@@ -275,7 +275,7 @@
                                 <td style="font-weight:700;font-size:0.75rem;{{ $statusStyle($c->interior->$k) }}">{{ $statusLabel($c->interior->$k) }}</td>
                                 @endforeach
                                 <td class="portal-db-aksi">
-                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button>
+                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button>
                                 </td>
                             </tr>
                             @endif
@@ -299,7 +299,7 @@
                                 <td style="font-weight:700;font-size:0.75rem;{{ $statusStyle($c->mesin->$k) }}">{{ $statusLabel($c->mesin->$k) }}</td>
                                 @endforeach
                                 <td class="portal-db-aksi">
-                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button>
+                                    <button type="button" class="portal-db-detail-btn" data-checklist-id="{{ $c->id }}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button>
                                 </td>
                             </tr>
                             @endif
@@ -1157,7 +1157,7 @@
             tbody.innerHTML = rows.length
                 ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
                     ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.exterior[k])}">${statusLabel(c.exterior[k])}</td>`).join('')}
-                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
+                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button></td>
                 </tr>`).join('')
                 : '<tr><td colspan="11" class="portal-empty">Tidak ada data.</td></tr>';
         }
@@ -1170,7 +1170,7 @@
             tbody.innerHTML = rows.length
                 ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
                     ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.interior[k])}">${statusLabel(c.interior[k])}</td>`).join('')}
-                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
+                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button></td>
                 </tr>`).join('')
                 : '<tr><td colspan="9" class="portal-empty">Tidak ada data.</td></tr>';
         }
@@ -1183,7 +1183,7 @@
             tbody.innerHTML = rows.length
                 ? rows.map(c => `<tr><td><strong>${c.nomor_kendaraan}</strong></td><td>${c.tanggal ?? '-'}</td>
                     ${keys.map(k => `<td style="font-weight:700;font-size:.75rem;color:${statusColor(c.mesin[k])}">${statusLabel(c.mesin[k])}</td>`).join('')}
-                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-eye-fill"></i></button></td>
+                    <td class="portal-db-aksi"><button type="button" class="portal-db-detail-btn" data-checklist-id="${c.id}" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button></td>
                 </tr>`).join('')
                 : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
         }
