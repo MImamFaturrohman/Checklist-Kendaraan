@@ -1305,31 +1305,55 @@
         }
 
         /* ================================================================
-        LOCAL FILTER WIRING
+        LOCAL FILTER WIRING (Synchronized across all sections)
         ================================================================ */
-        const debouncedDb   = debounce(() => { dbPage = 1;   fetchDb(); });
-        const debouncedFoto = debounce(() => { fotoPage = 1; fetchFoto(); });
-        const debouncedPdf  = debounce(() => { pdfPage = 1;  fetchPdf(); });
+        const syncAndFetchDebounced = debounce((type, value) => {
+            syncAndFetchAll(type, value);
+        }, 350);
 
-        ['db-search','db-dari','db-sampai','db-nopol'].forEach(id => {
-            document.getElementById(id)?.addEventListener('input', debouncedDb);
-        });
-        ['foto-search','foto-dari','foto-sampai','foto-nopol'].forEach(id => {
-            document.getElementById(id)?.addEventListener('input', debouncedFoto);
-        });
-        ['pdf-search','pdf-dari','pdf-sampai','pdf-nopol'].forEach(id => {
-            document.getElementById(id)?.addEventListener('input', debouncedPdf);
+        function syncAndFetchAll(type, value) {
+            ['db', 'foto', 'pdf'].forEach(prefix => {
+                const el = document.getElementById(`${prefix}-${type}`);
+                if (el) el.value = value;
+            });
+
+            if (type === 'perpage') {
+                const valInt = parseInt(value, 10) || 10;
+                dbPerPage = valInt;
+                fotoPerPage = valInt;
+                pdfPerPage = valInt;
+            }
+
+            dbPage = 1;
+            fotoPage = 1;
+            pdfPage = 1;
+
+            fetchDb();
+            fetchFoto();
+            fetchPdf();
+        }
+
+        // Search inputs
+        ['db-search', 'foto-search', 'pdf-search'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', e => {
+                syncAndFetchDebounced('search', e.target.value);
+            });
         });
 
-        // Per-page dropdowns
-        document.getElementById('db-perpage')?.addEventListener('change', e => {
-            dbPerPage = parseInt(e.target.value); dbPage = 1; fetchDb();
+        // Date & Select inputs
+        ['dari', 'sampai', 'nopol'].forEach(type => {
+            ['db', 'foto', 'pdf'].forEach(prefix => {
+                document.getElementById(`${prefix}-${type}`)?.addEventListener('input', e => {
+                    syncAndFetchAll(type, e.target.value);
+                });
+            });
         });
-        document.getElementById('foto-perpage')?.addEventListener('change', e => {
-            fotoPerPage = parseInt(e.target.value); fotoPage = 1; fetchFoto();
-        });
-        document.getElementById('pdf-perpage')?.addEventListener('change', e => {
-            pdfPerPage = parseInt(e.target.value); pdfPage = 1; fetchPdf();
+
+        // Perpage inputs
+        ['db-perpage', 'foto-perpage', 'pdf-perpage'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', e => {
+                syncAndFetchAll('perpage', e.target.value);
+            });
         });
 
         function updateSectionFilterChrome(p) {
@@ -1349,18 +1373,30 @@
             if (btn) btn.style.display = showReset ? '' : 'none';
         }
 
-        // Reset buttons
+        // Reset buttons (Resets all sections synchronized)
         document.querySelectorAll('[data-section-reset]').forEach(btn => {
             btn.addEventListener('click', () => {
-                const p = btn.dataset.sectionReset;
-                [`${p}-search`,`${p}-dari`,`${p}-sampai`].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-                [`${p}-nopol`].forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex=0; });
-                const ppEl = document.getElementById(`${p}-perpage`);
-                if (ppEl) { ppEl.value = '10'; }
-                if (p === 'db')   { dbPerPage=10;   dbPage=1;   dbSort='';   dbDir='';   fetchDb(); }
-                if (p === 'foto') { fotoPerPage=10; fotoPage=1; fotoSort=''; fotoDir=''; fetchFoto(); }
-                if (p === 'pdf')  { pdfPerPage=10;  pdfPage=1;  pdfSort='';  pdfDir='';  fetchPdf(); }
-                updateSectionFilterChrome(p);
+                ['db', 'foto', 'pdf'].forEach(prefix => {
+                    const search = document.getElementById(`${prefix}-search`); if (search) search.value = '';
+                    const dari = document.getElementById(`${prefix}-dari`); if (dari) dari.value = '';
+                    const sampai = document.getElementById(`${prefix}-sampai`); if (sampai) sampai.value = '';
+                    const nopol = document.getElementById(`${prefix}-nopol`); if (nopol) nopol.selectedIndex = 0;
+                    const perpage = document.getElementById(`${prefix}-perpage`); if (perpage) perpage.value = '10';
+                });
+
+                dbPerPage = 10;
+                fotoPerPage = 10;
+                pdfPerPage = 10;
+
+                dbPage = 1; dbSort = ''; dbDir = '';
+                fotoPage = 1; fotoSort = ''; fotoDir = '';
+                pdfPage = 1; pdfSort = ''; pdfDir = '';
+
+                fetchDb();
+                fetchFoto();
+                fetchPdf();
+
+                ['db', 'foto', 'pdf'].forEach(updateSectionFilterChrome);
             });
         });
 

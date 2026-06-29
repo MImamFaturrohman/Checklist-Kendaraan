@@ -31,7 +31,6 @@
                         <div class="admin-search-wrap portal-search-full" style="width: 280px; max-width: 100%;">
                             <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             <input type="text" id="sppd-filter-q" value="{{ $search }}" placeholder="Cari driver, keperluan, nopol…" class="admin-search-input" autocomplete="off">
-                            <button type="button" id="sppd-filter-clear" class="admin-search-clear" title="Hapus pencarian" style="display: none">&times;</button>
                         </div>
                         <div class="ppm-status-wrap">
                             <select id="sppd-filter-status" class="admin-filter-input" aria-label="Filter status rekap dinas">

@@ -299,7 +299,6 @@
                                     value="{{ request('search') }}"
                                     placeholder="Cari nama, NIP, jabatan, bidang, kendaraan…"
                                     class="admin-search-input">
-                                <button type="button" id="ppm-search-clear" class="admin-search-clear" title="Hapus pencarian" style="display: {{ request('search') ? 'flex' : 'none' }}">&times;</button>
                             </div>
                             <x-admin-per-page-select id="ppm-per-page" name="per_page" :selected="$requests->perPage()" />
                             <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="ppm-filter-reset" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>

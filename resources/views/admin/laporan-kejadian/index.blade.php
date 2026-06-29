@@ -175,8 +175,6 @@
                                 value="{{ request('search') }}"
                                 placeholder="Cari nama, NIP, lokasi, kendaraan…"
                                 class="admin-search-input">
-                            <button type="button" id="lk-search-clear" class="admin-search-clear" title="Hapus pencarian"
-                                style="display: {{ request('search') ? 'flex' : 'none' }}">&times;</button>
                         </div>
                         <x-admin-per-page-select id="lk-per-page" name="per_page" :selected="$laporans->perPage()" />
                         <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="lk-filter-reset" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>

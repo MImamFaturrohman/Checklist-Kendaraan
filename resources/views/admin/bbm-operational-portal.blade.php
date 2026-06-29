@@ -651,7 +651,6 @@
                         <div class="admin-search-wrap portal-search-full" style="width: 320px; max-width: 100%;">
                             <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             <input type="text" id="bbm-portal-filter-q" value="{{ $bbmPortalSearch ?? request('q') }}" placeholder="Cari nopol, jenis, nama pengemudi..." class="admin-search-input" autocomplete="off" aria-label="Cari laporan BBM">
-                            <button type="button" id="bbm-portal-filter-clear" class="admin-search-clear" title="Hapus pencarian" style="display: none">&times;</button>
                         </div>
                         <div class="ppm-status-wrap">
                             <label class="sr-only" for="bbm-portal-filter-jenis-pengisian">Filter jenis pengisian BBM</label>
