@@ -42,7 +42,7 @@ class UserManagementController extends Controller
         if (($rf = $request->input('role_filter')) && in_array($rf, self::MANAGED_ROLES, true)) {
             $uQuery->where('role', $rf);
         }
-        $users = $uQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10), ['*'], 'page')->onEachSide(0)->withQueryString();
+        $users = $uQuery->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 5), ['*'], 'page')->onEachSide(0)->withQueryString();
 
         $stats = [
             'total_kendaraan' => Kendaraan::count(),
@@ -117,7 +117,7 @@ class UserManagementController extends Controller
         TableSort::apply($q, $request, self::USER_SORT_ALLOWED, function ($x) {
             $x->orderBy('name');
         });
-        $page = $q->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 10));
+        $page = $q->paginate(AdminTablePagination::resolvePerPage($request->input('per_page'), 5));
 
         $data = collect($page->items())->map(function (User $user) {
             return [

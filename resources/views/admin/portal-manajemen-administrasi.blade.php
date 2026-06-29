@@ -170,15 +170,12 @@ html.dark .portal-bidang-btn-sub {
     {{-- ══════════════════════════════════════════════════════════════════ --}}
     <div id="section-bidang" style="display:none">
         <div class="mgmt-panel">
-            <div class="mgmt-panel-header" style="--ph:#7c3aed">
-                <div class="mgmt-ph-icon" style="background:rgba(124,58,237,.12);color:#7c3aed">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <div class="mgmt-panel-header" style="justify-content: space-between;">
+                <div class="portal-section-title" style="margin-bottom: 0;">
+                    <i class="bi bi-text-left" style="color: var(--dash-gold);"></i>
+                    Bidang / Bagian
                 </div>
-                <div class="mgmt-ph-text">
-                    <p class="mgmt-ph-title">Bidang / Bagian</p>
-                    <p class="mgmt-ph-sub">Kelola struktur bidang &amp; kontak manajer / team leader</p>
-                </div>
-                <button type="button" class="mgmt-ph-add-btn" id="btn-open-bidang-root" style="background:rgba(124,58,237,.12);color:#7c3aed;border-color:rgba(124,58,237,.25)" onclick="openBidangModal({})">
+                <button type="button" class="mgmt-ph-add-btn" id="btn-open-bidang-root" style="background:rgba(124,58,237,.12);color:#7c3aed;" onclick="openBidangModal({})">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
                     Bidang Utama
                 </button>
@@ -199,30 +196,25 @@ html.dark .portal-bidang-btn-sub {
         <div class="mgmt-panel">
 
             {{-- Panel header --}}
-            <div class="mgmt-panel-header" style="--ph:#0f766e">
-                <div class="mgmt-ph-icon" style="background:rgba(15,118,110,.12);color:#0f766e">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+            <div class="mgmt-panel-header" style="justify-content: space-between;">
+                <div class="portal-section-title" style="margin-bottom: 0;">
+                    <i class="bi bi-truck-front-fill" style="color: var(--dash-gold, #ffbf00);"></i>
+                    Manajemen Unit Kendaraan
                 </div>
-                <div class="mgmt-ph-text">
-                    <p class="mgmt-ph-title">Manajemen Unit Kendaraan</p>
-                    <p class="mgmt-ph-sub">Kelola data kendaraan operasional</p>
+                <div class="portal-local-filters ppm-daftar-filters" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none; align-items: center; gap: 8px;">
+                    <div class="admin-search-wrap portal-search-full" style="width: 350px; max-width: 100%;">
+                        <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <input type="text" id="armada-search" class="admin-search-input" placeholder="Cari nomor atau jenis kendaraan…">
+                    </div>
+                    <x-admin-per-page-select id="armada-perpage" name="per_page" :selected="$kendaraans->perPage()" />
+                    <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="armada-reset-btn" onclick="resetArmadaFilters()" title="Reset filter" aria-label="Reset filter" style="display: none">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button type="button" class="mgmt-ph-add-btn" id="btn-open-armada-modal" onclick="openArmadaAddModal()" style="background: rgba(14, 212, 196, 0.20); color: #0ed4c4 !important;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                        Tambah Kendaraan
+                    </button>
                 </div>
-                <button type="button" class="mgmt-ph-add-btn" id="btn-open-armada-modal" onclick="openArmadaAddModal()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-                    Tambah Kendaraan
-                </button>
-            </div>
-
-            {{-- Filter bar --}}
-            <div class="mgmt-filter-bar">
-                <div class="mgmt-search-wrap">
-                    <svg class="mgmt-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <input type="text" id="armada-search" class="mgmt-search-input" placeholder="Cari nomor atau jenis kendaraan…">
-                </div>
-                <x-admin-per-page-select id="armada-perpage" name="per_page" :selected="$kendaraans->perPage()" />
-                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="armada-reset-btn" onclick="resetArmadaFilters()" title="Reset filter" aria-label="Reset filter" style="display: none">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
             </div>
 
             {{-- Loading --}}
@@ -278,7 +270,7 @@ html.dark .portal-bidang-btn-sub {
                                         <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="{{ $k->id }}" data-nopol="{{ e($k->nomor_kendaraan) }}" data-jenis="{{ e($k->jenis_kendaraan) }}" data-bidang="{{ e($k->bidang ?? '') }}" data-km-current="{{ $k->km_current !== null ? (int) $k->km_current : '' }}" data-tanggal-stnk="{{ e($k->tanggal_stnk?->format('Y-m-d') ?? '') }}" data-tanggal-pajak-stnk="{{ e($k->tanggal_pajak_stnk?->format('Y-m-d') ?? '') }}" data-tanggal-kir="{{ e($k->tanggal_kir?->format('Y-m-d') ?? '') }}" data-status-kendaraan="{{ e($stK) }}" title="Edit">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                         </button>
-                                        <form id="kdel-{{ $k->id }}" action="{{ route('admin.portal-manajemen.kendaraan.destroy', $k) }}" method="POST" style="display:inline" onsubmit="event.preventDefault(); deleteKendaraan({{ $k->id }}, '{{ addslashes($k->nomor_kendaraan) }}')">
+                                        <form id="kdel-{{ $k->id }}" action="{{ route('admin.portal-manajemen.kendaraan.destroy', $k) }}" method="POST" style="display:contents" onsubmit="event.preventDefault(); deleteKendaraan({{ $k->id }}, '{{ addslashes($k->nomor_kendaraan) }}')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="mgmt-act-btn mgmt-act-del" title="Hapus">
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
@@ -307,44 +299,34 @@ html.dark .portal-bidang-btn-sub {
         <div class="mgmt-panel">
 
             {{-- Panel header --}}
-            <div class="mgmt-panel-header" style="--ph:#2563eb">
-                <div class="mgmt-ph-icon" style="background:rgba(37,99,235,.12);color:#2563eb">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
+            <div class="mgmt-panel-header" style="justify-content: space-between;">
+                <div class="portal-section-title" style="margin-bottom: 0;">
+                    <i class="bi bi-people-fill" style="color: var(--dash-gold, #ffbf00);"></i>
+                    Manajemen User
                 </div>
-                <div class="mgmt-ph-text">
-                    <p class="mgmt-ph-title">Manajemen User</p>
-                    <p class="mgmt-ph-sub">Driver, PIC, Manager &amp; Admin</p>
+                <div class="portal-local-filters ppm-daftar-filters" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none; align-items: center; gap: 8px;">
+                    <div class="admin-search-wrap portal-search-full" style="width: 320px; max-width: 100%;">
+                        <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <input type="text" id="user-search" class="admin-search-input" placeholder="Cari nama atau username…">
+                    </div>
+                    <div class="ppm-status-wrap">
+                        <select id="user-role-filter" class="admin-filter-input" aria-label="Filter Role">
+                            <option value="">Semua Role</option>
+                            <option value="driver">Driver</option>
+                            <option value="pic_kendaraan">PIC Kendaraan</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <x-admin-per-page-select id="user-perpage" name="per_page" :selected="$users->perPage()" />
+                    <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="user-reset-btn" onclick="resetUserFilters()" title="Reset filter" aria-label="Reset filter" style="display: none">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button type="button" class="mgmt-ph-add-btn" id="btn-open-user-add-modal" onclick="openUserAddModal()" style="color:#2563eb; background: rgba(37, 99, 235, 0.25);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                        Tambah User
+                    </button>
                 </div>
-                <button type="button" class="mgmt-ph-add-btn" id="btn-open-user-add-modal" onclick="openUserAddModal()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-                    Tambah User
-                </button>
-            </div>
-
-            {{-- Filter bar --}}
-            <div class="mgmt-filter-bar">
-                <div class="mgmt-search-wrap" style="flex:2">
-                    <svg class="mgmt-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <input type="text" id="user-search" class="mgmt-search-input" placeholder="Cari nama atau username…">
-                </div>
-                <div class="mgmt-select-wrap">
-                    <svg class="mgmt-filter-select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
-                    <select id="user-role-filter" class="mgmt-filter-select">
-                        <option value="">Semua Role</option>
-                        <option value="driver">Driver</option>
-                        <option value="pic_kendaraan">PIC Kendaraan</option>
-                        <option value="manager">Manager</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <x-admin-per-page-select id="user-perpage" name="per_page" :selected="$users->perPage()" />
-                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="user-reset-btn" onclick="resetUserFilters()" title="Reset filter" aria-label="Reset filter" style="display: none">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
             </div>
 
             {{-- Loading --}}
@@ -1123,15 +1105,13 @@ function renderArmadaTable(rows, page, perPage) {
             <td>${armadaStatusPillHtml(k.status_kendaraan)}</td>
             <td class="text-center">
                 <div class="mgmt-actions">
-                    <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="${k.id}" data-nopol="${escHtml(k.nomor_kendaraan ?? '')}" data-jenis="${escHtml(k.jenis_kendaraan ?? '')}" data-bidang="${escHtml(k.bidang ?? '')}" data-km-current="${k.km_current != null && k.km_current !== '' ? Number(k.km_current) : ''}" data-tanggal-stnk="${escHtml(k.tanggal_stnk != null ? String(k.tanggal_stnk).split('T')[0] : '')}" data-tanggal-pajak-stnk="${escHtml(k.tanggal_pajak_stnk != null ? String(k.tanggal_pajak_stnk).split('T')[0] : '')}" data-tanggal-kir="${escHtml(k.tanggal_kir != null ? String(k.tanggal_kir).split('T')[0] : '')}" data-status-kendaraan="${escHtml(k.status_kendaraan ?? 'Aktif')}">
+                    <button type="button" class="mgmt-act-btn mgmt-act-edit js-armada-edit" data-id="${k.id}" data-nopol="${escHtml(k.nomor_kendaraan ?? '')}" data-jenis="${escHtml(k.jenis_kendaraan ?? '')}" data-bidang="${escHtml(k.bidang ?? '')}" data-km-current="${k.km_current != null && k.km_current !== '' ? Number(k.km_current) : ''}" data-tanggal-stnk="${escHtml(k.tanggal_stnk != null ? String(k.tanggal_stnk).split('T')[0] : '')}" data-tanggal-pajak-stnk="${escHtml(k.tanggal_pajak_stnk != null ? String(k.tanggal_pajak_stnk).split('T')[0] : '')}" data-tanggal-kir="${escHtml(k.tanggal_kir != null ? String(k.tanggal_kir).split('T')[0] : '')}" data-status-kendaraan="${escHtml(k.status_kendaraan ?? 'Aktif')}" title="Edit">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Edit
                     </button>
-                    <form id="kdel-${k.id}" action="/admin/portal-manajemen-administrasi/kendaraan/${k.id}" method="POST" style="display:inline" onsubmit="event.preventDefault();deleteKendaraan(${k.id},'${escJs(k.nomor_kendaraan)}')">
+                    <form id="kdel-${k.id}" action="/admin/portal-manajemen-administrasi/kendaraan/${k.id}" method="POST" style="display:contents" onsubmit="event.preventDefault();deleteKendaraan(${k.id},'${escJs(k.nomor_kendaraan)}')">
                         <input type="hidden" name="_token" value="${CSRF}"><input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="mgmt-act-btn mgmt-act-del">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            Hapus
+                        <button type="submit" class="mgmt-act-btn mgmt-act-del" title="Hapus">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         </button>
                     </form>
                 </div>
@@ -1281,13 +1261,13 @@ if (window.AdminTableSort) {
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* MANAJEMEN USER                                                          */
 /* ═══════════════════════════════════════════════════════════════════════ */
-let userPage = 1, userPerPage = 15, userSort = '', userDir = '';
+let userPage = 1, userPerPage = 5, userSort = '', userDir = '';
 
 function updateUserFilterChrome() {
     const searchVal = document.getElementById('user-search')?.value.trim() ?? '';
     const roleVal = document.getElementById('user-role-filter')?.value ?? '';
-    const perpageVal = document.getElementById('user-perpage')?.value ?? '15';
-    const showReset = searchVal.length > 0 || roleVal !== '' || perpageVal !== '15';
+    const perpageVal = document.getElementById('user-perpage')?.value ?? '5';
+    const showReset = searchVal.length > 0 || roleVal !== '' || perpageVal !== '5';
     const btn = document.getElementById('user-reset-btn');
     if (btn) btn.style.display = showReset ? '' : 'none';
 }
@@ -1360,8 +1340,8 @@ function renderUserTable(rows, page, perPage) {
 window.resetUserFilters = function() {
     document.getElementById('user-search').value = '';
     document.getElementById('user-role-filter').value = '';
-    document.getElementById('user-perpage').value = '15';
-    userPerPage = 15; userPage = 1; userSort = ''; userDir = '';
+    document.getElementById('user-perpage').value = '5';
+    userPerPage = 5; userPage = 1; userSort = ''; userDir = '';
     fetchUsers();
 };
 

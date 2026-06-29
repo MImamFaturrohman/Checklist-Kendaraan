@@ -5366,17 +5366,17 @@ html.dark .dash-body .portal-detail-catatan {
     box-shadow: 0 2px 14px rgba(0,0,0,0.07);
     overflow: hidden;
     margin-bottom: 16px;
+    padding: 20px;  
 }
 
 /* Panel header */
 .mgmt-panel-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    border-bottom: 1px solid #f1f5f9;
+    gap: 12px;  
     flex-wrap: wrap;
     gap: 12px;
+    margin-bottom: 14px;
 }
 .mgmt-ph-icon {
     width: 42px;

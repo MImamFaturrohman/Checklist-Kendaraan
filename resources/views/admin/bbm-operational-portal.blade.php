@@ -687,7 +687,7 @@
                             :selected="$reports->perPage()"
                         />
                         <div class="ppm-status-wrap bbm-portal-filter-actions">
-                            <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="bbm-portal-filter-reset" title="Hapus semua filter" aria-label="Hapus semua filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
+                            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" id="bbm-portal-filter-reset" title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
                         </div>
                     </div>
                 </div>
