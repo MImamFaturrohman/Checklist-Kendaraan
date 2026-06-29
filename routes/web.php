@@ -129,6 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin: arsip log penggunaan kendaraan (superadmin)
     Route::get('/admin/log-penggunaan-kendaraan', [VehicleUsageLogArchiveController::class, 'index'])->name('admin.vehicle-usage-logs.index');
+    Route::get('/api/admin/vehicle-usage-logs', [VehicleUsageLogArchiveController::class, 'apiIndex'])->name('api.admin.vehicle-usage-logs');
 
     // Admin: Rekap SPPD
     Route::get('/admin/rekap-sppd', [SppdAdminController::class, 'index'])->name('admin.sppd.index');

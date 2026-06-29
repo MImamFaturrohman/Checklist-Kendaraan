@@ -74,6 +74,7 @@
         .ppm-modal-box {
             position: relative; z-index: 1; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto;
             margin: 0; padding: 20px !important;
+            backdrop-filter: blur(5px);
         }
         .ppm-modal-box h3 { margin: 0 0 14px; font-size: 1rem; color: #002a7a; }
         .dash-body.dark .ppm-modal-box h3 { color: rgba(200, 218, 255, 0.92); }
@@ -137,6 +138,48 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* ── Filterable stat card: clickable cursor ── */
+        .portal-stat-card[data-filter-key] {
+            cursor: pointer;
+            user-select: none;
+        }
+        .portal-stat-card[data-filter-key]:focus-visible {
+            outline: 2px solid rgba(212, 175, 55, 0.7);
+            outline-offset: 2px;
+        }
+
+        /* ── Active state — light mode (glassmorphism + gold glow) ── */
+        html:not(.dark) .dash-body .portal-stat-card[data-filter-key].is-active {
+            background: linear-gradient(
+                135deg,
+                rgba(212, 175, 55, 0.15) 0%,
+                rgba(240, 247, 255, 0.55) 100%
+            );
+            border-color: rgba(212, 175, 55, 0.55);
+            box-shadow:
+                0 12px 40px rgba(31, 38, 135, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 0 0 2px rgba(212, 175, 55, 0.25),
+                0 0 18px 2px rgba(212, 175, 55, 0.18);
+        }
+        html:not(.dark) .dash-body .portal-stat-card[data-filter-key].is-active .portal-stat-icon {
+            color: #d4af37 !important;
+        }
+
+        /* ── Active state — dark mode (glassmorphism + gold glow) ── */
+        html.dark .dash-body .portal-stat-card[data-filter-key].is-active {
+            background: rgba(212, 175, 55, 0.08);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12),
+                0 0 0 2px rgba(212, 175, 55, 0.25),
+                0 0 22px 4px rgba(212, 175, 55, 0.14);
+        }
+        html.dark .dash-body .portal-stat-card[data-filter-key].is-active .portal-stat-icon {
+            color: #d4af37 !important;
+        }
     </style>
 @endpush
 
@@ -144,45 +187,57 @@
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
 
-            <div class="portal-stats-row" data-stat-count="3">
-                <x-admin-stat-card
-                    title="Pending"
-                    :value="$stats['pending']"
-                    unit="Permohonan"
-                    icon="bi bi-hourglass-split"
-                    valueStyle="color:#ffbf00"
-                />
-                <x-admin-stat-card
-                    title="Approved"
-                    :value="$stats['approved']"
-                    unit="Permohonan"
-                    icon="bi bi-check-circle-fill"
-                    valueStyle="color:#15803d"
-                />
-                <x-admin-stat-card
-                    title="Rejected"
-                    :value="$stats['rejected']"
-                    unit="Permohonan"
-                    icon="bi bi-x-circle-fill"
-                    valueStyle="color:#b91c1c"
-                />
-            </div>
-            <div class="portal-stats-row" data-stat-count="2">
-                <x-admin-stat-card
-                    title="Total"
-                    :value="$stats['total']"
-                    unit="Permohonan"
-                    description="Seluruh permohonan peminjaman kendaraan"
-                    icon="bi bi-clipboard-data-fill"
-                />
-                <x-admin-stat-card
-                    title="Expired"
-                    :value="$stats['expired']"
-                    unit="Permohonan"
-                    description="Melewati batas waktu berlaku"
-                    icon="bi bi-clock-fill"
-                    valueStyle="color:#6b7280"
-                />
+            <div id="ppm-stat-filter-group">
+                <div class="portal-stats-row" data-stat-count="3">
+                    <x-admin-stat-card
+                        title="Pending"
+                        :value="$stats['pending']"
+                        unit="Permohonan"
+                        icon="bi bi-hourglass-split"
+                        valueStyle="color:#ffbf00"
+                        filterKey="status"
+                        filterValue="pending"
+                    />
+                    <x-admin-stat-card
+                        title="Approved"
+                        :value="$stats['approved']"
+                        unit="Permohonan"
+                        icon="bi bi-check-circle-fill"
+                        valueStyle="color:#15803d"
+                        filterKey="status"
+                        filterValue="approved"
+                    />
+                    <x-admin-stat-card
+                        title="Rejected"
+                        :value="$stats['rejected']"
+                        unit="Permohonan"
+                        icon="bi bi-x-circle-fill"
+                        valueStyle="color:#b91c1c"
+                        filterKey="status"
+                        filterValue="rejected"
+                    />
+                </div>
+                <div class="portal-stats-row" data-stat-count="2">
+                    <x-admin-stat-card
+                        title="Total"
+                        :value="$stats['total']"
+                        unit="Permohonan"
+                        description="Seluruh permohonan peminjaman kendaraan"
+                        icon="bi bi-clipboard-data-fill"
+                        filterKey="status"
+                        filterValue=""
+                    />
+                    <x-admin-stat-card
+                        title="Expired"
+                        :value="$stats['expired']"
+                        unit="Permohonan"
+                        description="Melewati batas waktu berlaku"
+                        icon="bi bi-clock-fill"
+                        valueStyle="color:#6b7280"
+                        filterKey="status"
+                        filterValue="expired"
+                    />
+                </div>
             </div>
 
             <div class="mgmt-tab-bar" style="margin-top: 4px">
@@ -201,13 +256,11 @@
             {{-- B. Pernyataan --}}
             <div id="ppm-section-pernyataan" class="ppm-tab-panel" style="display: none">
                 <div class="portal-section" id="ppm-master-pernyataan" style="margin-top: 14px">
-                    <div class="portal-section-header" style="margin-bottom: 8px">
-                        <div class="portal-section-title">
+                    <div class="portal-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div class="portal-section-title" style="margin-bottom: 0;">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             Pernyataan peminjaman
                         </div>
-                    </div>
-                    <div class="ppm-master-actions">
                         <button type="button" class="admin-filter-btn" id="ppm-btn-pernyataan-add">+ Tambah pernyataan</button>
                     </div>
                     <div class="admin-table-wrap" style="margin-top: 8px">
@@ -228,39 +281,33 @@
             {{-- Daftar permohonan --}}
             <div id="ppm-section-daftar" class="ppm-tab-panel" data-ppm-daftar-live style="display: block">
                 <div class="portal-section" style="margin-top: 14px">
-                    <div class="portal-section-header" style="margin-bottom: 0">
-                        <div class="portal-section-title">
+                    <div class="portal-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                        <div class="portal-section-title" style="margin-bottom: 0;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-fill" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2"/>
                             </svg>
                             Daftar permohonan peminjaman
                         </div>
+                        <div class="portal-local-filters ppm-daftar-filters" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none; align-items: center; gap: 8px;">
+                            <div class="admin-search-wrap portal-search-full" style="width: 380px; max-width: 100%;">
+                                <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <input type="text" id="ppm-search-live" autocomplete="off"
+                                    inputmode="search" enterkeyhint="search"
+                                    value="{{ request('search') }}"
+                                    placeholder="Cari nama, NIP, jabatan, bidang, kendaraan…"
+                                    class="admin-search-input">
+                                <button type="button" id="ppm-search-clear" class="admin-search-clear" title="Hapus pencarian" style="display: {{ request('search') ? 'flex' : 'none' }}">&times;</button>
+                            </div>
+                            <x-admin-per-page-select id="ppm-per-page" name="per_page" :selected="$requests->perPage()" />
+                            <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="ppm-filter-reset" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
+                        </div>
                     </div>
 
-                    <div class="portal-local-filters ppm-daftar-filters" style="margin-top: 16px">
-                        <div class="admin-search-wrap portal-search-full">
-                            <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                                <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                            <input type="text" id="ppm-search-live" autocomplete="off"
-                                inputmode="search" enterkeyhint="search"
-                                value="{{ request('search') }}"
-                                placeholder="Cari nama, NIP, jabatan, bidang, kendaraan…"
-                                class="admin-search-input">
-                            <button type="button" id="ppm-search-clear" class="admin-search-clear" title="Hapus pencarian" style="display: {{ request('search') ? 'flex' : 'none' }}">&times;</button>
-                        </div>
-                        <div class="ppm-status-wrap">
-                            <select id="ppm-status-live" class="admin-filter-input" aria-label="Filter status permohonan">
-                                <option value="">Semua status</option>
-                                <option value="pending"  {{ request('status') === 'pending'  ? 'selected' : '' }}>Menunggu</option>
-                                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Disetujui</option>
-                                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
-                                <option value="expired"  {{ request('status') === 'expired'  ? 'selected' : '' }}>Expired</option>
-                            </select>
-                        </div>
-                        <x-admin-per-page-select id="ppm-per-page" name="per_page" :selected="$requests->perPage()" />
-                        <button type="button" class="portal-local-reset ppm-filter-reset" id="ppm-filter-reset" title="Reset filter" style="display: none">Reset</button>
+                    <div id="ppm-loading" class="portal-loading" style="display:none; margin: 12px 0;">
+                        <span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span>
                     </div>
 
                     <div class="admin-table-wrap" style="margin-top: 8px">
@@ -490,172 +537,208 @@
 
     /* ── Daftar permohonan: filter & halaman real-time (AJAX, tanpa reload) ── */
     (function () {
-        const listUrl = window.PPM_LIST_URL;
-        const DEFAULT_PER_PAGE = '10';
-        let liveAbort = null;
+        const API_URL = window.PPM_LIST_URL;
+        let _page = 1;
+        let _perPage = 10;
+        let _sort = '';
+        let _dir = '';
+        let _abort = null;
+        let _activeStatus = '';
 
-        function initPpmDaftarLive() {
-            if (liveAbort) {
-                liveAbort.abort();
-            }
-            liveAbort = new AbortController();
-            const { signal } = liveAbort;
+        const searchEl = document.getElementById('ppm-search-live');
+        const perPageEl = document.getElementById('ppm-per-page');
+        const tbody = document.getElementById('ppm-requests-tbody');
+        const pagEl = document.getElementById('ppm-requests-pagination');
+        const clearBtn = document.getElementById('ppm-search-clear');
+        const resetBtn = document.getElementById('ppm-filter-reset');
+        const statGroup = document.getElementById('ppm-stat-filter-group');
 
-            const root = document.querySelector('[data-ppm-daftar-live]');
-            if (!root) return;
+        if (!searchEl || !perPageEl || !tbody || !pagEl) return;
 
-            const searchEl = document.getElementById('ppm-search-live');
-            const statusEl = document.getElementById('ppm-status-live');
-            const perPageEl = document.getElementById('ppm-per-page');
-            const tbody = document.getElementById('ppm-requests-tbody');
-            const pagEl = document.getElementById('ppm-requests-pagination');
-            const clearBtn = document.getElementById('ppm-search-clear');
-            const resetBtn = document.getElementById('ppm-filter-reset');
-            if (!searchEl || !statusEl || !perPageEl || !tbody || !pagEl) return;
+        const filterCards = statGroup
+            ? Array.from(statGroup.querySelectorAll('[data-filter-key]'))
+            : [];
 
-            function updateFilterChrome() {
-                const hasSearch = searchEl.value.trim().length > 0;
-                if (clearBtn) clearBtn.style.display = hasSearch ? 'flex' : 'none';
-                const showReset = hasSearch
-                    || (statusEl.value && statusEl.value !== '')
-                    || perPageEl.value !== DEFAULT_PER_PAGE;
-                if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
-            }
+        // Initialize state from elements
+        _page = 1;
+        _perPage = parseInt(perPageEl.value, 10) || 10;
 
-            function syncFiltersFromUrl(u, data) {
-                searchEl.value = u.searchParams.get('search') || '';
-                statusEl.value = u.searchParams.get('status') || '';
-                const pp = data?.per_page ?? u.searchParams.get('per_page');
-                if (pp) perPageEl.value = String(pp);
-            }
+        function showLoading() { const el = document.getElementById('ppm-loading'); if (el) el.style.display = 'flex'; }
+        function hideLoading() { const el = document.getElementById('ppm-loading'); if (el) el.style.display = 'none'; }
 
-            async function fetchRequestsFromUrl(url) {
-                const u = url instanceof URL ? url : new URL(url, location.origin);
-                try {
-                    const res = await fetch(u.toString(), {
-                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                        credentials: 'same-origin',
-                        cache: 'no-store',
-                        signal,
-                    });
-                    let data = {};
-                    try { data = await res.json(); } catch (e) { /* ignore */ }
-                    if (!res.ok) {
-                        Swal.fire({ icon: 'error', title: 'Gagal memuat data', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
-                        return;
-                    }
-                    tbody.innerHTML = data.tbody || '';
-                    if (window.AdminPagination) {
-                        window.AdminPagination.mountPagination(pagEl, data.pagination_html || '');
-                    } else {
-                        pagEl.innerHTML = data.pagination_html || '';
-                    }
-                    if (window.AdminTableSort) {
-                        window.AdminTableSort.syncAria(tbody.closest('table'), data.sort ?? null, data.dir ?? null);
-                    }
-                    syncFiltersFromUrl(u, data);
-                    try {
-                        const keepHash = location.hash || '#daftar';
-                        history.replaceState(null, '', u.pathname + u.search + keepHash);
-                    } catch (e) { /* ignore */ }
-                    updateFilterChrome();
-                } catch (err) {
-                    if (err?.name === 'AbortError') return;
-                    throw err;
+        function buildParams() {
+            const obj = {
+                search:   searchEl.value.trim(),
+                status:   _activeStatus,
+                per_page: _perPage,
+                page:     _page,
+            };
+            if (_sort) { obj.sort = _sort; obj.dir = _dir; }
+            return new URLSearchParams(
+                Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== '' && v != null))
+            ).toString();
+        }
+
+        function syncCardActiveState() {
+            filterCards.forEach(card => {
+                const cardVal = card.dataset.filterValue ?? '';
+                card.classList.toggle('is-active', _activeStatus !== '' && cardVal === _activeStatus);
+            });
+        }
+
+        function updateFilterChrome() {
+            const hasSearch = searchEl.value.trim().length > 0;
+            if (clearBtn) clearBtn.style.display = hasSearch ? 'flex' : 'none';
+            const showReset = hasSearch
+                || _activeStatus !== ''
+                || _perPage !== 10;
+            if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
+            syncCardActiveState();
+        }
+
+        async function fetchRequests(scroll = false) {
+            _abort?.abort();
+            _abort = new AbortController();
+            showLoading();
+
+            const q = buildParams();
+            try {
+                const res = await fetch(`${API_URL}?${q}`, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    signal: _abort.signal
+                });
+                const json = await res.json();
+
+                tbody.innerHTML = json.tbody || '';
+                mountPagination(json.pagination_html);
+
+                if (window.AdminTableSort) {
+                    window.AdminTableSort.syncAria(tbody.closest('table'), json.sort ?? null, json.dir ?? null);
                 }
-            }
 
-            function buildListUrl(overrides = {}) {
-                const u = new URL(listUrl, location.origin);
-                const cur = new URL(location.href);
-                const search = overrides.search !== undefined ? overrides.search : searchEl.value.trim();
-                const status = overrides.status !== undefined ? overrides.status : statusEl.value;
-                const perPage = overrides.per_page !== undefined ? overrides.per_page : perPageEl.value;
-                if (search) u.searchParams.set('search', search); else u.searchParams.delete('search');
-                if (status) u.searchParams.set('status', status); else u.searchParams.delete('status');
-                if (perPage) u.searchParams.set('per_page', String(perPage)); else u.searchParams.delete('per_page');
-                if (Object.prototype.hasOwnProperty.call(overrides, 'page')) {
-                    if (overrides.page) u.searchParams.set('page', String(overrides.page));
-                    else u.searchParams.delete('page');
-                } else {
-                    u.searchParams.delete('page');
-                }
-                const sortVal = Object.prototype.hasOwnProperty.call(overrides, 'sort') ? overrides.sort : cur.searchParams.get('sort');
-                const dirVal  = Object.prototype.hasOwnProperty.call(overrides, 'dir')  ? overrides.dir  : cur.searchParams.get('dir');
-                if (sortVal) u.searchParams.set('sort', sortVal); else u.searchParams.delete('sort');
-                if (dirVal)  u.searchParams.set('dir', dirVal);   else u.searchParams.delete('dir');
-                return u;
-            }
-
-            let debounceT;
-            searchEl.addEventListener('input', () => {
                 updateFilterChrome();
-                clearTimeout(debounceT);
-                debounceT = setTimeout(() => {
-                    fetchRequestsFromUrl(buildListUrl({ page: null }));
-                }, 320);
-            }, { signal });
 
-            statusEl.addEventListener('change', () => {
-                fetchRequestsFromUrl(buildListUrl({ page: null }));
-            }, { signal });
-
-            perPageEl.addEventListener('change', () => {
-                fetchRequestsFromUrl(buildListUrl({ page: null }));
-            }, { signal });
-
-            pagEl.addEventListener('click', (e) => {
-                const a = e.target.closest('.tbl-pagination a[href], a[href]');
-                if (!a || !pagEl.contains(a)) return;
-                const u = new URL(a.getAttribute('href'), location.origin);
-                if (u.pathname !== new URL(listUrl, location.origin).pathname) return;
-                e.preventDefault();
-                fetchRequestsFromUrl(u);
-            }, { signal });
-
-            if (clearBtn) {
-                clearBtn.addEventListener('click', () => {
-                    searchEl.value = '';
-                    fetchRequestsFromUrl(buildListUrl({ search: '', page: null }));
-                }, { signal });
+                if (scroll) {
+                    const section = document.getElementById('ppm-master-pernyataan')?.closest('.portal-section') || tbody.closest('.portal-section');
+                    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } catch (e) {
+                if (e.name !== 'AbortError') console.warn('Peminjaman fetchRequests error', e);
+            } finally {
+                hideLoading();
             }
+        }
 
-            if (resetBtn) {
-                resetBtn.addEventListener('click', () => {
-                    searchEl.value = '';
-                    statusEl.value = '';
-                    perPageEl.value = DEFAULT_PER_PAGE;
-                    fetchRequestsFromUrl(buildListUrl({ search: '', status: '', per_page: DEFAULT_PER_PAGE, sort: '', dir: '', page: null }));
-                }, { signal });
-            }
-
-            if (window.AdminTableSort) {
-                const ppmRoot = document.querySelector('[data-ppm-daftar-live]');
-                if (ppmRoot) {
-                    window.AdminTableSort.bindRoot(ppmRoot, {
-                        getUrl: () => new URL(location.href),
-                        onNavigate: (url) => fetchRequestsFromUrl(url),
-                    });
+        function mountPagination(html) {
+            // Wait for dependencies if necessary
+            function _mount() {
+                window.AdminPagination.mountPagination(pagEl, html || '');
+                if (!pagEl.dataset.paginationBound) {
+                    pagEl.dataset.paginationBound = '1';
+                    window.AdminPagination.bindPaginationLinks(pagEl, (url) => {
+                        _page = parseInt(url.searchParams.get('page') || '1', 10);
+                        fetchRequests(true);
+                    }, { pathname: new URL(API_URL).pathname });
                 }
             }
 
+            if (window.AdminPagination) {
+                _mount();
+            } else {
+                const iv = setInterval(() => {
+                    if (window.AdminPagination) { clearInterval(iv); _mount(); }
+                }, 30);
+            }
+        }
+
+        function debounce(fn, ms = 380) {
+            let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+        }
+
+        const debouncedFetch = debounce(() => { _page = 1; fetchRequests(); });
+
+        searchEl.addEventListener('input', () => {
             updateFilterChrome();
+            debouncedFetch();
+        });
+
+        perPageEl.addEventListener('change', (e) => {
+            _perPage = parseInt(e.target.value, 10);
+            _page = 1;
+            fetchRequests();
+        });
+
+        filterCards.forEach(card => {
+            const activate = () => {
+                const cardVal = card.dataset.filterValue ?? '';
+                if (cardVal !== '' && _activeStatus === cardVal) {
+                    _activeStatus = '';
+                } else {
+                    _activeStatus = cardVal;
+                }
+                updateFilterChrome();
+                _page = 1;
+                fetchRequests();
+            };
+            card.addEventListener('click', activate);
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+            });
+        });
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchEl.value = '';
+                updateFilterChrome();
+                _page = 1;
+                fetchRequests();
+            });
         }
 
-        function schedulePpmDaftarInit() {
-            requestAnimationFrame(initPpmDaftarLive);
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                searchEl.value = '';
+                _activeStatus = '';
+                perPageEl.value = '10';
+                _perPage = 10;
+                _page = 1;
+                _sort = '';
+                _dir = '';
+                updateFilterChrome();
+                fetchRequests();
+            });
         }
 
-        document.addEventListener('turbo:load', schedulePpmDaftarInit);
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', schedulePpmDaftarInit);
-        } else {
-            schedulePpmDaftarInit();
+        // Table sorting
+        if (window.AdminTableSort) {
+            const ppmRoot = document.querySelector('[data-ppm-daftar-live]');
+            if (ppmRoot) {
+                window.AdminTableSort.bindRoot(ppmRoot, {
+                    getUrl: () => {
+                        const url = new URL(location.href);
+                        if (_sort) { url.searchParams.set('sort', _sort); url.searchParams.set('dir', _dir); }
+                        else { url.searchParams.delete('sort'); url.searchParams.delete('dir'); }
+                        return url;
+                    },
+                    onNavigate: (url) => {
+                        _sort = url.searchParams.get('sort') || '';
+                        _dir = url.searchParams.get('dir') || '';
+                        _page = 1;
+                        fetchRequests();
+                    },
+                });
+            }
         }
+
+        // Initial setup
+        updateFilterChrome();
+
+        // Init pagination mount on load
+        mountPagination(pagEl.innerHTML);
 
         if (typeof window.registerTurboCleanup === 'function') {
             window.registerTurboCleanup(function () {
-                if (liveAbort) liveAbort.abort();
+                if (_abort) _abort.abort();
             });
         }
     })();

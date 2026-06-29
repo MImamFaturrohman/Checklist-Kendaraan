@@ -647,7 +647,7 @@ document.addEventListener('turbo:load', async () => {
                 e.preventDefault();
                 const form = root.querySelector('#vul-logs-filter-form');
                 if (form) {
-                    ['q','date_from','date_to'].forEach(n => { const el = form.querySelector(`[name="${n}"]`); if (el) el.value = ''; });
+                    ['q','month','year'].forEach(n => { const el = form.querySelector(`[name="${n}"]`); if (el) el.value = ''; });
                     const pp = form.querySelector('[name="per_page"]'); if (pp) pp.value = '25';
                     const sortEl = form.querySelector('[name="sort"]'); if (sortEl) sortEl.value = '';
                     const dirEl  = form.querySelector('[name="dir"]');  if (dirEl)  dirEl.value  = '';

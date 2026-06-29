@@ -643,118 +643,129 @@
             </div>
 
             @unless($bbmPortalChartsOnly ?? false)
-            <div id="bbm-portal-live-root" data-vms-bbm-portal-live>
+            <div class="portal-section" id="section-bbm-table">
+                <div class="portal-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                    <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Data Laporan BBM</div>
+
+                    <div class="portal-local-filters ppm-daftar-filters bbm-portal-live-filter-bar" id="bbm-portal-filter-bar" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none;">
+                        <div class="admin-search-wrap portal-search-full" style="width: 320px; max-width: 100%;">
+                            <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <input type="text" id="bbm-portal-filter-q" value="{{ $bbmPortalSearch ?? request('q') }}" placeholder="Cari nopol, jenis, nama pengemudi..." class="admin-search-input" autocomplete="off" aria-label="Cari laporan BBM">
+                            <button type="button" id="bbm-portal-filter-clear" class="admin-search-clear" title="Hapus pencarian" style="display: none">&times;</button>
+                        </div>
+                        <div class="ppm-status-wrap">
+                            <label class="sr-only" for="bbm-portal-filter-jenis-pengisian">Filter jenis pengisian BBM</label>
+                            <select id="bbm-portal-filter-jenis-pengisian" class="admin-filter-input" aria-label="Filter jenis pengisian BBM">
+                                <option value="" @selected(($bbmPortalJenisPengisian ?? '') === '')>Semua jenis</option>
+                                <option value="Operasional" @selected(($bbmPortalJenisPengisian ?? '') === 'Operasional')>Operasional</option>
+                                <option value="Perjalanan Dinas (SPPD)" @selected(($bbmPortalJenisPengisian ?? '') === 'Perjalanan Dinas (SPPD)')>Perjalanan Dinas (SPPD)</option>
+                            </select>
+                        </div>
+                        <div class="ppm-status-wrap">
+                            <label class="sr-only" for="bbm-portal-filter-month">Filter Bulan</label>
+                            <select id="bbm-portal-filter-month" class="admin-filter-input" aria-label="Filter Bulan">
+                                <option value="">Semua bulan</option>
+                                @for($m = 1; $m <= 12; $m++)
+                                    @php
+                                        $mDate = Carbon\Carbon::create()->day(1)->month($m);
+                                    @endphp
+                                    <option value="{{ sprintf('%02d', $m) }}" @selected(($bbmPortalMonth ?? '') === sprintf('%02d', $m))>{{ $mDate->translatedFormat('F') }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="ppm-status-wrap">
+                            <label class="sr-only" for="bbm-portal-filter-year">Filter Tahun</label>
+                            <select id="bbm-portal-filter-year" class="admin-filter-input" aria-label="Filter Tahun">
+                                <option value="">Semua tahun</option>
+                                @foreach($yearsAvailable as $y)
+                                    <option value="{{ $y }}" @selected((int) ($bbmPortalYear ?? 0) === (int) $y)>{{ $y }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <x-admin-per-page-select
+                            id="bbm-portal-filter-per-page"
+                            name="per_page"
+                            :selected="$reports->perPage()"
+                        />
+                        <div class="ppm-status-wrap bbm-portal-filter-actions">
+                            <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="bbm-portal-filter-reset" title="Hapus semua filter" aria-label="Hapus semua filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bbm-portal-loading" class="portal-loading" style="display:none; margin: 12px 0;">
+                    <span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span>
+                </div>
+
+                <div id="bbm-portal-live-root" data-vms-bbm-portal-live>
                 @fragment('bbm-portal-table-body')
                 @php
                     $fmtRp = fn ($n) => 'Rp '.number_format((float) $n, 0, ',', '.');
                     $fmtLiter = fn ($n) => number_format((float) $n, 3, ',', '.');
                     $fmtKm = fn ($n) => number_format((int) round((float) $n), 0, ',', '.');
                 @endphp
-                <div class="portal-section" id="section-bbm-table">
-                    <div class="portal-section-header">
-                        <div class="portal-section-title"><i class="bi bi-table"></i> Data Laporan BBM</div>
-                    </div>
-                    <form method="get" action="{{ route('admin.portal-bbm-operasional') }}" class="portal-local-filters ppm-daftar-filters bbm-portal-live-filter-bar" id="bbm-portal-filter-form">
-                        <div class="admin-search-wrap portal-search-full">
-                            <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                            <input type="search" name="q" value="{{ $bbmPortalSearch ?? request('q') }}" placeholder="Cari nopol, jenis, nama pengemudi…" class="admin-search-input" autocomplete="off" aria-label="Cari laporan BBM">
-                        </div>
-                        <div class="ppm-status-wrap">
-                            <label class="sr-only" for="bbm-portal-shift">Filter shift</label>
-                            <select name="shift" id="bbm-portal-shift" class="admin-filter-input" aria-label="Filter shift">
-                                <option value="" @selected(($bbmPortalShift ?? '') === '')>Semua shift</option>
-                                <option value="pagi" @selected(($bbmPortalShift ?? '') === 'pagi')>Pagi</option>
-                                <option value="siang" @selected(($bbmPortalShift ?? '') === 'siang')>Siang</option>
-                                <option value="luar" @selected(($bbmPortalShift ?? '') === 'luar')>Di Luar Shift</option>
-                            </select>
-                        </div>
-                        <div class="ppm-status-wrap">
-                            <label class="sr-only" for="bbm-portal-jenis-pengisian">Filter jenis pengisian BBM</label>
-                            <select name="jenis_pengisian" id="bbm-portal-jenis-pengisian" class="admin-filter-input" aria-label="Filter jenis pengisian BBM">
-                                <option value="" @selected(($bbmPortalJenisPengisian ?? '') === '')>Semua jenis</option>
-                                <option value="Operasional" @selected(($bbmPortalJenisPengisian ?? '') === 'Operasional')>Operasional</option>
-                                <option value="Perjalanan Dinas (SPPD)" @selected(($bbmPortalJenisPengisian ?? '') === 'Perjalanan Dinas (SPPD)')>Perjalanan Dinas (SPPD)</option>
-                            </select>
-                        </div>
-                        <div class="ppm-status-wrap bbm-portal-date-range">
-                            <label class="sr-only" for="bbm-portal-date-from">Tanggal mulai</label>
-                            <input type="date" name="date_from" id="bbm-portal-date-from" class="admin-filter-input" value="{{ $bbmPortalDateFrom ?? '' }}" title="Dari tanggal" aria-label="Dari tanggal">
-                            <label class="sr-only" for="bbm-portal-date-to">Tanggal akhir</label>
-                            <input type="date" name="date_to" id="bbm-portal-date-to" class="admin-filter-input" value="{{ $bbmPortalDateTo ?? '' }}" title="Sampai tanggal" aria-label="Sampai tanggal">
-                        </div>
-                        <x-admin-per-page-select
-                            id="bbm-portal-per-page"
-                            name="per_page"
-                            :selected="$reports->perPage()"
-                        />
-                        <div class="ppm-status-wrap bbm-portal-filter-actions">
-                            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" data-bbm-portal-reset title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
-                        </div>
-                        <input type="hidden" name="sort" value="{{ $activeSort ?? '' }}">
-                        <input type="hidden" name="dir"  value="{{ $activeDir  ?? '' }}">
-                    </form>
-                    <div class="admin-table-wrap admin-table-wrap--bbm-reports">
-                        <table class="admin-table admin-table--bbm-reports">
-                            <thead>
+                <div class="admin-table-wrap admin-table-wrap--bbm-reports">
+                    <table class="admin-table admin-table--bbm-reports">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <x-sortable-th key="waktu" label="Waktu" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <x-sortable-th key="shift" label="Shift" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <th>Jenis BBM</th>
+                                <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <th>Pengemudi</th>
+                                <x-sortable-th key="odometer_sebelum" label="Km Sebelum" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <x-sortable-th key="odometer_sesudah" label="Km Sesudah" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <th>Total KM</th>
+                                <x-sortable-th key="liter" label="Volume (L)" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <x-sortable-th key="total_harga" label="Total Biaya" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($reports as $r)
+                                @php
+                                    $waktuStr = is_string($r->waktu) ? substr($r->waktu, 0, 5) : optional($r->waktu)->format('H:i') ?? '—';
+                                    $totalKm = max(0, (int) $r->odometer_sesudah - (int) $r->odometer_sebelum);
+                                @endphp
                                 <tr>
-                                    <th>No</th>
-                                    <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <x-sortable-th key="waktu" label="Waktu" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <x-sortable-th key="shift" label="Shift" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <th>Jenis BBM</th>
-                                    <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <th>Pengemudi</th>
-                                    <x-sortable-th key="odometer_sebelum" label="Km Sebelum" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <x-sortable-th key="odometer_sesudah" label="Km Sesudah" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <th>Total KM</th>
-                                    <x-sortable-th key="liter" label="Volume (L)" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <x-sortable-th key="total_harga" label="Total Biaya" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                    <th>Aksi</th>
+                                    <td>{{ ($reports->currentPage() - 1) * $reports->perPage() + $loop->iteration }}</td>
+                                    <td>{{ $r->tanggal->translatedFormat('j F Y') }}</td>
+                                    <td>{{ $waktuStr }}</td>
+                                    <td>
+                                        <span class="bbm-shift-badge {{ \App\Support\DriverShift::badgeClassFromCode($r->shift) }}">
+                                            <i class="{{ \App\Support\DriverShift::iconClassFromCode($r->shift) }}" aria-hidden="true"></i>
+                                            {{ \App\Support\DriverShift::tableLabelFromCode($r->shift) }}
+                                        </span>
+                                    </td>
+                                    <td><span class="bbm-jenis-pengisian-cell">{{ $r->jenis_pengisian ?: 'Operasional' }}</span></td>
+                                    <td><strong>{{ $r->nomor_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $r->jenis_kendaraan }}</span></td>
+                                    <td>{{ $r->user?->name ?? '—' }}<br><span class="sppd-cell-muted">{{ $r->user?->username }}</span></td>
+                                    <td>{{ $fmtKm($r->odometer_sebelum) }}</td>
+                                    <td>{{ $fmtKm($r->odometer_sesudah) }}</td>
+                                    <td><strong>{{ $fmtKm($totalKm) }}</strong></td>
+                                    <td>{{ $fmtLiter($r->liter) }}</td>
+                                    <td><strong>{{ $fmtRp($r->total_harga) }}</strong></td>
+                                    <td>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm sppd-icon-btn sppd-btn-primary bbm-btn-detail"
+                                            data-json-url="{{ route('admin.portal-bbm-operasional.json', $r) }}"
+                                            title="Detail lengkap &amp; foto"
+                                            aria-label="Detail laporan BBM"
+                                        ><i class="bi bi-info-circle"></i> </button>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($reports as $r)
-                                    @php
-                                        $waktuStr = is_string($r->waktu) ? substr($r->waktu, 0, 5) : optional($r->waktu)->format('H:i') ?? '—';
-                                        $totalKm = max(0, (int) $r->odometer_sesudah - (int) $r->odometer_sebelum);
-                                    @endphp
-                                    <tr>
-                                        <td>{{ ($reports->currentPage() - 1) * $reports->perPage() + $loop->iteration }}</td>
-                                        <td>{{ $r->tanggal->format('d F Y') }}</td>
-                                        <td>{{ $waktuStr }}</td>
-                                        <td>
-                                            <span class="bbm-shift-badge {{ \App\Support\DriverShift::badgeClassFromCode($r->shift) }}">
-                                                <i class="{{ \App\Support\DriverShift::iconClassFromCode($r->shift) }}" aria-hidden="true"></i>
-                                                {{ \App\Support\DriverShift::tableLabelFromCode($r->shift) }}
-                                            </span>
-                                        </td>
-                                        <td><span class="bbm-jenis-pengisian-cell">{{ $r->jenis_pengisian ?: 'Operasional' }}</span></td>
-                                        <td><strong>{{ $r->nomor_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $r->jenis_kendaraan }}</span></td>
-                                        <td>{{ $r->user?->name ?? '—' }}<br><span class="sppd-cell-muted">{{ $r->user?->username }}</span></td>
-                                        <td>{{ $fmtKm($r->odometer_sebelum) }}</td>
-                                        <td>{{ $fmtKm($r->odometer_sesudah) }}</td>
-                                        <td><strong>{{ $fmtKm($totalKm) }}</strong></td>
-                                        <td>{{ $fmtLiter($r->liter) }}</td>
-                                        <td><strong>{{ $fmtRp($r->total_harga) }}</strong></td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm sppd-icon-btn sppd-btn-primary bbm-btn-detail"
-                                                data-json-url="{{ route('admin.portal-bbm-operasional.json', $r) }}"
-                                                title="Detail lengkap &amp; foto"
-                                                aria-label="Detail laporan BBM"
-                                            ><i class="bi bi-eye-fill"></i> </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="13" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    <x-admin-pagination :paginator="$reports" />
+                            @empty
+                                <tr><td colspan="13" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
+                <x-admin-pagination :paginator="$reports" />
                 @endfragment
+                </div>
             </div>
             @endunless
         </div>
@@ -1565,6 +1576,178 @@
             document.getElementById('bbm-modal-detail')?.addEventListener('click', (e) => {
                 if (e.target.id === 'bbm-modal-detail') closeBbmDetailModal();
             });
+
+            /* ── Data Laporan BBM: filter & halaman real-time (AJAX, tanpa reload) ── */
+            let _page = 1;
+            let _perPage = {{ (int) $reports->perPage() }};
+            let _sort = '{{ $activeSort ?? "" }}';
+            let _dir = '{{ $activeDir ?? "" }}';
+            let _abortBbm = null;
+
+            const bbmSearchEl = document.getElementById('bbm-portal-filter-q');
+            const bbmJenisEl = document.getElementById('bbm-portal-filter-jenis-pengisian');
+            const bbmMonthEl = document.getElementById('bbm-portal-filter-month');
+            const bbmYearEl = document.getElementById('bbm-portal-filter-year');
+            const bbmPerPageEl = document.getElementById('bbm-portal-filter-per-page');
+            const bbmLiveRoot = document.getElementById('bbm-portal-live-root');
+            const bbmClearBtn = document.getElementById('bbm-portal-filter-clear');
+            const bbmResetBtn = document.getElementById('bbm-portal-filter-reset');
+
+            function showBbmLoading() { const el = document.getElementById('bbm-portal-loading'); if (el) el.style.display = 'flex'; }
+            function hideBbmLoading() { const el = document.getElementById('bbm-portal-loading'); if (el) el.style.display = 'none'; }
+
+            function buildBbmParams() {
+                const obj = {
+                    q:                bbmSearchEl?.value.trim() ?? '',
+                    jenis_pengisian:  bbmJenisEl?.value ?? '',
+                    month:            bbmMonthEl?.value ?? '',
+                    year:             bbmYearEl?.value ?? '',
+                    per_page:         _perPage,
+                    page:             _page,
+                };
+                if (_sort) { obj.sort = _sort; obj.dir = _dir; }
+                return new URLSearchParams(
+                    Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== '' && v != null))
+                ).toString();
+            }
+
+            function updateBbmFilterChrome() {
+                const hasSearch = bbmSearchEl && bbmSearchEl.value.trim().length > 0;
+                if (bbmClearBtn) bbmClearBtn.style.display = hasSearch ? 'flex' : 'none';
+                const showReset = hasSearch
+                    || (bbmJenisEl && bbmJenisEl.value !== '')
+                    || (bbmMonthEl && bbmMonthEl.value !== '')
+                    || (bbmYearEl && bbmYearEl.value !== '')
+                    || _perPage !== 25; // default is 25 in controller
+                if (bbmResetBtn) bbmResetBtn.style.display = showReset ? '' : 'none';
+            }
+
+            async function fetchBbmReports(scroll = false) {
+                if (BBM_PORTAL_CHARTS_ONLY) return;
+                _abortBbm?.abort();
+                _abortBbm = new AbortController();
+                showBbmLoading();
+
+                const q = buildBbmParams();
+                const INDEX_URL = @json(route('admin.portal-bbm-operasional'));
+                try {
+                    const res = await fetch(`${INDEX_URL}?${q}`, {
+                        headers: {
+                            'Accept': 'text/html',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-VMS-BBM-Portal-Fragment': '1'
+                        },
+                        signal: _abortBbm.signal
+                    });
+                    const html = await res.text();
+
+                    if (bbmLiveRoot) {
+                        bbmLiveRoot.innerHTML = html;
+                    }
+
+                    bindBbmSorting();
+                    bindBbmPagination();
+                    updateBbmFilterChrome();
+
+                    if (scroll && bbmLiveRoot) {
+                        bbmLiveRoot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } catch (e) {
+                    if (e.name !== 'AbortError') console.warn('BBM fetchBbmReports error', e);
+                } finally {
+                    hideBbmLoading();
+                }
+            }
+
+            function bindBbmPagination() {
+                if (!bbmLiveRoot) return;
+                const paginationLinks = bbmLiveRoot.querySelectorAll('.tbl-pagination a[href], a[href]');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        const u = new URL(link.getAttribute('href'), location.origin);
+                        e.preventDefault();
+                        _page = parseInt(u.searchParams.get('page') || '1', 10);
+                        fetchBbmReports(true);
+                    });
+                });
+            }
+
+            function bindBbmSorting() {
+                if (window.AdminTableSort && bbmLiveRoot) {
+                    const tableWrap = bbmLiveRoot.querySelector('.admin-table-wrap');
+                    if (tableWrap) {
+                        window.AdminTableSort.bindRoot(tableWrap, {
+                            getUrl: () => {
+                                const url = new URL(location.href);
+                                if (_sort) { url.searchParams.set('sort', _sort); url.searchParams.set('dir', _dir); }
+                                else { url.searchParams.delete('sort'); url.searchParams.delete('dir'); }
+                                return url;
+                            },
+                            onNavigate: (url) => {
+                                _sort = url.searchParams.get('sort') || '';
+                                _dir = url.searchParams.get('dir') || '';
+                                _page = 1;
+                                fetchBbmReports();
+                            },
+                        });
+                    }
+                }
+            }
+
+            function debounce(fn, ms = 380) {
+                let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+            }
+
+            const debouncedBbmFetch = debounce(() => { _page = 1; fetchBbmReports(); });
+
+            if (bbmSearchEl) {
+                bbmSearchEl.addEventListener('input', () => {
+                    updateBbmFilterChrome();
+                    debouncedBbmFetch();
+                });
+            }
+
+            [bbmJenisEl, bbmMonthEl, bbmYearEl].forEach(el => {
+                el?.addEventListener('change', () => {
+                    _page = 1;
+                    fetchBbmReports();
+                });
+            });
+
+            if (bbmPerPageEl) {
+                bbmPerPageEl.addEventListener('change', (e) => {
+                    _perPage = parseInt(e.target.value, 10);
+                    _page = 1;
+                    fetchBbmReports();
+                });
+            }
+
+            if (bbmClearBtn) {
+                bbmClearBtn.addEventListener('click', () => {
+                    if (bbmSearchEl) bbmSearchEl.value = '';
+                    updateBbmFilterChrome();
+                    _page = 1;
+                    fetchBbmReports();
+                });
+            }
+
+            if (bbmResetBtn) {
+                bbmResetBtn.addEventListener('click', () => {
+                    if (bbmSearchEl) bbmSearchEl.value = '';
+                    if (bbmJenisEl) bbmJenisEl.selectedIndex = 0;
+                    if (bbmMonthEl) bbmMonthEl.selectedIndex = 0;
+                    if (bbmYearEl) bbmYearEl.selectedIndex = 0;
+                    if (bbmPerPageEl) { bbmPerPageEl.value = '25'; _perPage = 25; }
+                    _page = 1; _sort = ''; _dir = '';
+                    updateBbmFilterChrome();
+                    fetchBbmReports();
+                });
+            }
+
+            // Initial binding for live log table
+            bindBbmSorting();
+            bindBbmPagination();
+            updateBbmFilterChrome();
 
             document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
             document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });

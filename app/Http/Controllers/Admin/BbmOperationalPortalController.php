@@ -323,7 +323,6 @@ class BbmOperationalPortalController extends Controller
         $chartsOnly = in_array($role, ['manager', 'admin'], true);
         $perPage = $this->resolvePerPage($request);
         $search = $request->input('q');
-        $shiftFilter = $request->input('shift');
         $jenisPengisianFilter = $request->input('jenis_pengisian');
         if (is_string($jenisPengisianFilter) && $jenisPengisianFilter !== '') {
             if (! in_array($jenisPengisianFilter, BbmReport::JENIS_PENGISIAN_VALUES, true)) {
@@ -332,8 +331,8 @@ class BbmOperationalPortalController extends Controller
         } else {
             $jenisPengisianFilter = '';
         }
-        $dateFrom = $request->input('date_from');
-        $dateTo = $request->input('date_to');
+        $monthFilter = $request->input('month');
+        $yearFilter = $request->input('year');
 
         $year = (int) now()->year;
         $prevYear = $year - 1;
@@ -373,14 +372,34 @@ class BbmOperationalPortalController extends Controller
         if (! $chartsOnly) {
             if ($search !== null && $search !== '') {
                 $term = '%'.$search.'%';
-                $reportsQuery->where(function ($q) use ($term) {
+                $reportsQuery->where(function ($q) use ($term, $search) {
                     $q->where('nomor_kendaraan', 'like', $term)
                         ->orWhere('jenis_kendaraan', 'like', $term)
                         ->orWhere('jenis_pengisian', 'like', $term)
-                        ->orWhereHas('user', function ($uq) use ($term) {
-                            $uq->where('name', 'like', $term)
-                                ->orWhere('username', 'like', $term);
-                        });
+                        ->orWhere(DB::raw("DATE_FORMAT(tanggal, '%d-%m-%Y')"), 'like', $term)
+                        ->orWhere(DB::raw("DATE_FORMAT(tanggal, '%Y-%m-%d')"), 'like', $term);
+                    
+                    try {
+                        $parsedDate = Carbon::parse($search);
+                        $q->orWhereDate('tanggal', $parsedDate->toDateString());
+                    } catch (\Throwable) {
+                        $monthsId = [
+                            1 => 'januari', 2 => 'februari', 3 => 'maret', 4 => 'april',
+                            5 => 'mei', 6 => 'juni', 7 => 'juli', 8 => 'agustus',
+                            9 => 'september', 10 => 'oktober', 11 => 'november', 12 => 'desember'
+                        ];
+                        $lowerSearch = strtolower(trim($search));
+                        foreach ($monthsId as $mNum => $mName) {
+                            if (str_contains($mName, $lowerSearch) || str_contains($lowerSearch, $mName)) {
+                                $q->orWhereMonth('tanggal', $mNum);
+                            }
+                        }
+                    }
+
+                    $q->orWhereHas('user', function ($uq) use ($term) {
+                        $uq->where('name', 'like', $term)
+                            ->orWhere('username', 'like', $term);
+                    });
                 });
             }
 
@@ -388,26 +407,12 @@ class BbmOperationalPortalController extends Controller
                 $reportsQuery->where('jenis_pengisian', $jenisPengisianFilter);
             }
 
-            if ($shiftFilter === 'luar') {
-                $reportsQuery->where(function ($q) {
-                    $q->where('shift', 'luar')->orWhereNull('shift');
-                });
-            } elseif (in_array($shiftFilter, ['pagi', 'siang'], true)) {
-                $reportsQuery->where('shift', $shiftFilter);
+            if ($monthFilter !== null && $monthFilter !== '') {
+                $reportsQuery->whereMonth('tanggal', (int) $monthFilter);
             }
 
-            if ($dateFrom) {
-                try {
-                    $reportsQuery->whereDate('tanggal', '>=', Carbon::parse($dateFrom)->toDateString());
-                } catch (\Throwable) {
-                    // Abaikan tanggal tidak valid
-                }
-            }
-            if ($dateTo) {
-                try {
-                    $reportsQuery->whereDate('tanggal', '<=', Carbon::parse($dateTo)->toDateString());
-                } catch (\Throwable) {
-                }
+            if ($yearFilter !== null && $yearFilter !== '') {
+                $reportsQuery->whereYear('tanggal', (int) $yearFilter);
             }
         } else {
             $reportsQuery->whereRaw('0 = 1');
@@ -440,10 +445,9 @@ class BbmOperationalPortalController extends Controller
             'reports' => $reports,
             'bbmPortalChartsOnly' => $chartsOnly,
             'bbmPortalSearch' => $search,
-            'bbmPortalShift' => $shiftFilter,
             'bbmPortalJenisPengisian' => $jenisPengisianFilter,
-            'bbmPortalDateFrom' => $dateFrom,
-            'bbmPortalDateTo' => $dateTo,
+            'bbmPortalMonth' => $monthFilter,
+            'bbmPortalYear' => $yearFilter,
             'activeSort' => $sortState['sort'] ?? null,
             'activeDir'  => $sortState['dir']  ?? null,
         ];

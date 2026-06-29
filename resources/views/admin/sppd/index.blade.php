@@ -24,29 +24,34 @@
             </div>
 
             <div class="portal-section" id="section-sppd-admin">
-                <div class="portal-section-header">
-                    <div class="portal-section-title"><i class="bi bi-table"></i> Daftar Rekap Biaya Dinas</div>
+                <div class="portal-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                    <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Daftar Rekap Biaya Dinas</div>
+
+                    <div class="portal-local-filters ppm-daftar-filters" id="admin-sppd-filter-bar" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none; align-items: center; gap: 8px;">
+                        <div class="admin-search-wrap portal-search-full" style="width: 280px; max-width: 100%;">
+                            <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <input type="text" id="sppd-filter-q" value="{{ $search }}" placeholder="Cari driver, keperluan, nopol…" class="admin-search-input" autocomplete="off">
+                            <button type="button" id="sppd-filter-clear" class="admin-search-clear" title="Hapus pencarian" style="display: none">&times;</button>
+                        </div>
+                        <div class="ppm-status-wrap">
+                            <select id="sppd-filter-status" class="admin-filter-input" aria-label="Filter status rekap dinas">
+                                <option value="">Semua status</option>
+                                @foreach(\App\Support\SppdStatus::adminFilterOptions() as $st)
+                                    <option value="{{ $st }}" @selected($currentStatus === $st)>{{ \App\Support\SppdStatus::label($st) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <x-admin-per-page-select id="sppd-filter-per-page" name="per_page" :selected="$sppds->perPage()" />
+                        <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="sppd-filter-reset" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
+                    </div>
                 </div>
+
+                <div id="sppd-loading" class="portal-loading" style="display:none; margin: 12px 0;">
+                    <span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span>
+                </div>
+
                 <div id="sppd-admin-live-root" data-vms-sppd-live>
                 @fragment('sppd-admin-body')
-                <form method="get" action="{{ route('admin.sppd.index') }}" class="portal-local-filters ppm-daftar-filters" id="admin-sppd-filter-form">
-                    <div class="admin-search-wrap portal-search-full">
-                        <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        <input type="text" name="q" value="{{ $search }}" placeholder="Cari driver, keperluan, nopol…" class="admin-search-input" autocomplete="off">
-                    </div>
-                    <div class="ppm-status-wrap">
-                        <select name="status" class="admin-filter-input">
-                            <option value="">Semua status</option>
-                            @foreach(\App\Support\SppdStatus::adminFilterOptions() as $st)
-                                <option value="{{ $st }}" @selected($currentStatus === $st)>{{ \App\Support\SppdStatus::label($st) }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <x-admin-per-page-select id="admin-sppd-per-page" name="per_page" :selected="$sppds->perPage()" />
-                    <input type="hidden" name="sort" value="{{ $activeSort ?? '' }}">
-                    <input type="hidden" name="dir"  value="{{ $activeDir  ?? '' }}">
-                </form>
-
                 <div class="admin-table-wrap">
                     <table class="admin-table">
                         <thead>
@@ -144,83 +149,165 @@
             const BASE = @json(url('/'));
             const CAN_VERIFY_SPPD = @json($canVerifySppd ?? false);
             const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            const INDEX_URL = @json(route('admin.sppd.index'));
             const detailUrl = (id) => BASE + '/admin/rekap-sppd/' + id;
             const approveUrl = (id) => BASE + '/admin/rekap-sppd/' + id + '/verify-approve';
             const rejectUrl = (id) => BASE + '/admin/rekap-sppd/' + id + '/verify-reject';
 
-            function formatRp(n) {
-                return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
+            let _page = 1;
+            let _perPage = {{ (int) $sppds->perPage() }};
+            let _sort = '{{ $activeSort ?? "" }}';
+            let _dir = '{{ $activeDir ?? "" }}';
+            let _abort = null;
+
+            const searchEl = document.getElementById('sppd-filter-q');
+            const statusEl = document.getElementById('sppd-filter-status');
+            const perPageEl = document.getElementById('sppd-filter-per-page');
+            const liveRoot = document.getElementById('sppd-admin-live-root');
+            const clearBtn = document.getElementById('sppd-filter-clear');
+            const resetBtn = document.getElementById('sppd-filter-reset');
+
+            function showLoading() { const el = document.getElementById('sppd-loading'); if (el) el.style.display = 'flex'; }
+            function hideLoading() { const el = document.getElementById('sppd-loading'); if (el) el.style.display = 'none'; }
+
+            function buildParams() {
+                const obj = {
+                    q:        searchEl?.value.trim() ?? '',
+                    status:   statusEl?.value ?? '',
+                    per_page: _perPage,
+                    page:     _page,
+                };
+                if (_sort) { obj.sort = _sort; obj.dir = _dir; }
+                return new URLSearchParams(
+                    Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== '' && v != null))
+                ).toString();
             }
 
-            function esc(s) {
-                const d = document.createElement('div');
-                d.textContent = s ?? '';
-                return d.innerHTML;
+            function updateFilterChrome() {
+                const hasSearch = searchEl && searchEl.value.trim().length > 0;
+                if (clearBtn) clearBtn.style.display = hasSearch ? 'flex' : 'none';
+                const showReset = hasSearch
+                    || (statusEl && statusEl.value !== '')
+                    || _perPage !== 15;
+                if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
             }
 
-            function normalizeUrl(u) {
-                if (!u) return '';
-                const raw = String(u);
-                if (/^data:image/i.test(raw)) return raw;
-                if (/^https?:\/\//i.test(raw)) return raw;
-                if (raw.startsWith('/')) return BASE + raw;
-                return BASE + '/' + raw.replace(/^\/+/, '');
-            }
+            async function fetchSppds(scroll = false) {
+                _abort?.abort();
+                _abort = new AbortController();
+                showLoading();
 
-            function renderDetail(d) {
-                let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
-                if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
-                let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
-                if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
-                return `
-                    <table class="info-table sppd-mini-table">
-                        <tr><td class="label">Driver</td><td>${esc(d.nama_driver)} (${esc(d.driver_username || '-')})</td></tr>
-                        <tr><td class="label">Keperluan</td><td>${esc(d.keperluan_dinas)}</td></tr>
-                        <tr><td class="label">Kendaraan</td><td>${esc(d.no_kendaraan)} — ${esc(d.jenis_kendaraan)}</td></tr>
-                        <tr><td class="label">Tanggal</td><td>${esc(d.tanggal_dinas)}</td></tr>
-                        <tr><td class="label">Tujuan</td><td>${esc(d.tujuan)}</td></tr>
-                        <tr><td class="label">Status</td><td>${esc(d.status_label)}</td></tr>
-                    </table>
-                    <p class="sppd-detail-sub">Biaya Tol</p>
-                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
-                    <p class="sppd-detail-sub">BBM</p>
-                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
-                    <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
-                    ${d.revision_note ? `<p class="sppd-detail-sub">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
-                    ${d.rejection_note ? `<p class="sppd-detail-sub">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
-                `;
-            }
+                const q = buildParams();
+                try {
+                    const res = await fetch(`${INDEX_URL}?${q}`, {
+                        headers: {
+                            'Accept': 'text/html',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-VMS-SPPD-Fragment': '1'
+                        },
+                        signal: _abort.signal
+                    });
+                    const html = await res.text();
 
-            function qaAttr(s) {
-                return String(s ?? '').replace(/"/g, '&quot;');
-            }
+                    if (liveRoot) {
+                        liveRoot.innerHTML = html;
+                    }
 
-            function renderAdminPdfActions(d) {
-                if (d.pdf_download_url && d.pdf_available) {
-                    return `<a href="${qaAttr(d.pdf_download_url)}" class="btn-view-pdf" target="_blank" rel="noopener noreferrer" title="View PDF">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
-                        View PDF
-                    </a>`;
+                    bindSorting();
+                    bindPagination();
+                    updateFilterChrome();
+
+                    if (scroll && liveRoot) {
+                        liveRoot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } catch (e) {
+                    if (e.name !== 'AbortError') console.warn('SPPD fetchSppds error', e);
+                } finally {
+                    hideLoading();
                 }
-                return '';
             }
 
-            async function showDetail(id) {
-                const r = await fetch(detailUrl(id), { headers: { Accept: 'application/json' } });
-                const j = await r.json();
-                const d = j.sppd;
-                const modal = document.getElementById('sppd-modal-detail-admin');
-                const body = document.getElementById('sppd-admin-detail-body');
-                const pdfWrap = document.getElementById('sppd-admin-detail-pdf-wrap');
-                pdfWrap.hidden = true;
-                pdfWrap.innerHTML = '';
-                body.innerHTML = renderDetail(d);
-                const pdfHtml = renderAdminPdfActions(d);
-                if (pdfHtml) {
-                    pdfWrap.innerHTML = pdfHtml;
-                    pdfWrap.hidden = false;
+            function bindPagination() {
+                if (!liveRoot) return;
+                const paginationLinks = liveRoot.querySelectorAll('.tbl-pagination a[href], a[href]');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        const u = new URL(link.getAttribute('href'), location.origin);
+                        e.preventDefault();
+                        _page = parseInt(u.searchParams.get('page') || '1', 10);
+                        fetchSppds(true);
+                    });
+                });
+            }
+
+            function bindSorting() {
+                if (window.AdminTableSort && liveRoot) {
+                    const tableWrap = liveRoot.querySelector('.admin-table-wrap');
+                    if (tableWrap) {
+                        window.AdminTableSort.bindRoot(tableWrap, {
+                            getUrl: () => {
+                                const url = new URL(location.href);
+                                if (_sort) { url.searchParams.set('sort', _sort); url.searchParams.set('dir', _dir); }
+                                else { url.searchParams.delete('sort'); url.searchParams.delete('dir'); }
+                                return url;
+                            },
+                            onNavigate: (url) => {
+                                _sort = url.searchParams.get('sort') || '';
+                                _dir = url.searchParams.get('dir') || '';
+                                _page = 1;
+                                fetchSppds();
+                            },
+                        });
+                    }
                 }
-                modal.style.display = 'flex';
+            }
+
+            function debounce(fn, ms = 380) {
+                let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+            }
+
+            const debouncedFetch = debounce(() => { _page = 1; fetchSppds(); });
+
+            if (searchEl) {
+                searchEl.addEventListener('input', () => {
+                    updateFilterChrome();
+                    debouncedFetch();
+                });
+            }
+
+            if (statusEl) {
+                statusEl.addEventListener('change', () => {
+                    _page = 1;
+                    fetchSppds();
+                });
+            }
+
+            if (perPageEl) {
+                perPageEl.addEventListener('change', (e) => {
+                    _perPage = parseInt(e.target.value, 10);
+                    _page = 1;
+                    fetchSppds();
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    if (searchEl) searchEl.value = '';
+                    updateFilterChrome();
+                    _page = 1;
+                    fetchSppds();
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    if (searchEl) searchEl.value = '';
+                    if (statusEl) statusEl.selectedIndex = 0;
+                    if (perPageEl) { perPageEl.value = '15'; _perPage = 15; }
+                    _page = 1; _sort = ''; _dir = '';
+                    updateFilterChrome();
+                    fetchSppds();
+                });
             }
 
             document.getElementById('section-sppd-admin')?.addEventListener('click', async (e) => {
@@ -265,6 +352,73 @@
                     else Swal.fire('Gagal', j.message || 'Error', 'error');
                 }
             });
+
+            async function showDetail(id) {
+                const r = await fetch(detailUrl(id), { headers: { Accept: 'application/json' } });
+                const j = await r.json();
+                const d = j.sppd;
+                const modal = document.getElementById('sppd-modal-detail-admin');
+                const body = document.getElementById('sppd-admin-detail-body');
+                const pdfWrap = document.getElementById('sppd-admin-detail-pdf-wrap');
+                pdfWrap.hidden = true;
+                pdfWrap.innerHTML = '';
+                body.innerHTML = renderDetail(d);
+                const pdfHtml = renderAdminPdfActions(d);
+                if (pdfHtml) {
+                    pdfWrap.innerHTML = pdfHtml;
+                    pdfWrap.hidden = false;
+                }
+                modal.style.display = 'flex';
+            }
+
+            function renderDetail(d) {
+                let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
+                if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
+                let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
+                if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
+                return `
+                    <table class="info-table sppd-mini-table">
+                        <tr><td class="label">Driver</td><td>${esc(d.nama_driver)} (${esc(d.driver_username || '-')})</td></tr>
+                        <tr><td class="label">Keperluan</td><td>${esc(d.keperluan_dinas)}</td></tr>
+                        <tr><td class="label">Kendaraan</td><td>${esc(d.no_kendaraan)} — ${esc(d.jenis_kendaraan)}</td></tr>
+                        <tr><td class="label">Tanggal</td><td>${esc(d.tanggal_dinas)}</td></tr>
+                        <tr><td class="label">Tujuan</td><td>${esc(d.tujuan)}</td></tr>
+                        <tr><td class="label">Status</td><td>${esc(d.status_label)}</td></tr>
+                    </table>
+                    <p class="sppd-detail-sub">Biaya Tol</p>
+                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
+                    <p class="sppd-detail-sub">BBM</p>
+                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
+                    <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
+                    ${d.revision_note ? `<p class="sppd-detail-sub">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
+                    ${d.rejection_note ? `<p class="sppd-detail-sub">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
+                `;
+            }
+
+            function formatRp(n) {
+                return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
+            }
+
+            function esc(s) {
+                const d = document.createElement('div');
+                d.textContent = s ?? '';
+                return d.innerHTML;
+            }
+
+            function qaAttr(s) {
+                return String(s ?? '').replace(/"/g, '&quot;');
+            }
+
+            function renderAdminPdfActions(d) {
+                if (d.pdf_download_url && d.pdf_available) {
+                    return `<a href="${qaAttr(d.pdf_download_url)}" class="btn-view-pdf" target="_blank" rel="noopener noreferrer" title="View PDF">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                        View PDF
+                    </a>`;
+                }
+                return '';
+            }
+
             document.querySelectorAll('[data-close-admin-sppd-modal]').forEach(el => {
                 el.addEventListener('click', () => { document.getElementById('sppd-modal-detail-admin').style.display = 'none'; });
             });
@@ -272,6 +426,15 @@
                 if (e.target.id === 'sppd-modal-detail-admin') e.currentTarget.style.display = 'none';
             });
 
+            bindSorting();
+            bindPagination();
+            updateFilterChrome();
+
+            if (typeof window.registerTurboCleanup === 'function') {
+                window.registerTurboCleanup(function () {
+                    if (_abort) _abort.abort();
+                });
+            }
         })();
     </script>
 @endpush

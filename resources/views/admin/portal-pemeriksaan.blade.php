@@ -171,7 +171,7 @@
             <div id="db-sync-alert" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:10px;font-size:.82rem;line-height:1.45"></div>
 
             {{-- Local filters --}}
-            <div class="portal-local-filters">
+            <div class="portal-local-filters" style="margin-bottom: 14px;">
                 <div class="admin-search-wrap portal-search-full">
                     <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <input type="text" id="db-search" placeholder="Cari nopol, driver..." class="admin-search-input" autocomplete="off">
@@ -184,7 +184,7 @@
                 </select>
 
                 <x-admin-per-page-select id="db-perpage" name="per_page" :selected="$dbChecklists->perPage()" />
-                <button type="button" class="portal-local-reset" data-section-reset="db">Reset</button>
+                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" data-section-reset="db" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
             </div>
 
             {{-- Sub-tabs --}}
@@ -336,7 +336,7 @@
             </div>
 
             {{-- Local filters --}}
-            <div class="portal-local-filters">
+            <div class="portal-local-filters" style="margin-bottom: 14px;">
                 <div class="admin-search-wrap portal-search-full">
                     <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <input type="text" id="foto-search" placeholder="Cari nopol, driver..." class="admin-search-input" autocomplete="off">
@@ -348,7 +348,7 @@
                     @foreach($nopolList as $n)<option value="{{ $n }}">{{ $n }}</option>@endforeach
                 </select>
                 <x-admin-per-page-select id="foto-perpage" name="per_page" :selected="$fotoChecklists->perPage()" />
-                <button type="button" class="portal-local-reset" data-section-reset="foto">Reset</button>
+                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" data-section-reset="foto" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
             </div>
 
             {{-- Sub-tabs --}}
@@ -517,7 +517,7 @@
             </div>
 
             {{-- Local filters --}}
-            <div class="portal-local-filters">
+            <div class="portal-local-filters" style="margin-bottom: 14px;">
                 <div class="admin-search-wrap portal-search-full">
                     <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <input type="text" id="pdf-search" placeholder="Cari nopol, driver..." class="admin-search-input" autocomplete="off">
@@ -530,7 +530,7 @@
                 </select>
 
                 <x-admin-per-page-select id="pdf-perpage" name="per_page" :selected="$pdfChecklists->perPage()" />
-                <button type="button" class="portal-local-reset" data-section-reset="pdf">Reset</button>
+                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" data-section-reset="pdf" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
             </div>
 
             <div id="pdf-loading" class="portal-loading" style="display:none">
@@ -1131,7 +1131,7 @@
                 if (scroll) scrollToSection('section-db');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchDb error', e);
-            } finally { hideLoading('db-loading'); }
+            } finally { hideLoading('db-loading'); updateSectionFilterChrome('db'); }
         }
 
         function renderDbAll(json) {
@@ -1250,7 +1250,7 @@
                 if (scroll) scrollToSection('section-foto');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchFoto error', e);
-            } finally { hideLoading('foto-loading'); }
+            } finally { hideLoading('foto-loading'); updateSectionFilterChrome('foto'); }
         }
 
         /* ================================================================
@@ -1301,7 +1301,7 @@
                 if (scroll) scrollToSection('section-pdf');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchPdf error', e);
-            } finally { hideLoading('pdf-loading'); }
+            } finally { hideLoading('pdf-loading'); updateSectionFilterChrome('pdf'); }
         }
 
         /* ================================================================
@@ -1332,6 +1332,23 @@
             pdfPerPage = parseInt(e.target.value); pdfPage = 1; fetchPdf();
         });
 
+        function updateSectionFilterChrome(p) {
+            const searchVal = document.getElementById(`${p}-search`)?.value.trim() ?? '';
+            const dariVal = document.getElementById(`${p}-dari`)?.value ?? '';
+            const sampaiVal = document.getElementById(`${p}-sampai`)?.value ?? '';
+            const nopolVal = document.getElementById(`${p}-nopol`)?.value ?? '';
+            const perpageVal = document.getElementById(`${p}-perpage`)?.value ?? '10';
+
+            const showReset = searchVal.length > 0
+                || dariVal !== ''
+                || sampaiVal !== ''
+                || nopolVal !== ''
+                || perpageVal !== '10';
+
+            const btn = document.querySelector(`[data-section-reset="${p}"]`);
+            if (btn) btn.style.display = showReset ? '' : 'none';
+        }
+
         // Reset buttons
         document.querySelectorAll('[data-section-reset]').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1343,6 +1360,7 @@
                 if (p === 'db')   { dbPerPage=10;   dbPage=1;   dbSort='';   dbDir='';   fetchDb(); }
                 if (p === 'foto') { fotoPerPage=10; fotoPage=1; fotoSort=''; fotoDir=''; fetchFoto(); }
                 if (p === 'pdf')  { pdfPerPage=10;  pdfPage=1;  pdfSort='';  pdfDir='';  fetchPdf(); }
+                updateSectionFilterChrome(p);
             });
         });
 
@@ -1450,6 +1468,7 @@
             mountPortalPagination('foto', INIT_PAGINATION.foto);
             mountPortalPagination('pdf', INIT_PAGINATION.pdf);
         }
+        ['db', 'foto', 'pdf'].forEach(updateSectionFilterChrome);
 
         if (CAN_ACCESS_DATABASE) {
             document.addEventListener('click', function (e) {

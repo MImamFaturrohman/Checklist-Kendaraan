@@ -2321,7 +2321,7 @@ html:not(.dark) .dash-body .dash-section-title { color: rgba(30, 58, 138, 0.5); 
    ADMIN PAGES — shared
    =================================================================== */
 .admin-shell {
-    max-width: 100%;
+    max-width: 2560px;
     margin: 0 auto;
     padding: 14px;
     min-height: 100vh;
@@ -4418,7 +4418,7 @@ html.dark .dash-body .lp-armada-empty {
 
 .portal-wrapper {
     padding: 20px 16px 48px;
-    max-width: 1240px;
+    max-width: 2560px;
     margin: 0 auto;
 }
 
@@ -4919,11 +4919,6 @@ html.dark .portal-chart-loading {
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
-    margin-bottom: 14px;
-    padding: 12px 14px;
-    background: #f8fafc;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
 }
 
 .portal-search-full { flex: 1 1 180px; }
@@ -7705,10 +7700,6 @@ html.dark .dash-body .portal-section-tab.active {
 }
 
 /* Local filters row inside each section */
-html.dark .dash-body .portal-local-filters {
-    background: rgba(5, 11, 20, 0.45);
-    border-color: rgba(255, 255, 255, 0.07);
-}
 html.dark .dash-body .portal-local-reset {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.1);
@@ -9493,3 +9484,24 @@ html.dark .dash-body .dash-nav-drawer-logout-btn:hover {
         transition: none !important;
     }
 }
+.admin-filter-reset {
+    background-color: #002a7a !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+}
+.admin-filter-reset i {
+    color: #ffffff !important;
+}
+.admin-filter-reset:hover {
+    background-color: #001f5c !important;
+    opacity: 0.95;
+}
+html.dark .admin-filter-reset {
+    background-color: #60a5fa !important;
+}
+html.dark .admin-filter-reset:hover {
+    background-color: #3b82f6 !important;
+}
+

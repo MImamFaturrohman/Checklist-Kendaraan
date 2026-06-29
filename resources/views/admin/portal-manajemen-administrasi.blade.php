@@ -220,9 +220,8 @@ html.dark .portal-bidang-btn-sub {
                     <input type="text" id="armada-search" class="mgmt-search-input" placeholder="Cari nomor atau jenis kendaraan…">
                 </div>
                 <x-admin-per-page-select id="armada-perpage" name="per_page" :selected="$kendaraans->perPage()" />
-                <button type="button" class="mgmt-reset-btn" onclick="resetArmadaFilters()">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9 9 9 0 00-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Reset
+                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="armada-reset-btn" onclick="resetArmadaFilters()" title="Reset filter" aria-label="Reset filter" style="display: none">
+                    <i class="bi bi-arrow-clockwise"></i>
                 </button>
             </div>
 
@@ -343,9 +342,8 @@ html.dark .portal-bidang-btn-sub {
                     </select>
                 </div>
                 <x-admin-per-page-select id="user-perpage" name="per_page" :selected="$users->perPage()" />
-                <button type="button" class="mgmt-reset-btn" onclick="resetUserFilters()">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 109-9 9 9 0 00-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Reset
+                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" id="user-reset-btn" onclick="resetUserFilters()" title="Reset filter" aria-label="Reset filter" style="display: none">
+                    <i class="bi bi-arrow-clockwise"></i>
                 </button>
             </div>
 
@@ -1072,6 +1070,14 @@ window.deleteBidangPortal = function(id,nama) {
 /* ═══════════════════════════════════════════════════════════════════════ */
 let armadaPage = 1, armadaPerPage = 10, armadaSort = '', armadaDir = '';
 
+function updateArmadaFilterChrome() {
+    const searchVal = document.getElementById('armada-search')?.value.trim() ?? '';
+    const perpageVal = document.getElementById('armada-perpage')?.value ?? '10';
+    const showReset = searchVal.length > 0 || perpageVal !== '10';
+    const btn = document.getElementById('armada-reset-btn');
+    if (btn) btn.style.display = showReset ? '' : 'none';
+}
+
 async function fetchArmada(scroll = false) {
     document.getElementById('armada-loading').style.display = 'flex';
     const params = new URLSearchParams({
@@ -1088,7 +1094,10 @@ async function fetchArmada(scroll = false) {
         if (window.AdminTableSort) window.AdminTableSort.syncAria(document.getElementById('armada-thead'), json.sort ?? null, json.dir ?? null);
         if (scroll) document.getElementById('section-armada').scrollIntoView({behavior:'smooth', block:'start'});
     } catch(e) { console.error(e); }
-    finally { document.getElementById('armada-loading').style.display = 'none'; }
+    finally {
+        document.getElementById('armada-loading').style.display = 'none';
+        updateArmadaFilterChrome();
+    }
 }
 
 function renderArmadaTable(rows, page, perPage) {
@@ -1274,6 +1283,15 @@ if (window.AdminTableSort) {
 /* ═══════════════════════════════════════════════════════════════════════ */
 let userPage = 1, userPerPage = 15, userSort = '', userDir = '';
 
+function updateUserFilterChrome() {
+    const searchVal = document.getElementById('user-search')?.value.trim() ?? '';
+    const roleVal = document.getElementById('user-role-filter')?.value ?? '';
+    const perpageVal = document.getElementById('user-perpage')?.value ?? '15';
+    const showReset = searchVal.length > 0 || roleVal !== '' || perpageVal !== '15';
+    const btn = document.getElementById('user-reset-btn');
+    if (btn) btn.style.display = showReset ? '' : 'none';
+}
+
 async function fetchUsers(scroll = false) {
     document.getElementById('user-loading').style.display = 'flex';
     const params = new URLSearchParams({
@@ -1291,7 +1309,10 @@ async function fetchUsers(scroll = false) {
         if (window.AdminTableSort) window.AdminTableSort.syncAria(document.getElementById('user-thead'), json.sort ?? null, json.dir ?? null);
         if (scroll) document.getElementById('section-users').scrollIntoView({behavior:'smooth', block:'start'});
     } catch(e) { console.error(e); }
-    finally { document.getElementById('user-loading').style.display = 'none'; }
+    finally {
+        document.getElementById('user-loading').style.display = 'none';
+        updateUserFilterChrome();
+    }
 }
 
 function renderUserTable(rows, page, perPage) {
@@ -1468,6 +1489,8 @@ window.deleteUser = function(id, nama) {
 /* ─── Init pagination ────────────────────────────────────────────────── */
 mountMgmtPagination('armada', INIT_MGMT_PAGINATION.armada);
 mountMgmtPagination('users', INIT_MGMT_PAGINATION.users);
+updateArmadaFilterChrome();
+updateUserFilterChrome();
 
 setInterval(() => {
     if (document.getElementById('user-tbody')) fetchUsers();

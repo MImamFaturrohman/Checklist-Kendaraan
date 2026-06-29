@@ -7,9 +7,24 @@
     'icon' => null,
     'valueClass' => null,
     'valueStyle' => null,
+    // --- Optional filter-toggle behaviour ---
+    // When filterKey & filterValue are provided, the card acts as a clickable
+    // filter toggle. JavaScript in the consuming view is responsible for
+    // reading [data-filter-key] / [data-filter-value] and toggling the
+    // `is-active` class. When neither is supplied the card is purely decorative
+    // (existing behaviour, no breaking change).
+    'filterKey' => null,
+    'filterValue' => null,
 ])
 
-<div {{ $attributes->merge(['class' => 'portal-stat-card']) }}>
+@php
+    $isFilterable = $filterKey !== null;
+    $extraAttrs = $isFilterable
+        ? ['data-filter-key' => $filterKey, 'data-filter-value' => (string) $filterValue, 'role' => 'button', 'tabindex' => '0']
+        : [];
+@endphp
+
+<div {{ $attributes->merge(array_merge(['class' => 'portal-stat-card'], $extraAttrs)) }}>
     <div class="portal-stat-body">
         <div class="portal-stat-label">{{ $title }}</div>
         @if(isset($value))
