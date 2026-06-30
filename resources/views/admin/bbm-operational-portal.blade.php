@@ -14,6 +14,7 @@
 
 @push('head')
 <meta name="turbo-cache-control" content="no-cache">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 @endpush
 
 @push('scripts')
@@ -286,17 +287,14 @@
         .bbm-portal-stat-mom-badge--up {
             background: rgba(248, 113, 113, 0.16);
             color: #dc2626;
-            border: 1px solid rgba(248, 113, 113, 0.45);
         }
         .bbm-portal-stat-mom-badge--down {
             background: rgba(34, 197, 94, 0.16);
             color: #15803d;
-            border: 1px solid rgba(34, 197, 94, 0.42);
         }
         .bbm-portal-stat-mom-badge--flat {
             background: rgba(148, 163, 184, 0.22);
             color: #64748b;
-            border: 1px solid rgba(148, 163, 184, 0.5);
             font-weight: 700;
         }
         .bbm-portal-stat-mom-vs {
@@ -462,133 +460,391 @@
             pointer-events: auto;
         }
         .bbm-photo-lightbox-close:hover { background: rgba(255,255,255,0.25); }
+
+        /* Custom Premium Alert & Info Card Styles */
+        .premium-alert-red, .premium-alert-gold {
+            border: 1px solid #f1f5f9 !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+            transform: none !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-alert-red {
+            border-left: 4px solid #ef4444 !important;
+        }
+        .premium-alert-gold {
+            border-left: 4px solid #D4AF37 !important;
+        }
+        .premium-alert-red:hover, .premium-alert-gold:hover {
+            transform: none !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+        }
+        .premium-text-red {
+            color: #ef4444 !important;
+        }
+        .premium-text-gold {
+            color: #D4AF37 !important;
+        }
+        .premium-bg-red-opacity-5 {
+            background-color: rgba(239, 68, 68, 0.16) !important;
+        }
+        .premium-bg-gold-opacity-5 {
+            background-color: rgba(212, 175, 55, 0.16) !important;
+        }
+        .premium-icon-hover {
+            transition: color 0.2s ease;
+        }
+
+        /* Hover states */
+        .premium-stat-card:hover .premium-icon-hover {
+            color: #D4AF37 !important;
+        }
+
+        /* Dark Mode overrides - matching system colors from portal-stat-card */
+        html.dark .premium-alert-red,
+        html.dark .premium-alert-gold,
+        .dark .premium-alert-red,
+        .dark .premium-alert-gold {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(3px) saturate(150%);
+            -webkit-backdrop-filter: blur(3px) saturate(150%);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        }
+        html.dark .premium-alert-red,
+        .dark .premium-alert-red {
+            border-left-color: #ef4444 !important;
+        }
+        html.dark .premium-alert-gold,
+        .dark .premium-alert-gold {
+            border-left-color: #D4AF37 !important;
+        }
+        html.dark .premium-alert-red:hover,
+        html.dark .premium-alert-gold:hover,
+        .dark .premium-alert-red:hover,
+        .dark .premium-alert-gold:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        }
+        html.dark .premium-alert-red h4,
+        html.dark .premium-alert-gold h4,
+        .dark .premium-alert-red h4,
+        .dark .premium-alert-gold h4 {
+            color: rgba(241, 245, 249, 0.95) !important;
+        }
+        html.dark .premium-alert-red p,
+        html.dark .premium-alert-gold p,
+        .dark .premium-alert-red p,
+        .dark .premium-alert-gold p {
+            color: rgba(200, 218, 255, 0.72) !important;
+        }
+        html.dark .premium-stat-card .premium-icon-hover,
+        .dark .premium-stat-card .premium-icon-hover {
+            color: rgba(148, 163, 184, 0.22) !important;
+        }
+        html.dark .premium-stat-card:hover .premium-icon-hover,
+        .dark .premium-stat-card:hover .premium-icon-hover {
+            color: #D4AF37 !important;
+        }
+
+        /* Responsive Layout Overrides: 2:3 ratio for desktop */
+        @media (min-width: 1025px) {
+            .portal-charts-grid--bbm {
+                grid-template-columns: repeat(5, 1fr) !important;
+            }
+            .portal-charts-grid--bbm .portal-chart-card--bbm-driver-col {
+                grid-column: span 2 !important;
+            }
+            .portal-charts-grid--bbm .portal-chart-card--bbm-log-col {
+                grid-column: span 3 !important;
+            }
+        }
+
+        /* Index Rekapitulasi Subcomponents */
+        .rekap-select {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+            cursor: pointer;
+        }
+        html.dark .rekap-select,
+        .dark .rekap-select {
+            background: rgba(15, 23, 42, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #fff !important;
+        }
+        
+        .rekap-val-cur-year {
+            color: #2563eb; /* blue-600 */
+            font-weight: 600;
+        }
+        html.dark .rekap-val-cur-year,
+        .dark .rekap-val-cur-year {
+            color: #60a5fa !important;
+        }
+        .rekap-val-cur-vol {
+            color: #475569; /* slate-600 */
+        }
+        html.dark .rekap-val-cur-vol,
+        .dark .rekap-val-cur-vol {
+            color: #cbd5e1 !important;
+        }
+        .rekap-val-cur-cost {
+            color: #D4AF37;
+            font-weight: bold;
+        }
+        
+        .rekap-val-prev-year,
+        .rekap-val-prev-vol,
+        .rekap-val-prev-cost {
+            color: #94a3b8; /* slate-400 */
+        }
+        html.dark .rekap-val-prev-year,
+        html.dark .rekap-val-prev-vol,
+        html.dark .rekap-val-prev-cost,
+        .dark .rekap-val-prev-year,
+        .dark .rekap-val-prev-vol,
+        .dark .rekap-val-prev-cost {
+            color: #64748b !important; /* slate-500 */
+        }
+
+        .rekap-summary-block {
+            background: rgba(15, 23, 42, 0.04) !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center !important;
+            gap: 3px !important;
+            align-items: center !important;
+            text-align: center !important;
+        }
+        html.dark .rekap-summary-block,
+        .dark .rekap-summary-block {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        .rekap-summary-title {
+            font-size: 9px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+        html.dark .rekap-summary-title,
+        .dark .rekap-summary-title {
+            color: #94a3b8 !important;
+        }
+        .rekap-summary-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 0 !important;
+            display: block;
+            word-break: break-all;
+        }
+        html.dark .rekap-summary-value,
+        .dark .rekap-summary-value {
+            color: #f8fafc !important;
+        }
+
+        /* Selisih Biaya value color indicators */
+        .rekap-selisih-saving {
+            color: #15803d !important;
+        }
+        html.dark .rekap-selisih-saving,
+        .dark .rekap-selisih-saving {
+            color: #22c55e !important;
+        }
+        .rekap-selisih-increase {
+            color: #b91c1c !important;
+        }
+        html.dark .rekap-selisih-increase,
+        .dark .rekap-selisih-increase {
+            color: #ef4444 !important;
+        }
+
+        /* Trend badge theme overrides */
+        .rekap-badge-up {
+            background-color: #fee2e2 !important; /* bg-red-100 */
+            color: #b91c1c !important; /* text-red-700 */
+        }
+        html.dark .rekap-badge-up,
+        .dark .rekap-badge-up {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+            color: #fca5a5 !important;
+        }
+
+        .rekap-badge-down {
+            background-color: #dcfce7 !important; /* bg-green-100 */
+            color: #15803d !important; /* text-green-700 */
+        }
+        html.dark .rekap-badge-down,
+        .dark .rekap-badge-down {
+            background-color: rgba(34, 197, 94, 0.2) !important;
+            color: #86efac !important;
+        }
+
+        .rekap-badge-flat {
+            background-color: #f1f5f9 !important; /* bg-slate-100 */
+            color: #475569 !important; /* text-slate-700 */
+        }
+        html.dark .rekap-badge-flat,
+        .dark .rekap-badge-flat {
+            background-color: rgba(148, 163, 184, 0.2) !important;
+            color: #cbd5e1 !important;
+        }
+
+        .bbm-shift-badge {
+            border: none !important;
+        }
     </style>
 @endpush
 
 @section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
-            <div class="portal-stats-row portal-stats-row--bbm">
-                <x-admin-stat-card
-                    title="Total Laporan BBM"
-                    :value="$stats['total_reports_all']"
-                    unit="Laporan"
-                    description="Akumulasi seluruh waktu"
-                    icon="bi bi-clipboard-data-fill"
-                />
-                <x-admin-stat-card
-                    title="Laporan BBM Tahunan"
-                    :value="$stats['year_reports']"
-                    unit="Laporan"
-                    description="Laporan pengisian tahun {{ $stats['year_label'] }}"
-                    icon="bi bi-calendar-week-fill"
-                >
-                    @if(!empty($stats['yoy_year_reports']['show']))
-                        @php
-                            $ydir = $stats['yoy_year_reports']['direction'] ?? 'flat';
-                            $ypct = $stats['yoy_year_reports']['pct_display'] ?? '';
-                        @endphp
-                        <div class="bbm-portal-stat-mom" role="presentation">
-                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $ydir }}">
-                                @if ($ydir === 'up')
-                                    <i class="bi bi-graph-up-arrow"></i>
-                                @elseif ($ydir === 'down')
-                                    <i class="bi bi-graph-down-arrow"></i>
-                                @else
-                                    <i class="bi bi-dash-lg"></i>
-                                @endif
-                                {{ $ypct }}
-                            </span>
-                            <span class="bbm-portal-stat-mom-vs">vs Tahun Lalu</span>
-                        </div>
-                    @endif
-                </x-admin-stat-card>
-                <x-admin-stat-card
-                    title="Total Liter"
-                    :value="$fmtLiter($stats['year_liter'])"
-                    unit="L"
-                    description="Volume BBM tahun berjalan"
-                    icon="bi bi-droplet-fill"
-                >
-                    @if(!empty($stats['yoy_year_liter']['show']))
-                        @php
-                            $ldir = $stats['yoy_year_liter']['direction'] ?? 'flat';
-                            $lpct = $stats['yoy_year_liter']['pct_display'] ?? '';
-                        @endphp
-                        <div class="bbm-portal-stat-mom" role="presentation">
-                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $ldir }}">
-                                @if ($ldir === 'up')
-                                    <i class="bi bi-graph-up-arrow"></i>
-                                @elseif ($ldir === 'down')
-                                    <i class="bi bi-graph-down-arrow"></i>
-                                @else
-                                    <i class="bi bi-dash-lg"></i>
-                                @endif
-                                {{ $lpct }}
-                            </span>
-                            <span class="bbm-portal-stat-mom-vs">vs Tahun Lalu</span>
-                        </div>
-                    @endif
-                </x-admin-stat-card>
-                <x-admin-stat-card
-                    title="Total Biaya BBM"
-                    :value="number_format((float) $stats['year_rupiah'], 0, ',', '.')"
-                    unitBefore="Rp"
-                    description="Pengeluaran BBM tahun berjalan"
-                    icon="bi bi-cash-stack"
-                >
-                    @if(!empty($stats['yoy_year_rupiah']['show']))
-                        @php
-                            $rdir = $stats['yoy_year_rupiah']['direction'] ?? 'flat';
-                            $rpct = $stats['yoy_year_rupiah']['pct_display'] ?? '';
-                        @endphp
-                        <div class="bbm-portal-stat-mom" role="presentation">
-                            <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $rdir }}">
-                                @if ($rdir === 'up')
-                                    <i class="bi bi-graph-up-arrow"></i>
-                                @elseif ($rdir === 'down')
-                                    <i class="bi bi-graph-down-arrow"></i>
-                                @else
-                                    <i class="bi bi-dash-lg"></i>
-                                @endif
-                                {{ $rpct }}
-                            </span>
-                            <span class="bbm-portal-stat-mom-vs">vs Tahun Lalu</span>
-                        </div>
-                    @endif
-                </x-admin-stat-card>
-                <x-admin-stat-card
-                    title="Kendaraan Boros"
-                    icon="bi bi-arrow-up-circle-fill"
-                    description="Liter tertinggi tahun ini"
-                >
-                    <x-slot:statValue>
-                        <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
-                            @if($stats['boros'])
-                                <strong>{{ $stats['boros']->nomor_kendaraan }}</strong>
-                                <span class="portal-stat-sublabel">{{ $fmtLiter($stats['boros']->liters) }} L · {{ $fmtRp($stats['boros']->rupiah) }}</span>
-                            @else
-                                —
-                            @endif
-                        </div>
-                    </x-slot:statValue>
-                </x-admin-stat-card>
-                <x-admin-stat-card
-                    title="Peringatan Pengisian BBM"
-                    icon="bi bi-exclamation-triangle-fill"
-                    description="Kendaraan dengan jeda pengisian BBM terlama"
-                >
-                    <x-slot:statValue>
-                        <div class="portal-stat-value" style="font-size:1rem;line-height:1.3">
+            <!-- NOTIFIKASI INSIGHT -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="portal-stat-card premium-alert-red flex gap-3 items-start relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-24 h-24 premium-bg-red-opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <i class="ph-fill ph-warning-circle premium-text-red text-2xl"></i>
+                    <div>
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Peringatan: Jadwal Isi BBM</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                             @if($stats['overdue_vehicle'])
-                                <strong>{{ $stats['overdue_vehicle']->nomor_kendaraan }}</strong>
-                                <span class="portal-stat-sublabel">{{ $stats['overdue_vehicle']->last_fill_label }}</span>
+                                Kendaraan <strong>{{ $stats['overdue_vehicle']->nomor_kendaraan }}</strong>: {{ $stats['overdue_vehicle']->last_fill_label }}
                             @else
-                                —
+                                Semua kendaraan aktif melakukan pengisian BBM secara berkala.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                <div class="portal-stat-card premium-alert-gold flex gap-3 items-start relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-24 h-24 premium-bg-gold-opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <i class="ph-fill ph-info premium-text-gold text-2xl"></i>
+                    <div>
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Insight Penggunaan</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            @if($stats['boros'])
+                                Volume pengisian tertinggi tahun ini oleh kendaraan <strong>{{ $stats['boros']->nomor_kendaraan }}</strong> sebesar <strong>{{ $fmtLiter($stats['boros']->liters) }} L</strong> dengan total biaya <strong>{{ $fmtRp($stats['boros']->rupiah) }}</strong>.
+                            @else
+                                Belum ada data pengisian BBM tahun ini.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD STATISTIK -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <!-- Card 1: Total Biaya (Tahun) -->
+                <div class="portal-stat-card premium-stat-card">
+                    <div class="portal-stat-icon premium-icon-hover"><i class="ph-fill ph-coins"></i></div>
+                    <div class="portal-stat-body">
+                        <div class="portal-stat-label">Total Biaya (Tahun)</div>
+                        <div class="portal-stat-value-row">
+                            <span class="portal-stat-value">{{ $fmtRp($stats['year_rupiah']) }}</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] md:text-xs">
+                            @if(!empty($stats['yoy_year_rupiah']['show']))
+                                @php
+                                    $rdir = $stats['yoy_year_rupiah']['direction'] ?? 'flat';
+                                    $rpct = $stats['yoy_year_rupiah']['pct_display'] ?? '';
+                                @endphp
+                                <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $rdir }}">
+                                    @if ($rdir === 'up')
+                                        <i class="ph-bold ph-trend-up"></i>
+                                    @elseif ($rdir === 'down')
+                                        <i class="ph-bold ph-trend-down"></i>
+                                    @else
+                                        <i class="ph-bold ph-minus"></i>
+                                    @endif
+                                    <span>{{ $rpct }}</span>
+                                </span>
+                                <span class="text-slate-400 dark:text-slate-500 truncate">vs Tahun Lalu</span>
+                            @else
+                                <span class="text-slate-400 dark:text-slate-500 truncate">Pengeluaran tahun {{ $stats['year_label'] }}</span>
                             @endif
                         </div>
-                    </x-slot:statValue>
-                </x-admin-stat-card>
+                    </div>
+                </div>
+                <!-- Card 2: Volume (Tahun) -->
+                <div class="portal-stat-card premium-stat-card">
+                    <div class="portal-stat-icon premium-icon-hover"><i class="ph-fill ph-drop"></i></div>
+                    <div class="portal-stat-body">
+                        <div class="portal-stat-label">Volume (Tahun)</div>
+                        <div class="portal-stat-value-row">
+                            <span class="portal-stat-value">{{ $fmtLiter($stats['year_liter']) }} L</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] md:text-xs">
+                            @if(!empty($stats['yoy_year_liter']['show']))
+                                @php
+                                    $ldir = $stats['yoy_year_liter']['direction'] ?? 'flat';
+                                    $lpct = $stats['yoy_year_liter']['pct_display'] ?? '';
+                                @endphp
+                                <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $ldir }}">
+                                    @if ($ldir === 'up')
+                                        <i class="ph-bold ph-trend-up"></i>
+                                    @elseif ($ldir === 'down')
+                                        <i class="ph-bold ph-trend-down"></i>
+                                    @else
+                                        <i class="ph-bold ph-minus"></i>
+                                    @endif
+                                    <span>{{ $lpct }}</span>
+                                </span>
+                                <span class="text-slate-400 dark:text-slate-500 truncate">vs Tahun Lalu</span>
+                            @else
+                                <span class="text-slate-400 dark:text-slate-500 truncate">Volume tahun {{ $stats['year_label'] }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3: Unit Kendaraan -->
+                <div class="portal-stat-card premium-stat-card">
+                    <div class="portal-stat-icon premium-icon-hover"><i class="ph-fill ph-car-profile"></i></div>
+                    <div class="portal-stat-body">
+                        <div class="portal-stat-label">Unit Kendaraan</div>
+                        <div class="portal-stat-value-row">
+                            <span class="portal-stat-value">{{ $stats['total_vehicles'] }} Unit</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] md:text-xs">
+                            <span class="text-slate-400 dark:text-slate-500 truncate">Terdaftar pada sistem</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 4: Total Transaksi -->
+                <div class="portal-stat-card premium-stat-card">
+                    <div class="portal-stat-icon premium-icon-hover"><i class="ph-fill ph-receipt"></i></div>
+                    <div class="portal-stat-body">
+                        <div class="portal-stat-label">Total Transaksi</div>
+                        <div class="portal-stat-value-row">
+                            <span class="portal-stat-value">{{ $stats['year_reports'] }}</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-1.5 text-[10px] md:text-xs">
+                            @if(!empty($stats['yoy_year_reports']['show']))
+                                @php
+                                    $ydir = $stats['yoy_year_reports']['direction'] ?? 'flat';
+                                    $ypct = $stats['yoy_year_reports']['pct_display'] ?? '';
+                                @endphp
+                                <span class="bbm-portal-stat-mom-badge bbm-portal-stat-mom-badge--{{ $ydir }}">
+                                    @if ($ydir === 'up')
+                                        <i class="ph-bold ph-trend-up"></i>
+                                    @elseif ($ydir === 'down')
+                                        <i class="ph-bold ph-trend-down"></i>
+                                    @else
+                                        <i class="ph-bold ph-minus"></i>
+                                    @endif
+                                    <span>{{ $ypct }}</span>
+                                </span>
+                                <span class="text-slate-400 dark:text-slate-500 truncate">vs Tahun Lalu</span>
+                            @else
+                                <span class="text-slate-400 dark:text-slate-500 truncate">Transaksi tahun {{ $stats['year_label'] }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="portal-charts-grid portal-charts-grid--bbm" id="portal-charts-bbm">
@@ -620,16 +876,69 @@
                         <canvas id="bbmChartCombined"></canvas>
                     </div>
                 </div>
-                <div class="portal-chart-card portal-chart-card--bbm-driver-col">
-                    <div class="portal-chart-title" id="bbm-driver-pie-title">Top driver — frekuensi pengisian (tahun {{ $stats['year_label'] }})</div>
-                    <div class="portal-chart-container portal-chart-container--bbm-driver-pie">
-                        <div class="portal-chart-loading"><span class="portal-chart-loading-spinner"></span></div>
-                        <canvas id="bbmChartDriverFreq"></canvas>
+                <div class="portal-chart-card portal-chart-card--bbm-driver-col" style="min-height: 380px;">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="portal-chart-title flex items-center gap-2 m-0" style="font-size: 0.85rem; font-weight: 700;">
+                            <i class="ph-bold ph-table text-gold text-lg"></i>
+                            <span>Index Rekapitulasi</span>
+                        </div>
+                        <div>
+                            <select id="rekap-period-select" class="admin-filter-input py-1 px-2 rounded-lg text-xs rekap-select">
+                                <option value="full">1 Tahun Penuh</option>
+                                <option value="s1">Semester 1 (Jan - Jun)</option>
+                                <option value="s2">Semester 2 (Jul - Des)</option>
+                                <option value="q1">Triwulan 1 (Jan - Mar)</option>
+                                <option value="q2">Triwulan 2 (Apr - Jun)</option>
+                                <option value="q3">Triwulan 3 (Jul - Sep)</option>
+                                <option value="q4">Triwulan 4 (Okt - Des)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-5 overflow-x-auto">
+                        <table class="w-full text-sm text-left" style="border-collapse: collapse;">
+                            <thead>
+                                <tr class="border-b border-slate-700/50">
+                                    <th class="py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Periode Tahun</th>
+                                    <th class="py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Volume BBM</th>
+                                    <th class="py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Total Biaya</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekap-table-body">
+                                <tr>
+                                    <td colspan="3" class="py-4 text-center text-slate-500">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-3">
+                        <!-- Selisih Biaya -->
+                        <div class="col-span-3 rekap-summary-block">
+                            <span class="rekap-summary-title">Selisih Biaya</span>
+                            <span id="rekap-selisih-value" class="rekap-summary-value">—</span>
+                            <span id="rekap-selisih-badge" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold">
+                                —
+                            </span>
+                        </div>
+                        <!-- Rata Harga & Total TRX -->
+                        <div class="col-span-2 flex flex-col gap-2.5">
+                            <!-- Rata Harga -->
+                            <div class="rekap-summary-block">
+                                <span class="rekap-summary-title">Rata Harga</span>
+                                <span id="rekap-rata-harga" class="rekap-summary-value premium-text-royal">—</span>
+                            </div>
+                            <!-- Total TRX -->
+                            <div class="rekap-summary-block">
+                                <span class="rekap-summary-title">Total TRX</span>
+                                <span id="rekap-total-trx" class="rekap-summary-value">—</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="portal-chart-card portal-chart-card--bbm-log-col bbm-activity-log-card" id="bbm-activity-log-card">
                     <div class="bbm-activity-log-head">
-                        <div class="bbm-activity-log-title">Log Pengisian BBM <span class="bbm-activity-live" title="Memperbarui otomatis">· real-time</span></div>
+                        <div class="bbm-activity-log-title">Log Update <span class="bbm-activity-live" title="Memperbarui otomatis">· real-time</span></div>
                         @unless($bbmPortalChartsOnly ?? false)
                             <a href="#section-bbm-table" onClick="smoothTo('section-bbm-table', event)" class="bbm-activity-log-all">Lihat Semua</a>
                         @else
@@ -645,7 +954,7 @@
             @unless($bbmPortalChartsOnly ?? false)
             <div class="portal-section" id="section-bbm-table">
                 <div class="portal-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
-                    <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Data Laporan BBM</div>
+                    <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Riwayat Pengisian</div>
 
                     <div class="portal-local-filters ppm-daftar-filters bbm-portal-live-filter-bar" id="bbm-portal-filter-bar" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none;">
                         <div class="admin-search-wrap portal-search-full" style="width: 320px; max-width: 100%;">
@@ -711,7 +1020,6 @@
                                 <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="waktu" label="Waktu" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="shift" label="Shift" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                <th>Jenis BBM</th>
                                 <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <th>Pengemudi</th>
                                 <x-sortable-th key="odometer_sebelum" label="Km Sebelum" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
@@ -719,7 +1027,8 @@
                                 <th>Total KM</th>
                                 <x-sortable-th key="liter" label="Volume (L)" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="total_harga" label="Total Biaya" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
-                                <th>Aksi</th>
+                                <th>Jenis BBM</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -738,7 +1047,6 @@
                                             {{ \App\Support\DriverShift::tableLabelFromCode($r->shift) }}
                                         </span>
                                     </td>
-                                    <td><span class="bbm-jenis-pengisian-cell">{{ $r->jenis_pengisian ?: 'Operasional' }}</span></td>
                                     <td><strong>{{ $r->nomor_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $r->jenis_kendaraan }}</span></td>
                                     <td>{{ $r->user?->name ?? '—' }}<br><span class="sppd-cell-muted">{{ $r->user?->username }}</span></td>
                                     <td>{{ $fmtKm($r->odometer_sebelum) }}</td>
@@ -747,17 +1055,14 @@
                                     <td>{{ $fmtLiter($r->liter) }}</td>
                                     <td><strong>{{ $fmtRp($r->total_harga) }}</strong></td>
                                     <td>
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm sppd-icon-btn sppd-btn-primary bbm-btn-detail"
-                                            data-json-url="{{ route('admin.portal-bbm-operasional.json', $r) }}"
-                                            title="Detail lengkap &amp; foto"
-                                            aria-label="Detail laporan BBM"
-                                        ><i class="bi bi-info-circle"></i> </button>
+                                        <span class="bbm-jenis-pengisian-cell" style="white-space: wrap;">{{ $r->jenis_pengisian ?: 'Operasional' }}</span>
+                                    </td>
+                                    <td>
+                                        <button type="button"  class="btn btn-sm sppd-icon-btn sppd-btn-primary bbm-btn-detail" data-json-url="{{ route('admin.portal-bbm-operasional.json', $r) }}" title="Detail lengkap &amp; foto" aria-label="Detail laporan BBM"><i class="bi bi-info-circle"></i></button>
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="13" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
+                                <tr><td colspan="12" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -828,14 +1133,14 @@
                 || document.body.classList.contains('dark');
             }
             
+            const BBM_CHART_CURRENT_BAR = '#D4AF37';
+            const BBM_CHART_PREV_BAR = '#6B7280';
             function getBBMChartBlue() {
                 return isDarkTheme()
-                    ? '#1248a4'
-                    : '#0e2a52';
+                    ? '#60a5fa'
+                    : '#002a7a';
             }
-            const BBM_CHART_GOLD = '#D4AF37';
-            const BBM_CHART_CURRENT_LINE = '#0891B2';
-            const BBM_CHART_PREV_LINE = '#64748B';
+            const BBM_CHART_PREV_LINE = '#a9a9a9';
             const BBM_PIE_PALETTE = [
                 '#1248a4', '#D4AF37', '#1e3a5f', '#b8942e',
                 '#2d4a6f', '#c9a227', '#4a6278', '#8f7620',
@@ -871,9 +1176,9 @@
                 chartCombined = null;
 
                 const { grid, tick, common } = chartCommonSkin();
-                const colRp = getBBMChartBlue();
-                const colRpPrev = BBM_CHART_GOLD;
-                const colLiter = BBM_CHART_CURRENT_LINE;
+                const colRp = BBM_CHART_CURRENT_BAR;
+                const colRpPrev = BBM_CHART_PREV_BAR;
+                const colLiter = getBBMChartBlue();
                 const colLiterPrev = BBM_CHART_PREV_LINE;
                 const yCur = data.year;
                 const yPrev = data.year_previous;
@@ -1060,75 +1365,122 @@
                     lastComparisonPayload = data;
                     lastTopDrivers = Array.isArray(data.top_drivers) ? data.top_drivers : [];
                     renderComparisonCharts(data);
-                    buildDriverPieChart(lastTopDrivers);
-                    updateDriverPieTitle(data.year);
+                    updateRekapitulasiIndex();
                     requestAnimationFrame(function () {
                         const c = document.getElementById('bbmChartCombined')?.closest('.portal-chart-container');
                         if (c) c.classList.add('is-ready');
-                        const pieContainer = document.getElementById('bbmChartDriverFreq')?.closest('.portal-chart-container');
-                        if (pieContainer) pieContainer.classList.add('is-ready');
                     });
                 } catch (_) {}
             }
 
-            function buildDriverPieChart(topDrivers) {
-                try { chartDrvFreq?.destroy(); } catch (_) {}
-                chartDrvFreq = null;
-                const { tick, common } = chartCommonSkin();
-                const elD = document.getElementById('bbmChartDriverFreq');
-                const drivers = Array.isArray(topDrivers) ? topDrivers : [];
-                if (!elD) return;
-                if (!drivers.length) {
-                    const container = elD.closest('.portal-chart-container');
-                    if (container) container.classList.add('is-ready');
-                    return;
+            function updateRekapitulasiIndex() {
+                const select = document.getElementById('rekap-period-select');
+                if (!select || !lastComparisonPayload) return;
+                const period = select.value;
+                const data = lastComparisonPayload;
+
+                let months = [];
+                if (period === 'full') {
+                    months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+                } else if (period === 's1') {
+                    months = [0, 1, 2, 3, 4, 5];
+                } else if (period === 's2') {
+                    months = [6, 7, 8, 9, 10, 11];
+                } else if (period === 'q1') {
+                    months = [0, 1, 2];
+                } else if (period === 'q2') {
+                    months = [3, 4, 5];
+                } else if (period === 'q3') {
+                    months = [6, 7, 8];
+                } else if (period === 'q4') {
+                    months = [9, 10, 11];
                 }
-                const dark = isDarkTheme();
-                const drvLabels = drivers.map((d) => d.name || d.username || 'Driver');
-                const drvData = drivers.map((d) => Number(d.cnt));
-                const narrow = typeof window !== 'undefined' && window.innerWidth <= 640;
-                chartDrvFreq = new Chart(elD, {
-                    type: 'pie',
-                    data: {
-                        labels: drvLabels,
-                        datasets: [{
-                            data: drvData,
-                            backgroundColor: drivers.map((_, i) => BBM_PIE_PALETTE[i % BBM_PIE_PALETTE.length]),
-                            borderColor: dark ? '#1e293b' : '#ffffff',
-                            borderWidth: 2,
-                            hoverOffset: 6,
-                        }],
-                    },
-                    options: {
-                        ...common,
-                        layout: {
-                            padding: narrow ? { left: 6, right: 6, top: 4, bottom: 4 } : { left: 4, right: 8, top: 4, bottom: 4 },
-                        },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: narrow ? 'bottom' : 'right',
-                                align: narrow ? 'center' : 'center',
-                                labels: {
-                                    color: tick,
-                                    boxWidth: narrow ? 10 : 12,
-                                    padding: narrow ? 8 : 10,
-                                    font: { size: narrow ? 10 : 11 },
-                                },
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label(ctx) {
-                                        const v = Number(ctx.raw) || 0;
-                                        const total = drvData.reduce((a, b) => a + Number(b), 0);
-                                        const pct = total ? ((v / total) * 100).toFixed(1) : '0';
-                                        return ' ' + v + ' kali isi BBM (' + pct + '%)';
-                                    },
-                                },
-                            },
-                        },
-                    },
+
+                let volCur = 0, volPrev = 0;
+                let costCur = 0, costPrev = 0;
+                let trxCur = 0, trxPrev = 0;
+
+                const litersCur = data.liter_current || [];
+                const litersPrev = data.liter_previous || [];
+                const rupiahsCur = data.rupiah_current || [];
+                const rupiahsPrev = data.rupiah_previous || [];
+                const reportsCur = data.reports_current || [];
+                const reportsPrev = data.reports_previous || [];
+
+                months.forEach(m => {
+                    volCur += Number(litersCur[m] || 0);
+                    volPrev += Number(litersPrev[m] || 0);
+                    costCur += Number(rupiahsCur[m] || 0);
+                    costPrev += Number(rupiahsPrev[m] || 0);
+                    trxCur += Number(reportsCur[m] || 0);
+                    trxPrev += Number(reportsPrev[m] || 0);
                 });
+
+                const tbody = document.getElementById('rekap-table-body');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr class="border-b border-slate-700/30">
+                            <td class="py-2.5 rekap-val-cur-year">Tahun ${data.year}</td>
+                            <td class="py-2.5 text-right rekap-val-cur-vol">${volCur.toLocaleString('id-ID', { maximumFractionDigits: 2 })} L</td>
+                            <td class="py-2.5 text-right rekap-val-cur-cost">${formatRp(costCur)}</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/30">
+                            <td class="py-2.5 rekap-val-prev-year">Tahun ${data.year_previous}</td>
+                            <td class="py-2.5 text-right rekap-val-prev-vol">${volPrev.toLocaleString('id-ID', { maximumFractionDigits: 2 })} L</td>
+                            <td class="py-2.5 text-right rekap-val-prev-cost">${formatRp(costPrev)}</td>
+                        </tr>
+                    `;
+                }
+
+                const selisihCost = costCur - costPrev;
+                const selisihValEl = document.getElementById('rekap-selisih-value');
+                if (selisihValEl) {
+                    if (selisihCost > 0) {
+                        selisihValEl.textContent = 'Rp +' + Math.abs(selisihCost).toLocaleString('id-ID');
+                    } else if (selisihCost < 0) {
+                        selisihValEl.textContent = 'Rp -' + Math.abs(selisihCost).toLocaleString('id-ID');
+                    } else {
+                        selisihValEl.textContent = 'Rp 0';
+                    }
+                    selisihValEl.className = "rekap-summary-value";
+                    if (selisihCost < 0) {
+                        selisihValEl.classList.add("rekap-selisih-saving");
+                    } else if (selisihCost > 0) {
+                        selisihValEl.classList.add("rekap-selisih-increase");
+                    }
+                }
+
+                const badgeEl = document.getElementById('rekap-selisih-badge');
+                if (badgeEl) {
+                    if (costPrev <= 0) {
+                        badgeEl.style.display = 'none';
+                    } else {
+                        badgeEl.style.display = 'inline-flex';
+                        const pct = (selisihCost / costPrev) * 100;
+                        const sign = pct > 0 ? '+' : '';
+                        badgeEl.textContent = sign + pct.toFixed(1) + '%';
+                        
+                        badgeEl.className = "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold";
+                        if (pct > 0) {
+                            badgeEl.classList.add("rekap-badge-up");
+                        } else if (pct < 0) {
+                            badgeEl.classList.add("rekap-badge-down");
+                        } else {
+                            badgeEl.classList.add("rekap-badge-flat");
+                        }
+                    }
+                }
+
+                const avgPriceEl = document.getElementById('rekap-rata-harga');
+                if (avgPriceEl) {
+                    const avg = volCur > 0 ? Math.round(costCur / volCur) : 0;
+                    avgPriceEl.textContent = formatRp(avg);
+                }
+
+                const totalTrxEl = document.getElementById('rekap-total-trx');
+                if (totalTrxEl) {
+                    totalTrxEl.textContent = trxCur.toLocaleString('id-ID');
+                }
             }
 
             function esc(s) {
@@ -1774,18 +2126,20 @@
                 }
             });
 
+            document.getElementById('rekap-period-select')?.addEventListener('change', () => {
+                updateRekapitulasiIndex();
+            });
+
             let bbmPieResizeTimer = null;
             window.addEventListener('resize', () => {
                 clearTimeout(bbmPieResizeTimer);
                 bbmPieResizeTimer = setTimeout(() => {
-                    buildDriverPieChart(lastTopDrivers);
                     redrawComparisonFromCache();
                 }, 200);
             }, { passive: true });
 
             /* Expose rebuild fn so the single document-level theme listener always calls the latest closure */
             window._bbmPortalRebuildCharts = function () {
-                buildDriverPieChart(lastTopDrivers);
                 redrawComparisonFromCache();
             };
 
@@ -1812,8 +2166,6 @@
                     window._bbmPortalRebuildCharts = null;
                     if (chartPollTimer) { clearInterval(chartPollTimer); chartPollTimer = null; }
                     if (logPollTimer) { clearInterval(logPollTimer); logPollTimer = null; }
-                    try { chartDrvFreq?.destroy(); } catch (_) {}
-                    chartDrvFreq = null;
                     try { chartCombined?.destroy(); } catch (_) {}
                     chartCombined = null;
                 });

@@ -38,12 +38,13 @@ class BbmOperationalPortalController extends Controller
     }
 
     /**
-     * @return array{liter: list<float>, rupiah: list<float>}
+     * @return array{liter: list<float>, rupiah: list<float>, reports: list<int>}
      */
     private function monthlyTotalsForYear(int $year, ?string $nomorKendaraan): array
     {
         $liter = [];
         $rupiah = [];
+        $reports = [];
         $hasVehicle = $nomorKendaraan !== null && $nomorKendaraan !== '';
 
         for ($m = 1; $m <= 12; $m++) {
@@ -55,9 +56,10 @@ class BbmOperationalPortalController extends Controller
             }
             $liter[] = (float) (clone $base)->sum('liter');
             $rupiah[] = (float) (clone $base)->sum('total_harga');
+            $reports[] = (int) (clone $base)->count();
         }
 
-        return ['liter' => $liter, 'rupiah' => $rupiah];
+        return ['liter' => $liter, 'rupiah' => $rupiah, 'reports' => $reports];
     }
 
     /**
@@ -122,6 +124,8 @@ class BbmOperationalPortalController extends Controller
             'rupiah_previous' => $previous['rupiah'],
             'liter_current' => $current['liter'],
             'liter_previous' => $previous['liter'],
+            'reports_current' => $current['reports'],
+            'reports_previous' => $previous['reports'],
             'top_drivers' => $this->topDriversForYear($year, $vehicleFilter),
         ]);
     }
@@ -426,6 +430,8 @@ class BbmOperationalPortalController extends Controller
 
         $sortState = TableSort::current($request, self::SORT_ALLOWED);
 
+        $totalVehicles = Kendaraan::query()->where('status_kendaraan', 'Aktif')->count();
+
         $payload = [
             'stats' => [
                 'total_reports_all' => $totalReportsAll,
@@ -434,6 +440,7 @@ class BbmOperationalPortalController extends Controller
                 'year_rupiah' => $yearRupiah,
                 'boros' => $boros,
                 'overdue_vehicle' => $overdueVehicle,
+                'total_vehicles' => $totalVehicles,
                 'year_label' => (string) $year,
                 'yoy_year_reports' => $this->portalCompareMeta((float) $yearReports, (float) $prevYearReports),
                 'yoy_year_liter' => $this->portalCompareMeta($yearLiter, $prevYearLiter),
