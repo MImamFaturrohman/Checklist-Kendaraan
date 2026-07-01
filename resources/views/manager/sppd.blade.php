@@ -47,7 +47,7 @@
                                         $mgrPendingPdf = $s->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($s->pdf_path);
                                     @endphp
                                     <div class="sppd-aksi-btns">
-                                        <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-detail" data-id="{{ $s->id }}" title="Detail Laporan" aria-label="Detail Laporan"><i class="bi bi-eye-fill"></i></button>
+                                        <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-detail" data-id="{{ $s->id }}" title="Detail Laporan" aria-label="Detail Laporan"><i class="bi bi-info-circle"></i></button>
                                         @if($mgrPendingPdf)
                                             <a href="{{ route('manager.sppd.pdf', $s) }}" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" target="_blank" rel="noopener" title="Unduh PDF" aria-label="Unduh PDF"><i class="bi bi-file-earmark-pdf-fill"></i></a>
                                         @endif

@@ -151,6 +151,17 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             Arsip PDF
                         </button>
+                        @if(auth()->user()?->role === 'superadmin')
+                        <button class="portal-section-tab" data-section="finalisasi" style="position:relative">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm0-11v5m0-8v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Finalisasi Laporan
+                            @if(($pendingCount ?? 0) > 0)
+                            <span id="finalisasi-tab-badge" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:999px;font-size:.65rem;font-weight:700;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1">{{ $pendingCount }}</span>
+                            @else
+                            <span id="finalisasi-tab-badge" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:999px;font-size:.65rem;font-weight:700;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;display:none">0</span>
+                            @endif
+                        </button>
+                        @endif
                     </div>
                 </div>
                 @if(auth()->user()?->role === 'superadmin')
@@ -221,7 +232,18 @@
                                 <td>{{ ($dbChecklists->currentPage()-1)*$dbChecklists->perPage()+$loop->iteration }}</td>
                                 <td>{{ $c->tanggal->format('d/m/Y') }}</td><td>{{ $c->shift }}</td>
                                 <td><strong>{{ $c->nomor_kendaraan }}</strong></td><td>{{ $c->jenis_kendaraan }}</td>
-                                <td>{{ $c->driver_serah }}</td><td>{{ $c->driver_terima }}</td>
+                                <td>{{ $c->driver_serah }}</td>
+                                <td>
+                                    @php $det = $c->getPenerimaDetails(); @endphp
+                                    @if($det['nama'])
+                                        {{ $det['nama'] }}
+                                        @if($det['jabatan'] === 'Koordinator')
+                                            <br><span class="sppd-cell-muted" style="font-size:0.75rem; font-weight:normal">Koordinator</span>
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 <td>{{ $c->level_bbm }}%</td><td>{{ number_format($c->km_awal) }}</td><td>{{ number_format($c->km_akhir ?? 0) }}</td>
                             </tr>
                             @empty
@@ -331,6 +353,13 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             Arsip PDF
                         </button>
+                        @if(auth()->user()?->role === 'superadmin')
+                        <button class="portal-section-tab" data-section="finalisasi" style="position:relative">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm0-11v5m0-8v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Finalisasi Laporan
+                            <span class="finalisasi-tab-badge-ref" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:999px;font-size:.65rem;font-weight:700;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;display:none">0</span>
+                        </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -512,6 +541,13 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             Arsip PDF
                         </button>
+                        @if(auth()->user()?->role === 'superadmin')
+                        <button class="portal-section-tab" data-section="finalisasi" style="position:relative">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm0-11v5m0-8v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Finalisasi Laporan
+                            <span class="finalisasi-tab-badge-ref" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:999px;font-size:.65rem;font-weight:700;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;display:none">0</span>
+                        </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -564,13 +600,23 @@
                             <td>{{ $c->tanggal->format('d/m/Y') }}</td>
                             <td><strong>{{ $c->nomor_kendaraan }}</strong></td>
                             <td>{{ $c->driver_serah }}</td>
-                            <td>{{ $c->driver_terima }}</td>
+                            <td>
+                                @php $det = $c->getPenerimaDetails(); @endphp
+                                @if($det['nama'])
+                                    {{ $det['nama'] }}
+                                    @if($det['jabatan'] === 'Koordinator')
+                                        <br><span class="sppd-cell-muted" style="font-size:0.75rem; font-weight:normal">Koordinator</span>
+                                    @endif
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $c->shift }}</td>
                             <td>
                                 @if($c->pdf_path)
-                                    <a href="{{ $resolvePdfUrl($c->pdf_path) }}" target="_blank" class="btn-view-pdf">
+                                    <a href="{{ $resolvePdfUrl($c->pdf_path) }}" target="_blank" class="btn btn-sm sppd-btn-primary" style="padding:4px 10px;font-size:0.75rem">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
-                                        View PDF
+                                        View
                                     </a>
                                 @else
                                     <span style="color:#94a3b8;font-size:.75rem">—</span>
@@ -585,6 +631,99 @@
             </div>
             <div id="pdf-pagination" class="tbl-pagination-mount"></div>
         </div>
+
+        @if(auth()->user()?->role === 'superadmin')
+        {{-- ============================================================
+             SECTION: MENUNGGU FINALISASI LAPORAN
+        ============================================================ --}}
+        <div class="portal-section" id="section-finalisasi" style="display:none">
+            <div class="portal-section-header">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                    <div class="portal-section-tabs" style="margin-bottom:0">
+                        <button class="portal-section-tab" data-section="db">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="7" ry="3" stroke="currentColor" stroke-width="2"/><path d="M5 5V19C5 20.7 8.1 22 12 22C15.9 22 19 20.7 19 19V5" stroke="currentColor" stroke-width="2"/><path d="M5 12C5 13.7 8.1 15 12 15C15.9 15 19 13.7 19 12" stroke="currentColor" stroke-width="2"/></svg>
+                            Database Sheet
+                        </button>
+                        <button class="portal-section-tab" data-section="foto">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="2"/><path d="M21 16L16 11L7 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Log Foto Fisik
+                        </button>
+                        <button class="portal-section-tab" data-section="pdf">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 3H14L19 8V21H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3V8H19" stroke="currentColor" stroke-width="2"/><path d="M9 13H15M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Arsip PDF
+                        </button>
+                        <button class="portal-section-tab active" data-section="finalisasi" style="position:relative">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm0-11v5m0-8v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Finalisasi Laporan
+                            <span class="finalisasi-tab-badge-ref" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:999px;font-size:.65rem;font-weight:700;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;display:none">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Local filters --}}
+            <div class="portal-local-filters" style="margin-bottom: 14px;">
+                <div class="admin-search-wrap portal-search-full">
+                    <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <input type="text" id="finalisasi-search" placeholder="Cari nopol, driver..." class="admin-search-input" autocomplete="off">
+                </div>
+                <input type="date" id="finalisasi-dari" class="admin-filter-input" title="Dari tanggal">
+                <input type="date" id="finalisasi-sampai" class="admin-filter-input" title="Sampai tanggal">
+                <x-admin-per-page-select id="finalisasi-perpage" name="per_page" :selected="10" />
+                <button type="button" class="btn btn-sm sppd-icon-btn admin-filter-reset" data-section-reset="finalisasi" title="Reset filter" aria-label="Reset filter" style="display: none"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+
+            {{-- Sub-tabs --}}
+            <div class="admin-tabs" style="margin-bottom:0; display:none">
+                <button class="admin-tab active" data-finalisasi-tab="pending">Finalisasi</button>
+            </div>
+
+            <div id="finalisasi-loading" class="portal-loading" style="display:none">
+                <span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span>
+            </div>
+
+            {{-- Panel: Finalisasi (Pending) --}}
+            <div class="finalisasi-tab-panel active" data-finalisasi-panel="pending">
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>#</th>
+                            <th>Tanggal</th>
+                            <th>Nopol</th>
+                            <th>Jenis</th>
+                            <th>Driver Serah</th>
+                            <th>Shift</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr></thead>
+                        <tbody id="finalisasi-tbody-pending">
+                            @forelse($pendingChecklists as $c)
+                                <tr>
+                                    <td>{{ (($pendingChecklists->currentPage() ?? 1) - 1) * ($pendingChecklists->perPage() ?? 10) + $loop->iteration }}</td>
+                                    <td>{{ $c->tanggal?->format('d/m/Y') }}</td>
+                                    <td><strong>{{ $c->nomor_kendaraan }}</strong></td>
+                                    <td>{{ $c->jenis_kendaraan ?? '-' }}</td>
+                                    <td>{{ $c->driver_serah ?? '-' }}</td>
+                                    <td>{{ $c->shift ?? '-' }}</td>
+                                    <td>
+                                        <span style="background:rgba(245,158,11,0.15);color:#b45309;border:1px solid rgba(245,158,11,0.4);border-radius:6px;padding:2px 8px;font-size:.73rem;font-weight:700">⏳ Pending</span>
+                                    </td>
+                                    <td style="white-space:nowrap;display:flex;gap:6px;align-items:center">
+                                        <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary portal-db-detail-btn" data-checklist-id="{{ $c->id }}" data-show-images="1" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button>
+                                        <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-success btn-finalisasi-complete" data-id="{{ $c->id }}" title="Tandai Selesai" aria-label="Tandai Selesai"><i class="bi bi-check-lg"></i></button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="8" class="portal-empty">Tidak ada data menunggu finalisasi.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div id="finalisasi-pagination-pending" class="tbl-pagination-mount">{!! $pendingPaginationHtml !!}</div>
+            </div>
+        </div>
+        @endif
+
     </div>{{-- end portal-wrapper --}}
 </div>{{-- end admin-shell --}}
 @endsection
@@ -594,7 +733,7 @@
     <div id="portal-checklist-modal" class="modal-overlay" style="display:none" aria-hidden="true">
         <div class="modal-box portal-checklist-modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-checklist-modal-title">
             <h3 id="portal-checklist-modal-title">Detail pemeriksaan</h3>
-            <div id="portal-checklist-modal-body"></div>
+            <div id="portal-checklist-modal-body" class="sppd-detail-html"></div>
             <div class="portal-checklist-modal-actions">
                 <button type="button" class="portal-local-reset" id="portal-checklist-modal-close">Tutup</button>
             </div>
@@ -602,6 +741,27 @@
     </div>
     @endif
 @endsection
+
+@push('styles')
+<style>
+    /* Table header visibility in light mode for portal details */
+    .sppd-detail-html .portal-detail-table th {
+        color: #0f172a !important; /* Ensure th is visible and dark in light mode */
+    }
+    html.dark .dash-body .sppd-detail-html .portal-detail-table th {
+        color: rgba(200, 218, 255, 0.85) !important; /* Restore light blue in dark mode */
+    }
+
+    /* Swal danger button style custom wrapper */
+    .lp-swal-popup button.swal-btn-danger {
+        background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3) !important;
+    }
+    .lp-swal-popup button.swal-btn-danger:hover {
+        box-shadow: 0 6px 18px rgba(220, 38, 38, 0.4) !important;
+    }
+</style>
+@endpush
 
 @push('scripts')
     <script>
@@ -621,6 +781,7 @@
                 db: @json($dbPaginationHtml ?? ''),
                 foto: @json($fotoPaginationHtml ?? ''),
                 pdf: @json($pdfPaginationHtml ?? ''),
+                finalisasiPending: @json($pendingPaginationHtml ?? ''),
             }
             : null;
         const PORTAL_API_PATHS = {
@@ -632,6 +793,16 @@
         let dbPage   = 1, dbPerPage   = {{ (int) $dbChecklists->perPage() }};
         let fotoPage = 1, fotoPerPage = {{ (int) $fotoChecklists->perPage() }};
         let pdfPage  = 1, pdfPerPage  = {{ (int) $pdfChecklists->perPage() }};
+
+        function formatDriverTerima(val, emptyVal = '-') {
+            if (!val || val === '-') return emptyVal;
+            const s = String(val).trim();
+            if (s.startsWith('Koordinator:')) {
+                const name = s.substring('Koordinator:'.length).trim();
+                return `${escHtml(name)}<br><span class="sppd-cell-muted" style="font-size:0.75rem; font-weight:normal">Koordinator</span>`;
+            }
+            return escHtml(s);
+        }
 
         /* ================================================================
         CHARTS — dark-mode aware, rebuilds on theme toggle
@@ -988,30 +1159,41 @@
             return d.innerHTML;
         }
 
-        function renderChecklistDetailModal(d) {
+        function renderChecklistDetailModal(d, showImages = false) {
             const m = d.meta || {};
-            const row = (label, v) => `<dt>${escHtml(label)}</dt><dd>${escHtml(v != null && v !== '' ? String(v) : '—')}</dd>`;
-            let html = '<dl class="portal-detail-dl">';
+            const row = (label, v, raw = false) => `<tr><td class="label">${escHtml(label)}</td><td>${raw ? v : escHtml(v != null && v !== '' ? String(v) : '—')}</td></tr>`;
+            let html = '<table class="info-table sppd-mini-table">';
             html += row('Nopol', m.nomor_kendaraan);
             html += row('Tanggal', m.tanggal);
             html += row('Shift', m.shift);
             html += row('Jenis kendaraan', m.jenis_kendaraan);
             html += row('Driver serah', m.driver_serah);
-            html += row('Driver terima', m.driver_terima);
+            html += row('Driver terima', formatDriverTerima(m.driver_terima, '—'), true);
             html += row('Jam serah terima', m.jam_serah_terima);
             html += row('Level BBM', m.level_bbm != null && m.level_bbm !== '' ? String(m.level_bbm) + '%' : null);
             html += row('KM awal', m.km_awal != null && m.km_awal !== '' ? String(m.km_awal) : null);
             html += row('KM akhir', m.km_akhir != null && m.km_akhir !== '' ? String(m.km_akhir) : null);
-            html += '</dl>';
+            html += '</table>';
+
+            // Indikator BBM & Dashboard paling atas setelah table pertama (jika showImages true)
+            if (showImages && m.foto_bbm_dashboard) {
+                html += `
+                <p class="sppd-detail-sub">Foto Dashboard &amp; BBM</p>
+                <div class="portal-detail-photo-wrap" style="margin-bottom:16px;text-align:left">
+                    <a href="${BASE_URL}/storage/${m.foto_bbm_dashboard}" target="_blank" rel="noopener">
+                        <img src="${BASE_URL}/storage/${m.foto_bbm_dashboard}" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid #e2e8f0;object-fit:contain">
+                    </a>
+                </div>`;
+            }
 
             const section = (key, title) => {
                 const list = d[key];
                 html += `<h4 class="portal-detail-section-title">${escHtml(title)}</h4>`;
                 if (!list || !list.length) {
-                    html += '<p class="portal-empty" style="padding:8px 0">Tidak ada data.</p>';
+                    html += '<p class="portal-empty" style="padding:8px 0">—</p>';
                     return;
                 }
-                html += '<div class="admin-table-wrap"><table class="admin-table portal-detail-table"><thead><tr><th>Bagian</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
+                html += '<div class="admin-table-wrap" style="margin-bottom:10px"><table class="admin-table portal-detail-table"><thead><tr><th>Bagian</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
                 list.forEach(r => {
                     const col = statusColor(r.status);
                     const lab = statusLabel(r.status);
@@ -1019,12 +1201,31 @@
                     html += `<tr><td>${escHtml(r.label)}</td><td style="font-weight:700;color:${col}">${escHtml(lab)}</td><td>${escHtml(ket)}</td></tr>`;
                 });
                 html += '</tbody></table></div>';
+
+                // Render section photos (if showImages true)
+                if (showImages && d.photos && d.photos[key]) {
+                    const sectionPhotos = d.photos[key];
+                    if (sectionPhotos.length > 0) {
+                        html += `<div class="portal-detail-photo-grid" style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 16px">`;
+                        sectionPhotos.forEach(p => {
+                            html += `
+                            <div style="flex:1;min-width:120px;max-width:160px;text-align:center">
+                                <a href="${BASE_URL}/storage/${p.path}" target="_blank" rel="noopener">
+                                    <img src="${BASE_URL}/storage/${p.path}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0">
+                                </a>
+                                <span style="font-size:0.7rem;color:#64748b;display:block;margin-top:4px">${escHtml(p.label)}</span>
+                            </div>`;
+                        });
+                        html += `</div>`;
+                    }
+                }
             };
             section('exterior', 'Exterior');
             section('interior', 'Interior');
             section('mesin', 'Mesin & operasional');
+
             if (m.catatan_khusus) {
-                html += `<div class="portal-detail-catatan"><strong>Catatan khusus</strong><br>${escHtml(m.catatan_khusus)}</div>`;
+                html += `<div class="portal-detail-catatan" style="margin-top:16px"><strong>Catatan khusus</strong><br>${escHtml(m.catatan_khusus)}</div>`;
             }
             return html;
         }
@@ -1035,7 +1236,7 @@
             document.body.style.overflow = checklistOpen ? 'hidden' : '';
         }
 
-        async function openPortalChecklistDetail(id) {
+        async function openPortalChecklistDetail(id, showImages = false) {
             const modal = document.getElementById('portal-checklist-modal');
             const body = document.getElementById('portal-checklist-modal-body');
             if (!modal || !body) return;
@@ -1047,7 +1248,7 @@
                 const r = await fetch(`${BASE_URL}/api/admin/portal/checklist/${encodeURIComponent(id)}`);
                 if (!r.ok) throw new Error('fail');
                 const data = await r.json();
-                body.innerHTML = renderChecklistDetailModal(data);
+                body.innerHTML = renderChecklistDetailModal(data, showImages);
             } catch {
                 body.innerHTML = '<p class="portal-empty">Gagal memuat detail.</p>';
             }
@@ -1143,7 +1344,7 @@
                     <td>${off + i + 1}</td>
                     <td>${c.tanggal ?? '-'}</td><td>${c.shift ?? '-'}</td>
                     <td><strong>${c.nomor_kendaraan}</strong></td><td>${c.jenis_kendaraan ?? '-'}</td>
-                    <td>${c.driver_serah ?? '-'}</td><td>${c.driver_terima ?? '-'}</td>
+                    <td>${escHtml(c.driver_serah ?? '-')}</td><td>${formatDriverTerima(c.driver_terima)}</td>
                     <td>${c.level_bbm ?? '-'}%</td><td>${c.km_awal ?? '-'}</td><td>${c.km_akhir ?? '-'}</td>
                 </tr>`).join('')
                 : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
@@ -1285,13 +1486,13 @@
                             <td>${off + i + 1}</td>
                             <td>${c.tanggal ?? '-'}</td>
                             <td><strong>${c.nomor_kendaraan}</strong></td>
-                            <td>${c.driver_serah ?? '-'}</td>
-                            <td>${c.driver_terima ?? '-'}</td>
+                            <td>${escHtml(c.driver_serah ?? '-')}</td>
+                            <td>${formatDriverTerima(c.driver_terima)}</td>
                             <td>${c.shift ?? '-'}</td>
                             <td>${c.pdf_url
-                                ? `<a href="${c.pdf_url}" target="_blank" class="btn-view-pdf">
+                                ? `<a href="${c.pdf_url}" target="_blank" class="btn btn-sm sppd-btn-primary" style="padding:4px 10px;font-size:0.75rem">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
-                                    View PDF</a>`
+                                    View</a>`
                                 : '<span style="color:#94a3b8;font-size:.75rem">—</span>'}</td>
                         </tr>`).join('')
                         : '<tr><td colspan="7" class="portal-empty">Belum ada laporan PDF.</td></tr>';
@@ -1441,6 +1642,213 @@
 
 
         /* ================================================================
+        FINALISASI SECTION AJAX  (superadmin only)
+        ================================================================ */
+        @if(auth()->user()?->role === 'superadmin')
+        let finalisasiPage = 1, finalisasiPerPage = 10;
+        let activeFinalisasiTab = 'pending';
+        let _abortFinalisasi = null;
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+        function getFinalisasiParams() {
+            return {
+                search:         document.getElementById('finalisasi-search')?.value ?? '',
+                tanggal_dari:   document.getElementById('finalisasi-dari')?.value ?? '',
+                tanggal_sampai: document.getElementById('finalisasi-sampai')?.value ?? '',
+                status:         activeFinalisasiTab,
+                per_page:       finalisasiPerPage,
+                page:           finalisasiPage,
+            };
+        }
+
+        function updateFinalisasiBadge(count) {
+            document.querySelectorAll('#finalisasi-tab-badge, .finalisasi-tab-badge-ref').forEach(el => {
+                if (count > 0) {
+                    el.textContent = count;
+                    el.style.display = 'inline-flex';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        async function fetchFinalisasi(scroll = false, showLoader = true) {
+            _abortFinalisasi?.abort();
+            _abortFinalisasi = new AbortController();
+            if (showLoader) {
+                showLoading('finalisasi-loading');
+            }
+            const q = buildParams(getFinalisasiParams());
+            try {
+                const r = await fetch(`${BASE_URL}/api/admin/portal/pending-approval?${q}`, { signal: _abortFinalisasi.signal });
+                const json = await r.json();
+                renderFinalisasiTable(json);
+                mountFinalisasiPagination(json.pagination_html);
+                updateFinalisasiBadge(json.pending_count ?? 0);
+                if (scroll) scrollToSection('section-finalisasi');
+            } catch (e) {
+                if (e.name !== 'AbortError') console.warn('fetchFinalisasi error', e);
+            } finally {
+                hideLoading('finalisasi-loading');
+                const btn = document.querySelector('[data-section-reset="finalisasi"]');
+                const hasFilters = (document.getElementById('finalisasi-search')?.value || '') !== ''
+                    || (document.getElementById('finalisasi-dari')?.value || '') !== ''
+                    || (document.getElementById('finalisasi-sampai')?.value || '') !== '';
+                if (btn) btn.style.display = hasFilters ? '' : 'none';
+            }
+        }
+
+        function renderFinalisasiTable(json) {
+            const tbody = document.getElementById('finalisasi-tbody-pending');
+            if (!tbody) return;
+            const off = ((json.current_page ?? 1) - 1) * (json.per_page ?? 10);
+            if (!json.data || !json.data.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="portal-empty">Tidak ada data menunggu finalisasi.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = json.data.map((c, i) => `<tr>
+                <td>${off + i + 1}</td>
+                <td>${c.tanggal ?? '-'}</td>
+                <td><strong>${escHtml(c.nomor_kendaraan)}</strong></td>
+                <td>${escHtml(c.jenis_kendaraan ?? '-')}</td>
+                <td>${escHtml(c.driver_serah ?? '-')}</td>
+                <td>${escHtml(c.shift ?? '-')}</td>
+                <td>
+                    <span style="background:rgba(245,158,11,0.15);color:#b45309;border:1px solid rgba(245,158,11,0.4);border-radius:6px;padding:2px 8px;font-size:.73rem;font-weight:700">⏳ Pending</span>
+                </td>
+                <td style="white-space:nowrap;display:flex;gap:6px;align-items:center">
+                    <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary portal-db-detail-btn" data-checklist-id="${c.id}" data-show-images="1" title="Detail" aria-label="Detail pemeriksaan"><i class="bi bi-info-circle"></i></button>
+                    <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-success btn-finalisasi-complete" data-id="${c.id}" title="Tandai Selesai" aria-label="Tandai Selesai"><i class="bi bi-check-lg"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
+        function mountFinalisasiPagination(html) {
+            const el = document.getElementById('finalisasi-pagination-pending');
+            if (!el) return;
+            if (window.AdminPagination) {
+                window.AdminPagination.mountPagination(el, html || '');
+                const bindKey = 'paginationBound_pending';
+                if (!el.dataset[bindKey]) {
+                    el.dataset[bindKey] = '1';
+                    window.AdminPagination.bindPaginationLinks(el, (url) => {
+                        finalisasiPage = parseInt(url.searchParams.get('page') || '1', 10);
+                        fetchFinalisasi(true);
+                    }, { pathname: new URL(BASE_URL + '/api/admin/portal/pending-approval').pathname });
+                }
+            } else {
+                const interval = setInterval(() => {
+                    if (window.AdminPagination) { clearInterval(interval); mountFinalisasiPagination(html); }
+                }, 30);
+            }
+        }
+
+        // Tandai Selesai button delegation
+        document.addEventListener('click', async (e) => {
+            const approveBtn = e.target.closest('.btn-finalisasi-complete');
+            if (approveBtn) {
+                const id = approveBtn.dataset.id;
+                const { isConfirmed } = await Swal.fire({
+                    icon: 'question',
+                    title: 'Tandai Selesai?',
+                    html: '<p>PDF laporan akan otomatis di-generate. Lanjutkan?</p>',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Selesai',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'lp-swal-popup',
+                        title: 'lp-swal-title',
+                        confirmButton: 'swal2-confirm',
+                        cancelButton: 'swal2-cancel'
+                    },
+                    buttonsStyling: false,
+                });
+                if (!isConfirmed) return;
+                try {
+                    approveBtn.disabled = true;
+                    approveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                    const r = await fetch(`${BASE_URL}/api/admin/checklists/${id}/approve`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' },
+                    });
+                    const json = await r.json();
+                    if (json.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Selesai!',
+                            html: `PDF telah di-generate.<br><br><a href="${json.pdf_url}" target="_blank" class="btn btn-sm sppd-btn-primary" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:6px;"><i class="bi bi-file-earmark-pdf-fill"></i> Lihat PDF</a>`,
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'lp-swal-popup',
+                                title: 'lp-swal-title',
+                                confirmButton: 'swal2-confirm'
+                            },
+                            buttonsStyling: false,
+                        });
+                        fetchFinalisasi(false, false);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: json.message || 'Terjadi kesalahan.',
+                            customClass: {
+                                popup: 'lp-swal-popup',
+                                title: 'lp-swal-title',
+                                confirmButton: 'swal2-confirm'
+                            },
+                            buttonsStyling: false
+                        });
+                    }
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: err.message,
+                        customClass: {
+                            popup: 'lp-swal-popup',
+                            title: 'lp-swal-title',
+                            confirmButton: 'swal2-confirm'
+                        },
+                        buttonsStyling: false
+                    });
+                }
+            }
+        });
+
+        // Finalisasi section filter wiring
+        document.getElementById('finalisasi-search')?.addEventListener('input', debounce((e) => { finalisasiPage = 1; fetchFinalisasi(); }, 350));
+        ['finalisasi-dari', 'finalisasi-sampai'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', () => { finalisasiPage = 1; fetchFinalisasi(); });
+        });
+        document.getElementById('finalisasi-perpage')?.addEventListener('change', (e) => {
+            finalisasiPerPage = parseInt(e.target.value, 10) || 10;
+            finalisasiPage = 1;
+            fetchFinalisasi();
+        });
+
+        // Update reset button to also handle finalisasi section
+        document.querySelectorAll('[data-section-reset="finalisasi"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const s = document.getElementById('finalisasi-search'); if (s) s.value = '';
+                const d = document.getElementById('finalisasi-dari'); if (d) d.value = '';
+                const sm = document.getElementById('finalisasi-sampai'); if (sm) sm.value = '';
+                const pp = document.getElementById('finalisasi-perpage'); if (pp) pp.value = '10';
+                finalisasiPage = 1; finalisasiPerPage = 10;
+                fetchFinalisasi();
+            });
+        });
+
+        // Load finalisasi data on section tab click
+        document.querySelectorAll('.portal-section-tab[data-section="finalisasi"]').forEach(btn => {
+            btn.addEventListener('click', () => fetchFinalisasi(false, false));
+        });
+
+        // Initial badge update
+        updateFinalisasiBadge({{ $pendingCount ?? 0 }});
+        @endif
+
+        /* ================================================================
         DATABASE SYNC (without page refresh)
         ================================================================ */
         const syncBtn = document.getElementById('db-sync-btn');
@@ -1457,6 +1865,7 @@
                 ? `${message} <a href="${sheetUrl}" target="_blank" rel="noopener" style="font-weight:700;color:inherit;text-decoration:underline">Buka Spreadsheet</a>`
                 : message;
         }
+
 
         if (syncBtn) {
             const defaultBtnHtml = syncBtn.innerHTML;
@@ -1503,6 +1912,10 @@
             mountPortalPagination('db', INIT_PAGINATION.db);
             mountPortalPagination('foto', INIT_PAGINATION.foto);
             mountPortalPagination('pdf', INIT_PAGINATION.pdf);
+            if (INIT_PAGINATION.finalisasiPending) {
+                activeFinalisasiTab = 'pending';
+                mountFinalisasiPagination(INIT_PAGINATION.finalisasiPending);
+            }
         }
         ['db', 'foto', 'pdf'].forEach(updateSectionFilterChrome);
 
@@ -1511,7 +1924,8 @@
                 const btn = e.target.closest('.portal-db-detail-btn');
                 if (btn && btn.dataset.checklistId) {
                     e.preventDefault();
-                    openPortalChecklistDetail(btn.dataset.checklistId);
+                    const showImages = btn.dataset.showImages === '1';
+                    openPortalChecklistDetail(btn.dataset.checklistId, showImages);
                 }
             });
             document.getElementById('portal-checklist-modal-close')?.addEventListener('click', closePortalChecklistModal);

@@ -264,11 +264,16 @@
                 <td class="label" style="width: 22%;">Jam Serah Terima</td>
                 <td class="value" style="width: 20%;">{{ $checklist->jam_serah_terima }} WIB</td>
             </tr>
+            @php
+                $penerima = $checklist->getPenerimaDetails();
+            @endphp
             <tr>
                 <td class="label" style="width: 26%;">Driver Yang Menyerahkan</td>
                 <td class="value" style="width: 32%;">{{ $checklist->driver_serah }}</td>
-                <td class="label" style="width: 22%;">Driver Yang Menerima</td>
-                <td class="value" style="width: 20%;">{{ $checklist->driver_terima }}</td>
+                <td class="label" style="width: 22%;">
+                    {{ ($penerima['jabatan'] ?: 'Driver') . ' ' . ($penerima['jabatan'] ? 'Penerima' : 'Yang Menerima') }}
+                </td>
+                <td class="value" style="width: 20%;">{{ $penerima['nama'] ?: '-' }}</td>
             </tr>
         </table>
 
@@ -400,18 +405,25 @@
         <p class="statement">"Dengan ini saya menyatakan, bahwa saya sudah melakukan pemeriksaan secara menyeluruh (eksterior, interior, mesin, dan kelengkapan) kendaraan operasional dan kendaraan berada dalam kondisi baik dan siap untuk digunakan"</p>
 
         {{-- TANDA TANGAN --}}
+        @php
+            $penerima = $checklist->getPenerimaDetails();
+        @endphp
         <table class="signature-area">
             <tr>
-                <td>
+                <td style="width: {{ $checklist->driver_terima ? '50%' : '100%' }}; text-align: center;">
                     <div class="sig-label">Yang Menyerahkan,</div>
+                    <div style="font-size: 8.5pt; color: #4b5563; margin-top: -3px; margin-bottom: 3px;">Driver</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_serah)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_serah) }}">@endif</div>
                     <div class="sig-name">{{ $checklist->driver_serah }}</div>
                 </td>
-                <td>
+                @if($checklist->driver_terima)
+                <td style="width: 50%; text-align: center;">
                     <div class="sig-label">Yang Menerima,</div>
+                    <div style="font-size: 8.5pt; color: #4b5563; margin-top: -3px; margin-bottom: 3px;">{{ $penerima['jabatan'] }}</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_terima)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_terima) }}">@endif</div>
-                    <div class="sig-name">{{ $checklist->driver_terima }}</div>
+                    <div class="sig-name">{{ $penerima['nama'] }}</div>
                 </td>
+                @endif
             </tr>
         </table>
     </div>

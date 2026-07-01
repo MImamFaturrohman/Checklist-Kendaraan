@@ -26,6 +26,7 @@ class Checklist extends Model
         'tanda_tangan_terima',
         'pdf_path',
         'user_id',
+        'status',
     ];
 
     protected function casts(): array
@@ -38,6 +39,29 @@ class Checklist extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** True if this checklist can be printed as PDF */
+    public function canPrintPdf(): bool
+    {
+        // Has a driver_terima (normal flow) OR was explicitly marked complete by admin
+        return ($this->driver_terima && $this->driver_terima !== '') || $this->status === 'complete';
+    }
+
+    /** Helper to parse driver_terima value for UI and PDF */
+    public function getPenerimaDetails(): array
+    {
+        $val = $this->driver_terima;
+        if (!$val) {
+            return ['nama' => '', 'jabatan' => ''];
+        }
+
+        if (str_starts_with($val, 'Koordinator:')) {
+            $nama = trim(substr($val, strlen('Koordinator:')));
+            return ['nama' => $nama, 'jabatan' => 'Koordinator'];
+        }
+
+        return ['nama' => $val, 'jabatan' => 'Driver'];
     }
 
     public function exterior(): HasOne

@@ -728,20 +728,69 @@ document.addEventListener('turbo:load', async () => {
 
     const serahTS  = tomSelectInstances['driver_serah'];
     const terimaTS = tomSelectInstances['driver_terima'];
-    if (serahTS && terimaTS) {
-        const syncDriverOptions = (changedId, selectedValue, previousValue) => {
-            const otherTS = changedId === 'driver_serah' ? terimaTS : serahTS;
-            const otherId = changedId === 'driver_serah' ? 'driver_terima' : 'driver_serah';
-            if (previousValue && allDriverOptions[otherId][previousValue]) otherTS.addOption(allDriverOptions[otherId][previousValue]);
-            if (selectedValue && otherTS.options[selectedValue]) {
-                if (otherTS.getValue() === selectedValue) otherTS.clear(true);
-                otherTS.removeOption(selectedValue);
+
+    const syncDriverOptions = (changedId, selectedValue, previousValue) => {
+        if (!serahTS || !terimaTS) return;
+        const otherTS = changedId === 'driver_serah' ? terimaTS : serahTS;
+        const otherId = changedId === 'driver_serah' ? 'driver_terima' : 'driver_serah';
+        if (previousValue && allDriverOptions[otherId][previousValue]) otherTS.addOption(allDriverOptions[otherId][previousValue]);
+        if (selectedValue && otherTS.options[selectedValue]) {
+            if (otherTS.getValue() === selectedValue) otherTS.clear(true);
+            otherTS.removeOption(selectedValue);
+        }
+        otherTS.refreshOptions(false);
+    };
+
+    // Define elements and toggle function for driver_terima / Koordinator signature pad
+    const sigBlockTerima = document.getElementById('sig-block-terima');
+    const koordinatorWrap = document.getElementById('koordinator-nama-wrap');
+    const koordinatorInput = document.getElementById('koordinator_nama');
+    const toggleSigTerima = (value) => {
+        if (sigBlockTerima) {
+            sigBlockTerima.style.display = value ? '' : 'none';
+            
+            // Toggle Koordinator input field
+            if (value === 'Koordinator') {
+                if (koordinatorWrap) koordinatorWrap.style.display = '';
+                if (koordinatorInput) koordinatorInput.required = true;
+                const sigLabel = sigBlockTerima.querySelector('.signature-label');
+                if (sigLabel) sigLabel.textContent = 'TTD KOORDINATOR YANG MENERIMA';
+            } else {
+                if (koordinatorWrap) koordinatorWrap.style.display = 'none';
+                if (koordinatorInput) {
+                    koordinatorInput.required = false;
+                    koordinatorInput.value = '';
+                }
+                const sigLabel = sigBlockTerima.querySelector('.signature-label');
+                if (sigLabel) sigLabel.textContent = 'TTD DRIVER YANG MENERIMA';
             }
-            otherTS.refreshOptions(false);
-        };
-        let prevSerah = serahTS.getValue(), prevTerima = terimaTS.getValue();
-        serahTS.on('change',  (value) => { syncDriverOptions('driver_serah',  value, prevSerah);  prevSerah  = value; });
-        terimaTS.on('change', (value) => { syncDriverOptions('driver_terima', value, prevTerima); prevTerima = value; });
+
+            // Clear the pad when hidden to avoid submitting stale signature
+            if (!value && window._sigPadTerima) {
+                window._sigPadTerima.clear();
+                const hiddenTerima = document.getElementById('sig-data-terima');
+                if (hiddenTerima) hiddenTerima.value = '';
+                const hintTerima = document.querySelector('[data-sig-hint="terima"]');
+                if (hintTerima) hintTerima.classList.remove('hidden');
+            }
+        }
+    };
+
+    if (serahTS) {
+        let prevSerah = serahTS.getValue();
+        serahTS.on('change', (value) => {
+            syncDriverOptions('driver_serah', value, prevSerah);
+            prevSerah = value;
+        });
+    }
+
+    if (terimaTS) {
+        let prevTerima = terimaTS.getValue();
+        terimaTS.on('change', (value) => {
+            syncDriverOptions('driver_terima', value, prevTerima);
+            prevTerima = value;
+            toggleSigTerima(value);
+        });
     }
 
     let currentStep = 1;
@@ -880,12 +929,26 @@ document.addEventListener('turbo:load', async () => {
             }
         }
 
+        if (currentStep === 1) {
+            const driverTerima = form.querySelector('[name="driver_terima"]')?.value;
+            if (driverTerima === 'Koordinator') {
+                const koordinatorNama = document.getElementById('koordinator_nama')?.value?.trim();
+                if (!koordinatorNama) {
+                    await clSwalError('Nama Koordinator Diperlukan', 'Silakan masukkan nama koordinator yang menerima.');
+                    return false;
+                }
+            }
+        }
+
         if (currentStep === 7) {
             if (!window._sigPadSerah || window._sigPadSerah.isEmpty()) {
                 await clSwalError('Tanda Tangan Diperlukan', 'Tanda tangan driver yang menyerahkan belum diisi.'); return false;
             }
-            if (!window._sigPadTerima || window._sigPadTerima.isEmpty()) {
-                await clSwalError('Tanda Tangan Diperlukan', 'Tanda tangan driver yang menerima belum diisi.'); return false;
+            // Only require terima signature if driver_terima has been selected
+            const driverTerimaVal = form.querySelector('[name="driver_terima"]')?.value?.trim();
+            if (driverTerimaVal && (!window._sigPadTerima || window._sigPadTerima.isEmpty())) {
+                const labelText = driverTerimaVal === 'Koordinator' ? 'koordinator yang menerima' : 'driver yang menerima';
+                await clSwalError('Tanda Tangan Diperlukan', `Tanda tangan ${labelText} belum diisi.`); return false;
             }
         }
 
@@ -962,15 +1025,33 @@ document.addEventListener('turbo:load', async () => {
         const bbmPhotoSrc = photoSrc('foto_bbm_dashboard');
         const plItems = {stnk:'STNK',kir:'Kartu KIR & QR BBM',dongkrak:'Dongkrak',toolkit:'Toolkit',segitiga:'Segitiga Pengaman',apar:'APAR',ban_cadangan:'Ban Cadangan'};
         const catatanVal = nv('catatan_khusus');
+
+        const driverTerimaRaw = fv('driver_terima');
+        let driverTerimaDisplay = driverTerimaRaw;
+        let driverTerimaLabel = 'Driver Menerima';
+        let sigTerimaLabel = 'TTD Driver Menerima';
+        const hasTerima = driverTerimaRaw && driverTerimaRaw !== '—' && driverTerimaRaw !== '';
+
+        if (driverTerimaRaw === 'Koordinator') {
+            driverTerimaDisplay = fv('koordinator_nama') || 'Koordinator';
+            driverTerimaLabel = 'Koordinator Menerima';
+            sigTerimaLabel = 'TTD Koordinator Menerima';
+        }
+
+        const sigTerimaBlock = hasTerima
+            ? `<div class="pvw-sig-block"><div class="pvw-sig-label">${esc(sigTerimaLabel)}</div>${sigTerimaUrl?`<img src="${sigTerimaUrl}" class="pvw-sig-img" alt="TTD Terima">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div>`
+            : '';
+        const sigGridStyle = !hasTerima ? 'style="grid-template-columns: 1fr; max-width: 220px; margin: 12px auto 0;"' : '';
+
         container.innerHTML = `
             <div class="pvw-notice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Periksa semua data di bawah ini. Klik <strong>GENERATE PDF</strong> untuk menyimpan dan membuat laporan.</span></div>
-            ${pvwSection('A. Identitas Unit', `<table class="info-table">${pvwRow('Tanggal',esc(fv('tanggal')))}${pvwRow('Shift',esc(fv('shift')))}${pvwRow('Jam Serah Terima',esc(fv('jam_serah_terima')))}${pvwRow('Nomor Kendaraan',`<strong>${esc(fv('nomor_kendaraan'))}</strong>`)}${pvwRow('Jenis Kendaraan',esc(fv('jenis_kendaraan')))}${pvwRow('Driver Menyerahkan',esc(fv('driver_serah')))}${pvwRow('Driver Menerima',esc(fv('driver_terima')))}</table>`)}
+            ${pvwSection('A. Identitas Unit', `<table class="info-table">${pvwRow('Tanggal',esc(fv('tanggal')))}${pvwRow('Shift',esc(fv('shift')))}${pvwRow('Jam Serah Terima',esc(fv('jam_serah_terima')))}${pvwRow('Nomor Kendaraan',`<strong>${esc(fv('nomor_kendaraan'))}</strong>`)}${pvwRow('Jenis Kendaraan',esc(fv('jenis_kendaraan')))}${pvwRow('Driver Menyerahkan',esc(fv('driver_serah')))}${pvwRow(driverTerimaLabel,esc(driverTerimaDisplay))}</table>`)}
             ${pvwSection('B. Kondisi Eksterior', pvwTable(extItems,extLabels,'exterior')+pvwPhotos(['depan','kanan','kiri','belakang'].map(s=>({label:s.toUpperCase(),src:photoSrc(`exterior_foto_${s}`)}))))}
             ${pvwSection('C. Kondisi Interior', pvwTable(intItems,intLabels,'interior')+pvwPhotos([1,2,3].map(i=>({label:`Foto ${i}`,src:photoSrc(`interior_foto_${i}`)})))) }
             ${pvwSection('D. Kondisi Mesin',    pvwTable(msnItems,msnLabels,'mesin')+pvwPhotos([1,2,3].map(i=>({label:`Foto ${i}`,src:photoSrc(`mesin_foto_${i}`)})))) }
             ${pvwSection('E. BBM & Kilometer', `<table class="info-table">${pvwRow('Level BBM',`<strong>${esc(fv('level_bbm'))}%</strong>`)}${pvwRow('Pengisian BBM Terakhir',esc(bbmTerakhir))}${pvwRow('KM Awal',esc(fv('km_awal')))}${pvwRow('KM Akhir',esc(fv('km_akhir')))}</table>${bbmPhotoSrc?`<div class="pvw-photo-grid"><div class="pvw-photo-slot"><img src="${bbmPhotoSrc}" alt="Dashboard BBM"><span>Dashboard BBM</span></div></div>`:''}`)}
             ${pvwSection('F. Perlengkapan Unit', `<div class="pvw-perlengkapan-grid">${Object.entries(plItems).map(([k,label])=>{const ada=cbv(`perlengkapan[${k}]`);return `<div class="pvw-perlengkapan-item ${ada?'ada':'tidak'}"><span class="pvw-pl-icon">${ada?'✓':'✗'}</span><span>${esc(label)}</span></div>`;}).join('')}</div>`)}
-            ${pvwSection('G. Catatan & Tanda Tangan', `<div style="margin-bottom:14px"><span class="pvw-label" style="display:block;margin-bottom:6px">Catatan Tambahan</span>${catatanVal?`<div class="pvw-catatan">${esc(catatanVal)}</div>`:'<span class="pvw-none">Tidak ada catatan tambahan.</span>'}</div><div class="pvw-sig-grid"><div class="pvw-sig-block"><div class="pvw-sig-label">TTD Driver Menyerahkan</div>${sigSerahUrl?`<img src="${sigSerahUrl}" class="pvw-sig-img" alt="TTD Serah">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div><div class="pvw-sig-block"><div class="pvw-sig-label">TTD Driver Menerima</div>${sigTerimaUrl?`<img src="${sigTerimaUrl}" class="pvw-sig-img" alt="TTD Terima">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div></div>`)}
+            ${pvwSection('G. Catatan & Tanda Tangan', `<div style="margin-bottom:14px"><span class="pvw-label" style="display:block;margin-bottom:6px">Catatan Tambahan</span>${catatanVal?`<div class="pvw-catatan">${esc(catatanVal)}</div>`:'<span class="pvw-none">Tidak ada catatan tambahan.</span>'}</div><div class="pvw-sig-grid" ${sigGridStyle}><div class="pvw-sig-block"><div class="pvw-sig-label">TTD Driver Menyerahkan</div>${sigSerahUrl?`<img src="${sigSerahUrl}" class="pvw-sig-img" alt="TTD Serah">`:'<div class="pvw-sig-empty">Belum ada tanda tangan</div>'}</div>${sigTerimaBlock}</div>`)}
         `;
     };
 
@@ -1013,17 +1094,32 @@ document.addEventListener('turbo:load', async () => {
                     const hintEl = wizardRoot.querySelector(`[data-sig-hint="${hint}"]`); if (hintEl) hintEl.classList.remove('hidden');
                 });
                 closePreviewModal();
-                const pdfResult = await Swal.fire({
-                    icon: 'success',
-                    title: 'PDF Berhasil Dibuat!',
-                    text: 'Laporan checklist kendaraan telah berhasil disimpan.',
-                    showDenyButton: true,
-                    confirmButtonText: 'Kembali ke Dashboard',
-                    denyButtonText: 'Lihat PDF',
-                    ...clSwalDialog(),
-                });
-                if (pdfResult.isDenied && data.pdf_url) {
-                    window.open(data.pdf_url, '_blank');
+
+                if (data.needs_approval) {
+                    // Submitted without driver_terima — needs superadmin approval
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'Data Berhasil Disimpan!',
+                        html: `
+                            <div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:10px;padding:12px 14px;font-size:.88rem;line-height:1.5;text-align:left">
+                                <strong>⏳ Status Pending, Hubungi Admin untuk informasi lebih lanjut.</strong><br
+                            </div>`,
+                        confirmButtonText: 'Kembali ke Dashboard',
+                        ...clSwalDialog(),
+                    });
+                } else {
+                    const pdfResult = await Swal.fire({
+                        icon: 'success',
+                        title: 'PDF Berhasil Dibuat!',
+                        text: 'Laporan checklist kendaraan telah berhasil disimpan.',
+                        showDenyButton: !!data.pdf_url,
+                        confirmButtonText: 'Kembali ke Dashboard',
+                        denyButtonText: 'Lihat PDF',
+                        ...clSwalDialog(),
+                    });
+                    if (pdfResult.isDenied && data.pdf_url) {
+                        window.open(data.pdf_url, '_blank');
+                    }
                 }
                 window.location.href = '/dashboard';
             } else {
@@ -1188,6 +1284,9 @@ document.addEventListener('turbo:load', async () => {
         if (!canvas) return null;
         const hint    = wizardRoot.querySelector(`[data-sig-hint="${hintSel}"]`);
         const clearBtn = wizardRoot.querySelector(`[data-clear-sig="${clearSel}"]`);
+        
+        let pad = null;
+        
         const resize  = () => {
             const rect = canvas.getBoundingClientRect();
             if (!rect.width || !rect.height) return false;
@@ -1196,18 +1295,62 @@ document.addEventListener('turbo:load', async () => {
             const ctx = canvas.getContext('2d');
             ctx.setTransform(1,0,0,1,0,0); ctx.scale(r,r); return true;
         };
-        resize();
-        const pad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,0)', penColor: '#0f172a', minWidth: 1.5, maxWidth: 3 });
-        pad.addEventListener('beginStroke', () => { if (hint) hint.classList.add('hidden'); });
-        if (clearBtn) clearBtn.addEventListener('click', () => { pad.clear(); if (hint) hint.classList.remove('hidden'); const di = document.getElementById(dataId); if (di) di.value = ''; });
-        pad._refreshCanvas = () => {
-            const data = pad.isEmpty() ? [] : pad.toData();
-            if (!resize()) return; pad.clear();
-            if (data.length) pad.fromData(data); else if (hint) hint.classList.remove('hidden');
+
+        const initPadIfNeeded = () => {
+            if (pad) return true;
+            if (!resize()) return false;
+            
+            pad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,0)', penColor: '#0f172a', minWidth: 1.5, maxWidth: 3 });
+            pad.addEventListener('beginStroke', () => { if (hint) hint.classList.add('hidden'); });
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    pad.clear();
+                    if (hint) hint.classList.remove('hidden');
+                    const di = document.getElementById(dataId);
+                    if (di) di.value = '';
+                });
+            }
+            return true;
         };
+
+        initPadIfNeeded();
+
         let rt;
-        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => pad._refreshCanvas(), 200); }, { passive: true });
-        return pad;
+        const resizeListener = () => {
+            if (pad) {
+                const data = pad.isEmpty() ? [] : pad.toData();
+                if (resize()) {
+                    pad.clear();
+                    if (data.length) pad.fromData(data);
+                }
+            } else {
+                initPadIfNeeded();
+            }
+        };
+        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resizeListener, 200); }, { passive: true });
+
+        return {
+            isEmpty: () => !pad || pad.isEmpty(),
+            clear: () => pad && pad.clear(),
+            toDataURL: () => pad ? pad.toDataURL() : '',
+            toData: () => pad ? pad.toData() : [],
+            fromData: (data) => {
+                if (initPadIfNeeded()) {
+                    pad.fromData(data);
+                }
+            },
+            _refreshCanvas: () => {
+                if (!pad) {
+                    initPadIfNeeded();
+                    return;
+                }
+                const data = pad.isEmpty() ? [] : pad.toData();
+                if (!resize()) return;
+                pad.clear();
+                if (data.length) pad.fromData(data);
+                else if (hint) hint.classList.remove('hidden');
+            }
+        };
     };
     window._sigPadSerah  = initSigPad('sig-pad-serah',  'serah',  'serah',  'sig-data-serah');
     window._sigPadTerima = initSigPad('sig-pad-terima', 'terima', 'terima', 'sig-data-terima');

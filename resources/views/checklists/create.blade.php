@@ -408,6 +408,53 @@ html.dark .dash-body .pvw-photo-slot img {
     border-color: rgba(71, 85, 105, 0.35);
     background: rgba(30, 41, 59, 0.45);
 }
+
+/* Style for checklist-checkbox button mode when active/checked */
+.checklist-checkbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.checklist-checkbox:hover {
+    border-color: #cbd5e1;
+    background-color: #f1f5f9;
+    transform: translateY(-1px);
+}
+.checklist-checkbox:has(input[type="checkbox"]:checked) {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -2px rgba(37, 99, 235, 0.1);
+}
+
+/* Dark mode support */
+html.dark .dash-body .checklist-checkbox {
+    background: rgba(10, 28, 65, 0.45);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+}
+html.dark .dash-body .checklist-checkbox:hover {
+    background: rgba(15, 38, 85, 0.65);
+    border-color: rgba(212, 175, 55, 0.25);
+    transform: translateY(-1px);
+}
+html.dark .dash-body .checklist-checkbox:has(input[type="checkbox"]:checked) {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: #D4AF37;
+    color: #ffd300;
+    box-shadow: 0 4px 6px -1px rgba(212, 175, 55, 0.15);
+}
 </style>
 @endpush
 
@@ -509,10 +556,11 @@ html.dark .dash-body .pvw-photo-slot img {
                     @endif
                 </label>
                 <label class="checklist-field">
-                    <span>Pengemudi yang Menerima</span>
+                    <span>Pengemudi yang Menerima <small style="font-weight:400;opacity:.75">(Kosongkan Jika Tidak Ada)</small></span>
                     <div class="checklist-control-wrap checklist-control-select checklist-driver-select-wrap">
-                        <select name="driver_terima" id="driver_terima" data-driver-select data-placeholder="Pilih Driver" required>
+                        <select name="driver_terima" id="driver_terima" data-driver-select data-placeholder="Pilih Driver">
                             <option value=""></option>
+                            <option value="Koordinator" data-icon="bi bi-person-workspace" data-active="0">Koordinator</option>
                             @foreach ($drivers as $d)
                                 @if (!$isDriver || $d->id !== $user->id)
                                     @php $isActiveDriver = $user->id === $d->id; @endphp
@@ -522,6 +570,12 @@ html.dark .dash-body .pvw-photo-slot img {
                         </select>
                     </div>
                 </label>
+                <div class="checklist-field" id="koordinator-nama-wrap" style="display:none; margin-top:14px;">
+                    <span>Nama Koordinator yang Menerima</span>
+                    <div class="checklist-control-wrap">
+                        <input type="text" name="koordinator_nama" id="koordinator_nama" placeholder="Masukkan nama koordinator...">
+                    </div>
+                </div>
             </section>
 
             {{-- ==================== STEP 2: EXTERIOR ==================== --}}
@@ -691,7 +745,6 @@ html.dark .dash-body .pvw-photo-slot img {
                     @foreach (['STNK' => 'stnk', 'Kartu KIR dan QR Kartu BBM' => 'kir', 'Dongkrak' => 'dongkrak', 'Toolkit' => 'toolkit', 'Segitiga Pengaman' => 'segitiga', 'APAR' => 'apar', 'Ban Cadangan' => 'ban_cadangan'] as $label => $name)
                         <label class="checklist-checkbox">
                             <input type="checkbox" name="perlengkapan[{{ $name }}]" value="1">
-                            <span class="checklist-checkmark" aria-hidden="true"></span>
                             <span>{{ $label }}</span>
                         </label>
                     @endforeach
@@ -708,13 +761,13 @@ html.dark .dash-body .pvw-photo-slot img {
                 <div class="checklist-statement-box"><p><em>"Pemeriksaan kendaraan telah dilakukan sesuai kondisi aktual."</em></p></div>
 
                 <div class="signature-row">
-                    <div class="signature-block">
+                    <div class="signature-block" id="sig-block-serah">
                         <span class="signature-label">TTD DRIVER YANG MENYERAHKAN</span>
                         <div class="signature-pad-wrap"><canvas id="sig-pad-serah" class="signature-canvas"></canvas><div class="signature-pad-hint" data-sig-hint="serah"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg><span>TAP TO SIGN</span></div></div>
                         <button type="button" class="signature-clear-btn" data-clear-sig="serah">Hapus TTD</button>
                         <input type="hidden" name="tanda_tangan_serah" id="sig-data-serah">
                     </div>
-                    <div class="signature-block">
+                    <div class="signature-block" id="sig-block-terima" style="display:none">
                         <span class="signature-label">TTD DRIVER YANG MENERIMA</span>
                         <div class="signature-pad-wrap"><canvas id="sig-pad-terima" class="signature-canvas"></canvas><div class="signature-pad-hint" data-sig-hint="terima"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2"/></svg><span>TAP TO SIGN</span></div></div>
                         <button type="button" class="signature-clear-btn" data-clear-sig="terima">Hapus TTD</button>

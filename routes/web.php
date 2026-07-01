@@ -102,6 +102,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/admin/portal/arsip-pdf', [ChecklistController::class, 'apiPortalArsipPdf'])->name('api.admin.portal.arsip-pdf');
     Route::get('/api/admin/portal/charts', [ChecklistController::class, 'apiPortalCharts'])->name('api.admin.portal.charts');
 
+    // Approval routes (superadmin only — enforced in controller)
+    Route::get('/api/admin/portal/pending-approval', [ChecklistController::class, 'apiPortalPendingApproval'])->name('api.admin.portal.pending-approval');
+    Route::post('/api/admin/checklists/{checklist}/approve', [ChecklistController::class, 'approveChecklist'])->name('api.admin.checklists.approve');
+
     // Combined Portal Manajemen Administrasi (Master Armada + Manajemen User)
     Route::get('/admin/portal-manajemen-administrasi', [UserManagementController::class, 'portal'])->name('admin.portal-manajemen');
     Route::post('/admin/portal-manajemen-administrasi/kendaraan', [KendaraanController::class, 'store'])->name('admin.portal-manajemen.kendaraan.store');

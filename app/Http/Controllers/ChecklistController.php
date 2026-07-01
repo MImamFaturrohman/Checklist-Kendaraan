@@ -48,16 +48,16 @@ class ChecklistController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tanggal' => 'required|date',
-            'shift' => 'required|string',
-            'jam_serah_terima' => 'required',
+            'tanggal'         => 'required|date',
+            'shift'           => 'required|string',
+            'jam_serah_terima'=> 'required',
             'nomor_kendaraan' => 'required|string',
             'jenis_kendaraan' => 'required|string',
-            'driver_serah' => 'required|string',
-            'driver_terima' => 'required|string',
-            'level_bbm' => 'required|numeric|min:0|max:100',
-            'km_awal' => 'required|numeric|min:0',
-            'km_akhir' => 'required|numeric|min:0',
+            'driver_serah'    => 'required|string',
+            'driver_terima'   => 'nullable|string',   // now optional
+            'level_bbm'       => 'required|numeric|min:0|max:100',
+            'km_awal'         => 'required|numeric|min:0',
+            'km_akhir'        => 'required|numeric|min:0',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -78,24 +78,33 @@ class ChecklistController extends Controller
                 $fotoBbmPath = $request->file('foto_bbm_dashboard')->store('checklists/bbm', 'public');
             }
 
+            // Determine if driver_terima is provided — affects approval flow
+            $driverTerima = $request->input('driver_terima');
+            if ($driverTerima === 'Koordinator') {
+                $driverTerima = $request->filled('koordinator_nama') ? 'Koordinator: ' . $request->input('koordinator_nama') : null;
+            }
+            $hasDriverTerima = !empty($driverTerima);
+            $status = $hasDriverTerima ? 'complete' : 'pending';
+
             // Create main checklist
             $checklist = Checklist::create([
-                'tanggal' => $request->tanggal,
-                'shift' => $request->shift,
-                'driver_serah' => $request->driver_serah,
-                'driver_terima' => $request->driver_terima,
-                'nomor_kendaraan' => $request->nomor_kendaraan,
-                'jenis_kendaraan' => $request->jenis_kendaraan,
-                'jam_serah_terima' => $request->jam_serah_terima,
-                'level_bbm' => $request->level_bbm,
-                'bbm_terakhir' => $request->bbm_terakhir,
-                'km_awal' => $request->km_awal,
-                'km_akhir' => $request->km_akhir,
-                'foto_bbm_dashboard' => $fotoBbmPath,
-                'catatan_khusus' => $request->catatan_khusus,
-                'tanda_tangan_serah' => $ttdSerahPath,
+                'tanggal'             => $request->tanggal,
+                'shift'               => $request->shift,
+                'driver_serah'        => $request->driver_serah,
+                'driver_terima'       => $driverTerima,
+                'nomor_kendaraan'     => $request->nomor_kendaraan,
+                'jenis_kendaraan'     => $request->jenis_kendaraan,
+                'jam_serah_terima'    => $request->jam_serah_terima,
+                'level_bbm'           => $request->level_bbm,
+                'bbm_terakhir'        => $request->bbm_terakhir,
+                'km_awal'             => $request->km_awal,
+                'km_akhir'            => $request->km_akhir,
+                'foto_bbm_dashboard'  => $fotoBbmPath,
+                'catatan_khusus'      => $request->catatan_khusus,
+                'tanda_tangan_serah'  => $ttdSerahPath,
                 'tanda_tangan_terima' => $ttdTerimaPath,
-                'user_id' => auth()->id(),
+                'user_id'             => auth()->id(),
+                'status'              => $status,
             ]);
 
             // Save Exterior
@@ -162,36 +171,40 @@ class ChecklistController extends Controller
             Kendaraan::where('nomor_kendaraan', $request->nomor_kendaraan)
                 ->update(['km_current' => (int) $request->km_akhir]);
 
-            // Generate PDF (must happen before we clear the signature paths)
-            $checklist->load(['exterior', 'interior', 'mesin', 'perlengkapan']);
-            $pdf = Pdf::loadView('checklists.pdf', ['checklist' => $checklist]);
-            $pdfFileName = 'checklist_'.$checklist->id.'_'.now()->format('Ymd_His').'.pdf';
-            $pdfPath = 'checklists/pdf/'.$pdfFileName;
-            Storage::disk('public')->put($pdfPath, $pdf->output());
+            $pdfUrl = null;
 
-            // Persist PDF path and clear signature data — the PDF already embeds the images.
-            $ttdSerahPathSaved  = $checklist->tanda_tangan_serah;
-            $ttdTerimaPathSaved = $checklist->tanda_tangan_terima;
+            // Only generate PDF immediately when driver_terima is present
+            if ($hasDriverTerima) {
+                $checklist->load(['exterior', 'interior', 'mesin', 'perlengkapan']);
+                $pdf = Pdf::loadView('checklists.pdf', ['checklist' => $checklist]);
+                $pdfFileName = 'checklist_'.$checklist->id.'_'.now()->format('Ymd_His').'.pdf';
+                $pdfPath = 'checklists/pdf/'.$pdfFileName;
+                Storage::disk('public')->put($pdfPath, $pdf->output());
 
-            $checklist->update([
-                'pdf_path'          => $pdfPath,
-                'tanda_tangan_serah'  => null,
-                'tanda_tangan_terima' => null,
-            ]);
+                // Persist PDF path and clear signature data — the PDF already embeds the images.
+                $ttdSerahPathSaved  = $checklist->tanda_tangan_serah;
+                $ttdTerimaPathSaved = $checklist->tanda_tangan_terima;
 
-            foreach ([$ttdSerahPathSaved, $ttdTerimaPathSaved] as $sigPath) {
-                if ($sigPath && Storage::disk('public')->exists($sigPath)) {
-                    Storage::disk('public')->delete($sigPath);
+                $checklist->update([
+                    'pdf_path'            => $pdfPath,
+                    'tanda_tangan_serah'  => null,
+                    'tanda_tangan_terima' => null,
+                ]);
+
+                foreach ([$ttdSerahPathSaved, $ttdTerimaPathSaved] as $sigPath) {
+                    if ($sigPath && Storage::disk('public')->exists($sigPath)) {
+                        Storage::disk('public')->delete($sigPath);
+                    }
                 }
-            }
 
-            $pdfUrl = $pdfUrl = Storage::url($pdfPath);
+                $pdfUrl = Storage::url($pdfPath);
 
-            // Auto-sync to Google Spreadsheet
-            try {
-                $this->syncSingleToSpreadsheet($checklist);
-            } catch (\Throwable $e) {
-                Log::warning('Auto-sync to Google Sheets failed', ['message' => $e->getMessage()]);
+                // Auto-sync to Google Spreadsheet (only for immediately completed checklists)
+                try {
+                    $this->syncSingleToSpreadsheet($checklist);
+                } catch (\Throwable $e) {
+                    Log::warning('Auto-sync to Google Sheets failed', ['message' => $e->getMessage()]);
+                }
             }
 
             DB::afterCommit(function () use ($checklist): void {
@@ -199,12 +212,110 @@ class ChecklistController extends Controller
             });
 
             return response()->json([
-                'success' => true,
-                'message' => 'Checklist berhasil disimpan!',
-                'pdf_url' => $pdfUrl,
-                'checklist_id' => $checklist->id,
+                'success'         => true,
+                'message'         => 'Checklist berhasil disimpan!',
+                'pdf_url'         => $pdfUrl,
+                'checklist_id'    => $checklist->id,
+                'needs_approval'  => !$hasDriverTerima,
             ]);
         });
+    }
+
+    /**
+     * Superadmin: mark a pending checklist as selesai (complete) and generate PDF.
+     */
+    public function approveChecklist(Request $request, Checklist $checklist): JsonResponse
+    {
+        abort_unless($this->isSuperAdmin(), 403);
+        abort_unless($checklist->status === 'pending', 422);
+
+        $checklist->load(['exterior', 'interior', 'mesin', 'perlengkapan']);
+
+        // Generate PDF (no driver_terima TTD — use only serah)
+        $pdf = Pdf::loadView('checklists.pdf', ['checklist' => $checklist]);
+        $pdfFileName = 'checklist_'.$checklist->id.'_'.now()->format('Ymd_His').'.pdf';
+        $pdfPath = 'checklists/pdf/'.$pdfFileName;
+        Storage::disk('public')->put($pdfPath, $pdf->output());
+
+        // Clear stored signature after embedding in PDF
+        $ttdSerahPathSaved = $checklist->tanda_tangan_serah;
+
+        $checklist->update([
+            'status'             => 'complete',
+            'pdf_path'           => $pdfPath,
+            'tanda_tangan_serah' => null,
+        ]);
+
+        if ($ttdSerahPathSaved && Storage::disk('public')->exists($ttdSerahPathSaved)) {
+            Storage::disk('public')->delete($ttdSerahPathSaved);
+        }
+
+        // Auto-sync to Google Spreadsheet
+        try {
+            $this->syncSingleToSpreadsheet($checklist);
+        } catch (\Throwable $e) {
+            Log::warning('Auto-sync to Google Sheets failed after completion', ['message' => $e->getMessage()]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Checklist berhasil diselesaikan dan PDF telah di-generate.',
+            'pdf_url' => Storage::url($pdfPath),
+        ]);
+    }
+
+    /**
+     * API: paginated list of pending checklists.
+     */
+    public function apiPortalPendingApproval(Request $request): JsonResponse
+    {
+        abort_unless($this->isSuperAdmin(), 403);
+
+        $perPage = max(1, min(100, (int) ($request->input('per_page', 10))));
+        $page    = max(1, (int) ($request->input('page', 1)));
+
+        $query = Checklist::where('status', 'pending')
+            ->latest();
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor_kendaraan', 'like', "%{$search}%")
+                  ->orWhere('driver_serah', 'like', "%{$search}%");
+            });
+        }
+        if ($from = $request->input('tanggal_dari')) {
+            $query->whereDate('tanggal', '>=', $from);
+        }
+        if ($to = $request->input('tanggal_sampai')) {
+            $query->whereDate('tanggal', '<=', $to);
+        }
+
+        $paginated = $query->paginate($perPage, ['*'], 'page', $page);
+
+        $data = $paginated->map(function ($c) {
+            return [
+                'id'              => $c->id,
+                'tanggal'         => $c->tanggal?->format('d/m/Y'),
+                'shift'           => $c->shift,
+                'nomor_kendaraan' => $c->nomor_kendaraan,
+                'jenis_kendaraan' => $c->jenis_kendaraan,
+                'driver_serah'    => $c->driver_serah,
+                'status'          => $c->status,
+                'created_at'      => $c->created_at?->format('d/m/Y H:i'),
+            ];
+        });
+
+        $paginationHtml = \App\Support\AdminTablePagination::linksHtml($paginated);
+
+        return response()->json([
+            'success'          => true,
+            'data'             => $data,
+            'current_page'     => $paginated->currentPage(),
+            'per_page'         => $paginated->perPage(),
+            'total'            => $paginated->total(),
+            'pagination_html'  => $paginationHtml,
+            'pending_count'    => Checklist::where('status', 'pending')->count(),
+        ]);
     }
 
     /**
@@ -327,12 +438,20 @@ class ChecklistController extends Controller
         if ($canAccessDatabase) {
             $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 10);
 
-            $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan']);
+            $dbQuery = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])
+                ->where(function ($q) {
+                    $q->where('status', '!=', 'pending')
+                      ->orWhereNull('status');
+                });
             $this->applyChecklistFilters($request, $dbQuery);
             TableSort::apply($dbQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
             $dbChecklists = $dbQuery->paginate($perPage, ['*'], 'page')->withQueryString();
 
-            $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin']);
+            $fotoQuery = Checklist::with(['exterior', 'interior', 'mesin'])
+                ->where(function ($q) {
+                    $q->where('status', '!=', 'pending')
+                      ->orWhereNull('status');
+                });
             $this->applyChecklistFilters($request, $fotoQuery);
             TableSort::apply($fotoQuery, $request, self::CHECKLIST_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
             $fotoChecklists = $fotoQuery->paginate($perPage, ['*'], 'page')->withQueryString();
@@ -368,12 +487,25 @@ class ChecklistController extends Controller
             ? AdminTablePagination::linksHtml($pdfChecklists, route('api.admin.portal.arsip-pdf'))
             : '';
 
+        $pendingCount = $this->isSuperAdmin() ? Checklist::where('status', 'pending')->count() : 0;
+
+        $pendingChecklists = collect();
+        $pendingPaginationHtml = '';
+        if ($this->isSuperAdmin()) {
+            $pendingChecklists = Checklist::where('status', 'pending')
+                ->latest()
+                ->paginate(10, ['*'], 'pending_page')
+                ->withQueryString();
+            $pendingPaginationHtml = AdminTablePagination::linksHtml($pendingChecklists, route('api.admin.portal.pending-approval'));
+        }
+
         return view('admin.portal-pemeriksaan', compact(
             'nopolList', 'dbStats', 'pdfStats', 'chartData', 'chartYear', 'yearsAvailable',
             'dbChecklists', 'fotoChecklists', 'pdfChecklists',
             'dbMeta', 'fotoMeta', 'pdfMeta', 'dbPaginationHtml', 'fotoPaginationHtml', 'pdfPaginationHtml',
             'canAccessDatabase', 'pemeriksaanInsightOnlyManager',
-            'dbActiveSort', 'dbActiveDir', 'pdfActiveSort', 'pdfActiveDir'
+            'dbActiveSort', 'dbActiveDir', 'pdfActiveSort', 'pdfActiveDir',
+            'pendingCount', 'pendingChecklists', 'pendingPaginationHtml'
         ));
     }
 
@@ -396,7 +528,11 @@ class ChecklistController extends Controller
         abort_unless($this->canAccessFullPortalDatabase(), 403);
 
         $perPage = AdminTablePagination::resolvePerPage($request->input('per_page'), 10);
-        $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan']);
+        $query = Checklist::with(['exterior', 'interior', 'mesin', 'perlengkapan'])
+            ->where(function ($q) {
+                $q->where('status', '!=', 'pending')
+                  ->orWhereNull('status');
+            });
         $this->applyChecklistFilters($request, $query);
         TableSort::apply($query, $request, self::CHECKLIST_SORT_ALLOWED, function ($q) {
             $q->orderByDesc('created_at');
@@ -502,7 +638,28 @@ class ChecklistController extends Controller
             'km_awal' => $checklist->km_awal,
             'km_akhir' => $checklist->km_akhir,
             'jam_serah_terima' => $checklist->jam_serah_terima,
-            'catatan_khusus' => $checklist->catatan_khusus,
+            'foto_bbm_dashboard' => $checklist->foto_bbm_dashboard,
+        ];
+
+        $photos = [
+            'exterior' => collect([
+                ['label' => 'Depan', 'path' => $checklist->exterior?->foto_depan],
+                ['label' => 'Kanan', 'path' => $checklist->exterior?->foto_kanan],
+                ['label' => 'Kiri', 'path' => $checklist->exterior?->foto_kiri],
+                ['label' => 'Belakang', 'path' => $checklist->exterior?->foto_belakang],
+            ])->filter(fn($p) => !empty($p['path']))->values()->all(),
+
+            'interior' => collect([
+                ['label' => 'Foto 1', 'path' => $checklist->interior?->foto_1],
+                ['label' => 'Foto 2', 'path' => $checklist->interior?->foto_2],
+                ['label' => 'Foto 3', 'path' => $checklist->interior?->foto_3],
+            ])->filter(fn($p) => !empty($p['path']))->values()->all(),
+
+            'mesin' => collect([
+                ['label' => 'Foto 1', 'path' => $checklist->mesin?->foto_1],
+                ['label' => 'Foto 2', 'path' => $checklist->mesin?->foto_2],
+                ['label' => 'Foto 3', 'path' => $checklist->mesin?->foto_3],
+            ])->filter(fn($p) => !empty($p['path']))->values()->all(),
         ];
 
         $sectionRows = function (?object $model, array $items): array {
@@ -551,6 +708,7 @@ class ChecklistController extends Controller
                 'transmisi' => 'Transmisi',
                 'indikator' => 'Indikator panel',
             ]),
+            'photos' => $photos,
         ];
     }
 
@@ -580,7 +738,11 @@ class ChecklistController extends Controller
             return $baseUrl.'/storage/'.ltrim($path, '/');
         };
 
-        $query = Checklist::with(['exterior', 'interior', 'mesin']);
+        $query = Checklist::with(['exterior', 'interior', 'mesin'])
+            ->where(function ($q) {
+                $q->where('status', '!=', 'pending')
+                  ->orWhereNull('status');
+            });
         $this->applyChecklistFilters($request, $query);
         TableSort::apply($query, $request, self::CHECKLIST_SORT_ALLOWED, function ($q) {
             $q->orderByDesc('created_at');

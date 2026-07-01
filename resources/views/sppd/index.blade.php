@@ -72,7 +72,7 @@
                                             data-detail-id="{{ $s->id }}"
                                             title="Detail Laporan"
                                             aria-label="Detail Laporan"
-                                        ><i class="bi bi-eye-fill"></i></button>
+                                        ><i class="bi bi-info-circle"></i></button>
                                         @if($s->status === \App\Models\Sppd::STATUS_REVISION)
                                             <button
                                                 type="button"
