@@ -1,4 +1,4 @@
-<!-- @php
+@php
     $premiumBgId = preg_replace('/[^a-zA-Z0-9_-]/', '', $premiumBgId ?? 'vmsdash');
 @endphp
 <div class="dash-bg-cubes" aria-hidden="true"></div>
@@ -19,4 +19,4 @@
             </linearGradient>
         </defs>
     </svg>
-</div> -->
+</div>

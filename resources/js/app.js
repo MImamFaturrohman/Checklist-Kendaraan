@@ -214,6 +214,11 @@ document.addEventListener('turbo:before-cache', function () {
                 const open  = panel.hidden;
                 panel.hidden = !open;
                 btn.setAttribute('aria-expanded', String(open));
+
+                // Hide all notification count badges when bell is clicked
+                document.querySelectorAll('.dash-notif-badge').forEach(function (badge) {
+                    badge.style.display = 'none';
+                });
             });
         });
 
@@ -241,6 +246,11 @@ document.addEventListener('turbo:before-cache', function () {
                             keepalive: true,
                         }).catch(function () {});
                         a.closest('.dash-notif-item')?.classList.remove('is-unread');
+
+                        // Also hide all notification count badges when an item is clicked
+                        document.querySelectorAll('.dash-notif-badge').forEach(function (badge) {
+                            badge.style.display = 'none';
+                        });
                     }
 
                     const hrefAttr = a.getAttribute('href') || '';

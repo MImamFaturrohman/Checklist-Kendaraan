@@ -22,7 +22,7 @@ final class SppdPdfQr
         $qr = QrCode::create($text)
             ->setSize($size)
             ->setMargin(2)
-            ->setErrorCorrectionLevel(ErrorCorrectionLevel::High)
+            ->setErrorCorrectionLevel(ErrorCorrectionLevel::Medium)
             ->setRoundBlockSizeMode(RoundBlockSizeMode::None);
 
         $writer = new PngWriter();

@@ -43,7 +43,7 @@
         @if($tbIsSuperAdmin)
         <div class="dash-notif-wrap dash-topbar-desktop-only" id="dash-notif-wrap">
             <button type="button"
-                    class="dash-notif-btn dash-topbar-icon-btn"
+                    class="dash-notif-btn"
                     id="dash-notif-toggle"
                     aria-expanded="false"
                     aria-haspopup="true"

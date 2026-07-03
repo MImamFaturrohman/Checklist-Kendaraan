@@ -20,6 +20,15 @@ final class SuperadminNotificationLink
             return '#';
         }
 
+        // Convert absolute URLs to relative paths to support dynamic host/IP changes
+        if (str_starts_with($base, 'http://') || str_starts_with($base, 'https://')) {
+            $parsed = parse_url($base);
+            $path = $parsed['path'] ?? '';
+            $fragment = $parsed['fragment'] ?? '';
+            $query = isset($parsed['query']) ? '?'.$parsed['query'] : '';
+            $base = '/'.trim($path, '/').$query.($fragment !== '' ? '#'.$fragment : '');
+        }
+
         if (str_contains($base, '#')) {
             return $base;
         }

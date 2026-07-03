@@ -32,7 +32,7 @@ class ChecklistSubmittedNotification extends Notification
         return [
             'title' => 'Ceklist kendaraan baru',
             'body' => "{$name} mengirim ceklist untuk {$this->checklist->nomor_kendaraan} ({$this->checklist->shift}).",
-            'url' => route('admin.portal-pemeriksaan').'#section-db',
+            'url' => route('admin.portal-pemeriksaan', [], false).'#section-db',
             'scroll_target' => 'section-db',
             'checklist_id' => $this->checklist->id,
         ];
