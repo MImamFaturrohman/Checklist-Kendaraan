@@ -153,8 +153,8 @@
             text-align: left;
         }
         .signature-qr-img {
-            width: 60px; 
-            height: 60px;
+            width: 70px; 
+            height: 70px;
             display: block;
         }
 
@@ -163,7 +163,7 @@
             width: 60%; /* Mengunci ruang teks sebesar 60% */
             text-align: left;
             line-height: 1.25;
-            padding-left: 12px; /* Memberikan jarak/gap aman setelah QR Code */
+            padding-left: 6px; /* Memberikan jarak/gap aman setelah QR Code */
             padding-right: 5px;
         }
 

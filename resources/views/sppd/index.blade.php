@@ -25,7 +25,7 @@
 
             <div id="sppd-driver-live-root" data-vms-sppd-live>
             @fragment('sppd-driver-body')
-            <form method="get" action="{{ route('sppd.index') }}" class="portal-local-filters sppd-live-filter-bar" id="sppd-driver-filter-form">
+            <form method="get" action="{{ route('sppd.index') }}" class="portal-local-filters sppd-live-filter-bar" id="sppd-driver-filter-form" style="margin-bottom: 10px;">
                 <div class="admin-search-wrap portal-search-full">
                     <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <input type="search" name="q" id="sppd-live-search" value="{{ request('q') }}" class="admin-search-input" placeholder="Cari keperluan, kendaraan, tanggal…" autocomplete="off" aria-label="Cari daftar SPPD">
