@@ -277,7 +277,7 @@ function initBbmForm() {
 
     const photoCard = (src, caption) =>
         src
-            ? `<div class="bbm-review-photo-wrap"><img src="${src}" alt="${esc(caption)}"><div class="bbm-review-photo-caption">${esc(caption)}</div></div>`
+            ? `<div class="bbm-review-photo-wrap" style="position:relative"><span class="bbm-review-photo-overlay-label" aria-hidden="true">${esc(caption)}</span><img src="${src}" alt="${esc(caption)}"></div>`
             : `<p style="margin:0;font-size:0.82rem;color:#94a3b8">${esc(caption)} belum dipilih.</p>`;
 
     const buildReviewHtml = () => {

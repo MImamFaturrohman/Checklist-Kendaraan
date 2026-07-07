@@ -306,14 +306,23 @@
         gap: 12px;
         margin-top: 4px;
     }
+    .label-mobile {
+        display: none;
+    }
+    .label-placeholder {
+        visibility: hidden;
+    }
     @media (max-width: 520px) {
         .bbm-review-photos { grid-template-columns: 1fr; }
+        .label-mobile { display: block; }
+        .label-placeholder { display: none; }
     }
     .bbm-review-photo-wrap {
         border-radius: 10px;
         overflow: hidden;
         border: 1px solid #e2e8f0;
         background: #f8fafc;
+        position: relative;
     }
     html.dark .dash-body .bbm-review-photo-wrap {
         border-color: rgba(71, 85, 105, 0.45);
@@ -326,13 +335,27 @@
         max-height: 180px;
         object-fit: contain;
     }
-    .bbm-review-photo-caption {
-        font-size: 0.72rem;
-        padding: 6px 8px;
-        color: #64748b;
-        font-weight: 600;
+    /* Overlay label badge di pojok kiri atas foto */
+    .bbm-review-photo-overlay-label {
+        position: absolute;
+        top: 7px;
+        left: 7px;
+        z-index: 2;
+        font-size: clamp(9px, 1.5vw, 12px);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #fff;
+        background: rgba(11, 44, 107, 0.72);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        padding: 2px 7px 2px 6px;
+        border-radius: 5px;
+        line-height: 1.5;
+        pointer-events: none;
+        white-space: nowrap;
+        box-shadow: 0 1px 4px rgba(0,0,0,.25);
     }
-    html.dark .dash-body .bbm-review-photo-caption { color: #94a3b8; }
     p.bbm-step3-hint {
         margin: 0 0 12px;
         font-size: 0.85rem;
@@ -493,7 +516,7 @@
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span style="visibility: hidden">&nbsp;</span>
+                        <span class="label-placeholder">&nbsp;</span>
                         <div class="checklist-control-wrap">
                             <input type="text" id="bbm-jenis" readonly class="checklist-input-readonly" value="" placeholder="Otomatis terisi…" autocomplete="off">
                         </div>
@@ -501,11 +524,13 @@
                 </div>
                 <div class="checklist-grid-two bbm-datetime-grid">
                     <label class="checklist-field">
+                        <span class="label-mobile">Tanggal</span>
                         <div class="checklist-control-wrap bbm-input-with-icon">
                             <input type="date" name="tanggal" id="bbm-tanggal" required value="{{ old('tanggal') }}">
                         </div>
                     </label>
                     <label class="checklist-field">
+                        <span class="label-mobile">Waktu</span>
                         <div class="checklist-control-wrap bbm-input-with-icon">
                             <input type="time" name="waktu" id="bbm-waktu" required value="{{ old('waktu') }}">
                         </div>
@@ -530,7 +555,7 @@
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span style="visibility: hidden">&nbsp;</span>
+                        <span class="label-placeholder">&nbsp;</span>
                         <div class="checklist-control-wrap">
                             <input type="number" name="odometer_sesudah" id="bbm-odo-sesudah" required min="0" step="1" inputmode="numeric" value="{{ old('odometer_sesudah') }}" placeholder="Sesudah">
                         </div>
@@ -544,7 +569,7 @@
                         </div>
                     </label>
                     <label class="checklist-field">
-                        <span style="visibility: hidden">&nbsp;</span>
+                        <span class="label-placeholder">&nbsp;</span>
                         <div class="checklist-control-wrap">
                             <input type="number" name="harga_per_liter" id="bbm-harga-per-liter" required min="0" step="1" value="{{ old('harga_per_liter') }}" placeholder="Harga">
                         </div>

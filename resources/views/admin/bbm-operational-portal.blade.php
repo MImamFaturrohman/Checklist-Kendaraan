@@ -338,6 +338,34 @@
             letter-spacing: 0.04em;
         }
         .dash-body.dark .bbm-detail-photos figcaption { color: rgba(200, 218, 255, 0.55); }
+        /* ── Photo thumb container with overlay label ── */
+        .bbm-photo-thumb-wrap {
+            position: relative;
+            display: block;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .bbm-photo-overlay-label {
+            position: absolute;
+            top: 7px;
+            left: 7px;
+            z-index: 2;
+            /* fluid size: scales with viewport, stays readable */
+            font-size: clamp(9px, 1.5vw, 13px);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #fff;
+            background: rgba(11, 44, 107, 0.72);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 2px 7px 2px 6px;
+            border-radius: 5px;
+            line-height: 1.5;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 1px 4px rgba(0,0,0,.25);
+        }
         .bbm-photo-thumb-btn {
             display: block;
             width: 100%;
@@ -359,6 +387,7 @@
             max-height: 180px;
             object-fit: cover;
             border-radius: 8px;
+            border: none !important;
             transition: transform .2s, box-shadow .2s;
         }
         .bbm-photo-thumb-btn img.bbm-photo-thumb--odometer-grid {
@@ -1550,17 +1579,20 @@
                 const badgeCls = (d.shift_badge_class && String(d.shift_badge_class).replace(/[^a-z0-9_-]/gi, '')) || 'bbm-shift-luar';
                 const iconCls = (d.shift_icon_class && String(d.shift_icon_class).replace(/[^a-z0-9 _-]/gi, '').trim()) || 'bi bi-moon-fill';
                 const shiftHtml = `<span class="bbm-shift-badge ${esc(badgeCls)}"><i class="${esc(iconCls)}" aria-hidden="true"></i>${esc(d.shift_label || '—')}</span>`;
-                function photoThumb(url, alt) {
+                function photoThumb(url, alt, overlayLabel) {
                     if (!url) return '<p class="portal-empty" style="padding:8px">—</p>';
                     const safe = String(url).replace(/"/g, '&quot;');
                     const imgClass =
                         alt === 'Odometer'
                             ? 'sppd-photo-thumb bbm-photo-thumb--odometer-grid'
                             : 'sppd-photo-thumb';
-                    return `<button type="button" class="bbm-photo-thumb-btn" data-full-url="${safe}" aria-label="Perbesar ${esc(alt)}"><img src="${safe}" class="${imgClass}" alt="${esc(alt)}"></button>`;
+                    const labelHtml = overlayLabel
+                        ? `<span class="bbm-photo-overlay-label" aria-hidden="true">${esc(overlayLabel)}</span>`
+                        : '';
+                    return `<div class="bbm-photo-thumb-wrap">${labelHtml}<button type="button" class="bbm-photo-thumb-btn" data-full-url="${safe}" aria-label="Perbesar ${esc(alt)}"><img src="${safe}" class="${imgClass}" alt="${esc(alt)}"></button></div>`;
                 }
-                const odo = photoThumb(d.odometer_photo_url, 'Odometer');
-                const struk = photoThumb(d.struk_photo_url, 'Struk');
+                const odo = photoThumb(d.odometer_photo_url, 'Odometer', null);
+                const struk = photoThumb(d.struk_photo_url, 'Struk', null);
                 return `
                     <table class="info-table sppd-mini-table">
                         <tr><td class="label">Driver</td><td>${esc(d.driver_name)} (${esc(d.driver_username || '—')})</td></tr>
