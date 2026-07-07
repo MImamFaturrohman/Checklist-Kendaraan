@@ -64,13 +64,14 @@ class UserManagementController extends Controller
         'nomor_kendaraan'  => 'nomor_kendaraan',
         'jenis_kendaraan'  => 'jenis_kendaraan',
         'bidang'           => 'bidang',
-        'km_saat_ini'      => 'km_saat_ini',
+        'km_saat_ini'      => 'km_current',
         'status_kendaraan' => 'status_kendaraan',
     ];
 
     private const USER_SORT_ALLOWED = [
         'name'     => 'name',
         'username' => 'username',
+        'email'    => 'email',
         'role'     => 'role',
     ];
 
@@ -124,6 +125,7 @@ class UserManagementController extends Controller
                 'id'           => $user->id,
                 'name'         => $user->name,
                 'username'     => $user->username,
+                'email'        => $user->email,
                 'role'         => $user->role,
                 'is_online'    => $user->isOnline(),
                 'last_seen_at' => $user->last_seen_at?->toIso8601String(),
@@ -148,6 +150,7 @@ class UserManagementController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username',
+            'email'    => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:6',
             'role'     => 'required|in:'.$rolesRule,
         ]);
@@ -155,7 +158,7 @@ class UserManagementController extends Controller
         $user = User::create([
             'name'              => $request->name,
             'username'          => $request->username,
-            'email'             => $request->username . '@internal.adc',
+            'email'             => $request->email,
             'password'          => Hash::make($request->password),
             'role'              => $request->role,
             'email_verified_at' => now(),
@@ -184,6 +187,7 @@ class UserManagementController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'    => 'required|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6',
             'role'     => 'required|in:'.$rolesRule,
         ]);
@@ -191,7 +195,7 @@ class UserManagementController extends Controller
         $data = [
             'name'     => $request->name,
             'username' => $request->username,
-            'email'    => $request->username . '@internal.adc',
+            'email'    => $request->email,
             'role'     => $request->role,
         ];
 
@@ -230,5 +234,25 @@ class UserManagementController extends Controller
         }
 
         return redirect()->route('admin.portal-manajemen')->with('success', 'User dihapus.');
+    }
+
+    /* ── Reset Password ────────────────────────────────────────────────── */
+    public function resetPassword(User $user, Request $request)
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+        abort_if($user->role === 'superadmin', 403);
+        abort_unless(in_array($user->role, self::MANAGED_ROLES, true), 403);
+
+        $user->password = Hash::make(self::DEFAULT_PASSWORD);
+        $user->save();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Password {$user->name} berhasil direset ke default.",
+            ]);
+        }
+
+        return redirect()->route('admin.portal-manajemen')->with('success', 'Password direset.');
     }
 }

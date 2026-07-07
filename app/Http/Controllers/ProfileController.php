@@ -49,11 +49,13 @@ class ProfileController extends Controller
 
         $request->validate([
             'name'             => 'required|string|max:255',
+            'email'            => 'required|email|max:255|unique:users,email,' . $user->id,
             'current_password' => 'nullable|string',
             'new_password'     => 'nullable|string|min:6|confirmed',
         ]);
 
-        $user->name = $request->name;
+        $user->name  = $request->name;
+        $user->email = $request->email;
 
         if ($request->filled('new_password')) {
             if (!Hash::check($request->input('current_password', ''), $user->password)) {
@@ -71,6 +73,7 @@ class ProfileController extends Controller
             'success' => true,
             'message' => 'Profil berhasil diperbarui.',
             'name'    => $user->name,
+            'email'   => $user->email,
         ]);
     }
 

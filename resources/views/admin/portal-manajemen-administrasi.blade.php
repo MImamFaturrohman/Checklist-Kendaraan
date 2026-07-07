@@ -342,6 +342,7 @@ html.dark .portal-bidang-btn-sub {
                             <th class="w-10">#</th>
                             <x-sortable-th key="name" label="Nama Lengkap" :activeSort="null" :activeDir="null" />
                             <x-sortable-th key="username" label="Username" :activeSort="null" :activeDir="null" />
+                            <x-sortable-th key="email" label="Email" :activeSort="null" :activeDir="null" />
                             <x-sortable-th key="role" label="Role" :activeSort="null" :activeDir="null" />
                             <th>Status</th>
                             <th class="text-center">Aksi</th>
@@ -370,6 +371,7 @@ html.dark .portal-bidang-btn-sub {
                                     </div>
                                 </td>
                                 <td><span class="mgmt-username">{{ $u->username }}</span></td>
+                                <td><span class="text-muted" style="font-size:0.85rem">{{ $u->email }}</span></td>
                                 <td>
                                     @switch($u->role)
                                         @case('pic_kendaraan')
@@ -400,13 +402,17 @@ html.dark .portal-bidang-btn-sub {
                                 </td>
                                 <td class="text-center">
                                     <div class="mgmt-actions">
-                                        <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="openUserEdit({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->username) }}', '{{ $u->role }}')">
+                                        <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="openUserEdit({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->username) }}', '{{ addslashes($u->email) }}', '{{ $u->role }}')">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             Edit
                                         </button>
                                         <button type="button" class="mgmt-act-btn mgmt-act-del" onclick="deleteUser({{ $u->id }}, '{{ addslashes($u->name) }}')">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                                             Hapus
+                                        </button>
+                                        <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="resetUserPassword(${u.id},'${escJs(u.name)}')">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                                            Reset
                                         </button>
                                     </div>
                                 </td>
@@ -531,6 +537,10 @@ html.dark .portal-bidang-btn-sub {
                         <input type="text" name="username" id="add-user-username" class="mgmt-input" placeholder="username" required autocomplete="off">
                     </div>
                     <div class="mgmt-field">
+                        <label class="mgmt-label" for="add-user-email">Email</label>
+                        <input type="email" name="email" id="add-user-email" class="mgmt-input" placeholder="Email" required autocomplete="off">
+                    </div>
+                    <div class="mgmt-field">
                         <label class="mgmt-label" for="add-user-role">Role</label>
                         <select name="role" id="add-user-role" class="mgmt-input" required>
                             <option value="driver">Driver</option>
@@ -594,6 +604,13 @@ html.dark .portal-bidang-btn-sub {
                         <div class="mgmt-input-icon-wrap">
                             <svg class="mgmt-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
                             <input type="text" id="edit-username" class="mgmt-input has-icon" placeholder="username" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="mgmt-field">
+                        <label class="mgmt-label">Email</label>
+                        <div class="mgmt-input-icon-wrap">
+                            <svg class="mgmt-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <input type="email" id="edit-email" class="mgmt-input has-icon" placeholder="Alamat Email" required autocomplete="off">
                         </div>
                     </div>
                     <div class="mgmt-field">
@@ -847,6 +864,7 @@ function refreshMgmtModalOverflow() {
 window.openUserAddModal = function() {
     document.getElementById('add-user-name').value = '';
     document.getElementById('add-user-username').value = '';
+    document.getElementById('add-user-email').value = '';
     document.getElementById('add-user-role').value = 'driver';
     document.getElementById('add-user-pw').value = '{{ $defaultPassword }}';
     document.getElementById('user-add-modal').hidden = false;
@@ -1243,20 +1261,47 @@ window.resetArmadaFilters = function() {
 document.getElementById('armada-search').addEventListener('input', debounce(() => { armadaPage = 1; fetchArmada(); }, 350));
 document.getElementById('armada-perpage').addEventListener('change', e => { armadaPerPage = parseInt(e.target.value); armadaPage = 1; fetchArmada(); });
 
-if (window.AdminTableSort) {
-    const armadaWrap = document.getElementById('armada-thead')?.closest('.mgmt-table-wrap') || document.getElementById('section-armada');
-    if (armadaWrap) {
-        window.AdminTableSort.bindRoot(armadaWrap, {
-            getUrl: () => new URL(location.href),
-            onNavigate: (url) => {
-                armadaSort = url.searchParams.get('sort') || '';
-                armadaDir  = url.searchParams.get('dir')  || '';
-                armadaPage = 1;
-                fetchArmada();
-            },
-        });
+/* ─── Bind sortable thead (with retry until AdminTableSort is ready) ─────── */
+function bindMgmtTableSort(theadId, getSortState, setSortState, fetchFn) {
+    if (window.AdminTableSort) {
+        const thead = document.getElementById(theadId);
+        const wrap  = thead?.closest('.mgmt-table-wrap') || thead?.closest('[id^="section-"]');
+        if (wrap) {
+            window.AdminTableSort.bindRoot(wrap, {
+                getUrl: () => {
+                    const u = new URL(location.href);
+                    const s = getSortState();
+                    if (s.sort) {
+                        u.searchParams.set('sort', s.sort);
+                        u.searchParams.set('dir', s.dir);
+                    }
+                    return u;
+                },
+                onNavigate: (url) => {
+                    const s = getSortState();
+                    s.sort = url.searchParams.get('sort') || '';
+                    s.dir  = url.searchParams.get('dir')  || '';
+                    setSortState(s);
+                    fetchFn();
+                },
+            });
+        }
+    } else {
+        const timer = setInterval(() => {
+            if (window.AdminTableSort) {
+                clearInterval(timer);
+                bindMgmtTableSort(theadId, getSortState, setSortState, fetchFn);
+            }
+        }, 30);
     }
 }
+
+bindMgmtTableSort(
+    'armada-thead',
+    () => ({ sort: armadaSort, dir: armadaDir }),
+    (s) => { armadaSort = s.sort; armadaDir = s.dir; armadaPage = 1; },
+    fetchArmada,
+);
 
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* MANAJEMEN USER                                                          */
@@ -1319,17 +1364,22 @@ function renderUserTable(rows, page, perPage) {
                 </div>
             </td>
             <td><span class="mgmt-username">${escHtml(u.username)}</span></td>
+            <td><span class="text-muted" style="font-size:0.85rem">${escHtml(u.email || '-')}</span></td>
             <td>${badge}</td>
             <td>${presence}</td>
             <td class="text-center">
                 <div class="mgmt-actions">
-                    <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="openUserEdit(${u.id},'${escJs(u.name)}','${escJs(u.username)}','${u.role}')">
+                    <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="openUserEdit(${u.id},'${escJs(u.name)}','${escJs(u.username)}','${escJs(u.email||'')}','${u.role}')">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Edit
                     </button>
                     <button type="button" class="mgmt-act-btn mgmt-act-del" onclick="deleteUser(${u.id},'${escJs(u.name)}')">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Hapus
+                    </button>
+                    <button type="button" class="mgmt-act-btn mgmt-act-edit" onclick="resetUserPassword(${u.id},'${escJs(u.name)}')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                        Reset
                     </button>
                 </div>
             </td>
@@ -1349,20 +1399,12 @@ document.getElementById('user-search').addEventListener('input', debounce(() => 
 document.getElementById('user-role-filter').addEventListener('change', () => { userPage = 1; fetchUsers(); });
 document.getElementById('user-perpage').addEventListener('change', e => { userPerPage = parseInt(e.target.value); userPage = 1; fetchUsers(); });
 
-if (window.AdminTableSort) {
-    const userWrap = document.getElementById('user-thead')?.closest('.mgmt-table-wrap') || document.getElementById('section-users');
-    if (userWrap) {
-        window.AdminTableSort.bindRoot(userWrap, {
-            getUrl: () => new URL(location.href),
-            onNavigate: (url) => {
-                userSort = url.searchParams.get('sort') || '';
-                userDir  = url.searchParams.get('dir')  || '';
-                userPage = 1;
-                fetchUsers();
-            },
-        });
-    }
-}
+bindMgmtTableSort(
+    'user-thead',
+    () => ({ sort: userSort, dir: userDir }),
+    (s) => { userSort = s.sort; userDir = s.dir; userPage = 1; },
+    fetchUsers,
+);
 
 document.getElementById('form-add-user').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -1375,6 +1417,7 @@ document.getElementById('form-add-user').addEventListener('submit', async functi
             Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1600,showConfirmButton:false});
             document.getElementById('add-user-name').value = '';
             document.getElementById('add-user-username').value = '';
+            document.getElementById('add-user-email').value = '';
             document.getElementById('add-user-role').value = 'driver';
             document.getElementById('add-user-pw').value = '{{ $defaultPassword }}';
             closeUserAddModal(); fetchUsers();
@@ -1390,10 +1433,11 @@ document.getElementById('form-add-user').addEventListener('submit', async functi
 });
 
 /* ─── Edit modal ─────────────────────────────────────────────────────── */
-window.openUserEdit = function(id, name, username, role) {
+window.openUserEdit = function(id, name, username, email, role) {
     document.getElementById('edit-user-id').value  = id;
     document.getElementById('edit-name').value     = name;
     document.getElementById('edit-username').value = username;
+    document.getElementById('edit-email').value    = email;
     document.getElementById('edit-role').value     = role;
     document.getElementById('edit-password').value = '';
 
@@ -1421,6 +1465,7 @@ window.submitUserEdit = async function() {
     fd.append('_token', CSRF); fd.append('_method', 'PUT');
     fd.append('name',     document.getElementById('edit-name').value);
     fd.append('username', document.getElementById('edit-username').value);
+    fd.append('email',    document.getElementById('edit-email').value);
     fd.append('role',     document.getElementById('edit-role').value);
     const pw = document.getElementById('edit-password').value;
     if (pw) fd.append('password', pw);
@@ -1461,6 +1506,33 @@ window.deleteUser = function(id, nama) {
             if (res.ok && data.success) {
                 Swal.fire({icon:'success',title:'Terhapus!',text:data.message,timer:1500,showConfirmButton:false});
                 fetchUsers();
+            } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'}); }
+        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+    });
+};
+
+window.resetUserPassword = function(id, nama) {
+    Swal.fire({
+        title: 'Reset Password?',
+        html: `<p>Yakin ingin mereset password <strong>${nama}</strong>?</p>
+              <div style="margin-top:10px;padding:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:0.82rem;color:#1e3a8a;text-align:left">
+                  Password akan direset menjadi default: <strong>{{ $defaultPassword }}</strong>
+              </div>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Reset',
+        cancelButtonText: 'Batal',
+    }).then(async r => {
+        if (!r.isConfirmed) return;
+        const fd = new FormData();
+        fd.append('_token', CSRF); 
+        try {
+            const res  = await fetch(`/admin/users/${id}/reset-password`,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
+            const data = await res.json();
+            if (res.ok && data.success) {
+                Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1500,showConfirmButton:false});
             } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'}); }
         } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
     });

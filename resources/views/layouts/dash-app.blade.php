@@ -185,6 +185,13 @@
                     </div>
                 </div>
                 <div class="profile-field">
+                    <label class="profile-label" for="profile-email">Email</label>
+                    <div class="profile-input-wrap">
+                        <svg class="profile-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <input type="email" id="profile-email" class="profile-input has-icon" value="{{ $layoutUser?->email }}" placeholder="Alamat Email">
+                    </div>
+                </div>
+                <div class="profile-field">
                     <label class="profile-label" for="profile-username-field">Username</label>
                     <div class="profile-input-wrap">
                         <svg class="profile-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -357,11 +364,13 @@ async function saveProfile() {
     const btn     = document.getElementById('profile-save-btn');
     const alertEl = document.getElementById('profile-alert');
     const name    = document.getElementById('profile-name').value.trim();
+    const email   = document.getElementById('profile-email').value.trim();
     const curPw   = document.getElementById('profile-current-pw').value;
     const newPw   = document.getElementById('profile-new-pw').value;
     const confPw  = document.getElementById('profile-confirm-pw').value;
     alertEl.style.display = 'none';
     if (!name)              { showProfileAlert('error', 'Nama tidak boleh kosong.'); return; }
+    if (!email)             { showProfileAlert('error', 'Email tidak boleh kosong.'); return; }
     if (newPw && newPw.length < 6) { showProfileAlert('error', 'Password baru minimal 6 karakter.'); return; }
     if (newPw && newPw !== confPw) { showProfileAlert('error', 'Konfirmasi password tidak cocok.'); return; }
     if (newPw && !curPw)   { showProfileAlert('error', 'Masukkan password lama terlebih dahulu.'); return; }
@@ -370,6 +379,7 @@ async function saveProfile() {
     const fd = new FormData();
     fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
     fd.append('name', name);
+    fd.append('email', email);
     if (newPw) {
         fd.append('current_password', curPw);
         fd.append('new_password', newPw);
@@ -385,6 +395,7 @@ async function saveProfile() {
             showProfileAlert('success', data.message);
             document.getElementById('profile-display-name').textContent = data.name;
             document.getElementById('profile-name').value = data.name;
+            document.getElementById('profile-email').value = data.email;
             document.getElementById('profile-current-pw').value = '';
             document.getElementById('profile-new-pw').value = '';
             document.getElementById('profile-confirm-pw').value = '';
