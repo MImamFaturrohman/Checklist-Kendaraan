@@ -21,7 +21,11 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): View
     {
-        return view('auth.reset-password', ['request' => $request]);
+        return view('auth.login', [
+            'isResetMode' => true,
+            'token' => $request->route('token'),
+            'email' => $request->email,
+        ]);
     }
 
     /**
@@ -35,6 +39,12 @@ class NewPasswordController extends Controller
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'email.required' => 'Kolom email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Kolom password baru wajib diisi.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
+            'password.min' => 'Password baru minimal harus terdiri dari 8 karakter.',
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we
@@ -52,12 +62,18 @@ class NewPasswordController extends Controller
             }
         );
 
+        $messages = [
+            Password::INVALID_USER => 'Email yang Anda masukkan tidak terdaftar dalam sistem.',
+            Password::INVALID_TOKEN => 'Token reset password tidak valid atau sudah kedaluwarsa.',
+            Password::RESET_THROTTLED => 'Permintaan reset password terlalu sering. Silakan tunggu beberapa saat.',
+        ];
+
         // If the password was successfully reset, we will redirect the user back to
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
+                    ? redirect()->route('login')->with('status', 'Password Anda berhasil diubah. Silakan login menggunakan password baru Anda.')
                     : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+                        ->withErrors(['email' => $messages[$status] ?? 'Gagal mengatur ulang password.']);
     }
 }

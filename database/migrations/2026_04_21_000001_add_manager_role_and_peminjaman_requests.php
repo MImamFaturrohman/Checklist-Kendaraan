@@ -9,7 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE users MODIFY role ENUM('admin', 'driver', 'manager') DEFAULT 'driver'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY role ENUM('admin', 'driver', 'manager') DEFAULT 'driver'");
+        }
 
         Schema::create('peminjaman_requests', function (Blueprint $table) {
             $table->id();
@@ -30,6 +32,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('peminjaman_requests');
-        DB::statement("ALTER TABLE users MODIFY role ENUM('admin', 'driver') DEFAULT 'driver'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY role ENUM('admin', 'driver') DEFAULT 'driver'");
+        }
     }
 };

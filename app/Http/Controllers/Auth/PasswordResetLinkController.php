@@ -19,15 +19,13 @@ class PasswordResetLinkController extends Controller
         return view('auth.forgot-password');
     }
 
-    /**
-     * Handle an incoming password reset link request.
-     *
-     * @throws ValidationException
-     */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): mixed
     {
         $request->validate([
             'email' => ['required', 'email'],
+        ], [
+            'email.required' => 'Kolom email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
         ]);
 
         // We will send the password reset link to this user. Once we have attempted
@@ -37,9 +35,31 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        $messages = [
+            Password::INVALID_USER => 'Email yang Anda masukkan tidak terdaftar dalam sistem.',
+            Password::RESET_THROTTLED => 'Permintaan reset password terlalu sering. Silakan tunggu beberapa saat.',
+        ];
+
+        if ($status == Password::RESET_LINK_SENT) {
+            $successMessage = 'Tautan reset password telah berhasil dikirim ke email Anda. Silakan periksa kotak masuk (atau spam) email Anda.';
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $successMessage,
+                ]);
+            }
+            return back()->with('status', $successMessage);
+        }
+
+        $errorMessage = $messages[$status] ?? 'Gagal memproses permintaan reset password.';
+
+        if ($request->expectsJson()) {
+            throw ValidationException::withMessages([
+                'email' => [$errorMessage],
+            ]);
+        }
+
+        return back()->withInput($request->only('email'))
+            ->withErrors(['email' => $errorMessage]);
     }
 }

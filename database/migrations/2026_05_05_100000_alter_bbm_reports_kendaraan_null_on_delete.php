@@ -14,7 +14,13 @@ return new class extends Migration
         });
 
         // MySQL: kolom harus nullable agar ON DELETE SET NULL berlaku
-        DB::statement('ALTER TABLE bbm_reports MODIFY kendaraan_id BIGINT UNSIGNED NULL');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE bbm_reports MODIFY kendaraan_id BIGINT UNSIGNED NULL');
+        } else {
+            Schema::table('bbm_reports', function (Blueprint $table) {
+                $table->unsignedBigInteger('kendaraan_id')->nullable()->change();
+            });
+        }
 
         Schema::table('bbm_reports', function (Blueprint $table) {
             $table->foreign('kendaraan_id')
@@ -34,7 +40,13 @@ return new class extends Migration
             $table->dropForeign(['kendaraan_id']);
         });
 
-        DB::statement('ALTER TABLE bbm_reports MODIFY kendaraan_id BIGINT UNSIGNED NOT NULL');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE bbm_reports MODIFY kendaraan_id BIGINT UNSIGNED NOT NULL');
+        } else {
+            Schema::table('bbm_reports', function (Blueprint $table) {
+                $table->unsignedBigInteger('kendaraan_id')->nullable(false)->change();
+            });
+        }
 
         Schema::table('bbm_reports', function (Blueprint $table) {
             $table->foreign('kendaraan_id')

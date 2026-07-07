@@ -8,7 +8,7 @@
         body { font-family: Arial, sans-serif; background: #f1f5f9; margin: 0; padding: 0; color: #1e293b; }
         .wrap { max-width: 600px; margin: 32px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
         .header { background: #002a7a; padding: 28px 32px; text-align: center; }
-        .header img { height: 48px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+        .header img { height: 58px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); }
         .header-title { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: .3px; }
         .header-sub { color: rgba(255,255,255,.75); font-size: 13px; margin-top: 4px; }
         .body { padding: 28px 32px; }
@@ -28,6 +28,7 @@
 <body>
 <div class="wrap">
     <div class="header">
+        <img src="{{ $message->embed(public_path('images/VMS.png')) }}" alt="Vehicle Management System">
         <div class="header-title">Port Management Unit Suralaya</div>
         <div class="header-sub">Permintaan Persetujuan Laporan Kejadian</div>
     </div>

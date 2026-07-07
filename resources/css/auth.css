@@ -4,6 +4,46 @@
 @import './premium-bg.css';
 
 /* ================================================================
+   SCROLLBAR STYLES
+   ================================================================ */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Default Dark Mode Thumb */
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Light Mode Thumb */
+.light-mode::-webkit-scrollbar-thumb {
+    background: rgba(0, 42, 122, 0.18);
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.light-mode::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 42, 122, 0.35);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+/* ================================================================
    DESIGN TOKENS
    ================================================================ */
 :root {
@@ -46,7 +86,7 @@
     justify-content: center;
     padding: 1.5rem;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
     background: linear-gradient(135deg, #0A2342 0%, #0e1f3a 50%, #050B14 100%);
     transition: background 0.5s ease;
 }
@@ -293,14 +333,69 @@
     border-radius: 0.6rem;
     font-size: 0.8rem;
     font-weight: 500;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.35rem;
     animation: authAlertIn 0.4s ease;
+}
+
+.auth-alert[hidden] {
+    display: none !important;
 }
 
 .auth-alert-success {
     background: rgba(22, 163, 74, 0.20);
     border: 1px solid rgba(22, 163, 74, 0.45);
     color: #bbf7d0;
+}
+
+.auth-alert-danger {
+    background: rgba(239, 68, 68, 0.20);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    color: #fecaca;
+}
+
+.light-mode .auth-alert-success {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.light-mode .auth-alert-danger {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+/* Helper Link Styles */
+.auth-field-helper {
+    display: flex;
+    justify-content: space-between;
+    margin-top: -0.3rem;
+    margin-bottom: 1.15rem;
+}
+
+.auth-helper-link {
+    background: none;
+    border: none;
+    color: rgba(190, 215, 255, 0.85);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--auth-transition);
+    padding: 0;
+    text-decoration: none;
+}
+
+.auth-helper-link:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.light-mode .auth-helper-link {
+    color: #1e3a8a;
+}
+
+.light-mode .auth-helper-link:hover {
+    color: #0f172a;
 }
 
 @keyframes authAlertIn {
@@ -690,26 +785,6 @@
 }
 
 /* ================================================================
-   SCROLLBAR
-   ================================================================ */
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--auth-navy);
-}
-
-::-webkit-scrollbar-thumb {
-    background: #243a5e;
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--auth-gold);
-}
-
-/* ================================================================
    THEME TOGGLE BUTTON
    ================================================================ */
 .auth-theme-toggle {
@@ -1095,5 +1170,16 @@
     .auth-alert,
     .auth-error-msg {
         animation: none !important;
+    }
+}
+
+/* Specific styling for helper buttons and scrolling media queries */
+#back-to-login {
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .auth-card {
+        /* margin-top: 30px; */
     }
 }
