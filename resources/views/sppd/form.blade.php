@@ -16,6 +16,15 @@
 
 @push('styles')
 <style>
+    .sppd-form-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #0b2c6b;
+    }
+    html.dark .dash-body .sppd-form-title { color: #D4AF37; }
+    .sppd-form-title i { color: #D4AF37; }
+
     .sppd-form-page .section-banner {
         display: flex;
         align-items: center;
@@ -297,7 +306,7 @@
             @endif
 
             <div class="checklist-progress-head">
-                <div class="checklist-progress-info">
+                <div class="sppd-form-title">
                     <span style="font-size: 1.3em;" id="sppd-step-label"><i class="bi bi-geo-alt-fill"></i> DATA LAPORAN SPPD</span>
                 </div>
             </div>

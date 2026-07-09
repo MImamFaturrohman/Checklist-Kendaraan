@@ -129,17 +129,59 @@
         }
         
         .signature-card {
+            position: relative;
             border-radius: 8px;
-            background: #ffffff;
             border: 1px solid #e5e7eb; 
             padding: 12px 14px;
+            background: #f8feffff;
+            overflow: hidden;
+        }
+
+        .signature-left-bg-right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 180px;
+            height: auto;
+            object-fit: fill;
+            z-index: 0;
+        }
+        
+        .signature-left-bg-left {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 180px;
+            height: auto;
+            object-fit: fill;
+            z-index: 0;
+        }
+
+        .signature-right-bg-right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: auto;
+            z-index: 0;
+        }
+        
+        .signature-right-bg-bottom {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            width: 120px;
+            height: auto;
+            z-index: 0;
         }
 
         /* Menggunakan table-layout: fixed agar pembagian width % dipatuhi secara kaku oleh DomPDF */
         .sig-table {
+            position: relative;
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed; 
+            z-index: 1;
         }
         .sig-table td {
             vertical-align: middle;
@@ -149,21 +191,24 @@
 
         /* Alokasi lebar kolom yang seimbang */
         .sig-qr-col {
-            width: 25%; /* Mengunci ruang QR sebesar 25% */
+            width: 25%; 
             text-align: left;
         }
         .signature-qr-img {
             width: 70px; 
             height: 70px;
             display: block;
+            border: 1px solid #D4AF37;
+            border-radius: 5px;
+            padding: 4px;
         }
 
         /* Kolom teks diberikan sisa ruang terbesar dan jarak aman */
         .sig-meta-col {
-            width: 60%; /* Mengunci ruang teks sebesar 60% */
+            width: 60%; 
             text-align: left;
             line-height: 1.25;
-            padding-left: 6px; /* Memberikan jarak/gap aman setelah QR Code */
+            padding-left: 6px; 
             padding-right: 5px;
         }
 
@@ -198,33 +243,6 @@
             font-weight: normal;
             font-style: italic;
             white-space: nowrap;
-        }
-
-        /* Kolom icon dialokasikan sebesar 15% */
-        .sig-icon-col {
-            width: 15%; 
-            text-align: right;
-            vertical-align: middle;
-        }
-
-        /* Menggunakan lingkaran dengan kombinasi border yang presisi */
-        .icon-check-circle {
-            display: inline-block;
-            width: 26px;
-            height: 26px;
-            background-color: #1d4ed8; 
-            border: 4px solid #eef2ff;  
-            border-radius: 50%;
-            text-align: center;
-        }
-
-        /* Margin top disesuaikan agar posisi icon SVG benar-benar berada di tengah lingkaran */
-        .icon-check-svg {
-            width: 11px;
-            height: 11px;
-            display: inline-block;
-            vertical-align: middle;
-            margin-top: 7px; 
         }
 
         .pdf-page-footer {
@@ -453,6 +471,8 @@
         <tr>
             <td style="width: 48%;">
                 <div class="signature-card">
+                    <img class="signature-left-bg-right" src="{{ public_path('images/QR Signature BG Right.png') }}" alt="Signature Background">
+                    <img class="signature-left-bg-left" src="{{ public_path('images/QR Signature BG Left.png') }}" alt="Signature Background">
                     <table class="sig-table">
                         <tr>
                             <td class="sig-qr-col">
@@ -464,18 +484,16 @@
                                 <div class="sig-line-name">{{ mb_strtoupper((string) $pmName, 'UTF-8') }}</div>
                                 <div class="sig-line-when">{{ $pmWhenCaption }}</div>
                             </td>
-                            <td class="sig-icon-col">
-                                <div class="icon-check-circle">
-                                    <img class="icon-check-svg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJz48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=" alt="Check">
-                                </div>
-                            </td>
                         </tr>
                     </table>
                 </div>
             </td>
             <td style="width: 4%;"></td>
             <td style="width: 48%;">
-                <div class="signature-card">
+                <div class="signature-card" style="">
+                    <img class="signature-right-bg-right" src="{{ public_path('images/QR Signature BG Right.png') }}" alt="Signature Background">
+                    <img class="signature-right-bg-bottom" src="{{ public_path('images/QR Signature BG Bottom.png') }}" alt="Signature Background">
+
                     <table class="sig-table">
                         <tr>
                             <td class="sig-qr-col">
@@ -486,11 +504,6 @@
                                 <div class="sig-line-role">KEUANGAN &amp; ADMINISTRASI</div>
                                 <div class="sig-line-name">{{ mb_strtoupper((string) $admName, 'UTF-8') }}</div>
                                 <div class="sig-line-when">{{ $admWhenCaption }}</div>
-                            </td>
-                            <td class="sig-icon-col">
-                                <div class="icon-check-circle">
-                                    <img class="icon-check-svg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJz48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=" alt="Check">
-                                </div>
                             </td>
                         </tr>
                     </table>
