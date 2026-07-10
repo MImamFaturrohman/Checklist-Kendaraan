@@ -2,7 +2,7 @@
 
 @section('title', 'Portal Manajemen Administrasi')
 @section('pageTitle', 'Portal Manajemen Administrasi')
-@section('pageSubtitle', 'Master armada & manajemen user')
+@section('pageSubtitle', 'Master Unit Kendaraan, Manajemen User & Manajemen Bidang')
 
 @php $premiumBgId = 'portal_manajemen'; @endphp
 
@@ -100,6 +100,154 @@ html.dark .portal-bidang-btn-sub {
     color: #a78bfa !important;
     border-color: rgba(167, 139, 250, 0.25) !important;
 }
+
+/* ── SweetAlert2 custom style (portal-manajemen-administrasi) ── */
+.swal-mgmt-icon-success {
+    box-sizing: content-box !important;
+}
+.swal-mgmt-icon-success * {
+    box-sizing: content-box !important;
+}
+.swal2-popup.swal-mgmt-popup .swal2-success-circular-line-left,
+.swal2-popup.swal-mgmt-popup .swal2-success-circular-line-right,
+.swal2-popup.swal-mgmt-popup .swal2-success-fix {
+    background: transparent !important;
+}
+.swal2-popup.swal-mgmt-popup {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 20px !important;
+    width: 420px !important;
+    max-width: calc(100% - 32px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(11, 44, 107, 0.12) !important;
+    padding: 1.5rem 1.25rem 1.5rem !important;
+}
+html.dark .swal2-popup.swal-mgmt-popup {
+    color: #f3f4f6 !important;
+    background: rgba(16, 38, 80, 0.95) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.swal-mgmt-title {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+html.dark .swal-mgmt-title {
+    color: #f1f5f9 !important;
+}
+html.dark .swal2-popup.swal-mgmt-popup .swal2-html-container,
+html.dark .swal2-popup.swal-mgmt-popup .swal2-content {
+    color: #cbd5e1 !important;
+}
+html.dark .swal2-popup.swal-mgmt-popup .swal2-html-container p,
+html.dark .swal2-popup.swal-mgmt-popup .swal2-html-container strong {
+    color: #e2e8f0 !important;
+}
+.swal2-popup.swal-mgmt-popup .swal2-actions {
+    margin: 1.25rem auto 0 !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+}
+.swal2-popup.swal-mgmt-popup button.swal-mgmt-confirm {
+    margin: 0 !important;
+    background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    padding: 0.7rem 1.5rem !important;
+    min-width: 8.5rem !important;
+    box-shadow: 0 4px 14px rgba(11, 44, 107, 0.3) !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+.swal2-popup.swal-mgmt-popup button.swal-mgmt-confirm:hover {
+    box-shadow: 0 6px 18px rgba(11, 44, 107, 0.38) !important;
+    transform: translateY(-1px);
+}
+.swal2-popup.swal-mgmt-popup button.swal-mgmt-confirm.swal-danger {
+    background: linear-gradient(135deg, #b91c1c, #ef4444) !important;
+    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.3) !important;
+}
+.swal2-popup.swal-mgmt-popup button.swal-mgmt-cancel {
+    margin: 0 !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    padding: 0.7rem 1.35rem !important;
+    min-width: 7rem !important;
+    border: 2px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+}
+.swal2-popup.swal-mgmt-popup button.swal-mgmt-cancel:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+html.dark .swal2-popup.swal-mgmt-popup button.swal-mgmt-cancel {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.45) !important;
+    color: #f1f5f9 !important;
+}
+html.dark .swal2-popup.swal-mgmt-popup button.swal-mgmt-cancel:hover {
+    background: rgba(51, 65, 85, 0.95) !important;
+    border-color: rgba(148, 163, 184, 0.65) !important;
+}
+/* Override kotak info / warning dengan class */
+.swal-mgmt-warn-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fef9c3;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #92400e;
+    text-align: left;
+}
+.swal-mgmt-info-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #1e3a8a;
+    text-align: left;
+}
+html.dark .swal-mgmt-warn-box {
+    background: rgba(146, 64, 14, 0.18) !important;
+    border-color: rgba(251, 191, 36, 0.28) !important;
+    color: #fde68a !important;
+}
+html.dark .swal-mgmt-info-box {
+    background: rgba(30, 58, 138, 0.22) !important;
+    border-color: rgba(96, 165, 250, 0.3) !important;
+    color: #bfdbfe !important;
+}
+html.dark .swal-mgmt-warn-box strong,
+html.dark .swal-mgmt-info-box strong {
+    color: inherit !important;
+}
+/* Input dan textarea di dalam popup */
+html.dark .swal2-popup.swal-mgmt-popup .swal2-input,
+html.dark .swal2-popup.swal-mgmt-popup .swal2-textarea {
+    background: rgba(30, 41, 59, 0.7) !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+    color: #f1f5f9 !important;
+}
+html.dark .swal2-popup.swal-mgmt-popup .swal2-input-label {
+    color: #94a3b8 !important;
+}
+/* List item di dalam validation error */
+html.dark .swal2-popup.swal-mgmt-popup .swal2-html-container ul li {
+    color: #e2e8f0 !important;
+}
 </style>
 @endpush
 
@@ -150,7 +298,7 @@ html.dark .portal-bidang-btn-sub {
             <span class="mgmt-tab-count" id="tc-bidang">{{ \App\Models\Bidang::count() }}</span>
         </button>
         <button class="mgmt-tab active" id="tab-armada" onclick="switchTab('armada')">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="1" y="3" width="15" height="13" rx="1" stroke="currentColor" stroke-width="2"/><path d="M16 8l4 2 2 5v2h-6V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+            <i class="bi bi-truck-front-fill"></i>
             <span>Manajemen Unit Kendaraan</span>
             <span class="mgmt-tab-count" id="tc-armada">{{ $stats['total_kendaraan'] }}</span>
         </button>
@@ -441,7 +589,7 @@ html.dark .portal-bidang-btn-sub {
     <div class="mgmt-modal-box" onclick="event.stopPropagation()">
         <div class="mgmt-modal-header">
             <div class="mgmt-modal-avatar" id="armada-modal-avatar" style="background:rgba(15,118,110,.15);color:#0f766e;font-size:0.75rem;font-weight:800;border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;padding:0">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 17H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/><path d="M7 17v2m10-2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+                <i class="bi bi-truck-front-fill"></i>
             </div>
             <div>
                 <h2 class="mgmt-modal-title" id="armada-modal-title">Kendaraan</h2>
@@ -470,7 +618,7 @@ html.dark .portal-bidang-btn-sub {
                     </div>
                     <div class="mgmt-field">
                         <label class="mgmt-label" for="armada-modal-km" id="armada-modal-km-label">Set KM</label>
-                        <input type="number" id="armada-modal-km" class="mgmt-input" placeholder="0" min="0" step="1" value="0">
+                        <input type="number" id="armada-modal-km" class="mgmt-input" placeholder="0" min="Ex. 0" step="1" required>
                     </div>
                 </div>
                 <p class="mgmt-modal-section-label" style="margin-top:8px">MASA BERLAKU &amp; STATUS</p>
@@ -1022,12 +1170,7 @@ window.submitBidangModal = async function() {
         const pimpinanEmail   = document.getElementById('portal-bidang-pimpinan-email').value.trim();
 
         if (!pimpinanNama || !pimpinanEmail) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Validasi',
-                html: 'Nama dan Email <strong>Pimpinan</strong> wajib diisi untuk sub-bidang.',
-                confirmButtonColor: '#7c3aed'
-            });
+            Swal.fire({ icon: 'warning', title: 'Validasi', html: 'Nama dan Email <strong>Pimpinan</strong> wajib diisi untuk sub-bidang.', customClass: { popup: 'swal-mgmt-popup', title: 'swal-mgmt-title' } });
             return;
         }
 
@@ -1043,25 +1186,26 @@ window.submitBidangModal = async function() {
         const res=await fetch(url,{method,headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':CSRF,'X-Requested-With':'XMLHttpRequest'},body:JSON.stringify(payload)});
         const data=await res.json().catch(()=>({}));
         if (!res.ok) {
-            data.errors?Swal.fire({icon:'warning',title:'Validasi',html:Object.values(data.errors).flat().join('<br>'),confirmButtonColor:'#7c3aed'}):Swal.fire({icon:'error',title:'Gagal',text:data.message||'HTTP '+res.status}); return;
+            data.errors?Swal.fire({icon:'warning',title:'Validasi',html:Object.values(data.errors).flat().join('<br>'),customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}):Swal.fire({icon:'error',title:'Gagal',text:data.message||'HTTP '+res.status,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); return;
         }
-        closeBidangModal(); Swal.fire({icon:'success',title:id?'Diperbarui':'Disimpan',timer:1300,showConfirmButton:false}); loadPortalBidangs();
-    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+        closeBidangModal(); Swal.fire({icon:'success',title:id?'Diperbarui':'Disimpan',timer:1300,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}}); loadPortalBidangs();
+    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
     finally { btn.disabled=false; btn.innerHTML=prev; }
 };
 
 window.deleteBidangPortal = function(id,nama) {
     Swal.fire({
         title:'Hapus Bidang?',html:`<p>Yakin ingin menghapus <strong>${escPB(nama)}</strong>?</p><div style="margin-top:10px;padding:8px;background:#fef9c3;border:1px solid #fde68a;border-radius:8px;font-size:0.82rem;color:#92400e;text-align:left">⚠️ Sub-bidang di dalamnya juga akan dihapus.</div>`,
-        icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',cancelButtonColor:'#64748b',confirmButtonText:'Ya, Hapus',cancelButtonText:'Batal',
+        icon:'warning',showCancelButton:true,confirmButtonText:'Ya, Hapus',cancelButtonText:'Batal',
+        buttonsStyling:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',confirmButton:'swal-mgmt-confirm swal-danger',cancelButton:'swal-mgmt-cancel'},
     }).then(async r => {
         if (!r.isConfirmed) return;
         try {
             const res=await fetch(PORTAL_BIDANG_API+'/'+id,{method:'DELETE',headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':CSRF,'X-Requested-With':'XMLHttpRequest'}});
             const data=await res.json().catch(()=>({}));
-            if (!res.ok||!data.success){Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'});return;}
-            Swal.fire({icon:'success',title:'Terhapus',timer:1300,showConfirmButton:false}); loadPortalBidangs();
-        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+            if (!res.ok||!data.success){Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}});return;}
+            Swal.fire({icon:'success',title:'Terhapus',timer:1300,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}}); loadPortalBidangs();
+        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
     });
 };
 
@@ -1149,7 +1293,7 @@ window.openArmadaAddModal = function() {
     document.getElementById('armada-modal-jenis').value = '';
     document.getElementById('armada-modal-bidang').value = '';
     document.getElementById('armada-modal-km-label').textContent = 'Set KM';
-    document.getElementById('armada-modal-km').value = '0';
+    document.getElementById('armada-modal-km').placeholder = 'Ex. 0';
     document.getElementById('armada-modal-tanggal-stnk').value = '';
     document.getElementById('armada-modal-tanggal-pajak').value = '';
     document.getElementById('armada-modal-tanggal-kir').value = '';
@@ -1215,15 +1359,28 @@ window.submitArmadaModal = async function() {
         const res = await fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.success) {
-            Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 1600, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 1600, showConfirmButton: false, customClass: { popup: 'swal-mgmt-popup', title: 'swal-mgmt-title', icon: 'swal-mgmt-icon-success' } });
             closeArmadaModal();
             fetchArmada();
+        } else if (res.status === 422 && data.errors) {
+            // Validation error — tampilkan sebagai warning dengan daftar pesan
+            const errList = Object.values(data.errors).flat();
+            const html = '<ul style="margin:8px 0 0;padding-left:1.2rem;text-align:left;font-size:0.9rem;line-height:1.6">'
+                + errList.map(e => `<li>${e}</li>`).join('')
+                + '</ul>';
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Valid',
+                html,
+                customClass: { popup: 'swal-mgmt-popup', title: 'swal-mgmt-title', confirmButton: 'swal-mgmt-confirm' },
+                buttonsStyling: false,
+                confirmButtonText: 'Perbaiki',
+            });
         } else {
-            const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message || 'Terjadi kesalahan.');
-            Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.', customClass: { popup: 'swal-mgmt-popup', title: 'swal-mgmt-title' } });
         }
     } catch {
-        Swal.fire({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Periksa koneksi internet.' });
+        Swal.fire({ icon: 'error', title: 'Koneksi Bermasalah', text: 'Periksa koneksi internet.', customClass: { popup: 'swal-mgmt-popup', title: 'swal-mgmt-title' } });
     } finally {
         btn.disabled = false;
         btn.innerHTML = prevHtml;
@@ -1235,8 +1392,9 @@ window.deleteKendaraan = function(id, nopol) {
         title:'Hapus Kendaraan?',
         html:`<p>Yakin ingin menghapus <strong>${nopol}</strong>?</p>`,
         icon:'warning',showCancelButton:true,
-        confirmButtonColor:'#ef4444',cancelButtonColor:'#64748b',
         confirmButtonText:'Ya, Hapus',cancelButtonText:'Batal',
+        buttonsStyling:false,
+        customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',confirmButton:'swal-mgmt-confirm swal-danger',cancelButton:'swal-mgmt-cancel'},
     }).then(async r => {
         if (!r.isConfirmed) return;
         const form = document.getElementById('kdel-' + id);
@@ -1244,10 +1402,10 @@ window.deleteKendaraan = function(id, nopol) {
             const res  = await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
             const data = await res.json();
             if (res.ok && data.success) {
-                Swal.fire({icon:'success',title:'Terhapus!',text:data.message,timer:1500,showConfirmButton:false});
+                Swal.fire({icon:'success',title:'Terhapus!',text:data.message,timer:1500,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}});
                 fetchArmada();
-            } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'}); }
-        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+            } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
+        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
     });
 };
 
@@ -1414,7 +1572,7 @@ document.getElementById('form-add-user').addEventListener('submit', async functi
         const res  = await fetch('{{ route("admin.users.store") }}',{method:'POST',body:new FormData(this),headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
         const data = await res.json();
         if (res.ok && data.success) {
-            Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1600,showConfirmButton:false});
+            Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1600,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}});
             document.getElementById('add-user-name').value = '';
             document.getElementById('add-user-username').value = '';
             document.getElementById('add-user-email').value = '';
@@ -1423,9 +1581,9 @@ document.getElementById('form-add-user').addEventListener('submit', async functi
             closeUserAddModal(); fetchUsers();
         } else {
             const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message||'Gagal.');
-            Swal.fire({icon:'error',title:'Gagal',text:msg});
+            Swal.fire({icon:'error',title:'Gagal',text:msg,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}});
         }
-    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
     finally {
         btn.disabled = false;
         btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:5px"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Simpan';
@@ -1473,13 +1631,13 @@ window.submitUserEdit = async function() {
         const res  = await fetch(`/admin/users/${id}`,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
         const data = await res.json();
         if (res.ok && data.success) {
-            Swal.fire({icon:'success',title:'Diperbarui!',text:data.message,timer:1500,showConfirmButton:false,toast:true,position:'top-end'});
+            Swal.fire({icon:'success',title:'Diperbarui!',text:data.message,timer:1500,showConfirmButton:false,toast:true,position:'top-end',customClass:{popup:'swal-mgmt-popup'}});
             closeUserModal(); fetchUsers();
         } else {
             const msg = data.errors ? Object.values(data.errors).flat().join('\n') : (data.message||'Gagal.');
-            Swal.fire({icon:'error',title:'Gagal',text:msg});
+            Swal.fire({icon:'error',title:'Gagal',text:msg,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}});
         }
-    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+    } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
     finally {
         btn.disabled = false;
         btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:5px"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Simpan Perubahan';
@@ -1490,12 +1648,13 @@ window.deleteUser = function(id, nama) {
     Swal.fire({
         title:'Hapus User?',
         html:`<p>Yakin ingin menghapus <strong>${nama}</strong>?</p>
-              <div style="margin-top:10px;padding:10px;background:#fef9c3;border:1px solid #fde68a;border-radius:8px;font-size:0.82rem;color:#92400e;text-align:left">
+              <div class="swal-mgmt-warn-box">
                 ⚠️ Data yang dibuat oleh user ini tidak akan terhapus.
               </div>`,
         icon:'warning',showCancelButton:true,
-        confirmButtonColor:'#ef4444',cancelButtonColor:'#64748b',
         confirmButtonText:'Ya, Hapus',cancelButtonText:'Batal',
+        buttonsStyling:false,
+        customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',confirmButton:'swal-mgmt-confirm swal-danger',cancelButton:'swal-mgmt-cancel'},
     }).then(async r => {
         if (!r.isConfirmed) return;
         const fd = new FormData();
@@ -1504,10 +1663,10 @@ window.deleteUser = function(id, nama) {
             const res  = await fetch(`/admin/users/${id}`,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
             const data = await res.json();
             if (res.ok && data.success) {
-                Swal.fire({icon:'success',title:'Terhapus!',text:data.message,timer:1500,showConfirmButton:false});
+                Swal.fire({icon:'success',title:'Terhapus!',text:data.message,timer:1500,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}});
                 fetchUsers();
-            } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'}); }
-        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+            } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
+        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
     });
 };
 
@@ -1515,15 +1674,15 @@ window.resetUserPassword = function(id, nama) {
     Swal.fire({
         title: 'Reset Password?',
         html: `<p>Yakin ingin mereset password <strong>${nama}</strong>?</p>
-              <div style="margin-top:10px;padding:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:0.82rem;color:#1e3a8a;text-align:left">
+              <div class="swal-mgmt-info-box">
                   Password akan direset menjadi default: <strong>{{ $defaultPassword }}</strong>
               </div>`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3b82f6',
-        cancelButtonColor: '#64748b',
         confirmButtonText: 'Ya, Reset',
         cancelButtonText: 'Batal',
+        buttonsStyling: false,
+        customClass: { popup: 'swal-mgmt-popup', title: 'swal-mgmt-title', confirmButton: 'swal-mgmt-confirm', cancelButton: 'swal-mgmt-cancel' },
     }).then(async r => {
         if (!r.isConfirmed) return;
         const fd = new FormData();
@@ -1532,9 +1691,9 @@ window.resetUserPassword = function(id, nama) {
             const res  = await fetch(`/admin/users/${id}/reset-password`,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
             const data = await res.json();
             if (res.ok && data.success) {
-                Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1500,showConfirmButton:false});
-            } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.'}); }
-        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.'}); }
+                Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1500,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}});
+            } else { Swal.fire({icon:'error',title:'Gagal',text:data.message||'Terjadi kesalahan.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
+        } catch { Swal.fire({icon:'error',title:'Koneksi Bermasalah',text:'Periksa koneksi internet.',customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title'}}); }
     });
 };
 

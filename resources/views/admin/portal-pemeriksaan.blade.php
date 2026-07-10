@@ -15,6 +15,105 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @endpush
 
+@push('styles')
+<style>
+    /* ── SweetAlert2 custom style (portal-pemeriksaan) ── */
+    .lp-swal-icon-success {
+        box-sizing: content-box !important;
+    }
+    .lp-swal-icon-success * {
+        box-sizing: content-box !important;
+    }
+    .swal2-popup.lp-swal-popup .swal2-success-circular-line-left,
+    .swal2-popup.lp-swal-popup .swal2-success-circular-line-right,
+    .swal2-popup.lp-swal-popup .swal2-success-fix {
+        background: transparent !important;
+    }
+    .swal2-popup.lp-swal-popup {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 20px !important;
+        width: 420px !important;
+        max-width: calc(100% - 32px) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid rgba(11, 44, 107, 0.12) !important;
+        padding: 1.5rem 1.25rem 1.5rem !important;
+    }
+    html.dark .swal2-popup.lp-swal-popup {
+        color: #f3f4f6 !important;
+        background: rgba(16, 38, 80, 0.95) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    .lp-swal-title {
+        font-size: 1.15rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+    }
+    html.dark .lp-swal-title {
+        color: #f1f5f9 !important;
+    }
+    html.dark .swal2-popup.lp-swal-popup .swal2-html-container,
+    html.dark .swal2-popup.lp-swal-popup .swal2-content {
+        color: #cbd5e1 !important;
+    }
+    html.dark .swal2-popup.lp-swal-popup .swal2-html-container p,
+    html.dark .swal2-popup.lp-swal-popup .swal2-html-container strong {
+        color: #e2e8f0 !important;
+    }
+    .swal2-popup.lp-swal-popup .swal2-actions {
+        margin: 1.25rem auto 0 !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+    .swal2-popup.lp-swal-popup .swal2-confirm {
+        margin: 0 !important;
+        background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
+        padding: 0.7rem 1.5rem !important;
+        min-width: 8.5rem !important;
+        box-shadow: 0 4px 14px rgba(11, 44, 107, 0.3) !important;
+        cursor: pointer !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    .swal2-popup.lp-swal-popup .swal2-confirm:hover {
+        box-shadow: 0 6px 18px rgba(11, 44, 107, 0.38) !important;
+        transform: translateY(-1px);
+    }
+    .swal2-popup.lp-swal-popup .swal2-cancel {
+        margin: 0 !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        font-size: 0.88rem !important;
+        padding: 0.7rem 1.35rem !important;
+        min-width: 7rem !important;
+        border: 2px solid #cbd5e1 !important;
+        background: #f8fafc !important;
+        color: #475569 !important;
+        cursor: pointer !important;
+    }
+    .swal2-popup.lp-swal-popup .swal2-cancel:hover {
+        background: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
+    }
+    html.dark .swal2-popup.lp-swal-popup .swal2-cancel {
+        background: rgba(30, 41, 59, 0.8) !important;
+        border-color: rgba(148, 163, 184, 0.35) !important;
+        color: #e2e8f0 !important;
+    }
+    html.dark .swal2-popup.lp-swal-popup .swal2-cancel:hover {
+        background: rgba(30, 41, 59, 0.95) !important;
+        border-color: rgba(148, 163, 184, 0.5) !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="admin-shell" style="position:relative;z-index:1">
     @php $canAccessDatabase = $canAccessDatabase ?? false; @endphp
@@ -614,9 +713,9 @@
                             <td>{{ $c->shift }}</td>
                             <td>
                                 @if($c->pdf_path)
-                                    <a href="{{ $resolvePdfUrl($c->pdf_path) }}" target="_blank" class="btn btn-sm sppd-btn-primary" style="padding:4px 10px;font-size:0.75rem">
+                                    <a href="{{ $resolvePdfUrl($c->pdf_path) }}" target="_blank" class="btn-view-pdf" style="padding:4px 10px;font-size:0.75rem">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
-                                        View
+                                        View PDF
                                     </a>
                                 @else
                                     <span style="color:#94a3b8;font-size:.75rem">—</span>

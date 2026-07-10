@@ -12,6 +12,56 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @endpush
 
+@push('styles')
+<style>
+    .swal-sppd-icon-success {
+        box-sizing: content-box !important;
+    }
+    .swal-sppd-icon-success * {
+        box-sizing: content-box !important;
+    }
+    .swal2-popup.swal-sppd-popup .swal2-success-circular-line-left,
+    .swal2-popup.swal-sppd-popup .swal2-success-circular-line-right,
+    .swal2-popup.swal-sppd-popup .swal2-success-fix {
+        background: transparent !important;
+    }
+    .swal2-popup.swal-sppd-popup {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 20px !important;
+        width: 450px !important;
+        max-width: calc(100% - 32px) !important;
+        border: 1px solid rgba(11, 44, 107, 0.12) !important;
+        padding: 1.5rem 1.25rem 1.5rem !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup {
+        color: #f3f4f6 !important;
+        background: rgba(16, 38, 80, 0.95) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-title {
+        color: #f1f5f9 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-html-container,
+    html.dark .swal2-popup.swal-sppd-popup .swal2-content {
+        color: #cbd5e1 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-html-container p,
+    html.dark .swal2-popup.swal-sppd-popup .swal2-html-container strong {
+        color: #e2e8f0 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-input,
+    html.dark .swal2-popup.swal-sppd-popup .swal2-textarea {
+        background: rgba(30, 58, 110, 0.8) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #f1f5f9 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-input-label {
+        color: #94a3b8 !important;
+    }
+</style>
+@endpush
+
 @section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
@@ -208,12 +258,12 @@
             }
             const apprBtn = e.target.closest('.mgr-sppd-approve');
             if (apprBtn) {
-                const c = await Swal.fire({ title: 'Setujui rekap ini?', icon: 'question', showCancelButton: true, confirmButtonText: 'Setujui' });
+                const c = await Swal.fire({ title: 'Setujui rekap ini?', icon: 'question', showCancelButton: true, confirmButtonText: 'Setujui', customClass: { popup: 'swal-sppd-popup', icon: 'swal-sppd-icon-success' } });
                 if (!c.isConfirmed) return;
                 const r = await fetch(approve(apprBtn.dataset.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
                 const j = await r.json();
-                if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
-                else Swal.fire('Gagal', j.message || '', 'error');
+                if (j.success) { await Swal.fire({ title: 'OK', text: j.message, icon: 'success', customClass: { popup: 'swal-sppd-popup', icon: 'swal-sppd-icon-success' } }); location.reload(); }
+                else Swal.fire({ title: 'Gagal', text: j.message || '', icon: 'error', customClass: { popup: 'swal-sppd-popup' } });
                 return;
             }
             const regenBtn = e.target.closest('.mgr-sppd-regen-pdf');
@@ -224,12 +274,13 @@
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: 'Buat PDF',
+                    customClass: { popup: 'swal-sppd-popup' },
                 });
                 if (!c.isConfirmed) return;
                 const r = await fetch(regenPdf(regenBtn.dataset.id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
                 const j = await r.json().catch(() => ({}));
-                if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
-                else Swal.fire('Gagal', j.message || 'Tidak dapat membuat PDF', 'error');
+                if (j.success) { await Swal.fire({ title: 'OK', text: j.message, icon: 'success', customClass: { popup: 'swal-sppd-popup', icon: 'swal-sppd-icon-success' } }); location.reload(); }
+                else Swal.fire({ title: 'Gagal', text: j.message || 'Tidak dapat membuat PDF', icon: 'error', customClass: { popup: 'swal-sppd-popup' } });
                 return;
             }
             const rejBtn = e.target.closest('.mgr-sppd-reject');
@@ -240,6 +291,7 @@
                     showCancelButton: true,
                     confirmButtonText: 'Tolak',
                     inputValidator: (v) => !v && 'Wajib diisi',
+                    customClass: { popup: 'swal-sppd-popup' },
                 });
                 if (!note) return;
                 const r = await fetch(reject(rejBtn.dataset.id), {
@@ -248,8 +300,8 @@
                     body: JSON.stringify({ rejection_note: note }),
                 });
                 const j = await r.json();
-                if (j.success) { await Swal.fire('OK', j.message, 'success'); location.reload(); }
-                else Swal.fire('Gagal', j.message || '', 'error');
+                if (j.success) { await Swal.fire({ title: 'OK', text: j.message, icon: 'success', customClass: { popup: 'swal-sppd-popup', icon: 'swal-sppd-icon-success' } }); location.reload(); }
+                else Swal.fire({ title: 'Gagal', text: j.message || '', icon: 'error', customClass: { popup: 'swal-sppd-popup' } });
             }
         });
         document.querySelectorAll('[data-close-manager-sppd-modal]').forEach(el => {

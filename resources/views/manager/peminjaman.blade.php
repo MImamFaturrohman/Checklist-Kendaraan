@@ -10,6 +10,73 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @endpush
 
+@push('styles')
+<style>
+    .swal-sppd-icon-success {
+        box-sizing: content-box !important;
+    }
+    .swal-sppd-icon-success * {
+        box-sizing: content-box !important;
+    }
+    .swal2-popup.swal-sppd-popup .swal2-success-circular-line-left,
+    .swal2-popup.swal-sppd-popup .swal2-success-circular-line-right,
+    .swal2-popup.swal-sppd-popup .swal2-success-fix {
+        background: transparent !important;
+    }
+    .swal2-popup.swal-sppd-popup {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 20px !important;
+        width: 420px !important;
+        max-width: calc(100% - 32px) !important;
+        border: 1px solid rgba(11, 44, 107, 0.12) !important;
+        padding: 1.5rem 1.25rem 1.5rem !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup {
+        color: #f3f4f6 !important;
+        background: rgba(16, 38, 80, 0.95) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-title {
+        color: #f1f5f9 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-html-container,
+    html.dark .swal2-popup.swal-sppd-popup .swal2-content {
+        color: #cbd5e1 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-html-container p,
+    html.dark .swal2-popup.swal-sppd-popup .swal2-html-container strong {
+        color: #e2e8f0 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-input,
+    html.dark .swal2-popup.swal-sppd-popup .swal2-textarea {
+        background: rgba(30, 58, 110, 0.8) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #f1f5f9 !important;
+    }
+    html.dark .swal2-popup.swal-sppd-popup .swal2-input-label {
+        color: #94a3b8 !important;
+    }
+    /* ── Status badge dark mode override (Riwayat Peminjaman) ── */
+    html.dark .dash-body .status-approved {
+        background: rgba(34, 197, 94, 0.18) !important;
+        color: #4ade80 !important;
+    }
+    html.dark .dash-body .status-rejected {
+        background: rgba(239, 68, 68, 0.18) !important;
+        color: #f87171 !important;
+    }
+    html.dark .dash-body .status-expired {
+        background: rgba(148, 163, 184, 0.15) !important;
+        color: #94a3b8 !important;
+    }
+    html.dark .dash-body .status-pending {
+        background: rgba(250, 204, 21, 0.15) !important;
+        color: #fde047 !important;
+    }
+</style>
+@endpush
+
 @section('content')
     <div class="admin-shell" style="position:relative;z-index:1">
         <div class="portal-wrapper">
@@ -174,6 +241,7 @@
                 showCancelButton: true,
                 confirmButtonText: 'Setujui',
                 cancelButtonText: 'Batal',
+                customClass: { popup: 'swal-sppd-popup', icon: 'swal-sppd-icon-success' },
             });
             if (!result.isConfirmed) return;
 
@@ -189,13 +257,13 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    await Swal.fire({ icon: 'success', title: 'Disetujui', text: data.message, timer: 1800, showConfirmButton: false });
+                    await Swal.fire({ icon: 'success', title: 'Disetujui', text: data.message, timer: 1800, showConfirmButton: false, customClass: { popup: 'swal-sppd-popup', icon: 'swal-sppd-icon-success' } });
                     location.reload();
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.' });
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.', customClass: { popup: 'swal-sppd-popup' } });
                 }
             } catch {
-                Swal.fire({ icon: 'error', title: 'Koneksi bermasalah', text: 'Tidak dapat menghubungi server.' });
+                Swal.fire({ icon: 'error', title: 'Koneksi bermasalah', text: 'Tidak dapat menghubungi server.', customClass: { popup: 'swal-sppd-popup' } });
             }
         }
 
@@ -209,6 +277,7 @@
                 showCancelButton: true,
                 confirmButtonText: 'Tolak',
                 cancelButtonText: 'Batal',
+                customClass: { popup: 'swal-sppd-popup' },
             });
             if (!isConfirmed) return;
 
@@ -224,10 +293,10 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    await Swal.fire({ icon: 'success', title: 'Ditolak', text: data.message, timer: 1800, showConfirmButton: false });
+                    await Swal.fire({ icon: 'success', title: 'Ditolak', text: data.message, timer: 1800, showConfirmButton: false, customClass: { popup: 'swal-sppd-popup', icon: 'swal-sppd-icon-success' } });
                     location.reload();
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.' });
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.', customClass: { popup: 'swal-sppd-popup' } });
                 }
             } catch {
                 Swal.fire({ icon: 'error', title: 'Koneksi bermasalah', text: 'Tidak dapat menghubungi server.' });

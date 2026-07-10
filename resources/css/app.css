@@ -92,6 +92,7 @@ html:not(.dark) .dash-body .dash-tag-yellow         { color: #1e3a8a; background
 
 html:not(.dark) .dash-body .dash-clock-date  { color: rgba(191, 219, 254, 0.88); }
 html:not(.dark) .dash-body .dash-clock-time  { color: #ffffff; }
+html.dark .dash-body input[type="date"]::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1) !important; }
 
 /* ── Light-mode — background decoration layers ── */
 html:not(.dark) .dash-body .dash-bg-cubes   { mix-blend-mode: normal; opacity: 0.7; filter: contrast(1); }

@@ -12,6 +12,115 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @endpush
 
+@push('styles')
+<style>
+/* ── SweetAlert2 custom style (admin-sppd) ── */
+.swal-adm-sppd-icon-success {
+    box-sizing: content-box !important;
+}
+.swal-adm-sppd-icon-success * {
+    box-sizing: content-box !important;
+}
+.swal2-popup.swal-adm-sppd-popup .swal2-success-circular-line-left,
+.swal2-popup.swal-adm-sppd-popup .swal2-success-circular-line-right,
+.swal2-popup.swal-adm-sppd-popup .swal2-success-fix {
+    background: transparent !important;
+}
+.swal2-popup.swal-adm-sppd-popup {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 20px !important;
+    width: 420px !important;
+    max-width: calc(100% - 32px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(11, 44, 107, 0.12) !important;
+    padding: 1.5rem 1.25rem 1.5rem !important;
+}
+html.dark .swal2-popup.swal-adm-sppd-popup {
+    color: #f3f4f6 !important;
+    background: rgba(16, 38, 80, 0.95) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.swal-adm-sppd-title {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+html.dark .swal-adm-sppd-title {
+    color: #f1f5f9 !important;
+}
+html.dark .swal2-popup.swal-adm-sppd-popup .swal2-html-container,
+html.dark .swal2-popup.swal-adm-sppd-popup .swal2-content {
+    color: #cbd5e1 !important;
+}
+html.dark .swal2-popup.swal-adm-sppd-popup .swal2-html-container p,
+html.dark .swal2-popup.swal-adm-sppd-popup .swal2-html-container strong {
+    color: #e2e8f0 !important;
+}
+.swal2-popup.swal-adm-sppd-popup .swal2-actions {
+    margin: 1.25rem auto 0 !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+}
+.swal2-popup.swal-adm-sppd-popup button.swal-adm-sppd-confirm {
+    margin: 0 !important;
+    background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    padding: 0.7rem 1.5rem !important;
+    min-width: 8.5rem !important;
+    box-shadow: 0 4px 14px rgba(11, 44, 107, 0.3) !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+.swal2-popup.swal-adm-sppd-popup button.swal-adm-sppd-confirm:hover {
+    box-shadow: 0 6px 18px rgba(11, 44, 107, 0.38) !important;
+    transform: translateY(-1px);
+}
+.swal2-popup.swal-adm-sppd-popup button.swal-adm-sppd-cancel {
+    margin: 0 !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    padding: 0.7rem 1.35rem !important;
+    min-width: 7rem !important;
+    border: 2px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+}
+.swal2-popup.swal-adm-sppd-popup button.swal-adm-sppd-cancel:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+html.dark .swal2-popup.swal-adm-sppd-popup button.swal-adm-sppd-cancel {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.45) !important;
+    color: #f1f5f9 !important;
+}
+html.dark .swal2-popup.swal-adm-sppd-popup button.swal-adm-sppd-cancel:hover {
+    background: rgba(51, 65, 85, 0.95) !important;
+    border-color: rgba(148, 163, 184, 0.65) !important;
+}
+/* Input dan textarea di dalam popup */
+html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input,
+html.dark .swal2-popup.swal-adm-sppd-popup .swal2-textarea {
+    background: rgba(30, 41, 59, 0.7) !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+    color: #f1f5f9 !important;
+}
+html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
+    color: #94a3b8 !important;
+}
+</style>
+@endpush
+
 @section('content')
 
     <div class="admin-shell" style="position:relative;z-index:1">
@@ -319,12 +428,21 @@
                 if (okBtn) {
                     if (!CAN_VERIFY_SPPD) return;
                     const id = okBtn.dataset.id;
-                    const c = await Swal.fire({ title: 'Verifikasi?', text: 'Laporan akan diteruskan ke Manager.', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, setujui' });
+                    const c = await Swal.fire({
+                        title: 'Verifikasi?',
+                        text: 'Laporan akan diteruskan ke Manager.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, setujui',
+                        cancelButtonText: 'Batal',
+                        buttonsStyling: false,
+                        customClass: { popup: 'swal-adm-sppd-popup', title: 'swal-adm-sppd-title', confirmButton: 'swal-adm-sppd-confirm', cancelButton: 'swal-adm-sppd-cancel' }
+                    });
                     if (!c.isConfirmed) return;
                     const r = await fetch(approveUrl(id), { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' } });
                     const j = await r.json();
-                    if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
-                    else Swal.fire('Gagal', j.message || 'Error', 'error');
+                    if (j.success) { await Swal.fire({title:'Berhasil', text:j.message, icon:'success', customClass: { popup: 'swal-adm-sppd-popup', title: 'swal-adm-sppd-title', icon: 'swal-adm-sppd-icon-success', confirmButton: 'swal-adm-sppd-confirm' }, buttonsStyling: false}); location.reload(); }
+                    else Swal.fire({title:'Gagal', text:j.message || 'Error', icon:'error', customClass: { popup: 'swal-adm-sppd-popup', title: 'swal-adm-sppd-title', confirmButton: 'swal-adm-sppd-confirm' }, buttonsStyling: false});
                     return;
                 }
                 const rejBtn = e.target.closest('.admin-sppd-reject');
@@ -338,6 +456,9 @@
                         inputPlaceholder: 'Jelaskan bagian yang perlu diperbaiki…',
                         showCancelButton: true,
                         confirmButtonText: 'Kirim revisi',
+                        cancelButtonText: 'Batal',
+                        buttonsStyling: false,
+                        customClass: { popup: 'swal-adm-sppd-popup', title: 'swal-adm-sppd-title', confirmButton: 'swal-adm-sppd-confirm', cancelButton: 'swal-adm-sppd-cancel' },
                         inputValidator: (v) => !v && 'Wajib diisi',
                     });
                     if (!note) return;
@@ -347,8 +468,8 @@
                         body: JSON.stringify({ revision_note: note }),
                     });
                     const j = await r.json();
-                    if (j.success) { await Swal.fire('Berhasil', j.message, 'success'); location.reload(); }
-                    else Swal.fire('Gagal', j.message || 'Error', 'error');
+                    if (j.success) { await Swal.fire({title:'Berhasil', text:j.message, icon:'success', customClass: { popup: 'swal-adm-sppd-popup', title: 'swal-adm-sppd-title', icon: 'swal-adm-sppd-icon-success', confirmButton: 'swal-adm-sppd-confirm' }, buttonsStyling: false}); location.reload(); }
+                    else Swal.fire({title:'Gagal', text:j.message || 'Error', icon:'error', customClass: { popup: 'swal-adm-sppd-popup', title: 'swal-adm-sppd-title', confirmButton: 'swal-adm-sppd-confirm' }, buttonsStyling: false});
                 }
             });
 

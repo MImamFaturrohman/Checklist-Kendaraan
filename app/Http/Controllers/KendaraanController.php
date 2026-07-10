@@ -20,6 +20,18 @@ class KendaraanController extends Controller
             'tanggal_pajak_stnk' => 'nullable|date',
             'tanggal_kir' => 'nullable|date',
             'status_kendaraan' => 'required|string|in:Aktif,Maintenance,Non Aktif',
+        ], [
+            'nomor_kendaraan.required'  => 'Nomor kendaraan wajib diisi.',
+            'nomor_kendaraan.max'       => 'Nomor kendaraan maksimal 20 karakter.',
+            'nomor_kendaraan.unique'    => 'Nomor kendaraan ini sudah terdaftar dalam sistem.',
+            'jenis_kendaraan.required'  => 'Jenis kendaraan wajib diisi.',
+            'status_kendaraan.required' => 'Status kendaraan wajib dipilih.',
+            'status_kendaraan.in'       => 'Status kendaraan tidak valid.',
+            'set_km.integer'            => 'KM harus berupa angka.',
+            'set_km.min'                => 'KM tidak boleh negatif.',
+            'tanggal_stnk.date'         => 'Format tanggal STNK tidak valid.',
+            'tanggal_pajak_stnk.date'   => 'Format tanggal pajak STNK tidak valid.',
+            'tanggal_kir.date'          => 'Format tanggal KIR tidak valid.',
         ]);
 
         $kendaraan = Kendaraan::create($request->only(
@@ -57,6 +69,18 @@ class KendaraanController extends Controller
             'tanggal_pajak_stnk' => 'nullable|date',
             'tanggal_kir' => 'nullable|date',
             'status_kendaraan' => 'required|string|in:Aktif,Maintenance,Non Aktif',
+        ], [
+            'nomor_kendaraan.required'  => 'Nomor kendaraan wajib diisi.',
+            'nomor_kendaraan.max'       => 'Nomor kendaraan maksimal 20 karakter.',
+            'nomor_kendaraan.unique'    => 'Nomor kendaraan ini sudah terdaftar dalam sistem.',
+            'jenis_kendaraan.required'  => 'Jenis kendaraan wajib diisi.',
+            'status_kendaraan.required' => 'Status kendaraan wajib dipilih.',
+            'status_kendaraan.in'       => 'Status kendaraan tidak valid.',
+            'km_current.integer'        => 'KM harus berupa angka.',
+            'km_current.min'            => 'KM tidak boleh negatif.',
+            'tanggal_stnk.date'         => 'Format tanggal STNK tidak valid.',
+            'tanggal_pajak_stnk.date'   => 'Format tanggal pajak STNK tidak valid.',
+            'tanggal_kir.date'          => 'Format tanggal KIR tidak valid.',
         ]);
 
         $kendaraan->update($request->only(

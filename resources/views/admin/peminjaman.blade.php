@@ -180,6 +180,101 @@
         html.dark .dash-body .portal-stat-card[data-filter-key].is-active .portal-stat-icon {
             color: #d4af37 !important;
         }
+
+        /* ── SweetAlert2 custom style (admin-peminjaman) ── */
+        .swal-ppm-icon-success {
+            box-sizing: content-box !important;
+        }
+        .swal-ppm-icon-success * {
+            box-sizing: content-box !important;
+        }
+        .swal2-popup.swal-ppm-popup .swal2-success-circular-line-left,
+        .swal2-popup.swal-ppm-popup .swal2-success-circular-line-right,
+        .swal2-popup.swal-ppm-popup .swal2-success-fix {
+            background: transparent !important;
+        }
+        .swal2-popup.swal-ppm-popup {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 20px !important;
+            width: 420px !important;
+            max-width: calc(100% - 32px) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+            border: 1px solid rgba(11, 44, 107, 0.12) !important;
+            padding: 1.5rem 1.25rem 1.5rem !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup {
+            color: #f3f4f6 !important;
+            background: rgba(16, 38, 80, 0.95) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        .swal-ppm-title {
+            font-size: 1.15rem !important;
+            font-weight: 800 !important;
+            color: #0f172a !important;
+        }
+        html.dark .swal-ppm-title {
+            color: #f1f5f9 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup .swal2-html-container,
+        html.dark .swal2-popup.swal-ppm-popup .swal2-content {
+            color: #cbd5e1 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup .swal2-html-container p,
+        html.dark .swal2-popup.swal-ppm-popup .swal2-html-container strong {
+            color: #e2e8f0 !important;
+        }
+        .swal2-popup.swal-ppm-popup .swal2-actions {
+            margin: 1.25rem auto 0 !important;
+            gap: 12px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-confirm {
+            margin: 0 !important;
+            background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            padding: 0.7rem 1.5rem !important;
+            min-width: 8.5rem !important;
+            box-shadow: 0 4px 14px rgba(11, 44, 107, 0.3) !important;
+            cursor: pointer !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-confirm:hover {
+            box-shadow: 0 6px 18px rgba(11, 44, 107, 0.38) !important;
+            transform: translateY(-1px);
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-cancel {
+            margin: 0 !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            font-size: 0.88rem !important;
+            padding: 0.7rem 1.35rem !important;
+            min-width: 7rem !important;
+            border: 2px solid #cbd5e1 !important;
+            background: #f8fafc !important;
+            color: #475569 !important;
+            cursor: pointer !important;
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-cancel:hover {
+            background: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup button.swal-ppm-cancel {
+            background: rgba(30, 41, 59, 0.8) !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            color: #e2e8f0 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup button.swal-ppm-cancel:hover {
+            background: rgba(30, 41, 59, 0.95) !important;
+            border-color: rgba(148, 163, 184, 0.5) !important;
+        }
     </style>
 @endpush
 
@@ -412,10 +507,10 @@
         function showErrors(res, data) {
             if (data.errors) {
                 const msg = Object.values(data.errors).flat().join('<br>');
-                Swal.fire({ icon: 'warning', title: 'Validasi', html: msg, confirmButtonColor: '#002a7a' });
+                Swal.fire({ icon: 'warning', title: 'Validasi', html: msg, customClass: { popup: 'swal-ppm-popup', title: 'swal-ppm-title' } });
                 return;
             }
-            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || ('HTTP ' + res.status), confirmButtonColor: '#002a7a' });
+            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || ('HTTP ' + res.status), customClass: { popup: 'swal-ppm-popup', title: 'swal-ppm-title' } });
         }
 
         function escapeHtml(s) {
@@ -494,7 +589,7 @@
             const data = await res.json().catch(() => ({}));
             if (!res.ok) { showErrors(res, data); return; }
             closePernyataanModal();
-            Swal.fire({ icon: 'success', title: id ? 'Diperbarui' : 'Disimpan', timer: 1200, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: id ? 'Diperbarui' : 'Disimpan', timer: 1200, showConfirmButton: false, customClass: { popup: 'swal-ppm-popup', title: 'swal-ppm-title', icon: 'swal-ppm-icon-success' } });
             loadPernyataans();
         });
 
@@ -517,16 +612,21 @@
                 title: 'Hapus pernyataan?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#b91c1c',
-                cancelButtonColor: '#64748b',
                 confirmButtonText: 'Ya, hapus',
                 cancelButtonText: 'Batal',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'swal-ppm-popup',
+                    title: 'swal-ppm-title',
+                    confirmButton: 'swal-ppm-confirm',
+                    cancelButton: 'swal-ppm-cancel',
+                },
             }).then(async r => {
                 if (!r.isConfirmed) return;
                 const res = await fetch(PPM_API.pernyataans + '/' + id, { method: 'DELETE', headers: headers() });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok || !data.success) { showErrors(res, data); return; }
-                Swal.fire({ icon: 'success', title: 'Terhapus', timer: 1200, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Terhapus', timer: 1200, showConfirmButton: false, customClass: { popup: 'swal-ppm-popup', title: 'swal-ppm-title', icon: 'swal-ppm-icon-success' } });
                 loadPernyataans();
             });
         });
