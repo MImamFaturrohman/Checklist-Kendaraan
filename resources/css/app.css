@@ -9037,7 +9037,6 @@ html.dark .dash-body .dash-logout-swal-close:hover {
     flex-direction: column;
     background: rgba(241, 245, 249, 0.72);
     backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
     box-shadow: -12px 0 52px rgba(0, 0, 0, 0.2);
     transform: translateX(100%);
     transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);

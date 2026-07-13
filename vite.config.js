@@ -8,7 +8,7 @@ export default defineConfig({
         strictPort: true,
 
         hmr: {
-            host: '192.168.1.142',
+            host: '192.168.1.169',
             protocol: 'ws',
             port: 5173,
         },
@@ -27,4 +27,7 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        cssMinify: false,
+    },
 });
