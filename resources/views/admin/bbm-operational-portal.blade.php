@@ -725,6 +725,426 @@
             color: #cbd5e1 !important;
         }
 
+
+        /* ── Import Data Button ── */
+        .bbm-import-trigger-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 13px;
+            border-radius: 8px;
+            border: 1.5px solid #2563eb;
+            background: rgba(37, 99, 235, 0.08);
+            color: #2563eb;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+            letter-spacing: 0.01em;
+        }
+        .bbm-import-trigger-btn:hover {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+        .dash-body.dark .bbm-import-trigger-btn {
+            border-color: #60a5fa;
+            color: #60a5fa;
+            background: rgba(96, 165, 250, 0.08);
+        }
+        .dash-body.dark .bbm-import-trigger-btn:hover {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: #93c5fd;
+            color: #bae6fd;
+            box-shadow: 0 4px 14px rgba(96, 165, 250, 0.25);
+        }
+
+        /* ── Import Modal Overlay ── */
+        .bbm-import-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10060;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .bbm-import-overlay.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .bbm-import-modal {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 24px 64px rgba(15, 23, 42, 0.25);
+            width: 100%;
+            max-width: 540px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(16px) scale(0.97);
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(203, 213, 225, 0.8);
+        }
+        .dash-body.dark .bbm-import-modal {
+            background: linear-gradient(160deg, #0c1525 0%, #0f2040 60%, #112254 100%);
+            border-color: rgba(37, 99, 235, 0.35);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(37, 99, 235, 0.15);
+        }
+        .bbm-import-overlay.is-open .bbm-import-modal {
+            transform: translateY(0) scale(1);
+        }
+        .bbm-import-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid rgba(203, 213, 225, 0.7);
+        }
+        .dash-body.dark .bbm-import-modal-header {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        .bbm-import-modal-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.02em;
+        }
+        .dash-body.dark .bbm-import-modal-title { color: #f8fafc; }
+        .bbm-import-modal-title-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            color: #fff;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .bbm-import-modal-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(148, 163, 184, 0.12);
+            color: #64748b;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .bbm-import-modal-close:hover { background: rgba(148, 163, 184, 0.25); }
+        .dash-body.dark .bbm-import-modal-close { color: #94a3b8; }
+        .dash-body.dark .bbm-import-modal-close:hover { background: rgba(255, 255, 255, 0.1); }
+        .bbm-import-modal-body { padding: 20px 24px; }
+
+        /* ── Drop Zone ── */
+        .bbm-import-dropzone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 28px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            background: rgba(248, 250, 252, 0.7);
+            position: relative;
+        }
+        .dash-body.dark .bbm-import-dropzone {
+            border-color: rgba(148, 163, 184, 0.3);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .bbm-import-dropzone:hover,
+        .bbm-import-dropzone.is-drag-over {
+            border-color: #2563eb;
+            background: rgba(37, 99, 235, 0.04);
+        }
+        .dash-body.dark .bbm-import-dropzone:hover,
+        .dash-body.dark .bbm-import-dropzone.is-drag-over {
+            border-color: #60a5fa;
+            background: rgba(96, 165, 250, 0.06);
+        }
+        .bbm-import-dropzone.has-file {
+            border-color: #16a34a;
+            background: rgba(22, 163, 74, 0.04);
+        }
+        .dash-body.dark .bbm-import-dropzone.has-file {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.06);
+        }
+        .bbm-import-dropzone-icon {
+            font-size: 2.2rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            display: block;
+            transition: color 0.15s;
+        }
+        .bbm-import-dropzone:hover .bbm-import-dropzone-icon,
+        .bbm-import-dropzone.is-drag-over .bbm-import-dropzone-icon { color: #2563eb; }
+        .dash-body.dark .bbm-import-dropzone:hover .bbm-import-dropzone-icon,
+        .dash-body.dark .bbm-import-dropzone.is-drag-over .bbm-import-dropzone-icon { color: #60a5fa; }
+        .bbm-import-dropzone.has-file .bbm-import-dropzone-icon { color: #16a34a; }
+        .dash-body.dark .bbm-import-dropzone.has-file .bbm-import-dropzone-icon { color: #4ade80; }
+        .bbm-import-dropzone-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+        }
+        .dash-body.dark .bbm-import-dropzone-label { color: rgba(226, 232, 240, 0.8); }
+        .bbm-import-dropzone-sub {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .dash-body.dark .bbm-import-dropzone-sub { color: rgba(200, 218, 255, 0.45); }
+        .bbm-import-file-name {
+            display: none;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #15803d;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(22, 163, 74, 0.1);
+        }
+        .dash-body.dark .bbm-import-file-name {
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+        .bbm-import-file-name.is-visible { display: inline-block; }
+
+        /* ── Template link ── */
+        .bbm-import-template-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+        .dash-body.dark .bbm-import-template-row { color: rgba(200, 218, 255, 0.55); }
+        .bbm-import-template-link {
+            font-weight: 700;
+            color: #0369a1;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .bbm-import-template-link:hover { text-decoration: underline; }
+        .dash-body.dark .bbm-import-template-link { color: #38bdf8; }
+
+        /* ── Progress bar ── */
+        .bbm-import-progress-wrap {
+            display: none;
+            margin-top: 16px;
+        }
+        .bbm-import-progress-wrap.is-visible { display: block; }
+        .bbm-import-progress-bar-track {
+            height: 6px;
+            border-radius: 99px;
+            background: rgba(148, 163, 184, 0.18);
+            overflow: hidden;
+        }
+        .dash-body.dark .bbm-import-progress-bar-track { background: rgba(255, 255, 255, 0.08); }
+        .bbm-import-progress-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #2563eb, #38bdf8);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: bbm-import-indeterminate 1.4s ease infinite;
+        }
+        @keyframes bbm-import-indeterminate {
+            0%   { transform: translateX(-100%) scaleX(0.4); width: 60%; }
+            50%  { transform: translateX(50%) scaleX(0.8); }
+            100% { transform: translateX(200%) scaleX(0.4); width: 60%; }
+        }
+        .bbm-import-progress-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+        .dash-body.dark .bbm-import-progress-label { color: rgba(200, 218, 255, 0.55); }
+
+        /* ── Result area ── */
+        .bbm-import-result {
+            display: none;
+            margin-top: 16px;
+        }
+        .bbm-import-result.is-visible { display: block; }
+        .bbm-import-result-summary {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .bbm-import-result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .bbm-import-result-badge--success {
+            background: rgba(22, 163, 74, 0.12);
+            color: #15803d;
+        }
+        .dash-body.dark .bbm-import-result-badge--success {
+            background: rgba(74, 222, 128, 0.12);
+            color: #4ade80;
+        }
+        .bbm-import-result-badge--error {
+            background: rgba(220, 38, 38, 0.1);
+            color: #dc2626;
+        }
+        .dash-body.dark .bbm-import-result-badge--error {
+            background: rgba(248, 113, 113, 0.12);
+            color: #fca5a5;
+        }
+        .bbm-import-result-badge--skip {
+            background: rgba(148, 163, 184, 0.14);
+            color: #64748b;
+        }
+        .dash-body.dark .bbm-import-result-badge--skip {
+            background: rgba(148, 163, 184, 0.1);
+            color: #94a3b8;
+        }
+        .bbm-import-errors-list {
+            max-height: 180px;
+            overflow-y: auto;
+            border-radius: 8px;
+            background: rgba(220, 38, 38, 0.04);
+            border: 1px solid rgba(220, 38, 38, 0.15);
+            padding: 10px 12px;
+            font-size: 0.75rem;
+            color: #7f1d1d;
+        }
+        .dash-body.dark .bbm-import-errors-list {
+            background: rgba(248, 113, 113, 0.06);
+            border-color: rgba(248, 113, 113, 0.2);
+            color: #fca5a5;
+        }
+        .bbm-import-errors-list li {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .bbm-import-errors-list li:last-child { margin-bottom: 0; }
+
+        /* ── Modal footer ── */
+        .bbm-import-modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 24px 20px;
+            border-top: 1px solid rgba(203, 213, 225, 0.6);
+        }
+        .dash-body.dark .bbm-import-modal-footer { border-top-color: rgba(255, 255, 255, 0.07); }
+        .bbm-import-cancel-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(148, 163, 184, 0.4);
+            background: transparent;
+            color: #64748b;
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .bbm-import-cancel-btn:hover {
+            background: rgba(148, 163, 184, 0.1);
+            border-color: rgba(148, 163, 184, 0.6);
+        }
+        .dash-body.dark .bbm-import-cancel-btn {
+            border-color: rgba(148, 163, 184, 0.25);
+            color: #94a3b8;
+        }
+        .dash-body.dark .bbm-import-cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .bbm-import-submit-btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: #fff;
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .bbm-import-submit-btn:hover { opacity: 0.9; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4); }
+        .bbm-import-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        /* ── Fatal error alert (template salah) ── */
+        .bbm-import-alert-fatal {
+            display: none;
+            margin-top: 14px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(220, 38, 38, 0.3);
+            background: rgba(254, 242, 242, 0.9);
+            padding: 12px 14px;
+        }
+        .dash-body.dark .bbm-import-alert-fatal {
+            background: rgba(127, 29, 29, 0.18);
+            border-color: rgba(248, 113, 113, 0.3);
+        }
+        .bbm-import-alert-fatal.is-visible { display: block; }
+        .bbm-import-alert-fatal-title {
+            font-size: 0.83rem;
+            font-weight: 800;
+            color: #991b1b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .dash-body.dark .bbm-import-alert-fatal-title { color: #fca5a5; }
+        .bbm-import-alert-fatal-body {
+            font-size: 0.78rem;
+            color: #7f1d1d;
+            line-height: 1.55;
+        }
+        .dash-body.dark .bbm-import-alert-fatal-body { color: #fecaca; }
+        .bbm-import-alert-fatal-tip {
+            margin-top: 8px;
+            padding: 7px 10px;
+            border-radius: 7px;
+            background: rgba(220, 38, 38, 0.07);
+            border: 1px solid rgba(220, 38, 38, 0.12);
+            font-size: 0.74rem;
+            color: #b91c1c;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .dash-body.dark .bbm-import-alert-fatal-tip {
+            background: rgba(248, 113, 113, 0.08);
+            border-color: rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
+        }
         .bbm-shift-badge {
             border: none !important;
         }
@@ -968,11 +1388,22 @@
                 <div class="portal-chart-card portal-chart-card--bbm-log-col bbm-activity-log-card" id="bbm-activity-log-card">
                     <div class="bbm-activity-log-head">
                         <div class="bbm-activity-log-title">Log Update <span class="bbm-activity-live" title="Memperbarui otomatis">· real-time</span></div>
-                        @unless($bbmPortalChartsOnly ?? false)
-                            <a href="#section-bbm-table" onClick="smoothTo('section-bbm-table', event)" class="bbm-activity-log-all">Lihat Semua</a>
-                        @else
-                            <span class="bbm-activity-log-all bbm-activity-log-all--disabled" title="Akses tabel penuh pada akun admin">Lihat Semua</span>
-                        @endunless
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            @if(auth()->user()?->role === 'superadmin')
+                                <button type="button" id="bbm-import-btn"
+                                    class="bbm-import-trigger-btn"
+                                    title="Import data BBM dari file Excel"
+                                    aria-label="Import Data BBM dari Excel">
+                                    <i class="ph-bold ph-upload-simple" aria-hidden="true"></i>
+                                    Import Data
+                                </button>
+                            @endif
+                            @unless($bbmPortalChartsOnly ?? false)
+                                <a href="#section-bbm-table" onClick="smoothTo('section-bbm-table', event)" class="bbm-activity-log-all">Lihat Semua</a>
+                            @else
+                                <span class="bbm-activity-log-all bbm-activity-log-all--disabled" title="Akses tabel penuh pada akun admin">Lihat Semua</span>
+                            @endunless
+                        </div>
                     </div>
                     <div class="bbm-activity-log-scroll" id="bbm-activity-log-root" role="list" aria-live="polite" aria-busy="false">
                         <p class="bbm-activity-placeholder">Memuat log…</p>
@@ -1024,17 +1455,18 @@
                             name="per_page"
                             :selected="$reports->perPage()"
                         />
-                        <div class="ppm-status-wrap bbm-portal-filter-actions">
-                            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" id="bbm-portal-filter-reset" title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
-                        </div>
                     </div>
+                </div>
+
+                <div id="bbm-portal-filter-reset-wrapper" style="display: none; justify-content: flex-end; margin-top: 4px; margin-bottom: 12px;">
+                    <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite ppm-filter-reset" id="bbm-portal-filter-reset" title="Hapus semua filter" aria-label="Hapus semua filter"><i class="bi bi-arrow-clockwise"></i></button>
                 </div>
 
                 <div id="bbm-portal-loading" class="portal-loading" style="display:none; margin: 12px 0;">
                     <span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span>
                 </div>
 
-                <div id="bbm-portal-live-root" data-vms-bbm-portal-live>
+                <div id="bbm-portal-live-root">
                 @fragment('bbm-portal-table-body')
                 @php
                     $fmtRp = fn ($n) => 'Rp '.number_format((float) $n, 0, ',', '.');
@@ -2002,7 +2434,14 @@
                     || (bbmMonthEl && bbmMonthEl.value !== '')
                     || (bbmYearEl && bbmYearEl.value !== '')
                     || _perPage !== 25; // default is 25 in controller
-                if (bbmResetBtn) bbmResetBtn.style.display = showReset ? '' : 'none';
+                if (bbmResetBtn) {
+                    const wrapper = bbmResetBtn.closest('#bbm-portal-filter-reset-wrapper');
+                    if (wrapper) {
+                        wrapper.style.display = showReset ? 'flex' : 'none';
+                    } else {
+                        bbmResetBtn.style.display = showReset ? '' : 'none';
+                    }
+                }
             }
 
             async function fetchBbmReports(scroll = false) {
@@ -2044,7 +2483,7 @@
 
             function bindBbmPagination() {
                 if (!bbmLiveRoot) return;
-                const paginationLinks = bbmLiveRoot.querySelectorAll('.tbl-pagination a[href], a[href]');
+                const paginationLinks = bbmLiveRoot.querySelectorAll('.tbl-pagination a[href]');
                 paginationLinks.forEach(link => {
                     link.addEventListener('click', (e) => {
                         const u = new URL(link.getAttribute('href'), location.origin);
@@ -2213,4 +2652,277 @@
         }
     </script>
 @endpush
+
+@if(auth()->user()?->role === 'superadmin')
+{{-- ═══════════════════════════════════════════════════════════
+     BBM IMPORT MODAL
+═══════════════════════════════════════════════════════════ --}}
+
+<div id="bbm-import-overlay" class="bbm-import-overlay" role="dialog" aria-modal="true" aria-labelledby="bbm-import-modal-title" aria-hidden="true">
+    <div class="bbm-import-modal" id="bbm-import-modal">
+        <div class="bbm-import-modal-header">
+            <div class="bbm-import-modal-title" id="bbm-import-modal-title">
+                <span class="bbm-import-modal-title-icon">
+                    <i class="ph-bold ph-upload-simple" aria-hidden="true"></i>
+                </span>
+                Import Data BBM
+            </div>
+            <button type="button" class="bbm-import-modal-close" id="bbm-import-modal-close" aria-label="Tutup modal">
+                <i class="ph-bold ph-x" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="bbm-import-modal-body">
+            <p style="font-size:0.82rem;color:#64748b;margin:0 0 16px;line-height:1.55;">
+                Upload file Excel (<code style="background:rgba(148,163,184,0.15);padding:1px 5px;border-radius:4px;font-size:0.78rem;">.xlsx / .xls / .csv</code>)
+                dengan kolom sesuai template.
+            </p>
+            <div class="bbm-import-dropzone" id="bbm-import-dropzone" tabindex="0" role="button" aria-label="Pilih atau jatuhkan file Excel">
+                <input type="file" id="bbm-import-file-input" accept=".xlsx,.xls,.csv" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" aria-hidden="true">
+                <i class="ph-bold ph-file-xls bbm-import-dropzone-icon" aria-hidden="true"></i>
+                <div class="bbm-import-dropzone-label">Drag & drop file ke sini, atau klik untuk pilih</div>
+                <div class="bbm-import-dropzone-sub">Mendukung .xlsx, .xls, .csv — Maks. 10 MB</div>
+                <span class="bbm-import-file-name" id="bbm-import-file-name"></span>
+            </div>
+            <div class="bbm-import-template-row">
+                <i class="ph-bold ph-download-simple" aria-hidden="true"></i>
+                <span>Belum punya template?</span>
+                <a href="{{ route('admin.portal-bbm-operasional.template') }}" class="bbm-import-template-link" download id="bbm-import-template-link">
+                    <i class="ph-bold ph-file-xls" aria-hidden="true"></i>
+                    Download Template
+                </a>
+            </div>
+            <div class="bbm-import-progress-wrap" id="bbm-import-progress-wrap">
+                <div class="bbm-import-progress-bar-track">
+                    <div class="bbm-import-progress-bar-fill" id="bbm-import-progress-bar"></div>
+                </div>
+                <div class="bbm-import-progress-label" id="bbm-import-progress-label">Memproses file…</div>
+            </div>
+            {{-- Fatal error: file tidak sesuai template --}}
+            <div class="bbm-import-alert-fatal" id="bbm-import-alert-fatal" role="alert">
+                <div class="bbm-import-alert-fatal-title">
+                    <i class="ph-bold ph-warning-octagon" aria-hidden="true"></i>
+                    File tidak sesuai template
+                </div>
+                <div class="bbm-import-alert-fatal-body" id="bbm-import-alert-fatal-body"></div>
+                <div class="bbm-import-alert-fatal-tip">
+                    <i class="ph-bold ph-lightbulb" aria-hidden="true" style="flex-shrink:0;margin-top:1px;"></i>
+                    <span>Download template yang telah disediakan untuk menyesuaikan data.</span>
+                </div>
+            </div>
+            {{-- Hasil import per-baris --}}
+            <div class="bbm-import-result" id="bbm-import-result">
+                <div class="bbm-import-result-summary" id="bbm-import-result-summary"></div>
+                <ul class="bbm-import-errors-list" id="bbm-import-errors-list" style="display:none;"></ul>
+            </div>
+        </div>
+        <div class="bbm-import-modal-footer">
+            <button type="button" class="bbm-import-cancel-btn" id="bbm-import-cancel-btn">Batal</button>
+            <button type="button" class="bbm-import-submit-btn" id="bbm-import-submit-btn" disabled>
+                <i class="ph-bold ph-upload-simple" aria-hidden="true"></i>
+                Import Sekarang
+            </button>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+(function () {
+    'use strict';
+    const importUrl  = @json(route('admin.portal-bbm-operasional.import'));
+    const csrfToken  = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    const overlay    = document.getElementById('bbm-import-overlay');
+    const closeBtn   = document.getElementById('bbm-import-modal-close');
+    const cancelBtn  = document.getElementById('bbm-import-cancel-btn');
+    const submitBtn  = document.getElementById('bbm-import-submit-btn');
+    const dropzone   = document.getElementById('bbm-import-dropzone');
+    const fileInput  = document.getElementById('bbm-import-file-input');
+    const fileNameEl = document.getElementById('bbm-import-file-name');
+    const progressWrap   = document.getElementById('bbm-import-progress-wrap');
+    const progressLabel  = document.getElementById('bbm-import-progress-label');
+    const fatalAlert     = document.getElementById('bbm-import-alert-fatal');
+    const fatalAlertBody = document.getElementById('bbm-import-alert-fatal-body');
+    const resultEl       = document.getElementById('bbm-import-result');
+    const resultSummary  = document.getElementById('bbm-import-result-summary');
+    const errorsList     = document.getElementById('bbm-import-errors-list');
+    let selectedFile = null;
+
+    // ── Open / Close ──────────────────────────────────────────────
+    function openModal() {
+        resetModal();
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+    function resetModal() {
+        selectedFile = null;
+        if (fileInput) fileInput.value = '';
+        if (fileNameEl) { fileNameEl.textContent = ''; fileNameEl.classList.remove('is-visible'); }
+        if (dropzone) dropzone.classList.remove('has-file', 'is-drag-over');
+        if (submitBtn) submitBtn.disabled = true;
+        if (progressWrap) progressWrap.classList.remove('is-visible');
+        if (fatalAlert) fatalAlert.classList.remove('is-visible');
+        if (fatalAlertBody) fatalAlertBody.textContent = '';
+        if (resultEl) resultEl.classList.remove('is-visible');
+        if (resultSummary) resultSummary.innerHTML = '';
+        if (errorsList) { errorsList.innerHTML = ''; errorsList.style.display = 'none'; }
+    }
+
+    document.getElementById('bbm-import-btn')?.addEventListener('click', openModal);
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+    overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay?.classList.contains('is-open')) closeModal();
+    });
+
+    // ── File selection ────────────────────────────────────────────
+    function onFileSelected(file) {
+        if (!file) return;
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['xlsx', 'xls', 'csv'].includes(ext)) {
+            showFatal('Format file tidak didukung. Harap upload file dengan ekstensi .xlsx, .xls, atau .csv. '
+                + 'File yang Anda pilih: "' + file.name + '".');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            showFatal('Ukuran file terlalu besar (' + (file.size / 1024 / 1024).toFixed(1) + ' MB). '
+                + 'Maksimal ukuran file yang diizinkan adalah 10 MB.');
+            return;
+        }
+        selectedFile = file;
+        if (fileNameEl) {
+            fileNameEl.textContent = '📎 ' + file.name;
+            fileNameEl.classList.add('is-visible');
+        }
+        if (dropzone) dropzone.classList.add('has-file');
+        if (submitBtn) submitBtn.disabled = false;
+        // Reset hasil sebelumnya
+        if (fatalAlert) fatalAlert.classList.remove('is-visible');
+        if (resultEl) resultEl.classList.remove('is-visible');
+    }
+
+    fileInput?.addEventListener('change', (e) => {
+        if (e.target.files[0]) onFileSelected(e.target.files[0]);
+    });
+
+    // ── Drag & drop ───────────────────────────────────────────────
+    dropzone?.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('is-drag-over'); });
+    dropzone?.addEventListener('dragleave', () => { dropzone.classList.remove('is-drag-over'); });
+    dropzone?.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('is-drag-over');
+        const file = e.dataTransfer?.files?.[0];
+        if (file) onFileSelected(file);
+    });
+    dropzone?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput?.click(); }
+    });
+
+    // ── Submit ────────────────────────────────────────────────────
+    submitBtn?.addEventListener('click', async () => {
+        if (!selectedFile) return;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="ph-bold ph-circle-notch" style="animation:bbm-spin 1s linear infinite" aria-hidden="true"></i> Mengupload…';
+        if (progressWrap) progressWrap.classList.add('is-visible');
+        if (progressLabel) progressLabel.textContent = 'Memproses file Excel…';
+        if (fatalAlert) fatalAlert.classList.remove('is-visible');
+        if (resultEl) resultEl.classList.remove('is-visible');
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('_token', csrfToken);
+
+        try {
+            const res = await fetch(importUrl, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+                body: formData,
+            });
+            if (progressWrap) progressWrap.classList.remove('is-visible');
+            const json = await res.json();
+
+            if (!res.ok && json.fatal) {
+                showFatal(json.message);
+            } else {
+                showImportResult(res.ok, json);
+            }
+        } catch (err) {
+            if (progressWrap) progressWrap.classList.remove('is-visible');
+            showFatal('Terjadi kesalahan koneksi saat mengupload file. Periksa koneksi internet Anda dan coba lagi.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="ph-bold ph-upload-simple" aria-hidden="true"></i> Import Sekarang';
+        }
+    });
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function showFatal(message) {
+        if (!fatalAlert || !fatalAlertBody) return;
+        fatalAlertBody.textContent = message;
+        fatalAlert.classList.add('is-visible');
+        if (resultEl) resultEl.classList.remove('is-visible');
+        if (submitBtn) submitBtn.disabled = !selectedFile;
+    }
+
+    function showImportResult(ok, json) {
+        if (resultEl) resultEl.classList.add('is-visible');
+        if (resultSummary) resultSummary.innerHTML = '';
+        if (errorsList) { errorsList.innerHTML = ''; errorsList.style.display = 'none'; }
+
+        if (!ok) {
+            const msg = json.message || 'Gagal memproses file.';
+            if (resultSummary) {
+                resultSummary.innerHTML = `<span class="bbm-import-result-badge bbm-import-result-badge--error"><i class="ph-bold ph-x-circle"></i> ${escHtml(msg)}</span>`;
+            }
+            return;
+        }
+
+        const successCount = json.success_count ?? 0;
+        const errorCount   = json.error_count   ?? 0;
+        const skipCount    = json.skipped_count  ?? 0;
+
+        let html = '';
+        if (successCount > 0) html += `<span class="bbm-import-result-badge bbm-import-result-badge--success"><i class="ph-bold ph-check-circle"></i> ${successCount} baris berhasil</span>`;
+        if (errorCount > 0)   html += `<span class="bbm-import-result-badge bbm-import-result-badge--error"><i class="ph-bold ph-warning"></i> ${errorCount} baris gagal</span>`;
+        if (skipCount > 0)    html += `<span class="bbm-import-result-badge bbm-import-result-badge--skip"><i class="ph-bold ph-minus-circle"></i> ${skipCount} dilewati</span>`;
+        if (!html) html = `<span class="bbm-import-result-badge bbm-import-result-badge--skip"><i class="ph-bold ph-info"></i> Tidak ada data yang diimport.</span>`;
+        if (resultSummary) resultSummary.innerHTML = html;
+
+        const errors = json.errors || [];
+        if (errors.length > 0 && errorsList) {
+            errorsList.style.display = '';
+            errorsList.innerHTML = errors.map(e => {
+                const rowLabel = `Baris ${e.row}`;
+                const errs = Array.isArray(e.errors) ? e.errors.join(' / ') : String(e.errors);
+                return `<li><strong>${escHtml(rowLabel)}:</strong> ${escHtml(errs)}</li>`;
+            }).join('');
+        }
+
+        if (successCount > 0 && typeof fetchActivityLog === 'function') {
+            setTimeout(fetchActivityLog, 600);
+        }
+    }
+
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    if (!document.getElementById('bbm-import-spin-kf')) {
+        const s = document.createElement('style');
+        s.id = 'bbm-import-spin-kf';
+        s.textContent = '@keyframes bbm-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+        document.head.appendChild(s);
+    }
+}());
+</script>
+@endpush
+@endif
 

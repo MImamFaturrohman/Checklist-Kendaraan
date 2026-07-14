@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\BbmReportTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\BbmReportImport;
 use App\Models\BbmReport;
 use App\Models\Kendaraan;
 use App\Support\DriverShift;
@@ -13,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BbmOperationalPortalController extends Controller
 {
@@ -504,5 +507,84 @@ class BbmOperationalPortalController extends Controller
                 'struk_photo_url' => $this->bbmPublicFileUrl($bbmReport->struk_photo_path),
             ],
         ]);
+    }
+
+    public function importExcel(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
+        ], [
+            'file.required' => 'File Excel wajib dipilih.',
+            'file.mimes'    => 'File harus berformat .xlsx, .xls, atau .csv.',
+            'file.max'      => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        try {
+            $import = new BbmReportImport();
+            Excel::import($import, $request->file('file'));
+
+            // File tidak sesuai template — hentikan lebih awal
+            if ($import->getFatalError() !== null) {
+                return response()->json([
+                    'success' => false,
+                    'fatal'   => true,
+                    'message' => $import->getFatalError(),
+                ], 422);
+            }
+
+            $errors       = $import->getImportErrors();
+            $successCount = $import->getSuccessCount();
+            $skipped      = $import->getSkippedCount();
+            $errorCount   = count($errors);
+
+            if ($successCount === 0 && $errorCount === 0 && $skipped === 0) {
+                return response()->json([
+                    'success'       => true,
+                    'success_count' => 0,
+                    'skipped_count' => 0,
+                    'error_count'   => 0,
+                    'errors'        => [],
+                    'message'       => 'File tidak mengandung data. Pastikan template sudah diisi sebelum diimport.',
+                ]);
+            }
+
+            $messageParts = [];
+            if ($successCount > 0) {
+                $messageParts[] = "{$successCount} baris berhasil diimport";
+            }
+            if ($errorCount > 0) {
+                $messageParts[] = "{$errorCount} baris gagal (lihat detail di bawah)";
+            }
+            if ($skipped > 0) {
+                $messageParts[] = "{$skipped} baris dilewati (kosong)";
+            }
+
+            return response()->json([
+                'success'       => $successCount > 0,
+                'success_count' => $successCount,
+                'skipped_count' => $skipped,
+                'error_count'   => $errorCount,
+                'errors'        => $errors,
+                'message'       => implode(', ', $messageParts) . '.',
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'fatal'   => true,
+                'message' => 'Gagal membaca file. Pastikan file tidak rusak dan formatnya benar (.xlsx, .xls, .csv). '
+                    . 'Detail teknis: ' . $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    public function downloadTemplate(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        return Excel::download(new BbmReportTemplateExport(), 'template-import-bbm.xlsx');
     }
 }
