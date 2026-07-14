@@ -122,6 +122,16 @@ class PeminjamanController extends Controller
     public function approve(Request $request, PeminjamanRequest $peminjaman): JsonResponse
     {
         abort_unless(auth()->user()?->role === 'manager', 403);
+
+        $user = auth()->user();
+        $ttdPath = public_path("signatures/ttd_manager_{$user->username}_{$user->id}.png");
+        if (!file_exists($ttdPath)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus mengunggah Tanda Tangan (TTD) di menu Profil terlebih dahulu sebelum menyetujui peminjaman kendaraan.',
+            ], 400);
+        }
+
         PeminjamanRequest::expirePendingPastBorrowDate();
         $peminjaman->refresh();
         abort_unless($peminjaman->isPending(), 422);

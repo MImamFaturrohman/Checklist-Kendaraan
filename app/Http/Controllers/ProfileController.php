@@ -52,6 +52,7 @@ class ProfileController extends Controller
             'email'            => 'required|email|max:255|unique:users,email,' . $user->id,
             'current_password' => 'nullable|string',
             'new_password'     => 'nullable|string|min:6|confirmed',
+            'signature'        => 'nullable|image|mimes:png|max:2048',
         ]);
 
         $user->name  = $request->name;
@@ -65,6 +66,12 @@ class ProfileController extends Controller
                 ], 422);
             }
             $user->password = Hash::make($request->new_password);
+        }
+
+        if ($user->role === 'manager' && $request->hasFile('signature')) {
+            $file = $request->file('signature');
+            $filename = "ttd_manager_{$user->username}_{$user->id}.png";
+            $file->move(public_path('signatures'), $filename);
         }
 
         $user->save();

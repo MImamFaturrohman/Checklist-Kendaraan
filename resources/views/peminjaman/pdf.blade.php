@@ -222,7 +222,13 @@
                         <div class="sig-label">Mengetahui,</div>
                         <div class="sig-position" style="font-weight: bold;">Manager Bidang</div>
                         <div class="sig-img-box">
-                            <img src="{{ public_path('images/TTD Manager.png') }}" alt="TTD Manager">
+                            @php
+                                $mgr = $peminjaman->approver;
+                                $mgrTtdPath = $mgr ? public_path("signatures/ttd_manager_{$mgr->username}_{$mgr->id}.png") : null;
+                            @endphp
+                            @if($mgrTtdPath && file_exists($mgrTtdPath))
+                                <img src="{{ $mgrTtdPath }}" alt="TTD Manager">
+                            @endif
                         </div>
                         <div>
                             <span class="sig-name">{{ $peminjaman->approver?->name ?? 'Manager' }}</span>

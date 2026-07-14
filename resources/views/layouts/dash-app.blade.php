@@ -14,7 +14,29 @@
 
     <!-- Vite assets (SweetAlert2 is bundled via npm — no CDN needed) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    <style>
+        #profile-ttd {
+            cursor: pointer;
+            padding: 6px 10px 6px 36px !important;
+            line-height: 1.5;
+        }
+        #profile-ttd::file-selector-button {
+            cursor: pointer;
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            margin-right: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        #profile-ttd::file-selector-button:hover {
+            background-color: #2563eb;
+        }
+    </style>
     @stack('styles')
     @stack('head')
 </head>
@@ -202,6 +224,18 @@
                         Username tidak dapat diubah.
                     </p>
                 </div>
+                @if($layoutUser?->role === 'manager')
+                <div class="profile-field" style="margin-top:16px;">
+                    <label class="profile-label" for="profile-ttd">Tanda Tangan (TTD) Manager</label>
+                    <div class="profile-input-wrap">
+                        <svg class="profile-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <input type="file" id="profile-ttd" class="profile-input has-icon" accept="image/png">
+                    </div>
+                    <p class="profile-hint">
+                        Unggah file .png untuk tanda tangan yang akan disematkan di PDF.
+                    </p>
+                </div>
+                @endif
             </div>
 
             <button type="button" class="profile-pw-accordion" id="profile-pw-toggle" onclick="togglePwSection()">
@@ -380,6 +414,12 @@ async function saveProfile() {
     fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
     fd.append('name', name);
     fd.append('email', email);
+    
+    const ttdInput = document.getElementById('profile-ttd');
+    if (ttdInput && ttdInput.files[0]) {
+        fd.append('signature', ttdInput.files[0]);
+    }
+
     if (newPw) {
         fd.append('current_password', curPw);
         fd.append('new_password', newPw);
