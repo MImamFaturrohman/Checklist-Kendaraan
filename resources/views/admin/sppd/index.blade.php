@@ -118,6 +118,113 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-textarea {
 html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
     color: #94a3b8 !important;
 }
+
+/* Bulk Actions & Checkbox Styles */
+.sppd-bulk-actions-wrap label {
+    color: #475569;
+}
+html.dark .sppd-bulk-actions-wrap label {
+    color: rgba(200, 218, 255, 0.85);
+}
+html.dark .sppd-bulk-actions-wrap div {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Bulk Delete Button Styling */
+#sppd-btn-bulk-delete {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    border: 1.5px solid #fecaca;
+    cursor: pointer;
+    background-color: transparent;
+    color: #b91c1c;
+    transition: all 0.15s ease-in-out;
+}
+#sppd-btn-bulk-delete:hover {
+    background-color: #b91c1c;
+    color: #ffffff !important;
+    border-color: #b91c1c;
+    box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+}
+
+/* Dark mode overrides for Bulk Delete Button */
+html.dark #sppd-btn-bulk-delete {
+    background-color: transparent;
+    color: #fca5a5;
+    border-color: rgba(248, 113, 113, 0.35);
+}
+html.dark #sppd-btn-bulk-delete:hover {
+    background-color: #ef4444;
+    color: #ffffff !important;
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+}
+
+/* Modern Checkbox styling: slightly rounded edges & premium dark/light mode appearance */
+.sppd-row-checkbox, #sppd-select-all {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 5px; /* rounded slightly / tumpul edgenya */
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    vertical-align: middle;
+    margin: 0;
+}
+
+html.dark .sppd-row-checkbox, html.dark #sppd-select-all {
+    border-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(15, 23, 42, 0.6);
+}
+
+.sppd-row-checkbox:hover, #sppd-select-all:hover {
+    border-color: #002a7a;
+    box-shadow: 0 0 0 3px rgba(0, 42, 122, 0.15);
+}
+html.dark .sppd-row-checkbox:hover, html.dark #sppd-select-all:hover {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.sppd-row-checkbox:checked, #sppd-select-all:checked {
+    background-color: #002a7a;
+    border-color: #002a7a;
+}
+html.dark .sppd-row-checkbox:checked, html.dark #sppd-select-all:checked {
+    background-color: #60a5fa;
+    border-color: #60a5fa;
+}
+
+/* Checkmark icon */
+.sppd-row-checkbox:checked::after, #sppd-select-all:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked::after {
+    border-color: #ffffff;
+}
 </style>
 @endpush
 
@@ -137,6 +244,18 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                     <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Daftar Rekap Biaya Dinas</div>
 
                     <div class="portal-local-filters ppm-daftar-filters" id="admin-sppd-filter-bar" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none; align-items: center; gap: 8px;">
+                        <!-- Bulk Actions Container -->
+                        <div class="sppd-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" id="sppd-btn-bulk-delete" style="display: none;">
+                                <i class="bi bi-trash-fill"></i> Hapus (<span id="sppd-bulk-select-count">0</span>)
+                            </button>
+                            
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.25);">
+                                <input type="checkbox" id="sppd-select-all" data-total="{{ $sppds->total() }}" title="Pilih Semua">
+                                <label for="sppd-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">Pilih</label>
+                            </div>
+                        </div>
+
                         <div class="admin-search-wrap portal-search-full" style="width: 280px; max-width: 100%;">
                             <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             <input type="text" id="sppd-filter-q" value="{{ $search }}" placeholder="Cari driver, keperluan, nopol…" class="admin-search-input" autocomplete="off">
@@ -158,13 +277,14 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                     <span class="portal-loading-dot"></span><span class="portal-loading-dot"></span><span class="portal-loading-dot"></span>
                 </div>
 
-                <div id="sppd-admin-live-root" data-vms-sppd-live>
+                <div id="sppd-admin-live-root">
                 @fragment('sppd-admin-body')
                 <div class="admin-table-wrap">
                     <table class="admin-table">
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th style="width: 40px; text-align: center;">Pilih</th>
                                 <x-sortable-th key="nama_driver" label="Driver" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="keperluan_dinas" label="Ringkasan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="no_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
@@ -176,6 +296,9 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                             @forelse($sppds as $s)
                                 <tr>
                                     <td>{{ ($sppds->currentPage()-1)*$sppds->perPage()+$loop->iteration }}</td>
+                                    <td>
+                                        <input type="checkbox" class="sppd-row-checkbox" value="{{ $s->id }}" aria-label="Pilih rekap SPPD">
+                                    </td>
                                     <td>{{ $s->nama_driver }}<br><span class="sppd-cell-muted">{{ $s->user?->username }}</span></td>
                                     <td>{{ \Illuminate\Support\Str::limit($s->keperluan_dinas, 40) }}<br><span class="sppd-cell-muted">{{ $s->tanggal_dinas->format('d/m/Y') }}</span></td>
                                     <td><strong>{{ $s->no_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $s->jenis_kendaraan }}</span></td>
@@ -225,7 +348,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="6" class="portal-empty">Tidak ada data.</td></tr>
+                                <tr><td colspan="7" class="portal-empty">Tidak ada data.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -267,6 +390,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
             let _sort = '{{ $activeSort ?? "" }}';
             let _dir = '{{ $activeDir ?? "" }}';
             let _abort = null;
+            let _isAllSelected = false;
 
             const searchEl = document.getElementById('sppd-filter-q');
             const statusEl = document.getElementById('sppd-filter-status');
@@ -274,6 +398,10 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
             const liveRoot = document.getElementById('sppd-admin-live-root');
             const clearBtn = document.getElementById('sppd-filter-clear');
             const resetBtn = document.getElementById('sppd-filter-reset');
+
+            const selectAllCheckbox = document.getElementById('sppd-select-all');
+            const bulkDeleteBtn = document.getElementById('sppd-btn-bulk-delete');
+            const bulkSelectCount = document.getElementById('sppd-bulk-select-count');
 
             function showLoading() { const el = document.getElementById('sppd-loading'); if (el) el.style.display = 'flex'; }
             function hideLoading() { const el = document.getElementById('sppd-loading'); if (el) el.style.display = 'none'; }
@@ -300,6 +428,27 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                 if (resetBtn) resetBtn.style.display = showReset ? '' : 'none';
             }
 
+            function updateBulkActionState() {
+                if (!liveRoot || !bulkDeleteBtn || !bulkSelectCount) return;
+                const checkboxes = Array.from(liveRoot.querySelectorAll('.sppd-row-checkbox'));
+                const checkedCheckboxes = checkboxes.filter(cb => cb.checked);
+                
+                let displayCount = 0;
+                if (_isAllSelected) {
+                    const totalDbCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                    displayCount = totalDbCount;
+                } else {
+                    displayCount = checkedCheckboxes.length;
+                }
+
+                bulkSelectCount.textContent = String(displayCount);
+                bulkDeleteBtn.style.display = displayCount > 0 ? 'inline-flex' : 'none';
+
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = _isAllSelected;
+                }
+            }
+
             async function fetchSppds(scroll = false) {
                 _abort?.abort();
                 _abort = new AbortController();
@@ -316,14 +465,24 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                         signal: _abort.signal
                     });
                     const html = await res.text();
+                    const totalHeader = res.headers.get('X-VMS-SPPD-Total');
 
                     if (liveRoot) {
                         liveRoot.innerHTML = html;
                     }
 
+                    if (selectAllCheckbox && totalHeader !== null) {
+                        selectAllCheckbox.dataset.total = totalHeader;
+                    }
+
                     bindSorting();
                     bindPagination();
                     updateFilterChrome();
+
+                    if (_isAllSelected) {
+                        liveRoot.querySelectorAll('.sppd-row-checkbox').forEach(cb => cb.checked = true);
+                    }
+                    updateBulkActionState();
 
                     if (scroll && liveRoot) {
                         liveRoot.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -337,7 +496,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
 
             function bindPagination() {
                 if (!liveRoot) return;
-                const paginationLinks = liveRoot.querySelectorAll('.tbl-pagination a[href], a[href]');
+                const paginationLinks = liveRoot.querySelectorAll('.tbl-pagination a[href]');
                 paginationLinks.forEach(link => {
                     link.addEventListener('click', (e) => {
                         const u = new URL(link.getAttribute('href'), location.origin);
@@ -360,6 +519,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                                 return url;
                             },
                             onNavigate: (url) => {
+                                _isAllSelected = false;
                                 _sort = url.searchParams.get('sort') || '';
                                 _dir = url.searchParams.get('dir') || '';
                                 _page = 1;
@@ -378,6 +538,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
 
             if (searchEl) {
                 searchEl.addEventListener('input', () => {
+                    _isAllSelected = false;
                     updateFilterChrome();
                     debouncedFetch();
                 });
@@ -385,6 +546,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
 
             if (statusEl) {
                 statusEl.addEventListener('change', () => {
+                    _isAllSelected = false;
                     _page = 1;
                     fetchSppds();
                 });
@@ -392,6 +554,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
 
             if (perPageEl) {
                 perPageEl.addEventListener('change', (e) => {
+                    _isAllSelected = false;
                     _perPage = parseInt(e.target.value, 10);
                     _page = 1;
                     fetchSppds();
@@ -400,6 +563,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
 
             if (clearBtn) {
                 clearBtn.addEventListener('click', () => {
+                    _isAllSelected = false;
                     if (searchEl) searchEl.value = '';
                     updateFilterChrome();
                     _page = 1;
@@ -409,6 +573,7 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
 
             if (resetBtn) {
                 resetBtn.addEventListener('click', () => {
+                    _isAllSelected = false;
                     if (searchEl) searchEl.value = '';
                     if (statusEl) statusEl.selectedIndex = 0;
                     if (perPageEl) { perPageEl.value = '15'; _perPage = 15; }
@@ -546,9 +711,125 @@ html.dark .swal2-popup.swal-adm-sppd-popup .swal2-input-label {
                 if (e.target.id === 'sppd-modal-detail-admin') e.currentTarget.style.display = 'none';
             });
 
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', () => {
+                    if (!liveRoot) return;
+                    _isAllSelected = selectAllCheckbox.checked;
+                    const checkboxes = liveRoot.querySelectorAll('.sppd-row-checkbox');
+                    checkboxes.forEach(cb => {
+                        cb.checked = _isAllSelected;
+                    });
+                    updateBulkActionState();
+                });
+            }
+
+            if (liveRoot) {
+                liveRoot.addEventListener('change', (e) => {
+                    if (e.target.classList.contains('sppd-row-checkbox')) {
+                        if (!e.target.checked) {
+                            _isAllSelected = false;
+                        }
+                        updateBulkActionState();
+                    }
+                });
+            }
+
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', () => {
+                    if (!liveRoot) return;
+                    
+                    let payload = {};
+                    let displayCount = 0;
+
+                    if (_isAllSelected) {
+                        payload = {
+                            all: true,
+                            search: searchEl?.value.trim() ?? '',
+                            status: statusEl?.value ?? '',
+                        };
+                        displayCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                    } else {
+                        const selectedIds = Array.from(liveRoot.querySelectorAll('.sppd-row-checkbox:checked'))
+                            .map(cb => cb.value);
+                        if (selectedIds.length === 0) return;
+                        payload = {
+                            ids: selectedIds
+                        };
+                        displayCount = selectedIds.length;
+                    }
+
+                    Swal.fire({
+                        title: 'Hapus rekap SPPD?',
+                        text: `Anda yakin ingin menghapus ${displayCount} data rekap SPPD terpilih? Tindakan ini tidak dapat dibatalkan.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, hapus',
+                        cancelButtonText: 'Batal',
+                        buttonsStyling: false,
+                        customClass: {
+                            popup: 'swal-adm-sppd-popup',
+                            title: 'swal-adm-sppd-title',
+                            confirmButton: 'swal-adm-sppd-confirm',
+                            cancelButton: 'swal-adm-sppd-cancel',
+                        },
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            showLoading();
+                            try {
+                                const res = await fetch('/admin/rekap-sppd/bulk-delete', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': csrf,
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                    },
+                                    body: JSON.stringify(payload),
+                                });
+                                const json = await res.json().catch(() => ({}));
+                                if (!res.ok) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal',
+                                        text: json.message || ('HTTP ' + res.status),
+                                        customClass: { popup: 'swal-adm-sppd-popup', title: 'swal-adm-sppd-title', confirmButton: 'swal-adm-sppd-confirm' },
+                                        buttonsStyling: false
+                                    });
+                                    return;
+                                }
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: json.message || 'Data rekap SPPD terpilih berhasil dihapus.',
+                                    timer: 1500,
+                                    showConfirmButton: false,
+                                    customClass: {
+                                        popup: 'swal-adm-sppd-popup',
+                                        title: 'swal-adm-sppd-title',
+                                        icon: 'swal-adm-sppd-icon-success',
+                                    }
+                                });
+                                // Reset selections
+                                _isAllSelected = false;
+                                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                                updateBulkActionState();
+                                // Refresh data
+                                fetchSppds();
+                            } catch (err) {
+                                console.error(err);
+                                Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.' });
+                            } finally {
+                                hideLoading();
+                            }
+                        }
+                    });
+                });
+            }
+
             bindSorting();
             bindPagination();
             updateFilterChrome();
+            updateBulkActionState();
 
             if (typeof window.registerTurboCleanup === 'function') {
                 window.registerTurboCleanup(function () {

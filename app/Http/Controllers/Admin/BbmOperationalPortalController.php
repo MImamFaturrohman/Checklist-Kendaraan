@@ -16,6 +16,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class BbmOperationalPortalController extends Controller
 {
@@ -465,7 +466,8 @@ class BbmOperationalPortalController extends Controller
         $view = view('admin.bbm-operational-portal', $payload);
 
         if ($request->header('X-VMS-BBM-Portal-Fragment') === '1') {
-            return response($view->fragment('bbm-portal-table-body'));
+            return response($view->fragment('bbm-portal-table-body'))
+                ->header('X-VMS-BBM-Total', $reports->total());
         }
 
         return $view;
@@ -586,5 +588,71 @@ class BbmOperationalPortalController extends Controller
         abort_unless(auth()->user()?->role === 'superadmin', 403);
 
         return Excel::download(new BbmReportTemplateExport(), 'template-import-bbm.xlsx');
+    }
+
+    public function destroyBulk(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $request->validate([
+            'ids' => 'nullable|array',
+            'ids.*' => 'nullable|exists:bbm_reports,id',
+            'all' => 'nullable|boolean',
+            'search' => 'nullable|string',
+            'jenis_pengisian' => 'nullable|string',
+            'month' => 'nullable|string',
+            'year' => 'nullable|string',
+        ]);
+
+        if ($request->boolean('all')) {
+            $query = BbmReport::query();
+
+            if ($search = $request->input('search')) {
+                $term = '%'.$search.'%';
+                $query->where(function ($q) use ($term, $search) {
+                    $q->where('nomor_kendaraan', 'like', $term)
+                        ->orWhere('jenis_kendaraan', 'like', $term)
+                        ->orWhere('jenis_pengisian', 'like', $term)
+                        ->orWhereHas('user', function ($uq) use ($term) {
+                            $uq->where('name', 'like', $term)
+                                ->orWhere('username', 'like', $term);
+                        });
+                });
+            }
+
+            if ($jenis = $request->input('jenis_pengisian')) {
+                $query->where('jenis_pengisian', $jenis);
+            }
+
+            if ($month = $request->input('month')) {
+                $query->whereMonth('tanggal', (int) $month);
+            }
+
+            if ($year = $request->input('year')) {
+                $query->whereYear('tanggal', (int) $year);
+            }
+
+            $reportsToDelete = $query->get();
+        } else {
+            $ids = $request->input('ids', []);
+            $reportsToDelete = BbmReport::whereIn('id', $ids)->get();
+        }
+
+        $count = $reportsToDelete->count();
+
+        foreach ($reportsToDelete as $report) {
+            if ($report->odometer_photo_path) {
+                Storage::disk('public')->delete($report->odometer_photo_path);
+            }
+            if ($report->struk_photo_path) {
+                Storage::disk('public')->delete($report->struk_photo_path);
+            }
+            $report->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $count . ' data log BBM berhasil dihapus.',
+        ]);
     }
 }

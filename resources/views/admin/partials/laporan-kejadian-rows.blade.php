@@ -3,6 +3,9 @@
     <tr>
         <td>{{ $laporans->firstItem() + $loop->index }}</td>
         <td>
+            <input type="checkbox" class="lk-row-checkbox" value="{{ $row->id }}" aria-label="Pilih laporan kejadian">
+        </td>
+        <td>
             <span class="lk-admin-name">{{ $row->nama }}</span>
             <div class="lk-admin-meta">NIP {{ $row->nip }}</div>
         </td>
@@ -41,6 +44,6 @@
     </tr>
 @empty
     <tr>
-        <td colspan="7" class="portal-empty">Belum ada laporan kejadian.</td>
+        <td colspan="8" class="portal-empty">Belum ada laporan kejadian.</td>
     </tr>
 @endforelse

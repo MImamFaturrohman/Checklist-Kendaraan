@@ -209,4 +209,41 @@ class VehicleUsageLogArchiveController extends Controller
 
         return $query;
     }
+
+    public function destroyBulk(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $request->validate([
+            'ids' => 'nullable|array',
+            'ids.*' => 'nullable|exists:vehicle_usage_logs,id',
+            'all' => 'nullable|boolean',
+            'search' => 'nullable|string',
+            'month' => 'nullable|string',
+            'year' => 'nullable|string',
+        ]);
+
+        if ($request->boolean('all')) {
+            $query = $this->buildLogsQuery(
+                $request->input('search'),
+                $request->input('month'),
+                $request->input('year')
+            );
+            $logsToDelete = $query->get();
+        } else {
+            $ids = $request->input('ids', []);
+            $logsToDelete = VehicleUsageLog::whereIn('id', $ids)->get();
+        }
+
+        $count = $logsToDelete->count();
+
+        foreach ($logsToDelete as $log) {
+            $log->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $count . ' data log pemakaian kendaraan berhasil dihapus.',
+        ]);
+    }
 }

@@ -41,6 +41,119 @@
         .peminj-empty { text-align: center; color: #9ca3af; padding: 40px 12px; }
         .dash-body.dark .peminj-empty { color: rgba(200, 218, 255, 0.45); }
 
+        /* Bulk Actions & Checkbox Styles */
+        .ppm-bulk-actions-wrap label {
+            color: #475569;
+        }
+        html.dark .ppm-bulk-actions-wrap label {
+            color: rgba(200, 218, 255, 0.85);
+        }
+        html.dark .ppm-bulk-actions-wrap div {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        .ppm-requests-table th:nth-child(2),
+        .ppm-requests-table td:nth-child(2) {
+            width: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Bulk Delete Button Styling */
+        #ppm-btn-bulk-delete {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            border: 1.5px solid #fecaca;
+            cursor: pointer;
+            background-color: transparent;
+            color: #b91c1c;
+            transition: all 0.15s ease-in-out;
+        }
+        #ppm-btn-bulk-delete:hover {
+            background-color: #b91c1c;
+            color: #ffffff !important;
+            border-color: #b91c1c;
+            box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+        }
+        
+        /* Dark mode overrides for Bulk Delete Button */
+        html.dark #ppm-btn-bulk-delete {
+            background-color: transparent;
+            color: #fca5a5;
+            border-color: rgba(248, 113, 113, 0.35);
+        }
+        html.dark #ppm-btn-bulk-delete:hover {
+            background-color: #ef4444;
+            color: #ffffff !important;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+        }
+
+        /* Modern Checkbox styling: slightly rounded edges & premium dark/light mode appearance */
+        .ppm-row-checkbox, #ppm-select-all {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #cbd5e1;
+            border-radius: 5px; /* rounded slightly / tumpul edgenya */
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            vertical-align: middle;
+            margin: 0;
+        }
+
+        html.dark .ppm-row-checkbox, html.dark #ppm-select-all {
+            border-color: rgba(255, 255, 255, 0.25);
+            background-color: rgba(15, 23, 42, 0.6);
+        }
+
+        .ppm-row-checkbox:hover, #ppm-select-all:hover {
+            border-color: #002a7a;
+            box-shadow: 0 0 0 3px rgba(0, 42, 122, 0.15);
+        }
+        html.dark .ppm-row-checkbox:hover, html.dark #ppm-select-all:hover {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        }
+
+        .ppm-row-checkbox:checked, #ppm-select-all:checked {
+            background-color: #002a7a;
+            border-color: #002a7a;
+        }
+        html.dark .ppm-row-checkbox:checked, html.dark #ppm-select-all:checked {
+            background-color: #60a5fa;
+            border-color: #60a5fa;
+        }
+
+        /* Checkmark icon */
+        .ppm-row-checkbox:checked::after, #ppm-select-all:checked::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 1px;
+            width: 5px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        html.dark .ppm-row-checkbox:checked::after, html.dark #ppm-select-all:checked::after {
+            border-color: #ffffff;
+        }
+
         .ppm-master-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
         .ppm-tree { font-size: 0.88rem; }
         .ppm-tree ul { list-style: none; margin: 0; padding-left: 0; }
@@ -384,6 +497,18 @@
                             Daftar permohonan peminjaman
                         </div>
                         <div class="portal-local-filters ppm-daftar-filters" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none; align-items: center; gap: 8px;">
+                            <!-- Bulk Actions Container -->
+                            <div class="ppm-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" id="ppm-btn-bulk-delete" style="display: none;">
+                                    <i class="bi bi-trash-fill"></i> Hapus (<span id="ppm-bulk-select-count">0</span>)
+                                </button>
+                                
+                                <div style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.25);">
+                                    <input type="checkbox" id="ppm-select-all" data-total="{{ $requests->total() }}" title="Pilih Semua">
+                                    <label for="ppm-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">Pilih</label>
+                                </div>
+                            </div>
+
                             <div class="admin-search-wrap portal-search-full" style="width: 380px; max-width: 100%;">
                                 <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
                                     <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
@@ -409,6 +534,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th style="width: 40px; text-align: center;">Pilih</th>
                                     <x-sortable-th key="nama_lengkap" label="Pemohon" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                     <th>Bidang</th>
                                     <x-sortable-th key="nomor_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
@@ -643,6 +769,7 @@
         let _dir = '';
         let _abort = null;
         let _activeStatus = '';
+        let _isAllSelected = false;
 
         const searchEl = document.getElementById('ppm-search-live');
         const perPageEl = document.getElementById('ppm-per-page');
@@ -651,6 +778,11 @@
         const clearBtn = document.getElementById('ppm-search-clear');
         const resetBtn = document.getElementById('ppm-filter-reset');
         const statGroup = document.getElementById('ppm-stat-filter-group');
+
+        // Bulk Delete Elements
+        const selectAllCheckbox = document.getElementById('ppm-select-all');
+        const bulkDeleteBtn = document.getElementById('ppm-btn-bulk-delete');
+        const bulkSelectCount = document.getElementById('ppm-bulk-select-count');
 
         if (!searchEl || !perPageEl || !tbody || !pagEl) return;
 
@@ -695,6 +827,27 @@
             syncCardActiveState();
         }
 
+        function updateBulkActionState() {
+            if (!tbody || !bulkDeleteBtn || !bulkSelectCount) return;
+            const checkboxes = Array.from(tbody.querySelectorAll('.ppm-row-checkbox'));
+            const checkedCheckboxes = checkboxes.filter(cb => cb.checked);
+            
+            let displayCount = 0;
+            if (_isAllSelected) {
+                const totalDbCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                displayCount = totalDbCount;
+            } else {
+                displayCount = checkedCheckboxes.length;
+            }
+
+            bulkSelectCount.textContent = String(displayCount);
+            bulkDeleteBtn.style.display = displayCount > 0 ? 'inline-flex' : 'none';
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = _isAllSelected;
+            }
+        }
+
         async function fetchRequests(scroll = false) {
             _abort?.abort();
             _abort = new AbortController();
@@ -715,7 +868,17 @@
                     window.AdminTableSort.syncAria(tbody.closest('table'), json.sort ?? null, json.dir ?? null);
                 }
 
+                if (selectAllCheckbox && json.total !== undefined) {
+                    selectAllCheckbox.dataset.total = json.total;
+                }
+
                 updateFilterChrome();
+
+                // Apply check state to new page rows if 'select all' is active
+                if (_isAllSelected) {
+                    tbody.querySelectorAll('.ppm-row-checkbox').forEach(cb => cb.checked = true);
+                }
+                updateBulkActionState();
 
                 if (scroll) {
                     const section = document.getElementById('ppm-master-pernyataan')?.closest('.portal-section') || tbody.closest('.portal-section');
@@ -757,11 +920,13 @@
         const debouncedFetch = debounce(() => { _page = 1; fetchRequests(); });
 
         searchEl.addEventListener('input', () => {
+            _isAllSelected = false;
             updateFilterChrome();
             debouncedFetch();
         });
 
         perPageEl.addEventListener('change', (e) => {
+            _isAllSelected = false;
             _perPage = parseInt(e.target.value, 10);
             _page = 1;
             fetchRequests();
@@ -769,6 +934,7 @@
 
         filterCards.forEach(card => {
             const activate = () => {
+                _isAllSelected = false;
                 const cardVal = card.dataset.filterValue ?? '';
                 if (cardVal !== '' && _activeStatus === cardVal) {
                     _activeStatus = '';
@@ -787,6 +953,7 @@
 
         if (clearBtn) {
             clearBtn.addEventListener('click', () => {
+                _isAllSelected = false;
                 searchEl.value = '';
                 updateFilterChrome();
                 _page = 1;
@@ -796,6 +963,7 @@
 
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
+                _isAllSelected = false;
                 searchEl.value = '';
                 _activeStatus = '';
                 perPageEl.value = '10';
@@ -820,6 +988,7 @@
                         return url;
                     },
                     onNavigate: (url) => {
+                        _isAllSelected = false;
                         _sort = url.searchParams.get('sort') || '';
                         _dir = url.searchParams.get('dir') || '';
                         _page = 1;
@@ -829,8 +998,119 @@
             }
         }
 
+        // Bulk action event listeners
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', () => {
+                if (!tbody) return;
+                _isAllSelected = selectAllCheckbox.checked;
+                const checkboxes = tbody.querySelectorAll('.ppm-row-checkbox');
+                checkboxes.forEach(cb => {
+                    cb.checked = _isAllSelected;
+                });
+                updateBulkActionState();
+            });
+        }
+
+        if (tbody) {
+            tbody.addEventListener('change', (e) => {
+                if (e.target.classList.contains('ppm-row-checkbox')) {
+                    if (!e.target.checked) {
+                        _isAllSelected = false;
+                    }
+                    updateBulkActionState();
+                }
+            });
+        }
+
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', () => {
+                if (!tbody) return;
+                
+                let payload = {};
+                let displayCount = 0;
+
+                if (_isAllSelected) {
+                    payload = {
+                        all: true,
+                        search: searchEl.value.trim(),
+                        status: _activeStatus,
+                    };
+                    displayCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                } else {
+                    const selectedIds = Array.from(tbody.querySelectorAll('.ppm-row-checkbox:checked'))
+                        .map(cb => cb.value);
+                    if (selectedIds.length === 0) return;
+                    payload = {
+                        ids: selectedIds
+                    };
+                    displayCount = selectedIds.length;
+                }
+
+                Swal.fire({
+                    title: 'Hapus data peminjaman?',
+                    text: `Anda yakin ingin menghapus ${displayCount} data peminjaman terpilih? Tindakan ini tidak dapat dibatalkan.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'swal-ppm-popup',
+                        title: 'swal-ppm-title',
+                        confirmButton: 'swal-ppm-confirm',
+                        cancelButton: 'swal-ppm-cancel',
+                    },
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        showLoading();
+                        try {
+                            const res = await fetch('/admin/peminjaman/bulk-delete', {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': window.PPM_API.csrf,
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                },
+                                body: JSON.stringify(payload),
+                            });
+                            const json = await res.json().catch(() => ({}));
+                            if (!res.ok) {
+                                showErrors(res, json);
+                                return;
+                            }
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: json.message || 'Data peminjaman terpilih berhasil dihapus.',
+                                timer: 1500,
+                                showConfirmButton: false,
+                                customClass: {
+                                    popup: 'swal-ppm-popup',
+                                    title: 'swal-ppm-title',
+                                    icon: 'swal-ppm-icon-success',
+                                }
+                            });
+                            // Reset selections
+                            _isAllSelected = false;
+                            if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                            updateBulkActionState();
+                            // Refresh data
+                            fetchRequests();
+                        } catch (err) {
+                            console.error(err);
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.' });
+                        } finally {
+                            hideLoading();
+                        }
+                    }
+                });
+            });
+        }
+
         // Initial setup
         updateFilterChrome();
+        updateBulkActionState();
 
         // Init pagination mount on load
         mountPagination(pagEl.innerHTML);

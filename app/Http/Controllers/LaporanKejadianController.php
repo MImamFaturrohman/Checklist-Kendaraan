@@ -257,6 +257,7 @@ class LaporanKejadianController extends Controller
                 'tbody' => view('admin.partials.laporan-kejadian-rows', compact('laporans'))->render(),
                 'pagination_html' => AdminTablePagination::linksHtml($laporans, route('admin.laporan-kejadian.index')),
                 'per_page' => $laporans->perPage(),
+                'total' => $laporans->total(),
                 'sort' => $sortState['sort'] ?? null,
                 'dir'  => $sortState['dir']  ?? null,
             ]);
@@ -392,5 +393,69 @@ class LaporanKejadianController extends Controller
         Storage::disk('public')->put($path, $pdf->output());
 
         return $path;
+    }
+
+    public function destroyBulk(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $request->validate([
+            'ids' => 'nullable|array',
+            'ids.*' => 'nullable|exists:laporan_kejadians,id',
+            'all' => 'nullable|boolean',
+            'search' => 'nullable|string',
+            'kategori' => 'nullable|string',
+        ]);
+
+        if ($request->boolean('all')) {
+            $query = LaporanKejadian::query();
+
+            if ($search = trim((string) $request->input('search'))) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nip', 'like', "%{$search}%")
+                        ->orWhere('jabatan', 'like', "%{$search}%")
+                        ->orWhere('lokasi_kejadian', 'like', "%{$search}%")
+                        ->orWhere('nomor_kendaraan', 'like', "%{$search}%")
+                        ->orWhere('jenis_kendaraan', 'like', "%{$search}%")
+                        ->orWhereHas('bidang', function ($bq) use ($search) {
+                            $bq->where('nama', 'like', "%{$search}%")
+                                ->orWhereHas('parent', fn ($p) => $p->where('nama', 'like', "%{$search}%"));
+                        });
+                });
+            }
+
+            $kategori = $request->input('kategori');
+            if (in_array($kategori, ['Incident', 'Nearmiss'], true)) {
+                $query->where('kategori', $kategori);
+            }
+
+            $laporansToDelete = $query->get();
+        } else {
+            $ids = $request->input('ids', []);
+            $laporansToDelete = LaporanKejadian::whereIn('id', $ids)->get();
+        }
+
+        $count = $laporansToDelete->count();
+
+        foreach ($laporansToDelete as $laporan) {
+            if ($laporan->pdf_path) {
+                Storage::disk('public')->delete($laporan->pdf_path);
+            }
+            foreach ($laporan->lampiranItems() as $item) {
+                if ($item['path']) {
+                    Storage::disk('public')->delete($item['path']);
+                }
+            }
+            if ($laporan->foto_path) {
+                Storage::disk('public')->delete($laporan->foto_path);
+            }
+            $laporan->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $count . ' data laporan kejadian berhasil dihapus.',
+        ]);
     }
 }

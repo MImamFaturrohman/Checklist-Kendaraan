@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/portal-pemeriksaan', [ChecklistController::class, 'portalPemeriksaan'])->name('admin.portal-pemeriksaan');
 
     // Portal BBM Operasional (superadmin: penuh; manager: kartu & grafik — dicek di controller)
+    Route::post('/admin/portal-bbm-operasional/bulk-delete', [BbmOperationalPortalController::class, 'destroyBulk'])->name('admin.portal-bbm-operasional.bulk-delete');
     Route::get('/admin/portal-bbm-operasional/{bbmReport}/json', [BbmOperationalPortalController::class, 'showJson'])->name('admin.portal-bbm-operasional.json');
     Route::get('/admin/portal-bbm-operasional/charts-series', [BbmOperationalPortalController::class, 'chartSeries'])->name('admin.portal-bbm-operasional.charts');
     Route::get('/admin/portal-bbm-operasional/activity-log', [BbmOperationalPortalController::class, 'activityLog'])->name('admin.portal-bbm-operasional.activity-log');
@@ -128,18 +129,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin: peminjaman kendaraan + PDF download
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'adminIndex'])->name('admin.peminjaman');
+    Route::post('/admin/peminjaman/bulk-delete', [PeminjamanController::class, 'destroyBulk'])->name('admin.peminjaman.bulk-delete');
     Route::get('/admin/peminjaman/{peminjaman}/pdf', [PeminjamanController::class, 'downloadPdf'])->name('admin.peminjaman.pdf');
 
     // Admin: laporan kejadian (dari landing)
     Route::get('/admin/laporan-kejadian', [LaporanKejadianController::class, 'adminIndex'])->name('admin.laporan-kejadian.index');
+    Route::post('/admin/laporan-kejadian/bulk-delete', [LaporanKejadianController::class, 'destroyBulk'])->name('admin.laporan-kejadian.bulk-delete');
     Route::get('/admin/laporan-kejadian/{laporanKejadian}/pdf', [LaporanKejadianController::class, 'downloadPdf'])->name('admin.laporan-kejadian.pdf');
 
     // Admin: arsip log penggunaan kendaraan (superadmin)
+    Route::post('/admin/log-penggunaan-kendaraan/bulk-delete', [VehicleUsageLogArchiveController::class, 'destroyBulk'])->name('admin.vehicle-usage-logs.bulk-delete');
     Route::get('/admin/log-penggunaan-kendaraan', [VehicleUsageLogArchiveController::class, 'index'])->name('admin.vehicle-usage-logs.index');
     Route::get('/api/admin/vehicle-usage-logs', [VehicleUsageLogArchiveController::class, 'apiIndex'])->name('api.admin.vehicle-usage-logs');
 
     // Admin: Rekap SPPD
     Route::get('/admin/rekap-sppd', [SppdAdminController::class, 'index'])->name('admin.sppd.index');
+    Route::post('/admin/rekap-sppd/bulk-delete', [SppdAdminController::class, 'destroyBulk'])->name('admin.sppd.bulk-delete');
     Route::get('/admin/rekap-sppd/{sppd}/pdf', [SppdAdminController::class, 'downloadPdf'])->name('admin.sppd.pdf');
     Route::get('/admin/rekap-sppd/{sppd}', [SppdAdminController::class, 'show'])->name('admin.sppd.show');
     Route::post('/admin/rekap-sppd/{sppd}/verify-approve', [SppdAdminController::class, 'verifyApprove'])->name('admin.sppd.verify-approve');

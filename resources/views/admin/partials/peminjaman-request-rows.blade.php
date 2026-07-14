@@ -2,6 +2,9 @@
 @forelse($requests as $req)
     <tr>
         <td>{{ ($requests->currentPage() - 1) * $requests->perPage() + $loop->iteration }}</td>
+        <td>
+            <input type="checkbox" class="ppm-row-checkbox" value="{{ $req->id }}" aria-label="Pilih permohonan peminjaman">
+        </td>
         <td style="min-width: 150px; max-width: 200px;">
             <div class="peminj-name">{{ $req->nama_lengkap }}</div>
             <div class="peminj-meta">{{ $req->nip }}</div>
@@ -85,7 +88,7 @@
     </tr>
 @empty
     <tr>
-        <td colspan="10" class="peminj-empty">
+        <td colspan="11" class="peminj-empty">
             Tidak ada data peminjaman.
         </td>
     </tr>

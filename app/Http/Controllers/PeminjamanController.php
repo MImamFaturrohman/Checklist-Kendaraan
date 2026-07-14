@@ -280,6 +280,7 @@ class PeminjamanController extends Controller
                 'tbody' => view('admin.partials.peminjaman-request-rows', compact('requests'))->render(),
                 'pagination_html' => AdminTablePagination::linksHtml($requests, route('admin.peminjaman')),
                 'per_page' => $requests->perPage(),
+                'total' => $requests->total(),
                 'sort' => $sortState['sort'] ?? null,
                 'dir'  => $sortState['dir']  ?? null,
             ]);
@@ -329,5 +330,59 @@ class PeminjamanController extends Controller
         }
 
         return $query;
+    }
+
+    public function destroyBulk(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $request->validate([
+            'ids' => 'nullable|array',
+            'ids.*' => 'nullable|exists:peminjaman_requests,id',
+            'all' => 'nullable|boolean',
+            'search' => 'nullable|string',
+            'status' => 'nullable|string',
+        ]);
+
+        if ($request->boolean('all')) {
+            $query = PeminjamanRequest::query();
+
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('nip', 'like', "%{$search}%")
+                        ->orWhere('jabatan', 'like', "%{$search}%")
+                        ->orWhere('nomor_kendaraan', 'like', "%{$search}%")
+                        ->orWhere('jenis_kendaraan', 'like', "%{$search}%")
+                        ->orWhereHas('bidang', function ($bq) use ($search) {
+                            $bq->where('nama', 'like', "%{$search}%")
+                                ->orWhereHas('parent', fn ($p) => $p->where('nama', 'like', "%{$search}%"));
+                        });
+                });
+            }
+
+            if ($status = $request->input('status')) {
+                $query->where('status', $status);
+            }
+
+            $requestsToDelete = $query->get();
+        } else {
+            $ids = $request->input('ids', []);
+            $requestsToDelete = PeminjamanRequest::whereIn('id', $ids)->get();
+        }
+
+        $count = $requestsToDelete->count();
+
+        foreach ($requestsToDelete as $req) {
+            if ($req->pdf_path) {
+                Storage::disk('public')->delete($req->pdf_path);
+            }
+            $req->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $count . ' data peminjaman berhasil dihapus.',
+        ]);
     }
 }

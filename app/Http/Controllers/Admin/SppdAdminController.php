@@ -100,7 +100,8 @@ class SppdAdminController extends Controller
         $view = view('admin.sppd.index', $payload);
 
         if ($request->header('X-VMS-SPPD-Fragment') === '1') {
-            return response($view->fragment('sppd-admin-body'));
+            return response($view->fragment('sppd-admin-body'))
+                ->header('X-VMS-SPPD-Total', $sppds->total());
         }
 
         return $view;
@@ -165,6 +166,54 @@ class SppdAdminController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Laporan dikembalikan untuk revisi.',
+        ]);
+    }
+
+    public function destroyBulk(Request $request): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $request->validate([
+            'ids' => 'nullable|array',
+            'ids.*' => 'nullable|exists:sppds,id',
+            'all' => 'nullable|boolean',
+            'search' => 'nullable|string',
+            'status' => 'nullable|string',
+        ]);
+
+        if ($request->boolean('all')) {
+            $query = Sppd::query();
+
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_driver', 'like', "%{$search}%")
+                        ->orWhere('keperluan_dinas', 'like', "%{$search}%")
+                        ->orWhere('no_kendaraan', 'like', "%{$search}%");
+                });
+            }
+
+            if ($status = $request->input('status')) {
+                $query->where('status', $status);
+            }
+
+            $sppdsToDelete = $query->get();
+        } else {
+            $ids = $request->input('ids', []);
+            $sppdsToDelete = Sppd::whereIn('id', $ids)->get();
+        }
+
+        $count = $sppdsToDelete->count();
+
+        foreach ($sppdsToDelete as $sppd) {
+            if ($sppd->pdf_path) {
+                Storage::disk('public')->delete($sppd->pdf_path);
+            }
+            $sppd->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $count . ' data rekap SPPD berhasil dihapus.',
         ]);
     }
 

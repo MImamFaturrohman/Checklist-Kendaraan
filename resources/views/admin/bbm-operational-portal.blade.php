@@ -19,6 +19,7 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 @endpush
 
 @push('styles')
@@ -1148,6 +1149,208 @@
         .bbm-shift-badge {
             border: none !important;
         }
+
+        /* Bulk Actions & Checkbox Styles */
+        .bbm-bulk-actions-wrap label {
+            color: #475569;
+        }
+        html.dark .bbm-bulk-actions-wrap label {
+            color: rgba(200, 218, 255, 0.85);
+        }
+        html.dark .bbm-bulk-actions-wrap div {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Bulk Delete Button Styling */
+        #bbm-btn-bulk-delete {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            border: 1.5px solid #fecaca;
+            cursor: pointer;
+            background-color: transparent;
+            color: #b91c1c;
+            transition: all 0.15s ease-in-out;
+        }
+        #bbm-btn-bulk-delete:hover {
+            background-color: #b91c1c;
+            color: #ffffff !important;
+            border-color: #b91c1c;
+            box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+        }
+        
+        /* Dark mode overrides for Bulk Delete Button */
+        html.dark #bbm-btn-bulk-delete {
+            background-color: transparent;
+            color: #fca5a5;
+            border-color: rgba(248, 113, 113, 0.35);
+        }
+        html.dark #bbm-btn-bulk-delete:hover {
+            background-color: #ef4444;
+            color: #ffffff !important;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+        }
+
+        /* Modern Checkbox styling: slightly rounded edges & premium dark/light mode appearance */
+        .bbm-row-checkbox, #bbm-select-all {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #cbd5e1;
+            border-radius: 5px; /* rounded slightly / tumpul edgenya */
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            vertical-align: middle;
+            margin: 0;
+        }
+
+        html.dark .bbm-row-checkbox, html.dark #bbm-select-all {
+            border-color: rgba(255, 255, 255, 0.25);
+            background-color: rgba(15, 23, 42, 0.6);
+        }
+
+        .bbm-row-checkbox:hover, #bbm-select-all:hover {
+            border-color: #002a7a;
+            box-shadow: 0 0 0 3px rgba(0, 42, 122, 0.15);
+        }
+        html.dark .bbm-row-checkbox:hover, html.dark #bbm-select-all:hover {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        }
+
+        .bbm-row-checkbox:checked, #bbm-select-all:checked {
+            background-color: #002a7a;
+            border-color: #002a7a;
+        }
+        html.dark .bbm-row-checkbox:checked, html.dark #bbm-select-all:checked {
+            background-color: #60a5fa;
+            border-color: #60a5fa;
+        }
+
+        /* Checkmark icon */
+        .bbm-row-checkbox:checked::after, #bbm-select-all:checked::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 1px;
+            width: 5px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        html.dark .bbm-row-checkbox:checked::after, html.dark #bbm-select-all:checked::after {
+            border-color: #ffffff;
+        }
+
+        /* ── SweetAlert2 custom style (admin-peminjaman) ── */
+        .swal-ppm-icon-success {
+            box-sizing: content-box !important;
+        }
+        .swal-ppm-icon-success * {
+            box-sizing: content-box !important;
+        }
+        .swal2-popup.swal-ppm-popup .swal2-success-circular-line-left,
+        .swal2-popup.swal-ppm-popup .swal2-success-circular-line-right,
+        .swal2-popup.swal-ppm-popup .swal2-success-fix {
+            background: transparent !important;
+        }
+        .swal2-popup.swal-ppm-popup {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 20px !important;
+            width: 420px !important;
+            max-width: calc(100% - 32px) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+            border: 1px solid rgba(11, 44, 107, 0.12) !important;
+            padding: 1.5rem 1.25rem 1.5rem !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup {
+            color: #f3f4f6 !important;
+            background: rgba(16, 38, 80, 0.95) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        .swal-ppm-title {
+            font-size: 1.15rem !important;
+            font-weight: 800 !important;
+            color: #0f172a !important;
+        }
+        html.dark .swal-ppm-title {
+            color: #f1f5f9 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup .swal2-html-container,
+        html.dark .swal2-popup.swal-ppm-popup .swal2-content {
+            color: #cbd5e1 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup .swal2-html-container p,
+        html.dark .swal2-popup.swal-ppm-popup .swal2-html-container strong {
+            color: #e2e8f0 !important;
+        }
+        .swal2-popup.swal-ppm-popup .swal2-actions {
+            margin: 1.25rem auto 0 !important;
+            gap: 12px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-confirm {
+            margin: 0 !important;
+            background: linear-gradient(135deg, #0b2c6b, #123f8f) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            padding: 0.7rem 1.5rem !important;
+            min-width: 8.5rem !important;
+            box-shadow: 0 4px 14px rgba(11, 44, 107, 0.3) !important;
+            cursor: pointer !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-confirm:hover {
+            box-shadow: 0 6px 18px rgba(11, 44, 107, 0.38) !important;
+            transform: translateY(-1px);
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-cancel {
+            margin: 0 !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            font-size: 0.88rem !important;
+            padding: 0.7rem 1.35rem !important;
+            min-width: 7rem !important;
+            border: 2px solid #cbd5e1 !important;
+            background: #f8fafc !important;
+            color: #475569 !important;
+            cursor: pointer !important;
+        }
+        .swal2-popup.swal-ppm-popup button.swal-ppm-cancel:hover {
+            background: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup button.swal-ppm-cancel {
+            background: rgba(30, 41, 59, 0.8) !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            color: #e2e8f0 !important;
+        }
+        html.dark .swal2-popup.swal-ppm-popup button.swal-ppm-cancel:hover {
+            background: rgba(30, 41, 59, 0.95) !important;
+            border-color: rgba(148, 163, 184, 0.5) !important;
+        }
     </style>
 @endpush
 
@@ -1417,6 +1620,18 @@
                     <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Riwayat Pengisian</div>
 
                     <div class="portal-local-filters ppm-daftar-filters bbm-portal-live-filter-bar" id="bbm-portal-filter-bar" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none;">
+                        <!-- Bulk Actions Container -->
+                        <div class="bbm-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" id="bbm-btn-bulk-delete" style="display: none;">
+                                <i class="bi bi-trash-fill"></i> Hapus (<span id="bbm-bulk-select-count">0</span>)
+                            </button>
+                            
+                            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.25);">
+                                <input type="checkbox" id="bbm-select-all" data-total="{{ $reports->total() }}" title="Pilih Semua">
+                                <label for="bbm-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">Pilih</label>
+                            </div>
+                        </div>
+
                         <div class="admin-search-wrap portal-search-full" style="width: 320px; max-width: 100%;">
                             <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                             <input type="text" id="bbm-portal-filter-q" value="{{ $bbmPortalSearch ?? request('q') }}" placeholder="Cari nopol, jenis, nama pengemudi..." class="admin-search-input" autocomplete="off" aria-label="Cari laporan BBM">
@@ -1478,6 +1693,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
+                                <th style="width: 40px; text-align: center;">Pilih</th>
                                 <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="waktu" label="Waktu" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="shift" label="Shift" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
@@ -1500,6 +1716,9 @@
                                 @endphp
                                 <tr>
                                     <td>{{ ($reports->currentPage() - 1) * $reports->perPage() + $loop->iteration }}</td>
+                                    <td>
+                                        <input type="checkbox" class="bbm-row-checkbox" value="{{ $r->id }}" aria-label="Pilih log BBM">
+                                    </td>
                                     <td>{{ $r->tanggal->translatedFormat('j F Y') }}</td>
                                     <td>{{ $waktuStr }}</td>
                                     <td>
@@ -1523,7 +1742,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="12" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
+                                <tr><td colspan="14" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -2398,6 +2617,7 @@
             let _sort = '{{ $activeSort ?? "" }}';
             let _dir = '{{ $activeDir ?? "" }}';
             let _abortBbm = null;
+            let _isAllSelected = false;
 
             const bbmSearchEl = document.getElementById('bbm-portal-filter-q');
             const bbmJenisEl = document.getElementById('bbm-portal-filter-jenis-pengisian');
@@ -2407,6 +2627,10 @@
             const bbmLiveRoot = document.getElementById('bbm-portal-live-root');
             const bbmClearBtn = document.getElementById('bbm-portal-filter-clear');
             const bbmResetBtn = document.getElementById('bbm-portal-filter-reset');
+
+            const selectAllCheckbox = document.getElementById('bbm-select-all');
+            const bulkDeleteBtn = document.getElementById('bbm-btn-bulk-delete');
+            const bulkSelectCount = document.getElementById('bbm-bulk-select-count');
 
             function showBbmLoading() { const el = document.getElementById('bbm-portal-loading'); if (el) el.style.display = 'flex'; }
             function hideBbmLoading() { const el = document.getElementById('bbm-portal-loading'); if (el) el.style.display = 'none'; }
@@ -2444,6 +2668,27 @@
                 }
             }
 
+            function updateBulkActionState() {
+                if (!bbmLiveRoot || !bulkDeleteBtn || !bulkSelectCount) return;
+                const checkboxes = Array.from(bbmLiveRoot.querySelectorAll('.bbm-row-checkbox'));
+                const checkedCheckboxes = checkboxes.filter(cb => cb.checked);
+                
+                let displayCount = 0;
+                if (_isAllSelected) {
+                    const totalDbCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                    displayCount = totalDbCount;
+                } else {
+                    displayCount = checkedCheckboxes.length;
+                }
+
+                bulkSelectCount.textContent = String(displayCount);
+                bulkDeleteBtn.style.display = displayCount > 0 ? 'inline-flex' : 'none';
+
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = _isAllSelected;
+                }
+            }
+
             async function fetchBbmReports(scroll = false) {
                 if (BBM_PORTAL_CHARTS_ONLY) return;
                 _abortBbm?.abort();
@@ -2462,14 +2707,24 @@
                         signal: _abortBbm.signal
                     });
                     const html = await res.text();
+                    const totalHeader = res.headers.get('X-VMS-BBM-Total');
 
                     if (bbmLiveRoot) {
                         bbmLiveRoot.innerHTML = html;
                     }
 
+                    if (selectAllCheckbox && totalHeader !== null) {
+                        selectAllCheckbox.dataset.total = totalHeader;
+                    }
+
                     bindBbmSorting();
                     bindBbmPagination();
                     updateBbmFilterChrome();
+
+                    if (_isAllSelected) {
+                        bbmLiveRoot.querySelectorAll('.bbm-row-checkbox').forEach(cb => cb.checked = true);
+                    }
+                    updateBulkActionState();
 
                     if (scroll && bbmLiveRoot) {
                         bbmLiveRoot.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2506,6 +2761,7 @@
                                 return url;
                             },
                             onNavigate: (url) => {
+                                _isAllSelected = false;
                                 _sort = url.searchParams.get('sort') || '';
                                 _dir = url.searchParams.get('dir') || '';
                                 _page = 1;
@@ -2524,6 +2780,7 @@
 
             if (bbmSearchEl) {
                 bbmSearchEl.addEventListener('input', () => {
+                    _isAllSelected = false;
                     updateBbmFilterChrome();
                     debouncedBbmFetch();
                 });
@@ -2531,6 +2788,7 @@
 
             [bbmJenisEl, bbmMonthEl, bbmYearEl].forEach(el => {
                 el?.addEventListener('change', () => {
+                    _isAllSelected = false;
                     _page = 1;
                     fetchBbmReports();
                 });
@@ -2538,6 +2796,7 @@
 
             if (bbmPerPageEl) {
                 bbmPerPageEl.addEventListener('change', (e) => {
+                    _isAllSelected = false;
                     _perPage = parseInt(e.target.value, 10);
                     _page = 1;
                     fetchBbmReports();
@@ -2546,6 +2805,7 @@
 
             if (bbmClearBtn) {
                 bbmClearBtn.addEventListener('click', () => {
+                    _isAllSelected = false;
                     if (bbmSearchEl) bbmSearchEl.value = '';
                     updateBbmFilterChrome();
                     _page = 1;
@@ -2555,6 +2815,7 @@
 
             if (bbmResetBtn) {
                 bbmResetBtn.addEventListener('click', () => {
+                    _isAllSelected = false;
                     if (bbmSearchEl) bbmSearchEl.value = '';
                     if (bbmJenisEl) bbmJenisEl.selectedIndex = 0;
                     if (bbmMonthEl) bbmMonthEl.selectedIndex = 0;
@@ -2566,10 +2827,132 @@
                 });
             }
 
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', () => {
+                    if (!bbmLiveRoot) return;
+                    _isAllSelected = selectAllCheckbox.checked;
+                    const checkboxes = bbmLiveRoot.querySelectorAll('.bbm-row-checkbox');
+                    checkboxes.forEach(cb => {
+                        cb.checked = _isAllSelected;
+                    });
+                    updateBulkActionState();
+                });
+            }
+
+            if (bbmLiveRoot) {
+                bbmLiveRoot.addEventListener('change', (e) => {
+                    if (e.target.classList.contains('bbm-row-checkbox')) {
+                        if (!e.target.checked) {
+                            _isAllSelected = false;
+                        }
+                        updateBulkActionState();
+                    }
+                });
+            }
+
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', () => {
+                    if (!bbmLiveRoot) return;
+                    
+                    let payload = {};
+                    let displayCount = 0;
+
+                    if (_isAllSelected) {
+                        payload = {
+                            all: true,
+                            search: bbmSearchEl?.value.trim() ?? '',
+                            jenis_pengisian: bbmJenisEl?.value ?? '',
+                            month: bbmMonthEl?.value ?? '',
+                            year: bbmYearEl?.value ?? '',
+                        };
+                        displayCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                    } else {
+                        const selectedIds = Array.from(bbmLiveRoot.querySelectorAll('.bbm-row-checkbox:checked'))
+                            .map(cb => cb.value);
+                        if (selectedIds.length === 0) return;
+                        payload = {
+                            ids: selectedIds
+                        };
+                        displayCount = selectedIds.length;
+                    }
+
+                    if (!window.Swal) return;
+
+                    Swal.fire({
+                        title: 'Hapus data log BBM?',
+                        text: `Anda yakin ingin menghapus ${displayCount} data log BBM terpilih? Tindakan ini tidak dapat dibatalkan.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, hapus',
+                        cancelButtonText: 'Batal',
+                        buttonsStyling: false,
+                        customClass: {
+                            popup: 'swal-ppm-popup',
+                            title: 'swal-ppm-title',
+                            confirmButton: 'swal-ppm-confirm',
+                            cancelButton: 'swal-ppm-cancel',
+                        },
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            showBbmLoading();
+                            try {
+                                const res = await fetch('/admin/portal-bbm-operasional/bulk-delete', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                    },
+                                    body: JSON.stringify(payload),
+                                });
+                                const json = await res.json().catch(() => ({}));
+                                if (!res.ok) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal',
+                                        text: json.message || ('HTTP ' + res.status),
+                                        customClass: {
+                                            popup: 'swal-ppm-popup',
+                                            title: 'swal-ppm-title',
+                                        }
+                                    });
+                                    return;
+                                }
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: json.message || 'Data log BBM terpilih berhasil dihapus.',
+                                    timer: 1500,
+                                    showConfirmButton: false,
+                                    customClass: {
+                                        popup: 'swal-ppm-popup',
+                                        title: 'swal-ppm-title',
+                                        icon: 'swal-ppm-icon-success',
+                                    }
+                                });
+                                // Reset selections
+                                _isAllSelected = false;
+                                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                                updateBulkActionState();
+                                // Refresh data
+                                fetchBbmReports();
+                            } catch (err) {
+                                console.error(err);
+                                Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.' });
+                            } finally {
+                                hideBbmLoading();
+                            }
+                        }
+                    });
+                });
+            }
+
             // Initial binding for live log table
             bindBbmSorting();
             bindBbmPagination();
             updateBbmFilterChrome();
+            updateBulkActionState();
 
             document.getElementById('bbm-chart-year')?.addEventListener('change', () => { fetchComparisonCharts(); });
             document.getElementById('bbm-chart-vehicle')?.addEventListener('change', () => { fetchComparisonCharts(); });
