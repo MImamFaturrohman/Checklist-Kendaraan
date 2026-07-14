@@ -232,6 +232,7 @@
     <script>
     (function () {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const BASE = window._appBase;
 
         async function approveRequest(id, nama, nopol) {
             const result = await Swal.fire({
@@ -246,7 +247,7 @@
             if (!result.isConfirmed) return;
 
             try {
-                const res = await fetch('/manager/peminjaman/' + id + '/approve', {
+                const res = await fetch(BASE + '/manager/peminjaman/' + id + '/approve', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -282,7 +283,7 @@
             if (!isConfirmed) return;
 
             try {
-                const res = await fetch('/manager/peminjaman/' + id + '/reject', {
+                const res = await fetch(BASE + '/manager/peminjaman/' + id + '/reject', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

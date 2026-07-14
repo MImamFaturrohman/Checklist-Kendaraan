@@ -17,6 +17,16 @@ window.AdminTableSort  = AdminTableSort;
 Turbo.start();
 Alpine.start();
 
+window._appBase = (function () {
+    const meta = document.querySelector('meta[name="app-base-url"]');
+    return (meta ? meta.content : window.location.origin).replace(/\/$/, '');
+})();
+
+/** Prepend the app base-url to a root-relative path. */
+window.appBase = function (path) {
+    return window._appBase + (path.startsWith('/') ? path : '/' + path);
+};
+
 /* ================================================================
    TURBO BEFORE-CACHE REGISTRY — central cleanup hub
    Inline scripts call window.registerTurboCleanup(fn) instead of
@@ -235,7 +245,7 @@ document.addEventListener('turbo:before-cache', function () {
                     const nid  = a.getAttribute('data-notification-id');
                     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
                     if (nid && csrf) {
-                        fetch('/notifications/' + encodeURIComponent(nid) + '/read', {
+                        fetch(appBase('/notifications/' + encodeURIComponent(nid) + '/read'), {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': csrf,
@@ -322,8 +332,8 @@ document.addEventListener('turbo:before-cache', function () {
     window._vmsPresenceStarted = true;
 
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-    const HEARTBEAT_URL = `${import.meta.env.VITE_APP_URL}/api/presence/heartbeat`;
-    const OFFLINE_URL   = `${import.meta.env.VITE_APP_URL}/api/presence/offline`;
+    const HEARTBEAT_URL = appBase('/api/presence/heartbeat');
+    const OFFLINE_URL   = appBase('/api/presence/offline');
     const HEARTBEAT_MS  = 60000;
     let heartbeatTimer  = null;
 
@@ -1242,7 +1252,7 @@ document.addEventListener('turbo:load', async () => {
             jenisInput.value = nomorSelect.options[nomorSelect.selectedIndex]?.dataset?.jenis || '';
             if (nomorSelect.value && kmAwalInput) {
                 try {
-                    const r = await fetch(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`);
+                    const r = await fetch(appBase(`/api/kendaraan/last-km?nomor=${encodeURIComponent(nomorSelect.value)}`));
                     const d = await r.json();
                     lastKmDatabase = d.km || 0;
                     kmAwalInput.dispatchEvent(new Event('input'));

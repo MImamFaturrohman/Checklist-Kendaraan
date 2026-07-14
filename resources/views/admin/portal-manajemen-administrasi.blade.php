@@ -879,7 +879,7 @@ html.dark .swal2-popup.swal-mgmt-popup .swal2-html-container ul li {
 'use strict';
 
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
-const BASE = window.location.origin;
+const BASE = window._appBase;
 const ARMADA_STORE_URL = @json(route('admin.portal-manajemen.kendaraan.store'));
 const ARMADA_UPDATE_URL_TMPL = @json(url('/admin/portal-manajemen-administrasi/kendaraan/__ID__'));
 
@@ -1628,7 +1628,7 @@ window.submitUserEdit = async function() {
     const pw = document.getElementById('edit-password').value;
     if (pw) fd.append('password', pw);
     try {
-        const res  = await fetch(`/admin/users/${id}`,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
+        const res  = await fetch(appBase(`/admin/users/${id}`),{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
         const data = await res.json();
         if (res.ok && data.success) {
             Swal.fire({icon:'success',title:'Diperbarui!',text:data.message,timer:1500,showConfirmButton:false,toast:true,position:'top-end',customClass:{popup:'swal-mgmt-popup'}});
@@ -1660,7 +1660,7 @@ window.deleteUser = function(id, nama) {
         const fd = new FormData();
         fd.append('_token', CSRF); fd.append('_method', 'DELETE');
         try {
-            const res  = await fetch(`/admin/users/${id}`,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
+            const res  = await fetch(appBase(`/admin/users/${id}`),{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
             const data = await res.json();
             if (res.ok && data.success) {
                 Swal.fire({icon:'success',title:'Terhapus!',text:data.message,timer:1500,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}});
@@ -1688,7 +1688,7 @@ window.resetUserPassword = function(id, nama) {
         const fd = new FormData();
         fd.append('_token', CSRF); 
         try {
-            const res  = await fetch(`/admin/users/${id}/reset-password`,{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
+            const res  = await fetch(appBase(`/admin/users/${id}/reset-password`),{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
             const data = await res.json();
             if (res.ok && data.success) {
                 Swal.fire({icon:'success',title:'Berhasil!',text:data.message,timer:1500,showConfirmButton:false,customClass:{popup:'swal-mgmt-popup',title:'swal-mgmt-title',icon:'swal-mgmt-icon-success'}});
