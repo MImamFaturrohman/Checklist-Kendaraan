@@ -322,8 +322,8 @@ document.addEventListener('turbo:before-cache', function () {
     window._vmsPresenceStarted = true;
 
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-    const HEARTBEAT_URL = '/api/presence/heartbeat';
-    const OFFLINE_URL   = '/api/presence/offline';
+    const HEARTBEAT_URL = `${import.meta.env.VITE_APP_URL}/api/presence/heartbeat`;
+    const OFFLINE_URL   = `${import.meta.env.VITE_APP_URL}/api/presence/offline`;
     const HEARTBEAT_MS  = 60000;
     let heartbeatTimer  = null;
 
