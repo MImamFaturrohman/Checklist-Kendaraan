@@ -90,7 +90,7 @@
         .sig-label { font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
         .sig-box { height: 70px; margin: 6px auto; width: 160px; position: relative; }
         .sig-box img { width: 100%; height: 100%; object-fit: contain; }
-        .sig-name { font-weight: 700; font-size: 9.5pt; margin-top: 3px; }
+        .sig-name { font-weight: 700; font-size: 9.5pt; margin-top: 3px; text-transform: uppercase; }
         .status-text { font-weight: 700; }
 
         .header-number {
@@ -407,19 +407,23 @@
         {{-- TANDA TANGAN --}}
         @php
             $penerima = $checklist->getPenerimaDetails();
+            $jabatanPenerima = $penerima['jabatan'];
+            if (strcasecmp($jabatanPenerima, 'driver') === 0) {
+                $jabatanPenerima = 'Pengemudi';
+            }
         @endphp
         <table class="signature-area">
             <tr>
                 <td style="width: {{ $checklist->driver_terima ? '50%' : '100%' }}; text-align: center;">
                     <div class="sig-label">Yang Menyerahkan,</div>
-                    <div style="font-size: 8.5pt; color: #4b5563; margin-top: -3px; margin-bottom: 3px;">Driver</div>
+                    <div style="font-size: 8.5pt; color: #4b5563; margin-top: -3px; margin-bottom: 3px; text-transform: uppercase;">Pengemudi</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_serah)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_serah) }}">@endif</div>
                     <div class="sig-name">{{ $checklist->driver_serah }}</div>
                 </td>
                 @if($checklist->driver_terima)
                 <td style="width: 50%; text-align: center;">
                     <div class="sig-label">Yang Menerima,</div>
-                    <div style="font-size: 8.5pt; color: #4b5563; margin-top: -3px; margin-bottom: 3px;">{{ $penerima['jabatan'] }}</div>
+                    <div style="font-size: 8.5pt; color: #4b5563; margin-top: -3px; margin-bottom: 3px; text-transform: uppercase;">{{ $jabatanPenerima }}</div>
                     <div class="sig-box">@if($checklist->tanda_tangan_terima)<img src="{{ storage_path('app/public/'.$checklist->tanda_tangan_terima) }}">@endif</div>
                     <div class="sig-name">{{ $penerima['nama'] }}</div>
                 </td>

@@ -1351,6 +1351,54 @@
             background: rgba(30, 41, 59, 0.95) !important;
             border-color: rgba(148, 163, 184, 0.5) !important;
         }
+
+        /* Modal Styles for BBM Edit */
+        .bbm-modal { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .bbm-modal[hidden] { display: none !important; }
+        .bbm-modal-backdrop { 
+            position: absolute; inset: 0; 
+            background: rgba(15, 23, 42, 0.45); 
+            backdrop-filter: blur(6px); 
+            -webkit-backdrop-filter: blur(6px); 
+            animation: modalFadeIn 0.3s ease;
+        }
+        .bbm-modal-box {
+            position: relative; z-index: 1; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+            margin: 0; padding: 20px !important;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(11, 44, 107, 0.12);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            animation: modalSlideUp 0.35s ease;
+        }
+        html.dark .bbm-modal-box {
+            background: rgba(16, 38, 80, 0.95);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .bbm-modal-box h3 { margin: 0 0 14px; font-size: 1.1rem; color: #0b2c6b; font-weight: 800; }
+        html.dark .bbm-modal-box h3 { color: rgba(200, 218, 255, 0.92); }
+        
+        .bbm-field { margin-bottom: 12px; }
+        .bbm-field label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 5px; color: #64748b; }
+        html.dark .bbm-field label { color: rgba(200, 218, 255, 0.55); }
+        
+        .bbm-field .admin-filter-input, .bbm-field textarea.admin-filter-input { width: 100%; box-sizing: border-box; }
+        .bbm-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        
+        .bbm-field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 640px) {
+            .bbm-field-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
     </style>
 @endpush
 
@@ -1705,7 +1753,7 @@
                                 <x-sortable-th key="liter" label="Volume (L)" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="total_harga" label="Total Biaya" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <th>Jenis BBM</th>
-                                <th></th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1738,7 +1786,14 @@
                                         <span class="bbm-jenis-pengisian-cell" style="white-space: wrap;">{{ $r->jenis_pengisian ?: 'Operasional' }}</span>
                                     </td>
                                     <td>
-                                        <button type="button"  class="btn btn-sm sppd-icon-btn sppd-btn-primary bbm-btn-detail" data-json-url="{{ route('admin.portal-bbm-operasional.json', $r) }}" title="Detail lengkap &amp; foto" aria-label="Detail laporan BBM"><i class="bi bi-info-circle"></i></button>
+                                        <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                                            <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary bbm-btn-detail" data-json-url="{{ route('admin.portal-bbm-operasional.json', $r) }}" title="Detail lengkap &amp; foto" aria-label="Detail laporan BBM"><i class="bi bi-info-circle"></i></button>
+                                            @if(auth()->user()?->role === 'superadmin')
+                                                <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary btn-bbm-edit" data-id="{{ $r->id }}" data-json-url="{{ route('admin.portal-bbm-operasional.json', $r) }}" title="Edit Log BBM" aria-label="Edit Log BBM">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -1766,6 +1821,99 @@
                 <div class="ppm-modal-actions">
                     <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" data-close-bbm-modal title="Tutup" aria-label="Tutup"><i class="bi bi-x-lg"></i></button>
                 </div>
+            </div>
+        </div>
+
+        {{-- Edit modal --}}
+        <div id="bbm-edit-modal" class="bbm-modal" hidden>
+            <div class="bbm-modal-backdrop" id="bbm-edit-modal-backdrop"></div>
+            <div class="bbm-modal-box portal-section">
+                <h3><i class="bi bi-pencil-square"></i> Edit Laporan BBM</h3>
+                <div id="bbm-edit-loading-content" style="color: #64748b; padding: 12px 0 20px; display: none;">
+                    <p>Memuat...</p>
+                </div>
+                <form id="bbm-edit-form" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" id="bbm-edit-id" name="id">
+                    
+                    <div class="bbm-field-row">
+                        <div class="bbm-field">
+                            <label for="bbm-edit-nopol">Nomor Kendaraan</label>
+                            <select id="bbm-edit-nopol" name="nomor_kendaraan" class="admin-filter-input" required>
+                                <option value="">-- Pilih Kendaraan --</option>
+                                @foreach($allVehicles as $v)
+                                    <option value="{{ $v->nomor_kendaraan }}">{{ $v->nomor_kendaraan }} ({{ $v->jenis_kendaraan }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="bbm-field">
+                            <label for="bbm-edit-jenis-pengisian">Jenis Pengisian</label>
+                            <select id="bbm-edit-jenis-pengisian" name="jenis_pengisian" class="admin-filter-input" required>
+                                <option value="Operasional">Operasional</option>
+                                <option value="Perjalanan Dinas (SPPD)">Perjalanan Dinas (SPPD)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bbm-field-row">
+                        <div class="bbm-field">
+                            <label for="bbm-edit-tanggal">Tanggal</label>
+                            <input type="date" id="bbm-edit-tanggal" name="tanggal" class="admin-filter-input" required>
+                        </div>
+                        <div class="bbm-field">
+                            <label for="bbm-edit-waktu">Waktu</label>
+                            <input type="time" id="bbm-edit-waktu" name="waktu" class="admin-filter-input" required>
+                        </div>
+                    </div>
+
+                    <div class="bbm-field-row">
+                        <div class="bbm-field">
+                            <label for="bbm-edit-odo-sebelum">KM Odometer Sebelum</label>
+                            <input type="number" id="bbm-edit-odo-sebelum" name="odometer_sebelum" min="0" class="admin-filter-input" required>
+                        </div>
+                        <div class="bbm-field">
+                            <label for="bbm-edit-odo-sesudah">KM Odometer Sesudah</label>
+                            <input type="number" id="bbm-edit-odo-sesudah" name="odometer_sesudah" min="0" class="admin-filter-input" required>
+                        </div>
+                    </div>
+
+                    <div class="bbm-field-row">
+                        <div class="bbm-field">
+                            <label for="bbm-edit-liter">Jumlah Liter (L)</label>
+                            <input type="number" id="bbm-edit-liter" name="liter" min="0.001" step="0.001" class="admin-filter-input" required>
+                        </div>
+                        <div class="bbm-field">
+                            <label for="bbm-edit-harga-per-liter">Harga per Liter</label>
+                            <input type="number" id="bbm-edit-harga-per-liter" name="harga_per_liter" min="0" class="admin-filter-input" required>
+                        </div>
+                    </div>
+
+                    <div class="bbm-field">
+                        <label>Foto Odometer (Sebelum &amp; Sesudah)</label>
+                        <p class="bbm-edit-photo-tip" style="font-size: 0.72rem; color: #64748b; margin-top: -4px; margin-bottom: 6px;">Biarkan kosong jika tidak ingin memperbarui foto odometer. Jika ingin update, wajib unggah kedua foto.</p>
+                        <div class="bbm-field-row">
+                            <div>
+                                <label for="bbm-edit-foto-odo-sebelum" style="font-size: 0.7rem; font-weight: normal; margin-bottom: 2px;">Foto Sebelum</label>
+                                <input type="file" id="bbm-edit-foto-odo-sebelum" name="foto_odometer_sebelum" accept="image/*" class="admin-filter-input" style="padding: 4px 8px;">
+                            </div>
+                            <div>
+                                <label for="bbm-edit-foto-odo-sesudah" style="font-size: 0.7rem; font-weight: normal; margin-bottom: 2px;">Foto Sesudah</label>
+                                <input type="file" id="bbm-edit-foto-odo-sesudah" name="foto_odometer_sesudah" accept="image/*" class="admin-filter-input" style="padding: 4px 8px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bbm-field" style="margin-top: 10px;">
+                        <label for="bbm-edit-foto-struk">Foto Struk Pembelian</label>
+                        <p class="bbm-edit-photo-tip" style="font-size: 0.72rem; color: #64748b; margin-top: -4px; margin-bottom: 6px;">Biarkan kosong jika tidak ingin memperbarui foto struk.</p>
+                        <input type="file" id="bbm-edit-foto-struk" name="foto_struk" accept="image/*" class="admin-filter-input" style="padding: 4px 8px;">
+                    </div>
+
+                    <div class="bbm-modal-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                        <button type="button" id="bbm-edit-modal-close" class="btn btn-sm" style="border: 2px solid #cbd5e1; background: #f8fafc; color: #475569; border-radius: 8px; font-weight:600; padding: 6px 14px;">Batal</button>
+                        <button type="submit" class="btn btn-sm sppd-btn-primary" style="border: none; border-radius: 8px; font-weight:700; padding: 6px 16px;">Simpan Perubahan</button>
+                    </div>
+                </form>
             </div>
         </div>
         <div id="bbm-photo-lightbox" class="bbm-photo-lightbox" hidden role="dialog" aria-modal="true" aria-label="Pratinjau foto">
@@ -2556,6 +2704,102 @@
                 }
             });
 
+            // Edit modal helpers
+            const editModal = document.getElementById('bbm-edit-modal');
+            const editForm = document.getElementById('bbm-edit-form');
+
+            function openEditModal(d) {
+                if (!editModal) return;
+                document.getElementById('bbm-edit-id').value = d.id;
+                document.getElementById('bbm-edit-nopol').value = d.nomor_kendaraan;
+                document.getElementById('bbm-edit-jenis-pengisian').value = d.jenis_pengisian || 'Operasional';
+                
+                let parsedDate = '';
+                if (d.tanggal) {
+                    const parts = d.tanggal.split('/');
+                    if (parts.length === 3) {
+                        parsedDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                    }
+                }
+                document.getElementById('bbm-edit-tanggal').value = parsedDate;
+                document.getElementById('bbm-edit-waktu').value = d.waktu || '';
+                document.getElementById('bbm-edit-odo-sebelum').value = d.odometer_sebelum || '';
+                document.getElementById('bbm-edit-odo-sesudah').value = d.odometer_sesudah || '';
+                document.getElementById('bbm-edit-liter').value = d.liter || '';
+                document.getElementById('bbm-edit-harga-per-liter').value = d.harga_per_liter || '';
+                
+                document.getElementById('bbm-edit-foto-odo-sebelum').value = '';
+                document.getElementById('bbm-edit-foto-odo-sesudah').value = '';
+                document.getElementById('bbm-edit-foto-struk').value = '';
+
+                document.getElementById('bbm-edit-loading-content').style.display = 'none';
+                document.getElementById('bbm-edit-form').style.display = 'block';
+            }
+
+            function closeEditModal() {
+                if (editModal) editModal.hidden = true;
+                document.body.style.overflow = '';
+            }
+
+            document.getElementById('bbm-edit-modal-close')?.addEventListener('click', () => closeEditModal());
+            document.getElementById('bbm-edit-modal-backdrop')?.addEventListener('click', () => closeEditModal());
+
+            if (editForm) {
+                editForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const id = document.getElementById('bbm-edit-id').value;
+                    const formData = new FormData(editForm);
+                    formData.append('_method', 'PUT');
+
+                    showBbmLoading();
+                    try {
+                        const res = await fetch(`/admin/portal-bbm-operasional/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            },
+                            body: formData
+                        });
+                        const json = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: json.message || 'Gagal menyimpan perubahan.',
+                                customClass: {
+                                    popup: 'swal-ppm-popup',
+                                    title: 'swal-ppm-title'
+                                }
+                            });
+                            return;
+                        }
+                        closeEditModal();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: json.message || 'Laporan BBM berhasil diperbarui.',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'swal-ppm-popup',
+                                title: 'swal-ppm-title',
+                                icon: 'swal-ppm-icon-success'
+                            }
+                        });
+                        fetchBbmReports();
+                        if (typeof fetchActivityLog === 'function') fetchActivityLog();
+                        if (typeof fetchComparisonCharts === 'function') fetchComparisonCharts();
+                    } catch (err) {
+                        console.error(err);
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.' });
+                    } finally {
+                        hideBbmLoading();
+                    }
+                });
+            }
+
             document.querySelector('.admin-shell')?.addEventListener('click', async (e) => {
                 if (e.target.closest('.bbm-photo-thumb-btn[data-full-url]')) return;
                 const act = e.target.closest('.bbm-activity-row[data-json-url]');
@@ -2577,6 +2821,30 @@
                     return;
                 }
                 if (BBM_PORTAL_CHARTS_ONLY) return;
+
+                const editBtn = e.target.closest('.btn-bbm-edit');
+                if (editBtn) {
+                    e.preventDefault();
+                    const url = editBtn.getAttribute('data-json-url');
+                    if (editModal) {
+                        editModal.hidden = false;
+                        document.body.style.overflow = 'hidden';
+                        document.getElementById('bbm-edit-loading-content').style.display = 'block';
+                        document.getElementById('bbm-edit-form').style.display = 'none';
+                    }
+                    try {
+                        const res = await fetch(url, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const j = await res.json();
+                        if (!j.report) throw new Error('Invalid payload');
+                        openEditModal(j.report);
+                    } catch (err) {
+                        closeEditModal();
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat data detail BBM.' });
+                    }
+                    return;
+                }
+
                 const btn = e.target.closest('.bbm-btn-detail');
                 if (!btn) return;
                 const url = btn.getAttribute('data-json-url');
@@ -2605,6 +2873,10 @@
                 }
                 if (bbmDetailModalIsOpen()) {
                     closeBbmDetailModal();
+                    return;
+                }
+                if (editModal && !editModal.hidden) {
+                    closeEditModal();
                 }
             });
             document.getElementById('bbm-modal-detail')?.addEventListener('click', (e) => {

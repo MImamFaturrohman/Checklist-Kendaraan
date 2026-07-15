@@ -494,6 +494,7 @@ document.querySelectorAll('.js-logout-form').forEach(function (form) {
 </script>
 @endpush
 
+@yield('modals')
 @stack('scripts')
 
 </body>

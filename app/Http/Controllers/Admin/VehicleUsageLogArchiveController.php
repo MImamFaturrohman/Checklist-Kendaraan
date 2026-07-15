@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Support\AdminTablePagination;
 use App\Support\TableSort;
 use App\Models\VehicleUsageLog;
+use App\Models\Kendaraan;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -41,10 +42,26 @@ class VehicleUsageLogArchiveController extends Controller
         $logs      = $query->paginate($perPage)->onEachSide(0)->withQueryString();
         $sortState = TableSort::current($request, self::SORT_ALLOWED);
         $years     = $this->availableYears();
+        $nopolList = Kendaraan::orderBy('nomor_kendaraan')->get();
+        $logsJson  = $logs->getCollection()->map(fn($row) => [
+            'id' => $row->id,
+            'nomor_kendaraan' => $row->nomor_kendaraan,
+            'jam_awal' => $row->jam_awal ? substr(trim($row->jam_awal), 0, 5) : '',
+            'jam_akhir' => $row->jam_akhir ? substr(trim($row->jam_akhir), 0, 5) : '',
+            'level_bbm_awal' => $row->level_bbm_awal,
+            'level_bbm_akhir' => $row->level_bbm_akhir,
+            'km_awal_raw' => $row->km_awal,
+            'km_akhir_raw' => $row->km_akhir,
+            'keperluan_full' => $row->keperluan,
+            'kondisi_sebelum_full' => $row->kondisi_sebelum_penggunaan,
+            'kondisi_setelah_full' => $row->kondisi_setelah_penggunaan,
+        ]);
 
         $view = view('admin.vehicle-usage-logs.index', [
             'logs'           => $logs,
             'years'          => $years,
+            'nopolList'      => $nopolList,
+            'logsJson'       => $logsJson,
             'paginationHtml' => AdminTablePagination::linksHtml($logs, route('api.admin.vehicle-usage-logs')),
             'filters'        => ['q' => $search, 'month' => $month, 'year' => $year],
             'activeSort'     => $sortState['sort'] ?? null,
@@ -80,10 +97,14 @@ class VehicleUsageLogArchiveController extends Controller
             'user_username'                => $row->user?->username ?? '',
             'nomor_kendaraan'              => $row->nomor_kendaraan,
             'jenis_kendaraan'              => $row->jenis_kendaraan,
+            'jam_awal'                     => $row->jam_awal ? substr(trim($row->jam_awal), 0, 5) : '',
+            'jam_akhir'                    => $row->jam_akhir ? substr(trim($row->jam_akhir), 0, 5) : '',
             'level_bbm_awal'               => $row->level_bbm_awal,
             'level_bbm_akhir'              => $row->level_bbm_akhir,
             'km_awal'                      => $row->km_awal !== null ? number_format((int) $row->km_awal) : null,
             'km_akhir'                     => $row->km_akhir !== null ? number_format((int) $row->km_akhir) : null,
+            'km_awal_raw'                  => $row->km_awal,
+            'km_akhir_raw'                 => $row->km_akhir,
             'durasi'                       => $row->durasiDeskripsi(),
             'keperluan'                    => \Illuminate\Support\Str::limit(strip_tags($row->keperluan ?? ''), 80),
             'keperluan_full'               => $row->keperluan ?? '',
@@ -244,6 +265,62 @@ class VehicleUsageLogArchiveController extends Controller
         return response()->json([
             'success' => true,
             'message' => $count . ' data log pemakaian kendaraan berhasil dihapus.',
+        ]);
+    }
+
+    public function update(Request $request, VehicleUsageLog $vehicleUsageLog): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $validated = $request->validate([
+            'nomor_kendaraan' => ['required', 'exists:kendaraans,nomor_kendaraan'],
+            'jam_awal' => ['required', 'date_format:H:i'],
+            'jam_akhir' => ['required', 'date_format:H:i', 'after:jam_awal'],
+            'keperluan' => ['required', 'string', 'max:10000'],
+            'level_bbm_awal' => ['required', 'integer', 'min:0', 'max:100'],
+            'level_bbm_akhir' => ['required', 'integer', 'min:0', 'max:100'],
+            'km_awal' => ['required', 'integer', 'min:0'],
+            'km_akhir' => ['required', 'integer', 'min:0', 'gte:km_awal'],
+            'kondisi_sebelum_penggunaan' => ['required', 'string', 'max:10000'],
+            'kondisi_setelah_penggunaan' => ['required', 'string', 'max:10000'],
+        ], [
+            'nomor_kendaraan.required' => 'Pilih nomor kendaraan.',
+            'nomor_kendaraan.exists' => 'Nomor kendaraan tidak terdaftar.',
+            'jam_awal.required' => 'Jam awal wajib diisi.',
+            'jam_awal.date_format' => 'Format jam awal tidak valid.',
+            'jam_akhir.required' => 'Jam akhir wajib diisi.',
+            'jam_akhir.date_format' => 'Format jam akhir tidak valid.',
+            'jam_akhir.after' => 'Jam akhir harus setelah jam awal.',
+            'keperluan.required' => 'Keperluan wajib diisi.',
+            'level_bbm_awal.required' => 'Level BBM awal wajib diisi.',
+            'level_bbm_akhir.required' => 'Level BBM akhir wajib diisi.',
+            'km_awal.required' => 'KM awal wajib diisi.',
+            'km_akhir.required' => 'KM akhir wajib diisi.',
+            'km_akhir.gte' => 'KM akhir harus lebih besar atau sama dengan KM awal.',
+            'kondisi_sebelum_penggunaan.required' => 'Kondisi sebelum penggunaan wajib diisi.',
+            'kondisi_setelah_penggunaan.required' => 'Kondisi setelah penggunaan wajib diisi.',
+        ]);
+
+        $kendaraan = Kendaraan::query()->where('nomor_kendaraan', $validated['nomor_kendaraan'])->firstOrFail();
+
+        $vehicleUsageLog->update([
+            'kendaraan_id' => $kendaraan->id,
+            'nomor_kendaraan' => $kendaraan->nomor_kendaraan,
+            'jenis_kendaraan' => $kendaraan->jenis_kendaraan,
+            'jam_awal' => $validated['jam_awal'],
+            'jam_akhir' => $validated['jam_akhir'],
+            'keperluan' => $validated['keperluan'],
+            'level_bbm_awal' => (string) $validated['level_bbm_awal'],
+            'level_bbm_akhir' => (string) $validated['level_bbm_akhir'],
+            'km_awal' => (int) $validated['km_awal'],
+            'km_akhir' => (int) $validated['km_akhir'],
+            'kondisi_sebelum_penggunaan' => $validated['kondisi_sebelum_penggunaan'],
+            'kondisi_setelah_penggunaan' => $validated['kondisi_setelah_penggunaan'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Log penggunaan kendaraan berhasil diperbarui.',
         ]);
     }
 }

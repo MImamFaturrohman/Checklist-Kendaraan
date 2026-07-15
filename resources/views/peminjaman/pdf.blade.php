@@ -78,10 +78,10 @@
         .sig-table { width: 100%; border-collapse: collapse; margin-top: 28px; }
         .sig-table td { width: 50%; text-align: center; vertical-align: top; padding: 0 10px; font-size: 10pt; }
         .sig-label    { font-weight: bold; margin-bottom: 2px; }
-        .sig-position { font-size: 9.5pt; color: #374151; margin-bottom: 0px; }
+        .sig-position { font-size: 9.5pt; color: #374151; margin-bottom: 0px; text-transform: uppercase; }
         .sig-img-box  { height: 75px; margin: 6px auto; margin-bottom: 1px; display: flex; align-items: center; justify-content: center; }
         .sig-img-box img { max-height: 70px; max-width: 180px; object-fit: contain; }
-        .sig-name     { font-weight: bold; font-size: 10pt; display: inline-block; min-width: 160px; }
+        .sig-name     { font-weight: bold; font-size: 10pt; display: inline-block; min-width: 160px; text-transform: uppercase; }
 
         /* Hanya disclaimer di bagian bawah halaman */
         .pdf-footer-note {
@@ -220,7 +220,7 @@
                 <tr>
                     <td>
                         <div class="sig-label">Mengetahui,</div>
-                        <div class="sig-position" style="font-weight: bold;">Manager Bidang</div>
+                        <div class="sig-position" style="font-weight: bold;">Port Manager</div>
                         <div class="sig-img-box">
                             @php
                                 $mgr = $peminjaman->approver;

@@ -194,7 +194,8 @@
             <img src="{{ asset('images/ADC PM Logo.png') }}" alt="Logo" class="dash-nav-logo logo-mobile lp-landing-logo" fetchpriority="high">
             <div>
                 <!-- <div class="dash-nav-title">Vehicle Management System</div> -->
-                <span class="dash-nav-title sub-mobile-only">PT. ARTHA DAYA COALINDO</span>
+                <span class="dash-nav-title sub-mobile-only">PORT MANAGEMENT</span>
+                <span class="dash-nav-title sub-mobile-only" style="font-size: 10.5px; padding-top: 2.2px;">PT ARTHA DAYA COALINDO</span>
             </div>
         </a>
 

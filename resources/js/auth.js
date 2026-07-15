@@ -33,6 +33,15 @@
 
 /* ── Login form: password toggle + AJAX submit + inline error ────── */
 (function () {
+    /* Resolve base URL dynamically from meta tag (same logic as app.js window.appBase) */
+    const _authBase = (function () {
+        const meta = document.querySelector('meta[name="app-base-url"]');
+        return (meta ? meta.content : window.location.origin).replace(/\/$/, '');
+    })();
+    function appBase(path) {
+        return _authBase + (path.startsWith('/') ? path : '/' + path);
+    }
+
     const loginForm = document.querySelector('[data-login-form]');
     if (!loginForm) return;
 
@@ -249,7 +258,7 @@
                 if (res.ok) {
                     const data = await res.json().catch(() => ({}));
                     if (currentMode === 'login') {
-                        window.location.href = data.redirect || '/dashboard';
+                        window.location.href = data.redirect || appBase('/dashboard');
                     } else {
                         // Success forgot password
                         if (statusAlert && statusAlertText) {

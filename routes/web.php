@@ -88,10 +88,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Combined Portal Pemeriksaan Kendaraan
     Route::get('/admin/portal-pemeriksaan', [ChecklistController::class, 'portalPemeriksaan'])->name('admin.portal-pemeriksaan');
+    Route::post('/admin/portal-pemeriksaan/bulk-delete', [ChecklistController::class, 'destroyBulk'])->name('admin.portal-pemeriksaan.bulk-delete');
 
     // Portal BBM Operasional (superadmin: penuh; manager: kartu & grafik — dicek di controller)
     Route::post('/admin/portal-bbm-operasional/bulk-delete', [BbmOperationalPortalController::class, 'destroyBulk'])->name('admin.portal-bbm-operasional.bulk-delete');
     Route::get('/admin/portal-bbm-operasional/{bbmReport}/json', [BbmOperationalPortalController::class, 'showJson'])->name('admin.portal-bbm-operasional.json');
+    Route::put('/admin/portal-bbm-operasional/{bbmReport}', [BbmOperationalPortalController::class, 'update'])->name('admin.portal-bbm-operasional.update');
     Route::get('/admin/portal-bbm-operasional/charts-series', [BbmOperationalPortalController::class, 'chartSeries'])->name('admin.portal-bbm-operasional.charts');
     Route::get('/admin/portal-bbm-operasional/activity-log', [BbmOperationalPortalController::class, 'activityLog'])->name('admin.portal-bbm-operasional.activity-log');
     Route::get('/admin/portal-bbm-operasional/template', [BbmOperationalPortalController::class, 'downloadTemplate'])->name('admin.portal-bbm-operasional.template');
@@ -140,6 +142,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin: arsip log penggunaan kendaraan (superadmin)
     Route::post('/admin/log-penggunaan-kendaraan/bulk-delete', [VehicleUsageLogArchiveController::class, 'destroyBulk'])->name('admin.vehicle-usage-logs.bulk-delete');
     Route::get('/admin/log-penggunaan-kendaraan', [VehicleUsageLogArchiveController::class, 'index'])->name('admin.vehicle-usage-logs.index');
+    Route::put('/admin/log-penggunaan-kendaraan/{vehicleUsageLog}', [VehicleUsageLogArchiveController::class, 'update'])->name('admin.vehicle-usage-logs.update');
     Route::get('/api/admin/vehicle-usage-logs', [VehicleUsageLogArchiveController::class, 'apiIndex'])->name('api.admin.vehicle-usage-logs');
 
     // Admin: Rekap SPPD

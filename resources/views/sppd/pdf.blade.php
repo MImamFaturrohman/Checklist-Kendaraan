@@ -227,6 +227,7 @@
             font-size: 9.5pt; 
             margin-bottom: 2px;
             white-space: nowrap;
+            text-transform: uppercase;
         }
         .sig-line-name {
             font-family: 'Arial', sans-serif;

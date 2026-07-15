@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\AdminTablePagination;
+use App\Support\SuperAdminNotifier;
 use App\Support\TableSort;
 use App\Models\Bidang;
 use App\Models\Kendaraan;
@@ -151,6 +152,13 @@ class PeminjamanController extends Controller
             }
         } catch (\Throwable) {
             // PDF generation failure should not block approval response
+        }
+
+        // Notify all superadmins that this peminjaman has been approved
+        try {
+            SuperAdminNotifier::peminjamanApproved($peminjaman);
+        } catch (\Throwable) {
+            // Notification failure must not block the approval response
         }
 
         return response()->json([

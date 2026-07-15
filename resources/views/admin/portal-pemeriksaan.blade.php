@@ -282,7 +282,21 @@
 
             {{-- Local filters --}}
             <div class="portal-local-filters" style="margin-bottom: 14px;">
-                <div class="admin-search-wrap portal-search-full">
+                @if(auth()->user()?->role === 'superadmin')
+                <!-- Bulk Actions Container -->
+                <div class="db-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
+                    <button type="button" id="db-btn-bulk-delete" style="display: none;">
+                        <i class="bi bi-trash-fill"></i> Hapus (<span id="db-bulk-select-count">0</span>)
+                    </button>
+                    
+                    <div style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.25);">
+                        <input type="checkbox" id="db-select-all" data-total="{{ $dbChecklists->total() }}" title="Pilih Semua">
+                        <label for="db-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">Pilih</label>
+                    </div>
+                </div>
+                @endif
+
+                <div class="admin-search-wrap portal-search-full" style="width: 320px; max-width: 100%;">
                     <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     <input type="text" id="db-search" placeholder="Cari nopol, driver..." class="admin-search-input" autocomplete="off">
                 </div>
@@ -315,6 +329,9 @@
                     <table class="admin-table">
                         <thead id="db-all-thead"><tr>
                             <th>#</th>
+                            @if(auth()->user()?->role === 'superadmin')
+                            <th style="width: 40px; text-align: center;">Pilih</th>
+                            @endif
                             <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
                             <x-sortable-th key="shift" label="Shift" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
                             <x-sortable-th key="nomor_kendaraan" label="Nopol" :activeSort="$dbActiveSort ?? null" :activeDir="$dbActiveDir ?? null" />
@@ -329,6 +346,11 @@
                             @forelse($dbChecklists as $c)
                             <tr>
                                 <td>{{ ($dbChecklists->currentPage()-1)*$dbChecklists->perPage()+$loop->iteration }}</td>
+                                @if(auth()->user()?->role === 'superadmin')
+                                <td>
+                                    <input type="checkbox" class="db-row-checkbox" value="{{ $c->id }}" aria-label="Pilih data">
+                                </td>
+                                @endif
                                 <td>{{ $c->tanggal->format('d/m/Y') }}</td><td>{{ $c->shift }}</td>
                                 <td><strong>{{ $c->nomor_kendaraan }}</strong></td><td>{{ $c->jenis_kendaraan }}</td>
                                 <td>{{ $c->driver_serah }}</td>
@@ -346,7 +368,7 @@
                                 <td>{{ $c->level_bbm }}%</td><td>{{ number_format($c->km_awal) }}</td><td>{{ number_format($c->km_akhir ?? 0) }}</td>
                             </tr>
                             @empty
-                            <tr><td colspan="10" class="portal-empty">Belum ada data.</td></tr>
+                            <tr><td colspan="{{ auth()->user()?->role === 'superadmin' ? 11 : 10 }}" class="portal-empty">Belum ada data.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -859,6 +881,113 @@
     .lp-swal-popup button.swal-btn-danger:hover {
         box-shadow: 0 6px 18px rgba(220, 38, 38, 0.4) !important;
     }
+
+    /* Bulk Actions & Checkbox Styles */
+    .db-bulk-actions-wrap label {
+        color: #475569;
+    }
+    html.dark .db-bulk-actions-wrap label {
+        color: rgba(200, 218, 255, 0.85);
+    }
+    html.dark .db-bulk-actions-wrap div {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Bulk Delete Button Styling */
+    #db-btn-bulk-delete {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        border: 1.5px solid #fecaca;
+        cursor: pointer;
+        background-color: transparent;
+        color: #b91c1c;
+        transition: all 0.15s ease-in-out;
+    }
+    #db-btn-bulk-delete:hover {
+        background-color: #b91c1c;
+        color: #ffffff !important;
+        border-color: #b91c1c;
+        box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+    }
+    
+    /* Dark mode overrides for Bulk Delete Button */
+    html.dark #db-btn-bulk-delete {
+        background-color: transparent;
+        color: #fca5a5;
+        border-color: rgba(248, 113, 113, 0.35);
+    }
+    html.dark #db-btn-bulk-delete:hover {
+        background-color: #ef4444;
+        color: #ffffff !important;
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+    }
+
+    /* Modern Checkbox styling: slightly rounded edges & premium dark/light mode appearance */
+    .db-row-checkbox, #db-select-all {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #cbd5e1;
+        border-radius: 5px; /* rounded slightly / tumpul edgenya */
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #fff;
+        vertical-align: middle;
+        margin: 0;
+    }
+
+    html.dark .db-row-checkbox, html.dark #db-select-all {
+        border-color: rgba(255, 255, 255, 0.25);
+        background-color: rgba(15, 23, 42, 0.6);
+    }
+
+    .db-row-checkbox:hover, #db-select-all:hover {
+        border-color: #002a7a;
+        box-shadow: 0 0 0 3px rgba(0, 42, 122, 0.15);
+    }
+    html.dark .db-row-checkbox:hover, html.dark #db-select-all:hover {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
+    .db-row-checkbox:checked, #db-select-all:checked {
+        background-color: #002a7a;
+        border-color: #002a7a;
+    }
+    html.dark .db-row-checkbox:checked, html.dark #db-select-all:checked {
+        background-color: #60a5fa;
+        border-color: #60a5fa;
+    }
+
+    /* Checkmark icon */
+    .db-row-checkbox:checked::after, #db-select-all:checked::after {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 1px;
+        width: 5px;
+        height: 9px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    html.dark .db-row-checkbox:checked::after, html.dark #db-select-all:checked::after {
+        border-color: #ffffff;
+    }
 </style>
 @endpush
 
@@ -892,6 +1021,7 @@
         let dbPage   = 1, dbPerPage   = {{ (int) $dbChecklists->perPage() }};
         let fotoPage = 1, fotoPerPage = {{ (int) $fotoChecklists->perPage() }};
         let pdfPage  = 1, pdfPerPage  = {{ (int) $pdfChecklists->perPage() }};
+        let _isAllSelected = false;
 
         function formatDriverTerima(val, emptyVal = '-') {
             if (!val || val === '-') return emptyVal;
@@ -1428,6 +1558,22 @@
                 renderDbMesin(json);
                 mountPortalPagination('db', json.pagination_html);
                 if (window.AdminTableSort) window.AdminTableSort.syncAria(document.getElementById('db-all-thead'), json.sort ?? null, json.dir ?? null);
+                
+                const isSuperAdmin = @json(auth()->user()?->role === 'superadmin');
+                const selAll = document.getElementById('db-select-all');
+                const tbAll = document.getElementById('db-tbody-all');
+                if (isSuperAdmin && selAll && json.total !== undefined) {
+                    selAll.dataset.total = json.total;
+                }
+                if (isSuperAdmin && tbAll) {
+                    if (_isAllSelected) {
+                        tbAll.querySelectorAll('.db-row-checkbox').forEach(cb => cb.checked = true);
+                    } else {
+                        tbAll.querySelectorAll('.db-row-checkbox').forEach(cb => cb.checked = false);
+                    }
+                    updateBulkActionState();
+                }
+
                 if (scroll) scrollToSection('section-db');
             } catch (e) {
                 if (e.name !== 'AbortError') console.warn('fetchDb error', e);
@@ -1438,15 +1584,24 @@
             const tbody = document.getElementById('db-tbody-all');
             if (!tbody) return;
             const off = (json.current_page - 1) * json.per_page;
+            const isSuperAdmin = @json(auth()->user()?->role === 'superadmin');
+
             tbody.innerHTML = json.data.length
-                ? json.data.map((c, i) => `<tr>
-                    <td>${off + i + 1}</td>
-                    <td>${c.tanggal ?? '-'}</td><td>${c.shift ?? '-'}</td>
-                    <td><strong>${c.nomor_kendaraan}</strong></td><td>${c.jenis_kendaraan ?? '-'}</td>
-                    <td>${escHtml(c.driver_serah ?? '-')}</td><td>${formatDriverTerima(c.driver_terima)}</td>
-                    <td>${c.level_bbm ?? '-'}%</td><td>${c.km_awal ?? '-'}</td><td>${c.km_akhir ?? '-'}</td>
-                </tr>`).join('')
-                : '<tr><td colspan="10" class="portal-empty">Tidak ada data.</td></tr>';
+                ? json.data.map((c, i) => {
+                    let checkboxHtml = '';
+                    if (isSuperAdmin) {
+                        checkboxHtml = `<td><input type="checkbox" class="db-row-checkbox" value="${c.id}" aria-label="Pilih data"></td>`;
+                    }
+                    return `<tr>
+                        <td>${off + i + 1}</td>
+                        ${checkboxHtml}
+                        <td>${c.tanggal ?? '-'}</td><td>${c.shift ?? '-'}</td>
+                        <td><strong>${c.nomor_kendaraan}</strong></td><td>${c.jenis_kendaraan ?? '-'}</td>
+                        <td>${escHtml(c.driver_serah ?? '-')}</td><td>${formatDriverTerima(c.driver_terima)}</td>
+                        <td>${c.level_bbm ?? '-'}%</td><td>${c.km_awal ?? '-'}</td><td>${c.km_akhir ?? '-'}</td>
+                    </tr>`;
+                }).join('')
+                : `<tr><td colspan="${isSuperAdmin ? 11 : 10}" class="portal-empty">Tidak ada data.</td></tr>`;
         }
 
         function renderDbExterior(json) {
@@ -1628,6 +1783,11 @@
             fotoPage = 1;
             pdfPage = 1;
 
+            _isAllSelected = false;
+            const selAll = document.getElementById('db-select-all');
+            if (selAll) selAll.checked = false;
+            if (typeof updateBulkActionState === 'function') updateBulkActionState();
+
             fetchDb();
             fetchFoto();
             fetchPdf();
@@ -1636,6 +1796,10 @@
         // Search inputs
         ['db-search', 'foto-search', 'pdf-search'].forEach(id => {
             document.getElementById(id)?.addEventListener('input', e => {
+                _isAllSelected = false;
+                const selAll = document.getElementById('db-select-all');
+                if (selAll) selAll.checked = false;
+                if (typeof updateBulkActionState === 'function') updateBulkActionState();
                 syncAndFetchDebounced('search', e.target.value);
             });
         });
@@ -1691,6 +1855,11 @@
                 dbPage = 1; dbSort = ''; dbDir = '';
                 fotoPage = 1; fotoSort = ''; fotoDir = '';
                 pdfPage = 1; pdfSort = ''; pdfDir = '';
+
+                _isAllSelected = false;
+                const selAll = document.getElementById('db-select-all');
+                if (selAll) selAll.checked = false;
+                if (typeof updateBulkActionState === 'function') updateBulkActionState();
 
                 fetchDb();
                 fetchFoto();
@@ -2002,6 +2171,149 @@
                     syncBtn.innerHTML = defaultBtnHtml;
                 }
             });
+        }
+
+        /* ================================================================
+        BULK DELETE CHECKLISTS WIRING (superadmin only)
+        ================================================================ */
+        const isSuperAdminUser = @json(auth()->user()?->role === 'superadmin');
+        const selectAllCheckbox = document.getElementById('db-select-all');
+        const bulkDeleteBtn = document.getElementById('db-btn-bulk-delete');
+        const bulkSelectCount = document.getElementById('db-bulk-select-count');
+        const tbodyAll = document.getElementById('db-tbody-all');
+
+        function updateBulkActionState() {
+            if (!isSuperAdminUser || !tbodyAll || !bulkDeleteBtn || !bulkSelectCount) return;
+            const checkboxes = Array.from(tbodyAll.querySelectorAll('.db-row-checkbox'));
+            const checkedCheckboxes = checkboxes.filter(cb => cb.checked);
+            
+            let displayCount = 0;
+            if (_isAllSelected) {
+                const totalDbCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                displayCount = totalDbCount;
+            } else {
+                displayCount = checkedCheckboxes.length;
+            }
+
+            bulkSelectCount.textContent = String(displayCount);
+            bulkDeleteBtn.style.display = displayCount > 0 ? 'inline-flex' : 'none';
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = _isAllSelected;
+            }
+        }
+
+        if (isSuperAdminUser) {
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', () => {
+                    if (!tbodyAll) return;
+                    _isAllSelected = selectAllCheckbox.checked;
+                    const checkboxes = tbodyAll.querySelectorAll('.db-row-checkbox');
+                    checkboxes.forEach(cb => {
+                        cb.checked = _isAllSelected;
+                    });
+                    updateBulkActionState();
+                });
+            }
+
+            if (tbodyAll) {
+                tbodyAll.addEventListener('change', (e) => {
+                    if (e.target.classList.contains('db-row-checkbox')) {
+                        if (!e.target.checked) {
+                            _isAllSelected = false;
+                        }
+                        updateBulkActionState();
+                    }
+                });
+            }
+
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', () => {
+                    if (!tbodyAll) return;
+                    
+                    let payload = {};
+                    let displayCount = 0;
+
+                    if (_isAllSelected) {
+                        payload = {
+                            all: true,
+                            search: document.getElementById('db-search')?.value.trim() ?? '',
+                            tanggal_dari: document.getElementById('db-dari')?.value ?? '',
+                            tanggal_sampai: document.getElementById('db-sampai')?.value ?? '',
+                            nopol: document.getElementById('db-nopol')?.value ?? '',
+                        };
+                        displayCount = parseInt(selectAllCheckbox?.dataset.total, 10) || 0;
+                    } else {
+                        const selectedIds = Array.from(tbodyAll.querySelectorAll('.db-row-checkbox:checked'))
+                            .map(cb => cb.value);
+                        if (selectedIds.length === 0) return;
+                        payload = {
+                            ids: selectedIds
+                        };
+                        displayCount = selectedIds.length;
+                    }
+
+                    Swal.fire({
+                        title: 'Hapus data pemeriksaan?',
+                        text: `Anda yakin ingin menghapus ${displayCount} data pemeriksaan terpilih? Log foto, PDF, dan status KM kendaraan terbaru akan disesuaikan. Tindakan ini tidak dapat dibatalkan.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, hapus',
+                        cancelButtonText: 'Batal',
+                        buttonsStyling: false,
+                        customClass: {
+                            popup: 'lp-swal-popup',
+                            title: 'lp-swal-title',
+                            confirmButton: 'swal2-confirm swal-btn-danger',
+                            cancelButton: 'swal2-cancel',
+                        },
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            showLoading('db-loading');
+                            try {
+                                const res = await fetch(`${BASE_URL}/admin/portal-pemeriksaan/bulk-delete`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                    },
+                                    body: JSON.stringify(payload),
+                                });
+                                const json = await res.json().catch(() => ({}));
+                                if (!res.ok) {
+                                    Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Terjadi kesalahan sistem.' });
+                                    return;
+                                }
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: json.message || 'Data pemeriksaan terpilih berhasil dihapus.',
+                                    timer: 1500,
+                                    showConfirmButton: false,
+                                    customClass: {
+                                        popup: 'lp-swal-popup',
+                                        title: 'lp-swal-title',
+                                        icon: 'lp-swal-icon-success',
+                                    }
+                                });
+                                // Reset selections
+                                _isAllSelected = false;
+                                if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                                updateBulkActionState();
+                                // Refresh data
+                                fetchDb();
+                            } catch (err) {
+                                console.error(err);
+                                Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.' });
+                            } finally {
+                                hideLoading('db-loading');
+                            }
+                        }
+                    });
+                });
+            }
         }
 
         /* ================================================================

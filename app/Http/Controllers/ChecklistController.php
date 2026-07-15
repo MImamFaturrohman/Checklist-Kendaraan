@@ -319,6 +319,96 @@ class ChecklistController extends Controller
     }
 
     /**
+     * Bulk delete checklists and revert vehicle KM if necessary.
+     */
+    public function destroyBulk(Request $request): JsonResponse
+    {
+        abort_unless($this->isSuperAdmin(), 403);
+
+        $request->validate([
+            'ids'            => 'nullable|array',
+            'ids.*'          => 'nullable|exists:checklists,id',
+            'all'            => 'nullable|boolean',
+            'search'         => 'nullable|string',
+            'tanggal_dari'   => 'nullable|date',
+            'tanggal_sampai' => 'nullable|date',
+            'nopol'          => 'nullable|string',
+            'shift'          => 'nullable|string',
+        ]);
+
+        if ($request->boolean('all')) {
+            $query = Checklist::query()
+                ->where(function ($q) {
+                    $q->where('status', '!=', 'pending')
+                      ->orWhereNull('status');
+                });
+            $this->applyChecklistFilters($request, $query);
+            $checklists = $query->get();
+        } else {
+            $ids = $request->input('ids', []);
+            $checklists = Checklist::whereIn('id', $ids)->get();
+        }
+
+        $count = $checklists->count();
+        if ($count === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang dipilih untuk dihapus.',
+            ], 422);
+        }
+
+        // Sort checklists by km_akhir descending to handle reversion sequentially
+        $checklists = $checklists->sortByDesc('km_akhir');
+
+        DB::transaction(function () use ($checklists) {
+            foreach ($checklists as $c) {
+                // Check if this checklist represents the latest KM for the vehicle
+                $kendaraan = Kendaraan::where('nomor_kendaraan', $c->nomor_kendaraan)->first();
+                if ($kendaraan && (int) $kendaraan->km_current === (int) $c->km_akhir) {
+                    $kendaraan->update(['km_current' => (int) $c->km_awal]);
+                }
+
+                // Delete photo files from storage if present
+                if ($c->pdf_path) {
+                    Storage::disk('public')->delete($c->pdf_path);
+                }
+                if ($c->foto_bbm_dashboard) {
+                    Storage::disk('public')->delete($c->foto_bbm_dashboard);
+                }
+                if ($c->exterior) {
+                    foreach (['foto_depan', 'foto_kanan', 'foto_kiri', 'foto_belakang'] as $f) {
+                        if ($c->exterior->$f) {
+                            Storage::disk('public')->delete($c->exterior->$f);
+                        }
+                    }
+                }
+                if ($c->interior) {
+                    foreach (['foto_1', 'foto_2', 'foto_3'] as $f) {
+                        if ($c->interior->$f) {
+                            Storage::disk('public')->delete($c->interior->$f);
+                        }
+                    }
+                }
+                if ($c->mesin) {
+                    foreach (['foto_1', 'foto_2', 'foto_3'] as $f) {
+                        if ($c->mesin->$f) {
+                            Storage::disk('public')->delete($c->mesin->$f);
+                        }
+                    }
+                }
+
+                // Delete the checklist model (cascades to related tables)
+                $c->delete();
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => $count . ' data pemeriksaan berhasil dihapus.',
+        ]);
+    }
+
+    /**
      * Lookup kendaraan by nomor.
      */
     public function lookupKendaraan(Request $request): JsonResponse

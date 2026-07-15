@@ -270,6 +270,54 @@
         background: rgba(30, 41, 59, 0.95) !important;
         border-color: rgba(148, 163, 184, 0.5) !important;
     }
+
+    /* Modal Styles */
+    .vul-modal { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .vul-modal[hidden] { display: none !important; }
+    .vul-modal-backdrop { 
+        position: absolute; inset: 0; 
+        background: rgba(15, 23, 42, 0.45); 
+        backdrop-filter: blur(6px); 
+        -webkit-backdrop-filter: blur(6px); 
+        animation: modalFadeIn 0.3s ease;
+    }
+    .vul-modal-box {
+        position: relative; z-index: 1; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+        margin: 0; padding: 20px !important;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(11, 44, 107, 0.12);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        animation: modalSlideUp 0.35s ease;
+    }
+    html.dark .vul-modal-box {
+        background: rgba(16, 38, 80, 0.95);
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .vul-modal-box h3 { margin: 0 0 14px; font-size: 1.1rem; color: #0b2c6b; font-weight: 800; }
+    html.dark .vul-modal-box h3 { color: rgba(200, 218, 255, 0.92); }
+    
+    .vul-field { margin-bottom: 12px; }
+    .vul-field label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 5px; color: #64748b; }
+    html.dark .vul-field label { color: rgba(200, 218, 255, 0.55); }
+    
+    .vul-field .admin-filter-input, .vul-field textarea.admin-filter-input { width: 100%; box-sizing: border-box; }
+    .vul-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+    
+    .vul-field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    @media (max-width: 640px) {
+        .vul-field-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+    }
 </style>
 @endpush
 
@@ -348,6 +396,7 @@
                                 <x-sortable-th key="keperluan" label="Keperluan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <th>Kondisi Sebelum</th>
                                 <th>Kondisi Sesudah</th>
+                                <th style="text-align: center;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="vul-tbody">
@@ -395,9 +444,14 @@
                                             <span class="vul-admin-meta">—</span>
                                         @endif
                                     </td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary btn-vul-edit" data-id="{{ $row->id }}" title="Edit Log" aria-label="Edit Log">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="13" class="portal-empty">Belum ada log penggunaan kendaraan.</td></tr>
+                                <tr><td colspan="14" class="portal-empty">Belum ada log penggunaan kendaraan.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -424,6 +478,7 @@
     let _dir     = '{{ $activeDir ?? "" }}';
     let _abort   = null;
     let _isAllSelected = false;
+    let _logsCache = @json($logsJson);
 
     const selectAllCheckbox = document.getElementById('vul-select-all');
     const bulkDeleteBtn = document.getElementById('vul-btn-bulk-delete');
@@ -474,9 +529,10 @@
         if (!tbody) return;
 
         const off = (json.current_page - 1) * json.per_page;
+        _logsCache = json.data || [];
 
         if (!json.data || !json.data.length) {
-            tbody.innerHTML = '<tr><td colspan="13" class="portal-empty">Belum ada log penggunaan kendaraan.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" class="portal-empty">Belum ada log penggunaan kendaraan.</td></tr>';
             return;
         }
 
@@ -512,6 +568,11 @@
                     ${r.kondisi_setelah_penggunaan
                         ? `<span title="${escHtml(r.kondisi_setelah_full)}">${escHtml(r.kondisi_setelah_penggunaan)}</span>`
                         : '<span class="vul-admin-meta">—</span>'}
+                </td>
+                <td style="text-align: center;">
+                    <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary btn-vul-edit" data-id="${r.id}" title="Edit Log" aria-label="Edit Log">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
                 </td>
             </tr>
         `;
@@ -825,8 +886,226 @@
         });
     }
 
+    /* ================================================================
+    EDIT LOG MODAL WIRING (superadmin only)
+    ================================================================ */
+    const editModal = document.getElementById('vul-edit-modal');
+    const editForm = document.getElementById('vul-edit-form');
+    const editCloseBtn = document.getElementById('vul-edit-modal-close');
+    const editBackdrop = document.getElementById('vul-edit-modal-backdrop');
+
+    function openEditModal(logId) {
+        if (!editModal || !_logsCache) return;
+        const idInt = parseInt(logId, 10);
+        const log = _logsCache.find(r => parseInt(r.id, 10) === idInt);
+        if (!log) return;
+
+        // Show loading state immediately
+        editModal.removeAttribute('hidden');
+        document.getElementById('vul-edit-loading-content').style.display = 'block';
+        document.getElementById('vul-edit-form').style.display = 'none';
+
+        // Wait 500ms to feel smooth and consistent
+        setTimeout(() => {
+            document.getElementById('vul-edit-id').value = log.id;
+            document.getElementById('vul-edit-nopol').value = log.nomor_kendaraan;
+            document.getElementById('vul-edit-jam-awal').value = log.jam_awal ? log.jam_awal.substring(0, 5) : '';
+            document.getElementById('vul-edit-jam-akhir').value = log.jam_akhir ? log.jam_akhir.substring(0, 5) : '';
+            
+            const kmAwalRaw = log.km_awal_raw !== undefined ? log.km_awal_raw : (log.km_awal ? parseInt(String(log.km_awal).replace(/,/g, ''), 10) : '');
+            const kmAkhirRaw = log.km_akhir_raw !== undefined ? log.km_akhir_raw : (log.km_akhir ? parseInt(String(log.km_akhir).replace(/,/g, ''), 10) : '');
+            
+            document.getElementById('vul-edit-km-awal').value = kmAwalRaw;
+            document.getElementById('vul-edit-km-akhir').value = kmAkhirRaw;
+            document.getElementById('vul-edit-bbm-awal').value = log.level_bbm_awal ? parseInt(log.level_bbm_awal, 10) : '';
+            document.getElementById('vul-edit-bbm-akhir').value = log.level_bbm_akhir ? parseInt(log.level_bbm_akhir, 10) : '';
+            document.getElementById('vul-edit-keperluan').value = log.keperluan_full || log.keperluan || '';
+            document.getElementById('vul-edit-kondisi-sebelum').value = log.kondisi_sebelum_full || log.kondisi_sebelum_penggunaan || '';
+            document.getElementById('vul-edit-kondisi-setelah').value = log.kondisi_setelah_full || log.kondisi_setelah_penggunaan || '';
+
+            document.getElementById('vul-edit-loading-content').style.display = 'none';
+            document.getElementById('vul-edit-form').style.display = 'block';
+        }, 500);
+    }
+
+    function closeEditModal() {
+        if (editModal) editModal.setAttribute('hidden', '');
+        if (editForm) editForm.reset();
+    }
+
+    if (tbody) {
+        tbody.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.btn-vul-edit');
+            if (editBtn) {
+                e.preventDefault();
+                openEditModal(editBtn.dataset.id);
+            }
+        });
+    }
+
+    if (editCloseBtn) editCloseBtn.addEventListener('click', closeEditModal);
+    if (editBackdrop) editBackdrop.addEventListener('click', closeEditModal);
+
+    // Escape key closes modal
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && editModal && !editModal.hasAttribute('hidden')) {
+            closeEditModal();
+        }
+    });
+
+    if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('vul-edit-id').value;
+            if (!id) return;
+
+            const payload = {
+                nomor_kendaraan: document.getElementById('vul-edit-nopol').value,
+                jam_awal: document.getElementById('vul-edit-jam-awal').value,
+                jam_akhir: document.getElementById('vul-edit-jam-akhir').value,
+                km_awal: parseInt(document.getElementById('vul-edit-km-awal').value, 10),
+                km_akhir: parseInt(document.getElementById('vul-edit-km-akhir').value, 10),
+                level_bbm_awal: parseInt(document.getElementById('vul-edit-bbm-awal').value, 10),
+                level_bbm_akhir: parseInt(document.getElementById('vul-edit-bbm-akhir').value, 10),
+                keperluan: document.getElementById('vul-edit-keperluan').value,
+                kondisi_sebelum_penggunaan: document.getElementById('vul-edit-kondisi-sebelum').value,
+                kondisi_setelah_penggunaan: document.getElementById('vul-edit-kondisi-setelah').value,
+            };
+
+            showLoading();
+            try {
+                const res = await fetch(`${BASE_URL}/admin/log-penggunaan-kendaraan/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify(payload),
+                });
+                const json = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    let errMsg = json.message || 'Terjadi kesalahan sistem.';
+                    if (json.errors) {
+                        errMsg = Object.values(json.errors).flat().join('<br>');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        html: errMsg,
+                        customClass: {
+                            popup: 'swal-ppm-popup',
+                            title: 'swal-ppm-title',
+                        }
+                    });
+                    return;
+                }
+                closeEditModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: json.message || 'Log penggunaan kendaraan berhasil diperbarui.',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'swal-ppm-popup',
+                        title: 'swal-ppm-title',
+                        icon: 'swal-ppm-icon-success',
+                    }
+                });
+                fetchLogs();
+            } catch (err) {
+                console.error(err);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.' });
+            } finally {
+                hideLoading();
+            }
+        });
+    }
+
     updateBulkActionState();
 
 })();
 </script>
 @endpush
+
+@section('modals')
+    {{-- Modal Edit Log Pemakaian --}}
+    <div id="vul-edit-modal" class="vul-modal" hidden>
+        <div class="vul-modal-backdrop" id="vul-edit-modal-backdrop"></div>
+        <div class="vul-modal-box portal-section">
+            <h3><i class="bi bi-pencil-square"></i> Edit Log Pemakaian Kendaraan</h3>
+            <div id="vul-edit-loading-content" style="color: #64748b; padding: 12px 0 20px; display: none;">
+                <p>Memuat...</p>
+            </div>
+            <form id="vul-edit-form">
+                @csrf
+                <input type="hidden" id="vul-edit-id" name="id">
+                
+                <div class="vul-field">
+                    <label for="vul-edit-nopol">Nomor Kendaraan</label>
+                    <select id="vul-edit-nopol" name="nomor_kendaraan" class="admin-filter-input" required>
+                        <option value="">-- Pilih Kendaraan --</option>
+                        @foreach($nopolList as $v)
+                            <option value="{{ $v->nomor_kendaraan }}">{{ $v->nomor_kendaraan }} ({{ $v->jenis_kendaraan }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="vul-field-row">
+                    <div class="vul-field">
+                        <label for="vul-edit-jam-awal">Jam Awal</label>
+                        <input type="time" id="vul-edit-jam-awal" name="jam_awal" class="admin-filter-input" required>
+                    </div>
+                    <div class="vul-field">
+                        <label for="vul-edit-jam-akhir">Jam Akhir</label>
+                        <input type="time" id="vul-edit-jam-akhir" name="jam_akhir" class="admin-filter-input" required>
+                    </div>
+                </div>
+
+                <div class="vul-field-row">
+                    <div class="vul-field">
+                        <label for="vul-edit-km-awal">KM Awal</label>
+                        <input type="number" id="vul-edit-km-awal" name="km_awal" min="0" class="admin-filter-input" required>
+                    </div>
+                    <div class="vul-field">
+                        <label for="vul-edit-km-akhir">KM Akhir</label>
+                        <input type="number" id="vul-edit-km-akhir" name="km_akhir" min="0" class="admin-filter-input" required>
+                    </div>
+                </div>
+
+                <div class="vul-field-row">
+                    <div class="vul-field">
+                        <label for="vul-edit-bbm-awal">Level BBM Awal (%)</label>
+                        <input type="number" id="vul-edit-bbm-awal" name="level_bbm_awal" min="0" max="100" class="admin-filter-input" required>
+                    </div>
+                    <div class="vul-field">
+                        <label for="vul-edit-bbm-akhir">Level BBM Akhir (%)</label>
+                        <input type="number" id="vul-edit-bbm-akhir" name="level_bbm_akhir" min="0" max="100" class="admin-filter-input" required>
+                    </div>
+                </div>
+
+                <div class="vul-field">
+                    <label for="vul-edit-keperluan">Keperluan</label>
+                    <textarea id="vul-edit-keperluan" name="keperluan" rows="3" class="admin-filter-input" style="height: auto; min-height: 80px;" required></textarea>
+                </div>
+
+                <div class="vul-field">
+                    <label for="vul-edit-kondisi-sebelum">Kondisi Sebelum Penggunaan</label>
+                    <textarea id="vul-edit-kondisi-sebelum" name="kondisi_sebelum_penggunaan" rows="2" class="admin-filter-input" style="height: auto; min-height: 60px;" required></textarea>
+                </div>
+
+                <div class="vul-field">
+                    <label for="vul-edit-kondisi-setelah">Kondisi Setelah Penggunaan</label>
+                    <textarea id="vul-edit-kondisi-setelah" name="kondisi_setelah_penggunaan" rows="2" class="admin-filter-input" style="height: auto; min-height: 60px;" required></textarea>
+                </div>
+
+                <div class="vul-modal-actions">
+                    <button type="button" id="vul-edit-modal-close" class="btn btn-sm" style="border: 2px solid #cbd5e1; background: #f8fafc; color: #475569; border-radius: 8px; font-weight:600; padding: 6px 14px;">Batal</button>
+                    <button type="submit" class="btn btn-sm sppd-btn-primary" style="border: none; border-radius: 8px; font-weight:700; padding: 6px 16px;">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection

@@ -454,6 +454,7 @@ class BbmOperationalPortalController extends Controller
             'bbmVehicleNopolList' => $bbmVehicleNopolList,
             'bbmDefaultChartYear' => $bbmDefaultChartYear,
             'reports' => $reports,
+            'allVehicles' => Kendaraan::select('nomor_kendaraan', 'jenis_kendaraan')->orderBy('nomor_kendaraan')->get(),
             'bbmPortalChartsOnly' => $chartsOnly,
             'bbmPortalSearch' => $search,
             'bbmPortalJenisPengisian' => $jenisPengisianFilter,
@@ -653,6 +654,96 @@ class BbmOperationalPortalController extends Controller
         return response()->json([
             'success' => true,
             'message' => $count . ' data log BBM berhasil dihapus.',
+        ]);
+    }
+
+    public function update(Request $request, BbmReport $bbmReport): JsonResponse
+    {
+        abort_unless(auth()->user()?->role === 'superadmin', 403);
+
+        $validated = $request->validate([
+            'nomor_kendaraan' => ['required', 'string', 'exists:kendaraans,nomor_kendaraan'],
+            'jenis_pengisian' => ['required', 'string', \Illuminate\Validation\Rule::in(BbmReport::JENIS_PENGISIAN_VALUES)],
+            'tanggal' => ['required', 'date'],
+            'waktu' => ['required', 'date_format:H:i'],
+            'odometer_sebelum' => ['required', 'integer', 'min:0'],
+            'odometer_sesudah' => ['required', 'integer', 'min:0', 'gte:odometer_sebelum'],
+            'liter' => ['required', 'numeric', 'min:0.001'],
+            'harga_per_liter' => ['required', 'numeric', 'min:0'],
+            'foto_odometer_sebelum' => ['nullable', 'image', 'max:5120'],
+            'foto_odometer_sesudah' => ['nullable', 'image', 'max:5120'],
+            'foto_struk' => ['nullable', 'image', 'max:5120'],
+        ], [
+            'nomor_kendaraan.required' => 'Pilih nomor kendaraan.',
+            'nomor_kendaraan.exists' => 'Nomor kendaraan tidak terdaftar.',
+            'tanggal.required' => 'Tanggal wajib diisi.',
+            'tanggal.date' => 'Format tanggal tidak valid.',
+            'waktu.required' => 'Waktu wajib diisi.',
+            'waktu.date_format' => 'Format waktu tidak valid.',
+            'odometer_sebelum.required' => 'Odometer sebelum wajib diisi.',
+            'odometer_sebelum.integer' => 'Odometer sebelum harus angka.',
+            'odometer_sesudah.required' => 'Odometer sesudah wajib diisi.',
+            'odometer_sesudah.integer' => 'Odometer sesudah harus angka.',
+            'odometer_sesudah.gte' => 'Odometer sesudah harus lebih besar atau sama dengan odometer sebelum.',
+            'liter.required' => 'Jumlah liter wajib diisi.',
+            'liter.numeric' => 'Liter harus berupa angka.',
+            'liter.min' => 'Liter minimal 0,001 L.',
+            'harga_per_liter.required' => 'Harga per liter wajib diisi.',
+            'harga_per_liter.numeric' => 'Harga per liter harus berupa angka.',
+            'harga_per_liter.min' => 'Harga per liter tidak boleh negatif.',
+        ]);
+
+        if ($request->hasFile('foto_odometer_sebelum') !== $request->hasFile('foto_odometer_sesudah')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kedua foto odometer (sebelum & sesudah) wajib diunggah jika ingin memperbarui foto odometer.',
+            ], 422);
+        }
+
+        $kendaraan = Kendaraan::where('nomor_kendaraan', $validated['nomor_kendaraan'])->firstOrFail();
+
+        $liter = (float) $validated['liter'];
+        $hargaPerLiter = (float) $validated['harga_per_liter'];
+        $totalHarga = round($liter * $hargaPerLiter, 2);
+
+        $updateData = [
+            'kendaraan_id' => $kendaraan->id,
+            'nomor_kendaraan' => $kendaraan->nomor_kendaraan,
+            'jenis_kendaraan' => $kendaraan->jenis_kendaraan,
+            'jenis_pengisian' => $validated['jenis_pengisian'],
+            'tanggal' => $validated['tanggal'],
+            'waktu' => $validated['waktu'],
+            'odometer_sebelum' => (int) $validated['odometer_sebelum'],
+            'odometer_sesudah' => (int) $validated['odometer_sesudah'],
+            'liter' => $liter,
+            'harga_per_liter' => $hargaPerLiter,
+            'total_harga' => $totalHarga,
+        ];
+
+        // Handle odometer photo update
+        if ($request->hasFile('foto_odometer_sebelum') && $request->hasFile('foto_odometer_sesudah')) {
+            if ($bbmReport->odometer_photo_path) {
+                Storage::disk('public')->delete($bbmReport->odometer_photo_path);
+            }
+            $updateData['odometer_photo_path'] = \App\Support\BbmOdometerPhotoGrid::compose(
+                $request->file('foto_odometer_sebelum'),
+                $request->file('foto_odometer_sesudah')
+            );
+        }
+
+        // Handle struk photo update
+        if ($request->hasFile('foto_struk')) {
+            if ($bbmReport->struk_photo_path) {
+                Storage::disk('public')->delete($bbmReport->struk_photo_path);
+            }
+            $updateData['struk_photo_path'] = $request->file('foto_struk')->store('bbm-struk', 'public');
+        }
+
+        $bbmReport->update($updateData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Laporan BBM berhasil diperbarui.',
         ]);
     }
 }

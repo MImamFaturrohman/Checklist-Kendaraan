@@ -295,7 +295,7 @@
 @endsection
 
 @section('content')
-<div class="checklist-shell" data-sppd-form>
+<div class="checklist-shell" data-sppd-form data-dashboard-url="{{ route('dashboard') }}" data-sppd-list-url="{{ route('sppd.index') }}">
     <main class="checklist-content">
         <form id="sppd-form" class="checklist-card"
               action="{{ $isEdit ? route('sppd.update', $sppd) : route('sppd.store') }}"

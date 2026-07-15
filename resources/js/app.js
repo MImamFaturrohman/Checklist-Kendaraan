@@ -1141,7 +1141,7 @@ document.addEventListener('turbo:load', async () => {
                         window.open(data.pdf_url, '_blank');
                     }
                 }
-                window.location.href = '/dashboard';
+                window.location.href = appBase('/dashboard');
             } else {
                 closePreviewModal();
                 await Swal.fire({

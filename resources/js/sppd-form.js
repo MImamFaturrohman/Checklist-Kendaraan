@@ -249,7 +249,7 @@ function initSppdForm() {
                 b.addEventListener('click', () => {
                     overlay.style.display = 'none';
                     if (btn.action === 'dashboard') {
-                        window.location.href = '/dashboard';
+                        window.location.href = root.dataset.dashboardUrl || appBase('/dashboard');
                     } else if (typeof btn.onClick === 'function') {
                         btn.onClick();
                     }
@@ -528,7 +528,7 @@ function initSppdForm() {
             });
             const data = await res.json().catch(() => ({}));
             if (res.ok && data.success) {
-                const listUrl = data.redirect || `${window.location.origin}/sppd`;
+                const listUrl = data.redirect || root.dataset.sppdListUrl || appBase('/sppd');
                 closePreviewModal();
                 if (typeof Swal !== 'undefined') {
                     await Swal.fire({
