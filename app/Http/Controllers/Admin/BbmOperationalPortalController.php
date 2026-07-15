@@ -320,7 +320,7 @@ class BbmOperationalPortalController extends Controller
             $path = substr($path, strlen('storage/'));
         }
 
-        return '/storage/'.$path;
+        return asset('storage/'.$path);
     }
 
     public function index(Request $request): View|Response

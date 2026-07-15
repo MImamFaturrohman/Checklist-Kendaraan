@@ -2757,7 +2757,7 @@
 
                     showBbmLoading();
                     try {
-                        const res = await fetch(`/admin/portal-bbm-operasional/${id}`, {
+                        const res = await fetch(appBase(`/admin/portal-bbm-operasional/${id}`), {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -3172,7 +3172,7 @@
                         if (result.isConfirmed) {
                             showBbmLoading();
                             try {
-                                const res = await fetch('/admin/portal-bbm-operasional/bulk-delete', {
+                                const res = await fetch(appBase('/admin/portal-bbm-operasional/bulk-delete'), {
                                     method: 'POST',
                                     headers: {
                                         'Accept': 'application/json',
