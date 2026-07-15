@@ -286,12 +286,12 @@
                 <!-- Bulk Actions Container -->
                 <div class="db-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
                     <button type="button" id="db-btn-bulk-delete" style="display: none;">
-                        <i class="bi bi-trash-fill"></i> Hapus (<span id="db-bulk-select-count">0</span>)
+                        <i class="bi bi-trash-fill"></i><span>Hapus (<span id="db-bulk-select-count">0</span>)</span>
                     </button>
                     
                     <div style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.25);">
                         <input type="checkbox" id="db-select-all" data-total="{{ $dbChecklists->total() }}" title="Pilih Semua">
-                        <label for="db-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">Pilih</label>
+                        <label for="db-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">All</label>
                     </div>
                 </div>
                 @endif
@@ -2045,7 +2045,7 @@
                         await Swal.fire({
                             icon: 'success',
                             title: 'Selesai!',
-                            html: `PDF telah di-generate.<br><br><a href="${json.pdf_url}" target="_blank" class="btn btn-sm sppd-btn-primary" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:6px;"><i class="bi bi-file-earmark-pdf-fill"></i> Lihat PDF</a>`,
+                            html: `PDF telah di-generate.<br><br><a href="${window.resolvePdfUrl(json.pdf_url)}" target="_blank" class="btn btn-sm sppd-btn-primary" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:700;padding:6px 14px;border-radius:6px;"><i class="bi bi-file-earmark-pdf-fill"></i> Lihat PDF</a>`,
                             confirmButtonText: 'OK',
                             customClass: {
                                 popup: 'lp-swal-popup',
@@ -2255,7 +2255,7 @@
 
                     Swal.fire({
                         title: 'Hapus data pemeriksaan?',
-                        text: `Anda yakin ingin menghapus ${displayCount} data pemeriksaan terpilih? Log foto, PDF, dan status KM kendaraan terbaru akan disesuaikan. Tindakan ini tidak dapat dibatalkan.`,
+                        html: `Anda yakin ingin menghapus ${displayCount} data pemeriksaan terpilih?<br><strong>Log foto, PDF, dan status KM kendaraan terbaru akan disesuaikan.</strong><br><br>Tindakan ini tidak dapat dibatalkan.`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Ya, hapus',

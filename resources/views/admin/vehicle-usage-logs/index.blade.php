@@ -333,7 +333,7 @@
                         <!-- Bulk Actions Container -->
                         <div class="vul-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
                             <button type="button" class="btn btn-sm" id="vul-btn-bulk-delete" style="display: none;">
-                                <i class="bi bi-trash-fill"></i> Hapus (<span id="vul-bulk-select-count">0</span>)
+                                <i class="bi bi-trash-fill"></i> <span>Hapus (<span id="vul-bulk-select-count">0</span>)</span>
                             </button>
                             
                             <div style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.25);">

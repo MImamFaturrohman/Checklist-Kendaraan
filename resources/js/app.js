@@ -27,6 +27,25 @@ window.appBase = function (path) {
     return window._appBase + (path.startsWith('/') ? path : '/' + path);
 };
 
+/** Normalize a PDF URL from the backend to be dynamically relative to the current appBase. */
+window.resolvePdfUrl = function (url) {
+    if (!url) return '';
+    let path = url;
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        try {
+            const parsed = new URL(url);
+            path = parsed.pathname + parsed.search + parsed.hash;
+        } catch (_) {}
+    }
+    const storageIndex = path.indexOf('/storage/');
+    if (storageIndex !== -1) {
+        path = path.substring(storageIndex);
+    } else if (path.startsWith('storage/')) {
+        path = '/' + path;
+    }
+    return window.appBase(path);
+};
+
 /* ================================================================
    TURBO BEFORE-CACHE REGISTRY — central cleanup hub
    Inline scripts call window.registerTurboCleanup(fn) instead of
@@ -1138,7 +1157,7 @@ document.addEventListener('turbo:load', async () => {
                         ...clSwalDialog(),
                     });
                     if (pdfResult.isDenied && data.pdf_url) {
-                        window.open(data.pdf_url, '_blank');
+                        window.open(window.resolvePdfUrl(data.pdf_url), '_blank');
                     }
                 }
                 window.location.href = appBase('/dashboard');
