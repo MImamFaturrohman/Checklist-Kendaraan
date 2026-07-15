@@ -29,7 +29,7 @@ final class SuperadminNotificationLink
             $base = '/'.trim($path, '/').$query.$fragment;
         }
 
-        // Bersihkan subpath lama (misalnya /vms/public/admin/... menjadi /admin/...)
+
         // agar tidak terjadi double subpath saat dilewatkan ke helper url()
         $adminPos = strpos($base, '/admin/');
         if ($adminPos !== false) {
