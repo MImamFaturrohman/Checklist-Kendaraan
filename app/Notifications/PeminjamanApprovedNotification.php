@@ -33,7 +33,7 @@ class PeminjamanApprovedNotification extends Notification
         return [
             'title' => 'Peminjaman kendaraan disetujui',
             'body'  => "{$approverName} menyetujui peminjaman {$this->peminjaman->nomor_kendaraan} atas nama {$this->peminjaman->nama_lengkap}.",
-            'url'   => route('admin.peminjaman', [], false),
+            'url'   => 'admin/peminjaman',
             'peminjaman_id' => $this->peminjaman->id,
         ];
     }

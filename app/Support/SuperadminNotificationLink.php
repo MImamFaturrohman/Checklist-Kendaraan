@@ -20,33 +20,45 @@ final class SuperadminNotificationLink
             return '#';
         }
 
-        // Convert absolute URLs to relative paths to support dynamic host/IP changes
+        // Jika ada http/https (misalnya sisa data lama), ambil bagian path + query + fragment
         if (str_starts_with($base, 'http://') || str_starts_with($base, 'https://')) {
             $parsed = parse_url($base);
             $path = $parsed['path'] ?? '';
-            $fragment = $parsed['fragment'] ?? '';
             $query = isset($parsed['query']) ? '?'.$parsed['query'] : '';
-            $base = '/'.trim($path, '/').$query.($fragment !== '' ? '#'.$fragment : '');
+            $fragment = isset($parsed['fragment']) ? '#'.$parsed['fragment'] : '';
+            $base = '/'.trim($path, '/').$query.$fragment;
         }
 
-        if (str_contains($base, '#')) {
-            return $base;
+        // Bersihkan subpath lama (misalnya /vms/public/admin/... menjadi /admin/...)
+        // agar tidak terjadi double subpath saat dilewatkan ke helper url()
+        $adminPos = strpos($base, '/admin/');
+        if ($adminPos !== false) {
+            $base = substr($base, $adminPos);
+        } elseif (str_starts_with($base, 'admin/')) {
+            $base = '/' . $base;
         }
 
         $path = parse_url($base, PHP_URL_PATH);
+        $query = parse_url($base, PHP_URL_QUERY);
+        $fragment = parse_url($base, PHP_URL_FRAGMENT);
 
         if (! is_string($path) || $path === '') {
-            return $base;
+            return url($base);
         }
 
         $pathNorm = '/'.trim($path, '/');
 
-        $fragment = match ($pathNorm) {
-            '/admin/portal-pemeriksaan' => 'section-db',
-            '/admin/portal-bbm-operasional' => 'section-bbm-table',
-            default => null,
-        };
+        if (!$fragment) {
+            $fragment = match ($pathNorm) {
+                '/admin/portal-pemeriksaan' => 'section-db',
+                '/admin/portal-bbm-operasional' => 'section-bbm-table',
+                default => null,
+            };
+        }
 
-        return $fragment ? $base.'#'.$fragment : $base;
+        $fullPath = $pathNorm . ($query ? '?'.$query : '');
+        $resolvedUrl = url($fullPath);
+
+        return $fragment ? $resolvedUrl.'#'.$fragment : $resolvedUrl;
     }
 }
