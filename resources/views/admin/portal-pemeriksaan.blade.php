@@ -2255,7 +2255,7 @@
 
                     Swal.fire({
                         title: 'Hapus data pemeriksaan?',
-                        html: `Anda yakin ingin menghapus ${displayCount} data pemeriksaan terpilih?<br><strong>Log foto, PDF, dan status KM kendaraan terbaru akan disesuaikan.</strong><br><br>Tindakan ini tidak dapat dibatalkan.`,
+                        html: `Anda yakin ingin menghapus ${displayCount} data pemeriksaan terpilih?<br>Tindakan ini tidak dapat dibatalkan.<br><em style="font-size: 0.65em; color: #64748b; display: block; margin-top: 4px;">Log foto, PDF, dan status KM kendaraan terbaru akan disesuaikan.</em>`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Ya, hapus',

@@ -1352,6 +1352,10 @@
             border-color: rgba(148, 163, 184, 0.5) !important;
         }
 
+        .swal2-container {
+            z-index: 9999 !important;
+        }
+
         /* Modal Styles for BBM Edit */
         .bbm-modal { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .bbm-modal[hidden] { display: none !important; }
