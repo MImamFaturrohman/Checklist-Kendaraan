@@ -469,7 +469,7 @@
 (function () {
     'use strict';
 
-    const BASE_URL  = '{{ url("/") }}';
+    const BASE_URL  = window._appBase;
     const API_URL   = '{{ route("api.admin.vehicle-usage-logs") }}';
 
     let _page    = {{ (int) $logs->currentPage() }};
@@ -834,7 +834,7 @@
                 if (result.isConfirmed) {
                     showLoading();
                     try {
-                        const res = await fetch('/admin/log-penggunaan-kendaraan/bulk-delete', {
+                        const res = await fetch(appBase('/admin/log-penggunaan-kendaraan/bulk-delete'), {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',

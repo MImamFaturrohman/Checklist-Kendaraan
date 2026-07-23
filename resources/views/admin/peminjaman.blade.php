@@ -1064,7 +1064,7 @@
                     if (result.isConfirmed) {
                         showLoading();
                         try {
-                            const res = await fetch('/admin/peminjaman/bulk-delete', {
+                            const res = await fetch(appBase('/admin/peminjaman/bulk-delete'), {
                                 method: 'POST',
                                 headers: {
                                     'Accept': 'application/json',

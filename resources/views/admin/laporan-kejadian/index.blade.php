@@ -729,7 +729,7 @@ window.LK_LIST_URL = @json(route('admin.laporan-kejadian.index'));
                 }).then(async (result) => {
                     if (result.isConfirmed) {
                         try {
-                            const res = await fetch('/admin/laporan-kejadian/bulk-delete', {
+                            const res = await fetch(appBase('/admin/laporan-kejadian/bulk-delete'), {
                                 method: 'POST',
                                 headers: {
                                     'Accept': 'application/json',

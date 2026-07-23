@@ -377,7 +377,7 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
 @push('scripts')
     <script>
         (function () {
-            const BASE = @json(url('/'));
+            const BASE = window._appBase;
             const CAN_VERIFY_SPPD = @json($canVerifySppd ?? false);
             const csrf = document.querySelector('meta[name="csrf-token"]').content;
             const INDEX_URL = @json(route('admin.sppd.index'));
@@ -776,7 +776,7 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
                         if (result.isConfirmed) {
                             showLoading();
                             try {
-                                const res = await fetch('/admin/rekap-sppd/bulk-delete', {
+                                const res = await fetch(appBase('/admin/rekap-sppd/bulk-delete'), {
                                     method: 'POST',
                                     headers: {
                                         'Accept': 'application/json',

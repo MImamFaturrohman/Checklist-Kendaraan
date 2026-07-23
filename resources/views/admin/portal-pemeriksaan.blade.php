@@ -999,7 +999,7 @@
         /* ================================================================
         CONFIG & STATE
         ================================================================ */
-        const BASE_URL   = '{{ url("/") }}';
+        const BASE_URL   = window._appBase;
         const CHARTS_API_URL = @json(route('api.admin.portal.charts'));
         const DEFAULT_CHART_YEAR = {{ (int) $chartYear }};
         const CHART_DATA = @json($chartData);
@@ -2271,7 +2271,7 @@
                         if (result.isConfirmed) {
                             showLoading('db-loading');
                             try {
-                                const res = await fetch(`${BASE_URL}/admin/portal-pemeriksaan/bulk-delete`, {
+                                const res = await fetch(appBase('/admin/portal-pemeriksaan/bulk-delete'), {
                                     method: 'POST',
                                     headers: {
                                         'Accept': 'application/json',
@@ -2302,8 +2302,10 @@
                                 _isAllSelected = false;
                                 if (selectAllCheckbox) selectAllCheckbox.checked = false;
                                 updateBulkActionState();
-                                // Refresh data
+                                // Refresh database sheet table
                                 fetchDb();
+                                _chartDataCache = {};
+                                ['bulan', 'kendaraan', 'shift', 'bbm'].forEach(_refreshChart);
                             } catch (err) {
                                 console.error(err);
                                 Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.' });
