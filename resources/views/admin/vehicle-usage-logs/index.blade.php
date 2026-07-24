@@ -469,7 +469,7 @@
 (function () {
     'use strict';
 
-    const BASE_URL  = window._appBase;
+    const BASE_URL  = window._appBase || @json(url('/'));
     const API_URL   = '{{ route("api.admin.vehicle-usage-logs") }}';
 
     let _page    = {{ (int) $logs->currentPage() }};

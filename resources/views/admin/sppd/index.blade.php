@@ -383,7 +383,7 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
 @push('scripts')
     <script>
         (function () {
-            const BASE = window._appBase;
+            const BASE = window._appBase || @json(url('/'));
             const CAN_VERIFY_SPPD = @json($canVerifySppd ?? false);
             const csrf = document.querySelector('meta[name="csrf-token"]').content;
             const INDEX_URL = @json(route('admin.sppd.index'));

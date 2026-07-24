@@ -999,7 +999,7 @@
         /* ================================================================
         CONFIG & STATE
         ================================================================ */
-        const BASE_URL   = window._appBase;
+        const BASE_URL   = window._appBase || @json(url('/'));
         const CHARTS_API_URL = @json(route('api.admin.portal.charts'));
         const DEFAULT_CHART_YEAR = {{ (int) $chartYear }};
         const CHART_DATA = @json($chartData);
