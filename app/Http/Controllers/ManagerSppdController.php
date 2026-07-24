@@ -96,10 +96,12 @@ class ManagerSppdController extends Controller
         abort_unless(auth()->user()?->role === 'manager', 403);
         abort_unless($sppd->pdf_path && Storage::disk('public')->exists($sppd->pdf_path), 404);
 
-        return response()->download(
-            Storage::disk('public')->path($sppd->pdf_path),
-            'Rekap_SPPD_'.$sppd->id.'.pdf'
-        );
+        $path = Storage::disk('public')->path($sppd->pdf_path);
+
+        return response()->file($path, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="Rekap_SPPD_' . $sppd->id . '.pdf"',
+        ]);
     }
 
     public function approve(Sppd $sppd): JsonResponse

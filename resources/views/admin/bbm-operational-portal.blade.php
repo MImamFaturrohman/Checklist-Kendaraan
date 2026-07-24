@@ -1653,11 +1653,7 @@
                                     Import Data
                                 </button>
                             @endif
-                            @unless($bbmPortalChartsOnly ?? false)
                                 <a href="#section-bbm-table" onClick="smoothTo('section-bbm-table', event)" class="bbm-activity-log-all">Lihat Semua</a>
-                            @else
-                                <span class="bbm-activity-log-all bbm-activity-log-all--disabled" title="Akses tabel penuh pada akun admin">Lihat Semua</span>
-                            @endunless
                         </div>
                     </div>
                     <div class="bbm-activity-log-scroll" id="bbm-activity-log-root" role="list" aria-live="polite" aria-busy="false">
@@ -1672,6 +1668,7 @@
                     <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Riwayat Pengisian</div>
 
                     <div class="portal-local-filters ppm-daftar-filters bbm-portal-live-filter-bar" id="bbm-portal-filter-bar" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none;">
+                        @if(auth()->user()?->role === 'superadmin')
                         <!-- Bulk Actions Container -->
                         <div class="bbm-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
                             <button type="button" id="bbm-btn-bulk-delete" style="display: none;">
@@ -1683,6 +1680,7 @@
                                 <label for="bbm-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">Pilih</label>
                             </div>
                         </div>
+                        @endif
 
                         <div class="admin-search-wrap portal-search-full" style="width: 320px; max-width: 100%;">
                             <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -1745,7 +1743,9 @@
                         <thead>
                             <tr>
                                 <th>No</th>
+                                @if(auth()->user()?->role === 'superadmin')
                                 <th style="width: 40px; text-align: center;">Pilih</th>
+                                @endif
                                 <x-sortable-th key="tanggal" label="Tanggal" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="waktu" label="Waktu" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="shift" label="Shift" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
@@ -1768,9 +1768,11 @@
                                 @endphp
                                 <tr>
                                     <td>{{ ($reports->currentPage() - 1) * $reports->perPage() + $loop->iteration }}</td>
+                                    @if(auth()->user()?->role === 'superadmin')
                                     <td>
                                         <input type="checkbox" class="bbm-row-checkbox" value="{{ $r->id }}" aria-label="Pilih log BBM">
                                     </td>
+                                    @endif
                                     <td>{{ $r->tanggal->translatedFormat('j F Y') }}</td>
                                     <td>{{ $waktuStr }}</td>
                                     <td>
@@ -1801,7 +1803,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="14" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
+                                <tr><td colspan="{{ auth()->user()?->role === 'superadmin' ? 14 : 13 }}" class="portal-empty">Belum ada laporan BBM dari driver.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

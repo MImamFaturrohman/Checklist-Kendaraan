@@ -244,6 +244,7 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
                     <div class="portal-section-title" style="margin-bottom: 0;"><i class="bi bi-table"></i> Daftar Rekap Biaya Dinas</div>
 
                     <div class="portal-local-filters ppm-daftar-filters" id="admin-sppd-filter-bar" style="margin-top: 0; padding: 0; background: transparent; border: none; box-shadow: none; align-items: center; gap: 8px;">
+                        @if(auth()->user()?->role === 'superadmin')
                         <!-- Bulk Actions Container -->
                         <div class="sppd-bulk-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
                             <button type="button" id="sppd-btn-bulk-delete" style="display: none;">
@@ -255,6 +256,7 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
                                 <label for="sppd-select-all" style="font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none; margin: 0; display: flex; align-items: center;">Pilih</label>
                             </div>
                         </div>
+                        @endif
 
                         <div class="admin-search-wrap portal-search-full" style="width: 280px; max-width: 100%;">
                             <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -284,7 +286,9 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
                         <thead>
                             <tr>
                                 <th>#</th>
+                                @if(auth()->user()?->role === 'superadmin')
                                 <th style="width: 40px; text-align: center;">Pilih</th>
+                                @endif
                                 <x-sortable-th key="nama_driver" label="Driver" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="keperluan_dinas" label="Ringkasan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
                                 <x-sortable-th key="no_kendaraan" label="Kendaraan" :activeSort="$activeSort ?? null" :activeDir="$activeDir ?? null" />
@@ -296,9 +300,11 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
                             @forelse($sppds as $s)
                                 <tr>
                                     <td>{{ ($sppds->currentPage()-1)*$sppds->perPage()+$loop->iteration }}</td>
+                                    @if(auth()->user()?->role === 'superadmin')
                                     <td>
                                         <input type="checkbox" class="sppd-row-checkbox" value="{{ $s->id }}" aria-label="Pilih rekap SPPD">
                                     </td>
+                                    @endif
                                     <td>{{ $s->nama_driver }}<br><span class="sppd-cell-muted">{{ $s->user?->username }}</span></td>
                                     <td>{{ \Illuminate\Support\Str::limit($s->keperluan_dinas, 40) }}<br><span class="sppd-cell-muted">{{ $s->tanggal_dinas->format('d/m/Y') }}</span></td>
                                     <td><strong>{{ $s->no_kendaraan }}</strong><br><span class="sppd-cell-muted">{{ $s->jenis_kendaraan }}</span></td>
@@ -348,7 +354,7 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="7" class="portal-empty">Tidak ada data.</td></tr>
+                                <tr><td colspan="{{ auth()->user()?->role === 'superadmin' ? 7 : 6 }}" class="portal-empty">Tidak ada data.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

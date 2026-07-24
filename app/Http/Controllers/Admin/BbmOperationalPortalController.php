@@ -148,9 +148,9 @@ class BbmOperationalPortalController extends Controller
             ->limit($limit)
             ->get();
 
-        $isSuper = auth()->user()?->role === 'superadmin';
+        $canViewDetail = in_array(auth()->user()?->role, ['superadmin', 'admin', 'manager'], true);
 
-        $items = $rows->map(function (BbmReport $r) use ($isSuper) {
+        $items = $rows->map(function (BbmReport $r) use ($canViewDetail) {
             $waktu = $r->getRawOriginal('waktu') ?? $r->waktu;
             $waktuStr = is_string($waktu) ? substr($waktu, 0, 5) : Carbon::parse($waktu)->format('H:i');
             $compact = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string) $r->nomor_kendaraan));
@@ -165,7 +165,7 @@ class BbmOperationalPortalController extends Controller
                 'waktu_label' => $waktuStr,
                 'liter' => (float) $r->liter,
                 'total_harga' => (float) $r->total_harga,
-                'detail_json_url' => $isSuper ? route('admin.portal-bbm-operasional.json', $r) : null,
+                'detail_json_url' => $canViewDetail ? route('admin.portal-bbm-operasional.json', $r) : null,
             ];
         })->values()->all();
 
@@ -328,7 +328,7 @@ class BbmOperationalPortalController extends Controller
         $role = auth()->user()?->role;
         abort_unless(in_array($role, ['superadmin', 'manager', 'admin'], true), 403);
 
-        $chartsOnly = in_array($role, ['manager', 'admin'], true);
+        $chartsOnly = false;
         $perPage = $this->resolvePerPage($request);
         $search = $request->input('q');
         $jenisPengisianFilter = $request->input('jenis_pengisian');
@@ -476,7 +476,7 @@ class BbmOperationalPortalController extends Controller
 
     public function showJson(BbmReport $bbmReport): JsonResponse
     {
-        abort_unless(auth()->user()?->role === 'superadmin', 403);
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin', 'manager'], true), 403);
 
         $bbmReport->load('user:id,name,username');
 

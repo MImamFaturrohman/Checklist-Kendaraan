@@ -99,7 +99,10 @@
                                     <div class="sppd-aksi-btns">
                                         <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-detail" data-id="{{ $s->id }}" title="Detail Laporan" aria-label="Detail Laporan"><i class="bi bi-info-circle"></i></button>
                                         @if($mgrPendingPdf)
-                                            <a href="{{ route('manager.sppd.pdf', $s) }}" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" target="_blank" rel="noopener" title="Unduh PDF" aria-label="Unduh PDF"><i class="bi bi-file-earmark-pdf-fill"></i></a>
+                                            <a href="{{ route('manager.sppd.pdf', $s) }}" class="btn-view-pdf" target="_blank" rel="noopener" title="View PDF" aria-label="View PDF">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                                                View PDF
+                                            </a>
                                         @endif
                                         <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-success mgr-sppd-approve" data-id="{{ $s->id }}" title="Setujui Laporan" aria-label="Setujui Laporan"><i class="bi bi-check-lg"></i></button>
                                         <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-danger mgr-sppd-reject" data-id="{{ $s->id }}" title="Tolak Laporan" aria-label="Tolak Laporan"><i class="bi bi-x-lg"></i></button>
@@ -144,7 +147,10 @@
                                             <button type="button" class="btn btn-sm sppd-icon-btn sppd-btn-primary mgr-sppd-regen-pdf" data-id="{{ $s->id }}" title="Buat PDF (belum tersedia)" aria-label="Buat PDF"><i class="bi bi-file-earmark-pdf"></i></button>
                                         @endif
                                         @if($mgrHistoryPdfOk)
-                                            <a href="{{ route('manager.sppd.pdf', $s) }}" class="btn btn-sm sppd-icon-btn sppd-btn-secondary-lite" target="_blank" rel="noopener" title="Unduh PDF" aria-label="Unduh PDF"><i class="bi bi-file-earmark-pdf-fill"></i></a>
+                                            <a href="{{ route('manager.sppd.pdf', $s) }}" class="btn-view-pdf" target="_blank" rel="noopener" title="View PDF" aria-label="View PDF">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg>
+                                                View PDF
+                                            </a>
                                         @elseif(!$sppdNeedsPdf)
                                             <span class="sppd-cell-muted">—</span>
                                         @endif
@@ -231,7 +237,7 @@
 
         function renderManagerPdfActions(d) {
             if (d.pdf_download_url && d.pdf_available) {
-                return `<a href="${qaAttr(d.pdf_download_url)}" class="btn btn-sm sppd-btn-modal-pdf" target="_blank" rel="noopener" title="Unduh PDF"><i class="bi bi-file-earmark-arrow-down"></i> Unduh PDF</a>`;
+                return `<a href="${qaAttr(d.pdf_download_url)}" class="btn-view-pdf" target="_blank" rel="noopener" title="View PDF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/></svg> View PDF</a>`;
             }
             return '';
         }
