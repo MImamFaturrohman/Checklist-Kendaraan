@@ -482,6 +482,162 @@
 </style>
 @endpush
 
+
+@push('styles')
+<style>
+/* ── Photo Source Picker Sheet ── */
+#photo-source-picker-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0,0,0,0.52);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+#photo-source-picker-overlay.active {
+    display: flex;
+    animation: pspOverlayIn 0.18s ease forwards;
+}
+@keyframes pspOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.photo-source-sheet {
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 22px 22px 0 0;
+    padding: 14px 20px;
+    padding-bottom: max(28px, env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 40px rgba(11,44,107,0.18);
+    transform: translateY(100%);
+    transition: transform 0s;
+}
+.photo-source-sheet.slide-up {
+    transform: translateY(0);
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+}
+html.dark .dash-body .photo-source-sheet {
+    background: #0f172a;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+}
+.photo-source-handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 99px;
+    background: #cbd5e1;
+    margin: 0 auto 16px;
+}
+html.dark .dash-body .photo-source-handle { background: rgba(148,163,184,0.4); }
+.photo-source-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #0f172a;
+    margin: 0 0 16px;
+    letter-spacing: -0.01em;
+}
+html.dark .dash-body .photo-source-title { color: #f1f5f9; }
+.photo-source-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.photo-source-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 18px 12px 16px;
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+    -webkit-tap-highlight-color: transparent;
+}
+.photo-source-btn:hover,
+.photo-source-btn:focus-visible {
+    border-color: #2563eb;
+    background: #eff6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(37,99,235,0.15);
+}
+.photo-source-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+html.dark .dash-body .photo-source-btn {
+    background: rgba(15,38,85,0.6);
+    border-color: rgba(71,85,105,0.45);
+}
+html.dark .dash-body .photo-source-btn:hover {
+    border-color: #D4AF37;
+    background: rgba(212,175,55,0.1);
+    box-shadow: 0 4px 16px rgba(212,175,55,0.15);
+}
+.photo-source-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b2c6b 0%, #2563eb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(11,44,107,0.25);
+}
+.photo-source-btn:nth-child(2) .photo-source-icon {
+    background: linear-gradient(135deg, #0f766e 0%, #10b981 100%);
+    box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+}
+.photo-source-label {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #0f172a;
+    text-align: center;
+}
+html.dark .dash-body .photo-source-label { color: #f1f5f9; }
+.photo-source-sub {
+    font-size: 0.72rem;
+    color: #64748b;
+    text-align: center;
+    line-height: 1.35;
+}
+html.dark .dash-body .photo-source-sub { color: #94a3b8; }
+.photo-source-cancel {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    background: transparent;
+    color: #475569;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.photo-source-cancel:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+html.dark .dash-body .photo-source-cancel {
+    border-color: rgba(71,85,105,0.45);
+    color: #94a3b8;
+}
+html.dark .dash-body .photo-source-cancel:hover {
+    background: rgba(30,41,59,0.6);
+}
+</style>
+@endpush
+
 @section('content')
 <div class="checklist-shell" data-bbm-form>
     <main class="checklist-content">
@@ -646,6 +802,38 @@
                 Kirim Laporan BBM
             </button>
         </div>
+    </div>
+</div>
+
+{{-- ── Photo Source Picker Bottom Sheet ── --}}
+<div id="photo-source-picker-overlay" role="dialog" aria-modal="true" aria-label="Pilih Sumber Foto">
+    <div class="photo-source-sheet">
+        <div class="photo-source-handle" aria-hidden="true"></div>
+        <p class="photo-source-title">Pilih Sumber Foto</p>
+        <div class="photo-source-options">
+            <button type="button" class="photo-source-btn" id="psp-camera-btn">
+                <span class="photo-source-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </span>
+                <span class="photo-source-label">Kamera</span>
+                <span class="photo-source-sub">Ambil foto baru</span>
+            </button>
+            <button type="button" class="photo-source-btn" id="psp-gallery-btn">
+                <span class="photo-source-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2"/>
+                        <polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="photo-source-label">Galeri</span>
+                <span class="photo-source-sub">Pilih dari galeri</span>
+            </button>
+        </div>
+        <button type="button" class="photo-source-cancel" id="psp-cancel-btn">Batal</button>
     </div>
 </div>
 @endsection

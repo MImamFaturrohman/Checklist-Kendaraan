@@ -1213,13 +1213,38 @@ document.addEventListener('turbo:load', async () => {
         });
     }
 
+    /* ── Photo Source Picker (bottom sheet untuk perangkat mobile/touch) ── */
+    const _clPspIsTouchDevice = () => ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    let _clPspCurrentInput = null;
+
+    const _clPspOpen = (input) => {
+        _clPspCurrentInput = input;
+        const overlay = document.getElementById('photo-source-picker-overlay');
+        if (!overlay) return;
+        overlay.classList.add('active');
+        void overlay.offsetWidth;
+        overlay.querySelector('.photo-source-sheet')?.classList.add('slide-up');
+    };
+
+    const _clPspClose = () => {
+        const overlay = document.getElementById('photo-source-picker-overlay');
+        if (!overlay) return;
+        overlay.querySelector('.photo-source-sheet')?.classList.remove('slide-up');
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            _clPspCurrentInput = null;
+        }, 300);
+    };
+
     const initPhotoSlot = slot => {
         const input = slot.querySelector('[data-photo-single]');
         const preview = slot.querySelector('.photo-slot-preview');
         const placeholder = slot.querySelector('.photo-slot-placeholder');
         const removeBtn = slot.querySelector('.photo-slot-remove');
         if (!input || !preview) return;
-        input.setAttribute('capture', 'environment'); input.setAttribute('accept', 'image/*');
+        // NOTE: capture attribute is NOT set here by default.
+        // Bottom sheet handles camera vs gallery choice on mobile.
+        input.setAttribute('accept', 'image/*');
         input.addEventListener('change', async () => {
             if (!input.files?.[0]) return;
             const compressed = await compressImage(input.files[0]);
@@ -1239,8 +1264,35 @@ document.addEventListener('turbo:load', async () => {
             if (placeholder) placeholder.style.display = 'flex';
             removeBtn.style.display = 'none'; slot.classList.remove('has-file');
         });
+        // Mobile touch interceptor — show bottom sheet instead of OS picker directly
+        input.addEventListener('click', (e) => {
+            if (!_clPspIsTouchDevice()) return;
+            if (!e.isTrusted) return; // Skip synthetic clicks (dari inp.click() di button handler)
+            e.preventDefault();
+            _clPspOpen(input);
+        });
     };
     wizardRoot.querySelectorAll('[data-photo-preview-slot]').forEach(initPhotoSlot);
+
+    // Bottom sheet button handlers: Kamera, Galeri, Batal
+    document.getElementById('psp-camera-btn')?.addEventListener('click', () => {
+        const inp = _clPspCurrentInput;
+        if (!inp) return;
+        inp.setAttribute('capture', 'environment');
+        inp.click(); // Dipanggil dari user-gesture handler → diizinkan browser
+        _clPspClose();
+    });
+    document.getElementById('psp-gallery-btn')?.addEventListener('click', () => {
+        const inp = _clPspCurrentInput;
+        if (!inp) return;
+        inp.removeAttribute('capture');
+        inp.click();
+        _clPspClose();
+    });
+    document.getElementById('psp-cancel-btn')?.addEventListener('click', _clPspClose);
+    document.getElementById('photo-source-picker-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'photo-source-picker-overlay') _clPspClose();
+    });
 
     wizardRoot.querySelectorAll('[data-dynamic-photos]').forEach(container => {
         const grid = container.querySelector('.dynamic-photo-grid');
@@ -1255,7 +1307,7 @@ document.addEventListener('turbo:load', async () => {
             const label = document.createElement('label');
             label.className = 'checklist-photo-slot slot-animate-in';
             label.setAttribute('data-photo-preview-slot', '');
-            label.innerHTML = `<input type="file" name="${section}_foto_${slotCount}" accept="image/*" capture="environment" data-photo-single><div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO ${slotCount}</strong></div><img class="photo-slot-preview" alt="Preview" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>`;
+            label.innerHTML = `<input type="file" name="${section}_foto_${slotCount}" accept="image/*" data-photo-single><div class="photo-slot-placeholder"><span class="checklist-photo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.4" stroke="currentColor" stroke-width="1.6"/><path d="M20 15L15.3 10.5L8 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>FOTO ${slotCount}</strong></div><img class="photo-slot-preview" alt="Preview" style="display:none"><button type="button" class="photo-slot-remove" style="display:none" aria-label="Hapus foto">×</button>`;
             grid.insertBefore(label, addBtn);
             initPhotoSlot(label);
             if (slotCount >= maxSlots) addBtn.style.display = 'none';

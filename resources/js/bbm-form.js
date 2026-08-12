@@ -99,7 +99,8 @@ function initBbmForm() {
         const placeholder = slot.querySelector('.photo-slot-placeholder');
         const removeBtn = slot.querySelector('.photo-slot-remove');
         if (!input || !preview) return;
-        input.setAttribute('capture', 'environment');
+        // NOTE: capture attribute is NOT set here by default.
+        // On mobile, the bottom sheet picker handles camera vs gallery choice.
         input.setAttribute('accept', 'image/*');
 
         input.addEventListener('change', async () => {
@@ -140,6 +141,71 @@ function initBbmForm() {
         }
     };
     root.querySelectorAll('[data-photo-preview-slot]').forEach(initPhotoSlot);
+
+    /* ── Photo Source Picker (bottom sheet untuk perangkat mobile/touch) ── */
+    const isTouchDevice = () => ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    let _pspCurrentInput = null;
+
+    const _openPhotoPicker = (input) => {
+        _pspCurrentInput = input;
+        const overlay = document.getElementById('photo-source-picker-overlay');
+        if (!overlay) return;
+        overlay.classList.add('active');
+        // Force reflow agar CSS transition sheet berjalan
+        void overlay.offsetWidth;
+        overlay.querySelector('.photo-source-sheet')?.classList.add('slide-up');
+    };
+
+    const _closePhotoPicker = () => {
+        const overlay = document.getElementById('photo-source-picker-overlay');
+        if (!overlay) return;
+        const sheet = overlay.querySelector('.photo-source-sheet');
+        sheet?.classList.remove('slide-up');
+        // Tunggu animasi slide-down selesai (~300ms) lalu sembunyikan overlay
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            _pspCurrentInput = null;
+        }, 300);
+    };
+
+    // Intercept klik pada setiap input foto di perangkat touch
+    root.querySelectorAll('[data-photo-preview-slot]').forEach(slot => {
+        const input = slot.querySelector('[data-photo-single]');
+        if (!input) return;
+        input.addEventListener('click', (e) => {
+            // Hanya aktif di perangkat touch
+            if (!isTouchDevice()) return;
+            // Skip klik sintetis (dari inp.click() di button handler) — isTrusted = false
+            if (!e.isTrusted) return;
+            // Cegah OS langsung membuka kamera/galeri
+            e.preventDefault();
+            _openPhotoPicker(input);
+        });
+    });
+
+    // Tombol Kamera — set capture lalu trigger input
+    document.getElementById('psp-camera-btn')?.addEventListener('click', () => {
+        const inp = _pspCurrentInput;
+        if (!inp) return;
+        inp.setAttribute('capture', 'environment');
+        inp.click(); // Dipanggil dari user-gesture handler → diizinkan browser
+        _closePhotoPicker();
+    });
+
+    // Tombol Galeri — hapus capture lalu trigger input
+    document.getElementById('psp-gallery-btn')?.addEventListener('click', () => {
+        const inp = _pspCurrentInput;
+        if (!inp) return;
+        inp.removeAttribute('capture');
+        inp.click();
+        _closePhotoPicker();
+    });
+
+    // Tombol Batal & klik backdrop
+    document.getElementById('psp-cancel-btn')?.addEventListener('click', _closePhotoPicker);
+    document.getElementById('photo-source-picker-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'photo-source-picker-overlay') _closePhotoPicker();
+    });
 
     /* ── Jenis kendaraan auto-fill ── */
     const nomorSel = document.getElementById('bbm-nopol');
