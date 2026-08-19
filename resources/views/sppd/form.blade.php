@@ -244,6 +244,12 @@
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
         border-color: rgba(255, 255, 255, 0.1) !important;
     }
+
+    @media (min-width: 640px) {
+        .sppd-row.sppd-parking-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+    }
 </style>
 @endpush
 
@@ -276,7 +282,7 @@
             <div class="sppd-review" id="sppd-review-root" aria-live="polite"></div>
             <div class="sppd-summary-grid sppd-summary-grid--step4" style="margin-top: 18px;">
                 <div><span class="sppd-sum-label">Total Tol</span><strong id="sppd-sum-tol">Rp 0</strong></div>
-                <div><span class="sppd-sum-label">Total BBM</span><strong id="sppd-sum-bbm">Rp 0</strong></div>
+                <div><span class="sppd-sum-label">Total Parkir</span><strong id="sppd-sum-bbm">Rp 0</strong></div>
                 <div class="sppd-sum-grand"><span class="sppd-sum-label">Grand Total</span><strong id="sppd-sum-grand">Rp 0</strong></div>
             </div>
         </div>
@@ -396,28 +402,35 @@
                     </div>
                     <button type="button" class="sppd-add-row" id="sppd-add-toll-kembali">+ Tambah tol kembali</button>
                 </div>
-                <div id="sppd-fuels-wrap" class="sppd-dynamic-wrap">
-                    @php
-                        $fuels = old('fuels', $sppd?->fuels?->map(fn($f) => ['liter' => $f->liter, 'harga_per_liter' => $f->harga_per_liter])->toArray() ?? [['liter' => '', 'harga_per_liter' => '']]);
-                        if (empty($fuels)) $fuels = [['liter' => '', 'harga_per_liter' => '']];
-                    @endphp
-                    @foreach($fuels as $fi => $fr)
-                    <div class="sppd-fuel-line" data-fuel-line>
-                    <div class="sppd-fuel-block" data-fuel-row>
-                        <h3 class="sppd-toll-leg-title">BBM</h3>
-                        <div class="sppd-row">
-                            <label class="checklist-field"><span>Liter</span><div class="checklist-control-wrap"><input type="number" name="fuels[{{ $fi }}][liter]" class="sppd-fuel-liter" min="0" step="0.01" @if($fi === 0) required @endif value="{{ $fr['liter'] ?? '' }}"></div></label>
-                            <label class="checklist-field"><span>Harga / Liter</span><div class="checklist-control-wrap"><input type="number" name="fuels[{{ $fi }}][harga_per_liter]" class="sppd-fuel-hpl" min="0" step="1" @if($fi === 0) required @endif value="{{ $fr['harga_per_liter'] ?? '' }}"></div></label>
-                            <label class="checklist-field"><span>Total</span><div class="checklist-control-wrap"><input type="text" class="sppd-fuel-total-display" readonly value="0"></div></label>
+                <div class="sppd-toll-leg-block">
+                    <h3 class="sppd-toll-leg-title">Biaya Parkir</h3>
+                    <div id="sppd-parkings-wrap" class="sppd-dynamic-wrap">
+                        @php
+                            $parkings = old('parkings', $sppd?->parkings?->map(fn($f) => ['lokasi' => $f->lokasi, 'biaya_parkir' => $f->biaya_parkir])->toArray() ?? [['lokasi' => '', 'biaya_parkir' => '']]);
+                            if (empty($parkings)) $parkings = [['lokasi' => '', 'biaya_parkir' => '']];
+                        @endphp
+                        @foreach($parkings as $fi => $fr)
+                        <div class="sppd-fuel-line" data-fuel-line>
+                            <div class="sppd-fuel-block" data-parking-row>
+                                <div class="sppd-row sppd-toll-inputs sppd-parking-row">
+                                    <label class="checklist-field"><div class="checklist-control-wrap"><input type="text" name="parkings[{{ $fi }}][lokasi]" class="sppd-parking-lokasi" @if($fi === 0) required @endif value="{{ $fr['lokasi'] ?? '' }}" placeholder="Lokasi"></div></label>
+                                    <label class="checklist-field"><div class="checklist-control-wrap"><input type="number" name="parkings[{{ $fi }}][biaya_parkir]" class="sppd-parking-biaya" min="0" step="1" @if($fi === 0) required @endif value="{{ $fr['biaya_parkir'] ?? '' }}" placeholder="Biaya Parkir"></div></label>
+                                </div>
+                            </div>
+                            @if($fi > 0)
+                                <button type="button" class="sppd-line-remove sppd-line-remove--fuel" data-remove-fuel title="Hapus baris parkir" aria-label="Hapus baris parkir"><i class="bi bi-dash-lg"></i></button>
+                            @endif
                         </div>
+                        @endforeach
                     </div>
-                    @if($fi > 0)
-                        <button type="button" class="sppd-line-remove sppd-line-remove--fuel" data-remove-fuel title="Hapus baris BBM" aria-label="Hapus baris BBM"><i class="bi bi-dash-lg"></i></button>
-                    @endif
-                    </div>
-                    @endforeach
+                    <button type="button" class="sppd-add-row" id="sppd-add-parking">+ Tambah baris parkir</button>
                 </div>
-                <button type="button" class="sppd-add-row" id="sppd-add-fuel">+ Tambah baris BBM</button>
+                <div class="sppd-row" style="margin-top: 10px; border-bottom: none;">
+                    <label class="checklist-field" style="grid-column: 1 / -1; max-width: none;">
+                        <span>Total Parkir</span>
+                        <div class="checklist-control-wrap"><input type="text" id="sppd-total-parkir-display" class="sppd-fuel-total-display" readonly value="Rp 0"></div>
+                    </label>
+                </div>
                 <footer class="checklist-footer sppd-checklist-footer" style="margin-top: 20px;">
                     <div class="sppd-footer-right">
                         <div class="sppd-footer-actions">

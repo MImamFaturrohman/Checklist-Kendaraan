@@ -49,7 +49,7 @@ class ManagerSppdController extends Controller
 
         $pendingQuery = Sppd::query()
             ->where('status', Sppd::STATUS_PENDING_MANAGER)
-            ->with(['user:id,name,username', 'tolls', 'fuels']);
+            ->with(['user:id,name,username', 'tolls', 'parkings']);
         TableSort::apply($pendingQuery, $request, self::PENDING_SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'), 'pending');
 
         $historyQuery = Sppd::query()
@@ -84,7 +84,7 @@ class ManagerSppdController extends Controller
     {
         abort_unless(auth()->user()?->role === 'manager', 403);
 
-        $sppd->load(['user:id,name,username', 'tolls', 'fuels', 'approver:id,name', 'adminVerifier:id,name', 'rejector:id,name']);
+        $sppd->load(['user:id,name,username', 'tolls', 'parkings', 'approver:id,name', 'adminVerifier:id,name', 'rejector:id,name']);
 
         return response()->json([
             'sppd' => $sppd->toDetailArray(),
@@ -119,7 +119,7 @@ class ManagerSppdController extends Controller
                     'rejected_at' => null,
                     'rejected_by' => null,
                 ]);
-                $sppd->refresh()->load(['tolls', 'fuels', 'user', 'approver', 'adminVerifier']);
+                $sppd->refresh()->load(['tolls', 'parkings', 'user', 'approver', 'adminVerifier']);
                 $pdfPath = $this->buildAndStorePdf($sppd);
                 if (! $pdfPath) {
                     throw new \RuntimeException(self::PDF_GENERATION_FAILED);
@@ -169,7 +169,7 @@ class ManagerSppdController extends Controller
         );
         abort_if($sppd->pdf_path && Storage::disk('public')->exists($sppd->pdf_path), 422);
 
-        $sppd->load(['tolls', 'fuels', 'user', 'approver', 'adminVerifier']);
+        $sppd->load(['tolls', 'parkings', 'user', 'approver', 'adminVerifier']);
         $pdfPath = $this->buildAndStorePdf($sppd);
         if (! $pdfPath) {
             return response()->json([
@@ -213,7 +213,7 @@ class ManagerSppdController extends Controller
     private function buildAndStorePdf(Sppd $sppd): ?string
     {
         try {
-            $sppd->load(['tolls', 'fuels', 'user', 'approver', 'adminVerifier']);
+            $sppd->load(['tolls', 'parkings', 'user', 'approver', 'adminVerifier']);
             $pdf = Pdf::loadView('sppd.pdf', ['sppd' => $sppd]);
             $fileName = 'sppd_'.$sppd->id.'_'.now()->format('Ymd_His').'.pdf';
             $path = 'sppd/pdf/'.$fileName;

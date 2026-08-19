@@ -88,9 +88,9 @@ class Sppd extends Model
             ->orderBy('sort_order');
     }
 
-    public function fuels(): HasMany
+    public function parkings(): HasMany
     {
-        return $this->hasMany(SppdFuel::class)->orderBy('sort_order');
+        return $this->hasMany(SppdParking::class)->orderBy('sort_order');
     }
 
     public function isOwnedBy(?int $userId): bool
@@ -153,10 +153,9 @@ class Sppd extends Model
                 'ke_tol' => $t->ke_tol,
                 'harga' => (string) $t->harga,
             ]),
-            'fuels' => $this->fuels->map(fn ($f) => [
-                'liter' => (string) $f->liter,
-                'harga_per_liter' => (string) $f->harga_per_liter,
-                'total' => (string) $f->total,
+            'parkings' => $this->parkings->map(fn ($f) => [
+                'lokasi' => $f->lokasi,
+                'biaya_parkir' => (string) $f->biaya_parkir,
             ]),
         ];
     }

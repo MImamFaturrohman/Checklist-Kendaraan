@@ -53,7 +53,7 @@ class SppdAdminController extends Controller
         $status = $request->input('status');
         $search = $request->input('q');
 
-        $query = Sppd::query()->with(['user:id,name,username', 'tolls', 'fuels']);
+        $query = Sppd::query()->with(['user:id,name,username', 'tolls', 'parkings']);
 
         TableSort::apply($query, $request, self::SORT_ALLOWED, function ($q) {
             $q->orderByDesc('created_at');
@@ -111,7 +111,7 @@ class SppdAdminController extends Controller
     {
         $this->authorizeAdmin();
 
-        $sppd->load(['user:id,name,username', 'tolls', 'fuels', 'approver:id,name', 'adminVerifier:id,name']);
+        $sppd->load(['user:id,name,username', 'tolls', 'parkings', 'approver:id,name', 'adminVerifier:id,name']);
 
         return response()->json([
             'sppd' => $sppd->toDetailArray(),

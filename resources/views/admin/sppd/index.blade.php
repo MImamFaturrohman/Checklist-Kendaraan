@@ -665,8 +665,8 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
             function renderDetail(d) {
                 let tollRows = (d.tolls || []).map(t => `<tr><td>${esc(t.leg_label || '—')}</td><td>${esc(t.dari_tol)}</td><td>${esc(t.ke_tol)}</td><td>${formatRp(t.harga)}</td></tr>`).join('');
                 if (!tollRows) tollRows = '<tr><td colspan="4" class="portal-empty" style="padding:8px">—</td></tr>';
-                let fuelRows = (d.fuels || []).map(f => `<tr><td>${esc(f.liter)}</td><td>${formatRp(f.harga_per_liter)}</td><td>${formatRp(f.total)}</td></tr>`).join('');
-                if (!fuelRows) fuelRows = '<tr><td colspan="3" class="portal-empty" style="padding:8px">—</td></tr>';
+                let fuelRows = (d.parkings || []).map(f => `<tr><td>${esc(f.lokasi)}</td><td>${formatRp(f.biaya_parkir)}</td></tr>`).join('');
+                if (!fuelRows) fuelRows = '<tr><td colspan="2" class="portal-empty" style="padding:8px">—</td></tr>';
                 return `
                     <table class="info-table sppd-mini-table">
                         <tr><td class="label">Driver</td><td>${esc(d.nama_driver)} (${esc(d.driver_username || '-')})</td></tr>
@@ -678,9 +678,9 @@ html.dark .sppd-row-checkbox:checked::after, html.dark #sppd-select-all:checked:
                     </table>
                     <p class="sppd-detail-sub">Biaya Tol</p>
                     <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Arah</th><th>Dari</th><th>Ke</th><th>Harga</th></tr></thead><tbody>${tollRows}</tbody></table></div>
-                    <p class="sppd-detail-sub">BBM</p>
-                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Liter</th><th>Harga/L</th><th>Total</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
-                    <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total BBM:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
+                    <p class="sppd-detail-sub">Biaya Parkir</p>
+                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Lokasi</th><th>Biaya Parkir</th></tr></thead><tbody>${fuelRows}</tbody></table></div>
+                    <p><strong>Total Tol:</strong> ${formatRp(d.total_tol)} &nbsp;|&nbsp; <strong>Total Parkir:</strong> ${formatRp(d.total_bbm)} &nbsp;|&nbsp; <strong>Grand Total:</strong> ${formatRp(d.grand_total)}</p>
                     ${d.revision_note ? `<p class="sppd-detail-sub">Catatan revisi</p><div class="sppd-revisi-inline">${esc(d.revision_note)}</div>` : ''}
                     ${d.rejection_note ? `<p class="sppd-detail-sub">Alasan penolakan</p><div class="sppd-revisi-inline">${esc(d.rejection_note)}</div>` : ''}
                 `;

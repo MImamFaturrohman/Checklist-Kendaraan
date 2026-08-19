@@ -8,10 +8,10 @@ function initSppdForm() {
     const jenis = document.getElementById('sppd-jenis');
     const tollsBerWrap = document.getElementById('sppd-tolls-berangkat-wrap');
     const tollsKemWrap = document.getElementById('sppd-tolls-kembali-wrap');
-    const fuelsWrap = document.getElementById('sppd-fuels-wrap');
+    const parkingsWrap = document.getElementById('sppd-parkings-wrap');
     const addTollBer = document.getElementById('sppd-add-toll-berangkat');
     const addTollKem = document.getElementById('sppd-add-toll-kembali');
-    const addFuel = document.getElementById('sppd-add-fuel');
+    const addParking = document.getElementById('sppd-add-parking');
     const sumTol = document.getElementById('sppd-sum-tol');
     const sumBbm = document.getElementById('sppd-sum-bbm');
     const sumGrand = document.getElementById('sppd-sum-grand');
@@ -36,7 +36,7 @@ function initSppdForm() {
 
     let tollBerIdx = tollsBerWrap.querySelectorAll('[data-toll-row]').length;
     let tollKemIdx = tollsKemWrap.querySelectorAll('[data-toll-row]').length;
-    let fuelIdx = fuelsWrap.querySelectorAll('[data-fuel-row]').length;
+    let parkingIdx = parkingsWrap.querySelectorAll('[data-parking-row]').length;
 
     if (nopol && jenis) {
         const syncJenis = () => {
@@ -48,35 +48,35 @@ function initSppdForm() {
         // Gunakan requestAnimationFrame + setTimeout sebagai fallback untuk memastikan
         // browser sudah selesai merender selectedIndex yang benar sebelum kita baca,
         // terutama saat halaman di-restore dari Turbo cache atau saat mode edit.
-        requestAnimationFrame(() => {
+        const triggerSync = () => {
             syncJenis();
-            // Fallback ekstra jika rAF belum cukup (misalnya browser lambat render select)
             if (!jenis.value) {
                 setTimeout(syncJenis, 0);
             }
-        });
+        };
+        nopol.addEventListener('change', syncJenis);
+        requestAnimationFrame(triggerSync);
     }
 
-    const formatRp = (n) => {
-        const x = Number(n) || 0;
-        return 'Rp ' + x.toLocaleString('id-ID');
+    const formatRp = (val) => 'Rp ' + (Number(val) || 0).toLocaleString('id-ID');
+
+    const escapeHtml = (str) => {
+        const div = document.createElement('div');
+        div.textContent = str ?? '';
+        return div.innerHTML;
     };
 
-    const escapeHtml = (s) => {
-        const d = document.createElement('div');
-        d.textContent = s ?? '';
-        return d.innerHTML;
-    };
-
-    const formatTanggalId = (ymd) => {
-        if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(String(ymd))) {
-            return ymd ? escapeHtml(String(ymd)) : '—';
+    const formatIndoDate = (val) => {
+        if (!val || !/^\d{4}-\d{2}-\d{2}$/.test(String(val))) {
+            return val ? escapeHtml(String(val)) : '—';
         }
-        const [y, m, d] = String(ymd).split('-').map(Number);
-        const dt = new Date(y, m - 1, d);
-        if (Number.isNaN(dt.getTime())) return escapeHtml(String(ymd));
+        const [year, month, day] = String(val).split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(String(val));
+        }
         return escapeHtml(
-            dt.toLocaleDateString('id-ID', {
+            date.toLocaleDateString('id-ID', {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',
@@ -95,17 +95,15 @@ function initSppdForm() {
             })
             .filter((t) => t.dari || t.ke || t.harga > 0);
 
-    const collectFuels = () =>
-        Array.from(fuelsWrap.querySelectorAll('[data-fuel-row]'))
+    const collectParkings = () =>
+        Array.from(parkingsWrap.querySelectorAll('[data-parking-row]'))
             .map((row) => {
-                const lStr = row.querySelector('.sppd-fuel-liter')?.value?.trim() ?? '';
-                const hStr = row.querySelector('.sppd-fuel-hpl')?.value?.trim() ?? '';
-                const liter = Number(lStr) || 0;
-                const hpl = Number(hStr) || 0;
-                const sub = Math.round(liter * hpl * 100) / 100;
-                return { lStr, hStr, liter, hpl, sub };
+                const lokasi = row.querySelector('.sppd-parking-lokasi')?.value?.trim() ?? '';
+                const hStr = row.querySelector('.sppd-parking-biaya')?.value?.trim() ?? '';
+                const biaya = Number(hStr) || 0;
+                return { lokasi, hStr, biaya };
             })
-            .filter((f) => f.lStr !== '' || f.hStr !== '');
+            .filter((f) => f.lokasi !== '' || f.hStr !== '');
 
     const renderStep4Summary = () => {
         if (!step4Summary) return;
@@ -138,14 +136,15 @@ function initSppdForm() {
                       )
                       .join('');
 
-        const fuels = collectFuels();
-        const fuelRows =
-            fuels.length === 0
-                ? `<tr><td colspan="4" class="sppd-summary-table-empty">—</td></tr>`
-                : fuels
+        const parkings = collectParkings();
+        const totalParkir = parkings.reduce((sum, f) => sum + f.biaya, 0);
+        const parkingRowsSummary =
+            parkings.length === 0
+                ? `<tr><td colspan="3" class="sppd-summary-table-empty">—</td></tr>`
+                : parkings
                       .map(
                           (f, i) =>
-                              `<tr><td>${i + 1}</td><td class="sppd-summary-num">${escapeHtml(f.lStr) || '—'}</td><td class="sppd-summary-num">${formatRp(f.hpl)}</td><td class="sppd-summary-num">${formatRp(f.sub)}</td></tr>`
+                              `<tr><td>${i + 1}</td><td>${escapeHtml(f.lokasi) || '—'}</td><td class="sppd-summary-num">${formatRp(f.biaya)}</td></tr>`
                       )
                       .join('');
 
@@ -156,39 +155,77 @@ function initSppdForm() {
 
         step4Summary.innerHTML = `
             <div class="sppd-summary-card">
-                <h3 class="sppd-summary-card-title">Data perjalanan</h3>
-                <dl class="sppd-summary-dl">
-                    <div><dt>Nama driver</dt><dd>${escapeHtml(nama)}</dd></div>
-                    <div><dt>Tanggal dinas</dt><dd>${formatTanggalId(tgRaw)}</dd></div>
-                    <div class="sppd-summary-dl-span2"><dt>Keperluan dinas</dt><dd>${escapeHtml(keperluan)}</dd></div>
-                    <div><dt>Nomor kendaraan</dt><dd>${escapeHtml(np)}</dd></div>
-                    <div><dt>Jenis kendaraan</dt><dd>${escapeHtml(jn)}</dd></div>
-                    <div class="sppd-summary-dl-span2"><dt>Tujuan</dt><dd class="sppd-summary-multiline">${tujuanHtml}</dd></div>
-                </dl>
-            </div>
-            <div class="sppd-summary-card">
-                <h3 class="sppd-summary-card-title">Biaya tol</h3>
-                <p class="sppd-summary-subhead">Berangkat</p>
-                <div class="sppd-summary-table-wrap">
+                <div class="sppd-summary-header">
+                    <span class="sppd-summary-badge sppd-badge-info">Preview Data</span>
+                </div>
+                <div class="sppd-summary-grid">
+                    <div class="sppd-summary-item">
+                        <span class="sppd-summary-label">Driver</span>
+                        <span class="sppd-summary-value">${escapeHtml(nama)}</span>
+                    </div>
+                    <div class="sppd-summary-item">
+                        <span class="sppd-summary-label">Tanggal Dinas</span>
+                        <span class="sppd-summary-value">${formatIndoDate(tgRaw)}</span>
+                    </div>
+                    <div class="sppd-summary-item sppd-summary-item-full">
+                        <span class="sppd-summary-label">Keperluan Dinas</span>
+                        <span class="sppd-summary-value">${escapeHtml(keperluan)}</span>
+                    </div>
+                    <div class="sppd-summary-item">
+                        <span class="sppd-summary-label">No. Kendaraan</span>
+                        <span class="sppd-summary-value">${escapeHtml(np)}</span>
+                    </div>
+                    <div class="sppd-summary-item">
+                        <span class="sppd-summary-label">Jenis Kendaraan</span>
+                        <span class="sppd-summary-value">${escapeHtml(jn)}</span>
+                    </div>
+                    <div class="sppd-summary-item sppd-summary-item-full">
+                        <span class="sppd-summary-label">Lokasi Tujuan</span>
+                        <span class="sppd-summary-value">${tujuanHtml}</span>
+                    </div>
+                </div>
+
+                <div class="sppd-summary-section">
+                    <h4 class="sppd-summary-section-title">Rincian Tol Berangkat</h4>
                     <table class="sppd-summary-table">
-                        <thead><tr><th>#</th><th>Dari tol</th><th>Ke tol</th><th>Harga</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th>Dari Tol</th>
+                                <th>Ke Tol</th>
+                                <th style="width: 120px;" class="sppd-summary-num">Harga</th>
+                            </tr>
+                        </thead>
                         <tbody>${rowsBer}</tbody>
                     </table>
                 </div>
-                <p class="sppd-summary-subhead sppd-summary-subhead--spaced">Kembali</p>
-                <div class="sppd-summary-table-wrap">
+
+                <div class="sppd-summary-section">
+                    <h4 class="sppd-summary-section-title">Rincian Tol Kembali</h4>
                     <table class="sppd-summary-table">
-                        <thead><tr><th>#</th><th>Dari tol</th><th>Ke tol</th><th>Harga</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th>Dari Tol</th>
+                                <th>Ke Tol</th>
+                                <th style="width: 120px;" class="sppd-summary-num">Harga</th>
+                            </tr>
+                        </thead>
                         <tbody>${rowsKem}</tbody>
                     </table>
                 </div>
-            </div>
-            <div class="sppd-summary-card">
-                <h3 class="sppd-summary-card-title">BBM</h3>
-                <div class="sppd-summary-table-wrap">
+
+                <div class="sppd-summary-section">
+                    <h4 class="sppd-summary-section-title">Rincian Parkir</h4>
                     <table class="sppd-summary-table">
-                        <thead><tr><th>#</th><th>Liter</th><th>Harga / L</th><th>Subtotal</th></tr></thead>
-                        <tbody>${fuelRows}</tbody>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th>Lokasi</th>
+                                <th style="width: 150px;" class="sppd-summary-num">Biaya Parkir</th>
+                            </tr>
+                        </thead>
+                        <tbody>${parkingRowsSummary}</tbody>
                     </table>
                 </div>
             </div>
@@ -201,14 +238,12 @@ function initSppdForm() {
             tTol += Number(inp.value) || 0;
         });
         let tBbm = 0;
-        fuelsWrap.querySelectorAll('[data-fuel-row]').forEach((row) => {
-            const l = Number(row.querySelector('.sppd-fuel-liter')?.value) || 0;
-            const h = Number(row.querySelector('.sppd-fuel-hpl')?.value) || 0;
-            const tot = Math.round(l * h * 100) / 100;
-            const disp = row.querySelector('.sppd-fuel-total-display');
-            if (disp) disp.value = formatRp(tot);
-            tBbm += tot;
+        parkingsWrap.querySelectorAll('[data-parking-row]').forEach((row) => {
+            const h = Number(row.querySelector('.sppd-parking-biaya')?.value) || 0;
+            tBbm += h;
         });
+        const totalParkirDisp = document.getElementById('sppd-total-parkir-display');
+        if (totalParkirDisp) totalParkirDisp.value = formatRp(tBbm);
         sumTol.textContent = formatRp(tTol);
         sumBbm.textContent = formatRp(tBbm);
         sumGrand.textContent = formatRp(tTol + tBbm);
@@ -302,28 +337,28 @@ function initSppdForm() {
 
     const validateTolls = () => validateTollSection(tollsBerWrap, 'berangkat') && validateTollSection(tollsKemWrap, 'kembali');
 
-    const validateFuels = () => {
-        const rows = Array.from(fuelsWrap.querySelectorAll('[data-fuel-row]'));
+    const validateParkings = () => {
+        const rows = Array.from(parkingsWrap.querySelectorAll('[data-parking-row]'));
         if (rows.length === 0) {
-            showErrorModal('BBM', 'Tambahkan minimal satu baris BBM and isi baris pertama.');
+            showErrorModal('Biaya Parkir', 'Tambahkan minimal satu baris parkir dan isi baris pertama.');
             return false;
         }
         const first = rows[0];
-        const l0 = first.querySelector('.sppd-fuel-liter')?.value;
-        const hp0 = first.querySelector('.sppd-fuel-hpl')?.value;
-        if (l0 === '' || l0 == null) {
-            showErrorModal('BBM', 'Baris BBM pertama wajib diisi: Liter dan Harga per Liter.');
-            first.querySelector('.sppd-fuel-liter')?.focus();
+        const l0 = first.querySelector('.sppd-parking-lokasi')?.value;
+        const hp0 = first.querySelector('.sppd-parking-biaya')?.value;
+        if (l0 === '' || l0 == null || String(l0).trim() === '') {
+            showErrorModal('Biaya Parkir', 'Baris pertama wajib diisi: Lokasi dan Biaya Parkir.');
+            first.querySelector('.sppd-parking-lokasi')?.focus();
             return false;
         }
         if (hp0 === '' || hp0 == null) {
-            showErrorModal('BBM', 'Baris BBM pertama wajib diisi: Liter dan Harga per Liter.');
+            showErrorModal('Biaya Parkir', 'Baris pertama wajib diisi: Lokasi dan Biaya Parkir.');
             return false;
         }
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
-            const l = row.querySelector('.sppd-fuel-liter')?.value;
-            const hp = row.querySelector('.sppd-fuel-hpl')?.value;
+            const l = row.querySelector('.sppd-parking-lokasi')?.value;
+            const hp = row.querySelector('.sppd-parking-biaya')?.value;
             const lStr = l !== undefined && l !== null ? String(l).trim() : '';
             const hpStr = hp !== undefined && hp !== null ? String(hp).trim() : '';
             const hasL = lStr !== '';
@@ -332,8 +367,8 @@ function initSppdForm() {
             if (!any) continue;
             if (!hasL || !hasHp) {
                 showErrorModal(
-                    'BBM',
-                    `Baris BBM tambahan (ke-${i + 1}): lengkapi Liter dan Harga per Liter jika baris ini dipakai.`
+                    'Biaya Parkir',
+                    `Baris parkir tambahan (ke-${i + 1}): lengkapi Lokasi dan Biaya Parkir jika baris ini dipakai.`
                 );
                 return false;
             }
@@ -362,7 +397,7 @@ function initSppdForm() {
     const validateVisibleStep = () => {
         if (!validateRequiredFields(form)) return false;
         if (!validateTolls()) return false;
-        return validateFuels();
+        return validateParkings();
     };
 
     /* ── Modal Preview SPPD ── */
@@ -405,8 +440,12 @@ function initSppdForm() {
     });
 
     root.addEventListener('input', (e) => {
-        if (e.target.matches('.sppd-toll-harga, .sppd-fuel-liter, .sppd-fuel-hpl')) {
+        if (e.target.matches('.sppd-toll-harga, .sppd-parking-biaya')) {
             recalcTotals();
+            return;
+        }
+        if (e.target.matches('.sppd-parking-lokasi')) {
+            renderStep4Summary();
             return;
         }
         if (e.target.matches('[name="keperluan_dinas"],[name="tujuan"]')) {
@@ -430,15 +469,15 @@ function initSppdForm() {
         });
     };
 
-    const reindexFuels = () => {
-        fuelsWrap.querySelectorAll('.sppd-fuel-line').forEach((line, i) => {
+    const reindexParkings = () => {
+        parkingsWrap.querySelectorAll('.sppd-fuel-line').forEach((line, i) => {
             line.querySelectorAll('input[name]').forEach((inp) => {
-                if (inp.name && inp.name.startsWith('fuels[')) {
-                    inp.name = inp.name.replace(/fuels\[\d+]/, `fuels[${i}]`);
+                if (inp.name && inp.name.startsWith('parkings[')) {
+                    inp.name = inp.name.replace(/parkings\[\d+]/, `parkings[${i}]`);
                 }
             });
         });
-        fuelIdx = fuelsWrap.querySelectorAll('.sppd-fuel-line').length;
+        parkingIdx = parkingsWrap.querySelectorAll('.sppd-fuel-line').length;
     };
 
     const bindTollRemove = (wrap, baseName) => {
@@ -454,12 +493,12 @@ function initSppdForm() {
     bindTollRemove(tollsBerWrap, 'tolls_berangkat');
     bindTollRemove(tollsKemWrap, 'tolls_kembali');
 
-    fuelsWrap.addEventListener('click', (e) => {
+    parkingsWrap.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-remove-fuel]');
         if (!btn) return;
-        if (fuelsWrap.querySelectorAll('.sppd-fuel-line').length <= 1) return;
+        if (parkingsWrap.querySelectorAll('.sppd-fuel-line').length <= 1) return;
         btn.closest('.sppd-fuel-line')?.remove();
-        reindexFuels();
+        reindexParkings();
         recalcTotals();
     });
 
@@ -495,21 +534,20 @@ function initSppdForm() {
         tollKemIdx += 1;
     });
 
-    addFuel?.addEventListener('click', () => {
+    addParking?.addEventListener('click', () => {
         const line = document.createElement('div');
         line.className = 'sppd-fuel-line';
         line.innerHTML = `
-            <div class="sppd-fuel-block" data-fuel-row>
-            <div class="sppd-row">
-                <label class="checklist-field"><span>Liter</span><div class="checklist-control-wrap"><input type="number" name="fuels[${fuelIdx}][liter]" class="sppd-fuel-liter" min="0" step="0.01"></div></label>
-                <label class="checklist-field"><span>Harga / Liter</span><div class="checklist-control-wrap"><input type="number" name="fuels[${fuelIdx}][harga_per_liter]" class="sppd-fuel-hpl" min="0" step="1"></div></label>
-                <label class="checklist-field"><span>Total</span><div class="checklist-control-wrap"><input type="text" class="sppd-fuel-total-display" readonly value="0"></div></label>
+            <div class="sppd-fuel-block" data-parking-row>
+                <div class="sppd-row sppd-toll-inputs sppd-parking-row">
+                    <label class="checklist-field"><div class="checklist-control-wrap"><input type="text" name="parkings[${parkingIdx}][lokasi]" class="sppd-parking-lokasi" placeholder="Lokasi"></div></label>
+                    <label class="checklist-field"><div class="checklist-control-wrap"><input type="number" name="parkings[${parkingIdx}][biaya_parkir]" class="sppd-parking-biaya" min="0" step="1" placeholder="Biaya Parkir"></div></label>
+                </div>
             </div>
-            </div>
-            <button type="button" class="sppd-line-remove sppd-line-remove--fuel" data-remove-fuel title="Hapus baris BBM" aria-label="Hapus baris BBM"><i class="bi bi-dash-lg"></i></button>
+            <button type="button" class="sppd-line-remove sppd-line-remove--fuel" data-remove-fuel title="Hapus baris parkir" aria-label="Hapus baris parkir"><i class="bi bi-dash-lg"></i></button>
         `;
-        fuelsWrap.appendChild(line);
-        fuelIdx += 1;
+        parkingsWrap.appendChild(line);
+        parkingIdx += 1;
         recalcTotals();
     });
 
@@ -567,7 +605,7 @@ function initSppdForm() {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!validateTolls() || !validateFuels()) {
+        if (!validateTolls() || !validateParkings()) {
             return;
         }
         if (typeof Swal !== 'undefined') {

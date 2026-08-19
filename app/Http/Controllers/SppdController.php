@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kendaraan;
 use App\Models\Sppd;
-use App\Models\SppdFuel;
+use App\Models\SppdParking;
 use App\Models\SppdToll;
 use App\Support\SppdStatus;
 use App\Support\TableSort;
@@ -55,7 +55,7 @@ class SppdController extends Controller
 
         $query = Sppd::query()
             ->where('user_id', auth()->id())
-            ->with(['tolls', 'fuels']);
+            ->with(['tolls', 'parkings']);
 
         TableSort::apply($query, $request, self::SORT_ALLOWED, fn ($q) => $q->orderByDesc('created_at'));
 
@@ -94,7 +94,7 @@ class SppdController extends Controller
         abort_unless($this->isDriverRole(), 403);
         abort_unless($sppd->isOwnedBy(auth()->id()), 403);
 
-        $sppd->load(['tolls', 'fuels', 'approver:id,name', 'adminVerifier:id,name']);
+        $sppd->load(['tolls', 'parkings', 'approver:id,name', 'adminVerifier:id,name']);
 
         return response()->json(['sppd' => $sppd->toDetailArray()]);
     }
@@ -120,7 +120,7 @@ class SppdController extends Controller
         abort_unless($sppd->isOwnedBy(auth()->id()), 403);
         abort_unless($sppd->canDriverEdit(), 403);
 
-        $sppd->load(['tolls', 'fuels']);
+        $sppd->load(['tolls', 'parkings']);
         $kendaraans = Kendaraan::orderBy('nomor_kendaraan')->get();
 
         return view('sppd.form', [
@@ -194,9 +194,9 @@ class SppdController extends Controller
     /**
      * Baris BBM yang benar-benar kosong (tanpa isian & tanpa unggah) diabaikan.
      */
-    private function isFuelRowCompletelyEmpty(array $row): bool
+    private function isParkingRowCompletelyEmpty(array $row): bool
     {
-        return ! filled($row['liter'] ?? null) && ! filled($row['harga_per_liter'] ?? null);
+        return ! filled($row['lokasi'] ?? null) && ! filled($row['biaya_parkir'] ?? null);
     }
 
     private function normalizeSppdTollGroups(Request $request): void
@@ -278,19 +278,19 @@ class SppdController extends Controller
 
     private function persistSppd(Request $request, ?Sppd $existing): JsonResponse
     {
-        $fuels = $request->input('fuels', []);
-        if (is_array($fuels)) {
-            foreach ($fuels as $i => $fuel) {
-                if (! is_array($fuel)) {
+        $parkings = $request->input('parkings', []);
+        if (is_array($parkings)) {
+            foreach ($parkings as $i => $parking) {
+                if (! is_array($parking)) {
                     continue;
                 }
-                foreach (['liter', 'harga_per_liter'] as $k) {
-                    if (array_key_exists($k, $fuel) && $fuel[$k] === '') {
-                        $fuels[$i][$k] = null;
+                foreach (['lokasi', 'biaya_parkir'] as $k) {
+                    if (array_key_exists($k, $parking) && $parking[$k] === '') {
+                        $parkings[$i][$k] = null;
                     }
                 }
             }
-            $request->merge(['fuels' => $fuels]);
+            $request->merge(['parkings' => $parkings]);
         }
 
         $this->normalizeSppdTollGroups($request);
@@ -309,9 +309,9 @@ class SppdController extends Controller
             'tolls_kembali.*.dari_tol' => 'nullable|string|max:255',
             'tolls_kembali.*.ke_tol' => 'nullable|string|max:255',
             'tolls_kembali.*.harga' => 'nullable|numeric|min:0',
-            'fuels' => 'required|array|min:1',
-            'fuels.*.liter' => 'nullable|numeric|min:0',
-            'fuels.*.harga_per_liter' => 'nullable|numeric|min:0',
+            'parkings' => 'required|array|min:1',
+            'parkings.*.lokasi' => 'nullable|string|max:255',
+            'parkings.*.biaya_parkir' => 'nullable|numeric|min:0',
         ]);
 
         $user = auth()->user();
@@ -329,39 +329,39 @@ class SppdController extends Controller
         $tollsIn = $tollsBer->map(fn (array $t) => array_merge($t, ['leg' => 'berangkat']))
             ->concat($tollsKem->map(fn (array $t) => array_merge($t, ['leg' => 'kembali'])));
 
-        $nonEmptyFuels = [];
-        foreach ($validated['fuels'] as $idx => $row) {
+        $nonEmptyParkings = [];
+        foreach ($validated['parkings'] as $idx => $row) {
             if (! is_array($row)) {
                 continue;
             }
             $i = (int) $idx;
-            if ($this->isFuelRowCompletelyEmpty($row)) {
+            if ($this->isParkingRowCompletelyEmpty($row)) {
                 continue;
             }
-            $nonEmptyFuels[] = ['idx' => $i, 'row' => $row];
+            $nonEmptyParkings[] = ['idx' => $i, 'row' => $row];
         }
 
-        if (count($nonEmptyFuels) === 0) {
+        if (count($nonEmptyParkings) === 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Minimal isi satu baris BBM (Liter dan harga per liter).',
+                'message' => 'Minimal isi satu baris parkir (Lokasi dan Biaya Parkir).',
             ], 422);
         }
 
-        foreach ($nonEmptyFuels as $item) {
+        foreach ($nonEmptyParkings as $item) {
             $row = $item['row'];
-            if (! filled($row['liter'] ?? null) || ! filled($row['harga_per_liter'] ?? null)) {
+            if (! filled($row['lokasi'] ?? null) || ! filled($row['biaya_parkir'] ?? null)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Lengkapi Liter dan harga per liter pada setiap baris BBM yang diisi.',
+                    'message' => 'Lengkapi Lokasi dan Biaya Parkir pada setiap baris yang diisi.',
                 ], 422);
             }
         }
 
         $totalBbm = 0.0;
-        foreach ($nonEmptyFuels as $item) {
+        foreach ($nonEmptyParkings as $item) {
             $r = $item['row'];
-            $totalBbm += round((float) $r['liter'] * (float) $r['harga_per_liter'], 2);
+            $totalBbm += round((float) $r['biaya_parkir'], 2);
         }
 
         $totalTol = $tollsIn->sum(fn (array $t) => (float) ($t['harga'] ?? 0));
@@ -370,12 +370,12 @@ class SppdController extends Controller
         $savedSppdId = null;
 
         try {
-            DB::transaction(function () use ($request, $existing, $validated, $user, $namaDriver, $tollsIn, $nonEmptyFuels, $totalTol, $totalBbm, $grandTotal, &$savedSppdId) {
+            DB::transaction(function () use ($request, $existing, $validated, $user, $namaDriver, $tollsIn, $nonEmptyParkings, $totalTol, $totalBbm, $grandTotal, &$savedSppdId) {
                 if ($existing) {
                     $oldPdfPath = $existing->pdf_path;
 
                     $existing->tolls()->delete();
-                    $existing->fuels()->delete();
+                    $existing->parkings()->delete();
                     $sppd = $existing;
                     $sppd->update([
                         'nama_driver' => $namaDriver,
@@ -432,18 +432,17 @@ class SppdController extends Controller
 
                 $sortOrder = 0;
 
-                foreach ($nonEmptyFuels as $item) {
+                foreach ($nonEmptyParkings as $item) {
                     $fuelData = $item['row'];
-                    $liter = (float) $fuelData['liter'];
-                    $hpl = (float) $fuelData['harga_per_liter'];
-                    $rowTotal = round($liter * $hpl, 2);
+                    $lokasi   = (string) ($fuelData['lokasi'] ?? '');
+                    $biaya    = round((float) ($fuelData['biaya_parkir'] ?? 0), 2);
 
-                    SppdFuel::create([
-                        'sppd_id' => $sppd->id,
-                        'liter' => $liter,
-                        'harga_per_liter' => $hpl,
-                        'total' => $rowTotal,
-                        'sort_order' => $sortOrder++,
+                    SppdParking::create([
+                        'sppd_id'        => $sppd->id,
+                        'lokasi'          => $lokasi,
+                        'biaya_parkir'=> $biaya,
+                        'total'          => $biaya,
+                        'sort_order'     => $sortOrder++,
                     ]);
                 }
 

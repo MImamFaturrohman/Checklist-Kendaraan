@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Sppd;
-use App\Models\SppdFuel;
+use App\Models\SppdParking;
 use App\Models\SppdToll;
 use Carbon\Carbon;
 use Database\Seeders\Concerns\SeedsFourYearPortalDummy;
@@ -103,10 +103,10 @@ class SppdDummySeeder extends Seeder
 
                 $fuelSort = 0;
                 foreach ($fuels as $f) {
-                    SppdFuel::create([
+                    SppdParking::create([
                         'sppd_id' => $sppd->id,
-                        'liter' => $f['liter'],
-                        'harga_per_liter' => $f['harga_per_liter'],
+                        'lokasi' => $f['lokasi'],
+                        'biaya_parkir' => $f['biaya_parkir'],
                         'total' => $f['total'],
                         'sort_order' => $fuelSort++,
                         'created_at' => $createdAt,
@@ -121,7 +121,7 @@ class SppdDummySeeder extends Seeder
             $monthCursor->addMonth();
         }
 
-        $this->command?->info("Berhasil menyimpan {$created} SPPD dummy beserta rincian tol & BBM.");
+        $this->command?->info("Berhasil menyimpan {$created} SPPD dummy beserta rincian tol & Parkir.");
     }
 
     private function pickSppdStatus(): string
@@ -160,22 +160,22 @@ class SppdDummySeeder extends Seeder
             }
         }
 
-        $fuels = [];
-        $fuelRows = fake()->numberBetween(1, 3);
-        for ($f = 0; $f < $fuelRows; $f++) {
-            $liter = round(fake()->randomFloat(2, 15, 85), 2);
-            $hpl = round(fake()->randomFloat(2, 10500, 15800), 2);
-            $fuels[] = [
-                'liter' => $liter,
-                'harga_per_liter' => $hpl,
-                'total' => round($liter * $hpl, 2),
+        $parkings = [];
+        $parkingRows = fake()->numberBetween(1, 3);
+        $locations = ['Kantor Wilayah', 'Gedung A', 'Parkir Basement', 'Pelabuhan', 'Area Proyek', 'Hotel Grand', 'Rest Area KM 57'];
+        for ($f = 0; $f < $parkingRows; $f++) {
+            $biaya = round(fake()->randomFloat(0, 5000, 35000), 2);
+            $parkings[] = [
+                'lokasi' => fake()->randomElement($locations) . ' ' . ($f + 1),
+                'biaya_parkir' => $biaya,
+                'total' => $biaya,
             ];
         }
 
         $totalTol = array_sum(array_column($tolls, 'harga'));
-        $totalBbm = array_sum(array_column($fuels, 'total'));
+        $totalBbm = array_sum(array_column($parkings, 'total'));
 
-        return [$totalTol, $totalBbm, $totalTol + $totalBbm, $tolls, $fuels];
+        return [$totalTol, $totalBbm, $totalTol + $totalBbm, $tolls, $parkings];
     }
 
     private function applyStatusMetadata(Sppd $sppd, string $status, int $managerId, int $adminId, Carbon $createdAt): void

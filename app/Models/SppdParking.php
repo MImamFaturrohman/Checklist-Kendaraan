@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SppdFuel extends Model
+class SppdParking extends Model
 {
+    protected $table = 'sppd_parkings';
+
     protected $fillable = [
         'sppd_id',
-        'liter',
-        'harga_per_liter',
+        'lokasi',
+        'biaya_parkir',
         'total',
         'sort_order',
     ];
@@ -18,9 +20,9 @@ class SppdFuel extends Model
     protected function casts(): array
     {
         return [
-            'liter' => 'decimal:2',
-            'harga_per_liter' => 'decimal:2',
-            'total' => 'decimal:2',
+            'lokasi'       => 'string',
+            'biaya_parkir' => 'decimal:2',
+            'total'        => 'decimal:2',
         ];
     }
 

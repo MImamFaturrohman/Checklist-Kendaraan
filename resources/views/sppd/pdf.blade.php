@@ -379,12 +379,12 @@
     @endif
 
     @php
-        $fuelRows = $sppd->fuels;
-        $fuelCount = $fuelRows->count();
-        $bbmBodyRows = max(1, $fuelCount);
-        $rowspanBbm = $bbmBodyRows;
+        $parkingRows = $sppd->parkings;
+        $parkingCount = $parkingRows->count();
+        $parkingBodyRows = max(1, $parkingCount);
+        $rowspanParking = $parkingBodyRows;
     @endphp
-    <div class="section-heading">Biaya BBM</div>
+    <div class="section-heading">Biaya Parkir</div>
     <table class="merge-total-table">
         <colgroup>
             <col style="width: 35%;">
@@ -392,16 +392,16 @@
             <col style="width: 30%;">
         </colgroup>
         <tr>
-            <th class="merge-liter-col">Liter</th>
-            <th class="merge-biaya-col">Biaya</th>
-            <th class="merge-total-header-col">Total BBM</th>
+            <th class="merge-liter-col">Lokasi</th>
+            <th class="merge-biaya-col">Biaya Parkir</th>
+            <th class="merge-total-header-col">Total Parkir</th>
         </tr>
-        @forelse($fuelRows as $f)
+        @forelse($parkingRows as $f)
         <tr>
-            <td class="merge-rute-col">{{ number_format((float) $f->liter, 2, ',', '.') }}</td>
-            <td class="merge-biaya-col">Rp{{ number_format((float) $f->total, 2, ',', '.') }}</td>
+            <td class="merge-rute-col">{{ $f->lokasi }}</td>
+            <td class="merge-biaya-col">Rp{{ number_format((float) $f->biaya_parkir, 2, ',', '.') }}</td>
             @if($loop->first)
-            <td class="merge-total-col" rowspan="{{ $rowspanBbm }}">Rp{{ number_format((float) $sppd->total_bbm, 2, ',', '.') }}</td>
+            <td class="merge-total-col" rowspan="{{ $rowspanParking }}">Rp{{ number_format((float) $sppd->total_bbm, 2, ',', '.') }}</td>
             @endif
         </tr>
         @empty
